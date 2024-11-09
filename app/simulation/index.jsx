@@ -15,7 +15,7 @@ import Svg, {Path} from 'react-native-svg';
 import {DangerButton} from "../../components/DangerButton";
 import ArrowComponent from "../../components/icons/ArrowComponent";
 import React from "react";
-import {getFirestore, setDoc, doc} from "firebase/firestore";
+import {getFirestore, setDoc, doc, runTransaction} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "../../components/utils/GeneratePushID";
 
@@ -219,14 +219,33 @@ export default function Simulation() {
     // Add a new document in collection "cities"
     setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), {
       date: new Date().toISOString(),
+      timestamp: new Date().getTime(),
       difficulty: difficulty,
       holes: holes,
       mode: mode,
-      putts: trimmedPutts
+      putts: trimmedPutts,
+      type: "round-simulation"
     }).then(() => {
         // TODO add a cool little session review at the end
         router.push({ pathname: `/` });
     });
+
+    const sfDocRef = doc(db, `users/${auth.currentUser.uid}`);
+
+    runTransaction(db, async (transaction) => {
+      const sfDoc = await transaction.get(sfDocRef);
+      if (!sfDoc.exists()) {
+        throw "Document does not exist!";
+      }
+
+      const newPutts = sfDoc.data().totalPutts + holes;
+      transaction.update(sfDocRef, { totalPutts: newPutts });
+    }).then(() => {
+        console.log("Transaction successfully committed!");
+      }).catch((e) => {
+      console.log("Transaction failed: ", e);
+    });
+
   }
 
   return (
