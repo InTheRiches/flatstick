@@ -20,6 +20,8 @@ import {getAuth} from "firebase/auth";
 import generatePushID from "../../components/utils/GeneratePushID";
 
 // TODO add an extreme mode with like left right left breaks
+// TODO ADD SUPPORT FOR WHEN THE PERSON HAS THE CONFIRM SUBMIT MENU OPEN, OR THE BIG MISS MENU OPEN,
+// AND THEY GO BACK, NOT SHOW BOTH DIALOGES ON TOP OF EACH OTHER, AND TO CANCEL THE OTHER ONE BENEATH IT
 const breaks = [
   "Left to Right",
   "Right to Left",
@@ -45,6 +47,7 @@ function generateDistance(difficulty) {
 const initialState = {
   confirmLeave: false,
   confirmSubmit: false,
+  largeMiss: false,
   width: 0,
   height: 0,
   center: false,
@@ -67,7 +70,7 @@ export default function Simulation() {
   const holes = parseInt(localHoles);
 
   const [
-    {confirmLeave, confirmSubmit, width, height, center, point, hole, puttBreak, distance, missRead, putts},
+    {confirmLeave, largeMiss, confirmSubmit, width, height, center, point, hole, puttBreak, distance, missRead, putts},
     setState
   ] = useState(initialState);
 
@@ -205,6 +208,10 @@ export default function Simulation() {
     navigation.goBack();
   }
 
+  const bigMiss = (x, y) => {
+    // TODO DO STUFF
+  }
+
   const submit = () => {
     const trimmedPutts = [];
 
@@ -332,7 +339,7 @@ export default function Simulation() {
             </GestureDetector>
             <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 14}}>
               <ThemedButton title="Back" disabled={hole === 1} onPress={() => lastHole()}></ThemedButton>
-              <DangerButton title={"Miss > 5ft?"}></DangerButton>
+              <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
               {hole === holes ? <ThemedButton title="Submit" disabled={point.x === undefined} onPress={() => {if (point.x !== undefined) updateField("confirmSubmit", true)}}></ThemedButton>
                 : <ThemedButton title="Next" disabled={point.x === undefined} onPress={() => nextHole()}></ThemedButton>}
             </View>
@@ -346,6 +353,10 @@ export default function Simulation() {
       {confirmSubmit && <View className="absolute inset-0 flex items-center justify-center z-50 h-screen w-full"
                              style={{backgroundColor: colorScheme == 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"}}>
         <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)} submit={submit}></ConfirmSubmit>
+      </View>}
+      {largeMiss && <View className="absolute inset-0 flex items-center justify-center z-50 h-screen w-full"
+                             style={{backgroundColor: colorScheme == 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"}}>
+        <BigMiss bigMiss={bigMiss}></BigMiss>
       </View>}
     </ThemedView>
   );
@@ -472,6 +483,71 @@ function ConfirmSubmit({ submit, cancel }) {
       }}>
         <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].text, fontWeight: 500}}>Cancel</Text>
       </Pressable>
+    </ThemedView>
+  )
+}
+
+function BigMiss({ bigMiss }) {
+  const colorScheme = useColorScheme();
+
+  return (
+    <ThemedView style={{
+      borderColor: colorScheme == 'light' ? "white" : Colors['dark'].border,
+      borderWidth: 1,
+      width: "auto",
+      maxWidth: "70%",
+      maxHeight: "70%",
+      borderRadius: 16,
+      paddingTop: 20,
+      paddingBottom: 20,
+      paddingHorizontal: 20,
+      flexDirection: "col"
+    }}>
+      <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Miss 5ft</ThemedText>
+      <View style={{ flexDirection: "row", gap: 12 }}>
+        <View style={{ flexDirection: "column", gap: 12 }}>
+          <Pressable onPress={() => bigMiss(1, 1)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={1} verticalSlope={0}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+          <Pressable onPress={() => bigMiss(1, 0)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={1} verticalSlope={1}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+          <Pressable onPress={() => bigMiss(1, -1)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={1} verticalSlope={2}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+        </View>
+        <View style={{ flexDirection: "column", gap: 12 }}>
+          <Pressable onPress={() => bigMiss(0, 1)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={2} verticalSlope={0}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+          <Pressable onPress={() => bigMiss(0, 0)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={2} verticalSlope={1}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+          <Pressable onPress={() => bigMiss(0, -1)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={2} verticalSlope={2}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+        </View>
+        <View style={{ flexDirection: "column", gap: 12 }}>
+          <Pressable onPress={() => bigMiss(-1, 1)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={0} verticalSlope={0}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+          <Pressable onPress={() => bigMiss(-1, 0)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={0} verticalSlope={1}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+          <Pressable onPress={() => bigMiss(-1, -1)} style={{ aspectRatio: 1, padding: 15 }}>
+            <ArrowComponent horizontalBreak={0} verticalSlope={2}
+                                colorScheme={colorScheme}></ArrowComponent>
+          </Pressable>
+        </View>
+      </View>
     </ThemedView>
   )
 }
