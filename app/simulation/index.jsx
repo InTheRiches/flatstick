@@ -278,16 +278,15 @@ export default function Simulation() {
 
   return (
     <ThemedView className="flex-1 items-center flex-col overflow-hidden">
-      <ThemedView style={{borderColor: Colors[colorScheme ?? 'light'].border}}
+      <View style={{borderColor: Colors[colorScheme ?? 'light'].border}}
                   className={"flex-row mb-4 items-center justify-between w-full border-b-[1px] pb-2 px-6"}>
         <SvgLogo></SvgLogo>
         <SvgMenu></SvgMenu>
-      </ThemedView>
-      <ThemedView className={"px-6"} style={{width: "100%"}}>
-        <ThemedView className="flex-col mb-4">
+      </View>
+      <View className={"px-6"} style={{width: "100%"}}>
+        <View className="flex-col mb-4">
           <ThemedText className="mb-3" type="title">Hole {hole}</ThemedText>
           <View style={{
-            backgroundColor: Colors[colorScheme ?? "light"].backgroundSecondary,
             borderRadius: 15,
             borderWidth: 1,
             borderColor: Colors[colorScheme ?? "light"].border,
@@ -315,28 +314,28 @@ export default function Simulation() {
           </View>
           <View>
             <ThemedText type="title" style={{marginTop: 18}}>Result</ThemedText>
-            <ThemedText type="subtitle" secondary={true} style={{fontWeight: "normal"}}>Click on the grid where your
+            <ThemedText type="subtitle" secondary={true} style={{ fontWeight: "normal", fontSize: 15 }}>Click on the grid where your
               putt went.</ThemedText>
             <View style={{flexDirection: "row", marginTop: 8, marginBottom: 10}}>
               <Checkbox checked={missRead} setChecked={(e) => updateField("missRead", e)}></Checkbox>
               <ThemedText type="subtitle" style={{marginLeft: 12}}>Miss-read?</ThemedText>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
-              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#48D058">5 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#48D058">3 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#48D058">1 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#48D058">1 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#48D058">3 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#48D058">5 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#A5CA5F">5 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#A5CA5F">3 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#A5CA5F">1 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#A5CA5F">1 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#A5CA5F">3 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#3f9a59" darkColor="#A5CA5F">5 ft</ThemedText>
             </View>
             <GestureDetector gesture={singleTap}>
               <View onLayout={onLayout} style={{alignItems: "center", justifyContent: "center", width: "100%"}}>
                 <Image
-                  source={colorScheme === 'dark' ? require('../../assets/images/putting-grid.png') : require('../../assets/images/putting-grid-light.png')}
+                  source={require('../../assets/images/putting-grid.png')}
                   style={{
                     borderWidth: 1,
                     borderRadius: 12,
-                    borderColor: colorScheme == "dark" ? "#3B6948" : "transparent",
+                    borderColor: colorScheme === "dark" ? "#CEDD94" : "transparent",
                     width: "100%",
                     aspectRatio: "1",
                     height: undefined
@@ -350,10 +349,10 @@ export default function Simulation() {
                   width: width / 10 + 1,
                   height: width / 10 + 1,
                   borderRadius: 24,
-                  backgroundColor: center ? "#3EC264" : "#fff"
+                  backgroundColor: center ? "#333D20" : "#fff"
                 }}>
                   {center ? (
-                    <Svg width={24} height={24} stroke={"#157530"} xmlns="http://www.w3.org/2000/svg" fill="none"
+                    <Svg width={24} height={24} stroke={"white"} xmlns="http://www.w3.org/2000/svg" fill="none"
                          viewBox="0 0 24 24" strokeWidth="3">
                       <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                     </Svg>
@@ -384,8 +383,8 @@ export default function Simulation() {
                 : <ThemedButton title="Next" disabled={point.x === undefined} onPress={() => nextHole()}></ThemedButton>}
             </View>
           </View>
-        </ThemedView>
-      </ThemedView>
+        </View>
+      </View>
       {confirmLeave && <View className="absolute inset-0 flex items-center justify-center z-50 h-screen w-full"
                              style={{backgroundColor: colorScheme == 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"}}>
         <ConfirmExit cancel={() => updateField("confirmLeave", false)} end={fullReset}></ConfirmExit>
@@ -407,8 +406,9 @@ function ConfirmExit({end, partial, cancel}) {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemedView style={{
-      borderColor: colorScheme == 'light' ? "white" : Colors['dark'].border,
+    <View style={{
+      borderColor: colorScheme === 'light' ? "white" : "#424647",
+      backgroundColor: colorScheme === "light" ? "#fbfcfd" : "#0c0d0e",
       borderWidth: 1,
       width: "auto",
       maxWidth: "70%",
@@ -432,7 +432,7 @@ function ConfirmExit({end, partial, cancel}) {
                       stroke={Colors[colorScheme ?? "light"].buttonDangerText}></SvgWarning>
         </View>
       </View>
-      <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>End Session</ThemedText>
+      <ThemedText type={"header"} style={{ fontWeight: 500, textAlign: "center", marginTop: 14 }}>End Session</ThemedText>
       <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Are you
         sure you want to end this session? You can always upload the partial round, otherwise all data will be lost.
         This action cannot be undone.</ThemedText>
@@ -451,7 +451,7 @@ function ConfirmExit({end, partial, cancel}) {
         borderRadius: 10,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: Colors[colorScheme ?? "light"].border
+        borderColor: colorScheme === 'light' ? "white" : "#424647"
       }}>
         <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].text, fontWeight: 500}}>Upload as
           Partial</Text>
@@ -462,11 +462,11 @@ function ConfirmExit({end, partial, cancel}) {
         borderRadius: 10,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: Colors[colorScheme ?? "light"].border
+        borderColor: colorScheme === 'light' ? "white" : "#424647"
       }}>
         <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].text, fontWeight: 500}}>Cancel</Text>
       </Pressable>
-    </ThemedView>
+    </View>
   )
 }
 

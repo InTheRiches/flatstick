@@ -21,7 +21,7 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
         const isSelected = selectedOption === option;
 
         // Set the base border color
-        style = isSelected ? { ...style, borderColor: "#c7f09b", backgroundColor: "#ebf9dd" } : { ...style, borderColor: Colors[colorScheme ?? 'light'].border };
+        style = isSelected ? { ...style, borderColor: "#7F944F", backgroundColor: "#59663A" } : { ...style, borderColor: Colors[colorScheme ?? 'light'].border };
 
         // If the previous or next option is selected, disable overlapping borders
         if (index > 0 && selectedOption === options[index - 1])
@@ -47,12 +47,12 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
                 activeOpacity={0.75}
             >
                 <View style={[styles.radioCircle,
-                    { backgroundColor: selectedOption === option ? '#265329' : Colors[colorScheme ?? 'light'].background, borderColor: selectedOption === option ? '#265329' : Colors[colorScheme ?? 'light'].border }]}>
+                    { backgroundColor: selectedOption === option ? '#7F944F' : Colors[colorScheme ?? 'light'].background, borderColor: selectedOption === option ? '#7F944F' : Colors[colorScheme ?? 'light'].border }]}>
                     {selectedOption === option &&
                         <View style={styles.selectedRadioInnerCircle} />
                     }
                 </View>
-                <ThemedText style={ selectedOption === option ? { ...styles.option, color: "#265329" } : styles.option }>{option}</ThemedText>
+                <ThemedText style={ selectedOption === option ? { ...styles.option, color: "white" } : styles.option }>{option}</ThemedText>
             </TouchableOpacity>
         );
     };

@@ -52,6 +52,7 @@ export const Colors = {
     buttonPrimaryBorder: "#677943",
     buttonPrimaryText: "white",
     buttonPrimaryBackground: "#677943",
+    buttonPrimaryDepressed: "#525E3A",
 
     buttonSecondaryBackground: "#202425",
     buttonSecondaryBorder: "#4c5155",

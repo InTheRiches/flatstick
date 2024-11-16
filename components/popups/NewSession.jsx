@@ -1,6 +1,6 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { View } from 'react-native';
+import {Pressable, Text, View} from 'react-native';
 import { HorizRadioButton } from '@/components/popups/HorizRadioButton';
 import React, { useState } from 'react';
 import { ThemedButton } from "@/components/ThemedButton";
@@ -43,10 +43,24 @@ export function NewSession({setNewSession}) {
                     <HorizRadioButton options={["Random", "Mistakes"]} selectedOption={mode} setSelectedOption={setMode}></HorizRadioButton>
                 </View>
                 <View style={{ width: "100%", alignContent: "center", justifyContent: "center", marginTop: 20, marginBottom: 24 }}>
-                    <ThemedButton onPress={() => {
-                                      router.push({ pathname: `/simulation`, params: { localHoles: holes === "9 Holes" ? 9 : 18, difficulty: difficulty, mode: mode }});
-                                      setNewSession(false);
-                                  }} title="Start" disabled={holes == undefined || difficulty == undefined || mode == undefined}></ThemedButton>
+                    <Pressable onPress={() => {
+                                   if (holes === undefined || difficulty === undefined || mode === undefined) return;
+                                   router.push({ pathname: `/simulation`, params: { localHoles: holes === "9 Holes" ? 9 : 18, difficulty: difficulty, mode: mode }});
+                                   setNewSession(false);
+                               }} style={({pressed}) => [{backgroundColor: holes === undefined || difficulty === undefined || mode === undefined ? Colors[colorScheme ?? 'light'].buttonSecondaryBackground : pressed ? Colors[colorScheme ?? 'light'].buttonPrimaryDepressed : Colors[colorScheme ?? 'light'].buttonPrimaryBackground}, {
+                                   paddingVertical: 12,
+                                   paddingHorizontal: 24,
+                                   borderRadius: 8,
+                                   flexDirection: "row",
+                                   justifyContent: "center",
+                                   alignItems: "center",
+                                   overflow: "hidden",
+                                   alignSelf: "center",
+                                   borderColor: holes === undefined || difficulty === undefined || mode === undefined ? Colors[colorScheme ?? 'light'].buttonSecondaryBorder : "transparent",
+                                   borderWidth: 1
+                               }]}>
+                        <Text style={{ textAlign: "center", color: holes === undefined || difficulty === undefined || mode === undefined ? Colors[colorScheme ?? 'light'].textSecondary : "white", fontSize: 14, fontWeight: "bold" }}>Start</Text>
+                    </Pressable>
                 </View>
             </View>
         </ThemedView>
