@@ -19,9 +19,10 @@ export const Colors = {
     tabIconSelected: tintColorLight,
     border: "#CFCFCF",
 
-    buttonPrimaryBorder: "#154617",
-    buttonPrimaryText: "#b0ec70",
-    buttonPrimaryBackground: "#154617",
+    buttonPrimaryBorder: "#677943",
+    buttonPrimaryText: "white",
+    buttonPrimaryBackground: "#677943",
+    buttonPrimaryDepressed: "#525E3A",
 
     buttonSecondaryBackground: "rgba(59, 130, 246, 0.15)",
     buttonSecondaryBorder: "#B5B3B3",

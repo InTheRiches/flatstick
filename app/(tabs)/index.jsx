@@ -71,9 +71,9 @@ export default function HomeScreen() {
             <ThemedText type="defaultSemiBold" style={{fontSize: 16}}>Strokes Gained</ThemedText>
           </View>
         </View>
-        <View style={{ backgroundColor: "#272922", borderColor: "#484A4B", flexDirection: "column", paddingTop: 12, borderRadius: 16, borderWidth: 1 }}>
-          <View style={{width: "100%", paddingBottom: 12, borderBottomWidth: 1, borderColor: "#484A4B", flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ fontSize: 20, fontWeight: "bold", color: "white", textAlign: "left", marginLeft: 14, maxWidth: "50%" }}>Recent Sessions</Text>
+        <View style={{ backgroundColor: colorScheme === "dark" ? "#272922" : "transparent", borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "column", paddingTop: 12, borderRadius: 16, borderWidth: 1 }}>
+          <View style={{width: "100%", paddingBottom: 12, borderBottomWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "row", justifyContent: "space-between" }}>
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: Colors[colorScheme ?? "light"].text, textAlign: "left", marginLeft: 14, maxWidth: "50%" }}>Recent Sessions</Text>
             <Pressable onPress={() => setNewSession(true)} style={({pressed}) => [{backgroundColor: pressed ? '#525E3A' : '#677943'}, {
                          borderRadius: 8,
                          height: "32",
@@ -129,7 +129,7 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
         const date = new Date(session.date);
 
         return (
-          <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({ pressed }) => [{ backgroundColor: pressed ? "#393A35" : "transparent", borderBottomLeftRadius: 15, borderBottomRightRadius: 15 }, { width: "100%", paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: "#484A4B", flexDirection: "row", justifyContent: "space-between", alignContent: "center" }]}>
+          <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({ pressed }) => [{ backgroundColor: pressed ? colorScheme === "dark" ? "#393A35" : "#E5E5E5" : "transparent", borderBottomLeftRadius: 15, borderBottomRightRadius: 15 }, { width: "100%", paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "row", justifyContent: "space-between", alignContent: "center" }]}>
             <View>
               <ThemedText>{session.type === "round-simulation" ? session.holes + " Hole Simulation" : "N/A"}</ThemedText>
               <ThemedText secondary={true} style={{ fontSize: 13, marginTop: -6 }}>{date.getMonth() + "/" + date.getDay()}</ThemedText>
