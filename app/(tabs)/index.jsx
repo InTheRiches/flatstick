@@ -1,21 +1,22 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {View} from 'react-native';
+import {Pressable, View, Text} from 'react-native';
 import {ThemedButton} from "@/components/ThemedButton";
 import {useColorScheme} from '@/hooks/useColorScheme';
 import {Image} from 'react-native';
 import {Colors} from '@/constants/Colors';
-import {SvgLogo, SvgMenu} from '../../assets/svg/SvgComponents';
 
 import {NewSession} from '@/components/popups/NewSession';
 import React, {useEffect, useState} from 'react';
 import {getAuth} from "firebase/auth";
 import {doc, getDoc, getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
+import {useRouter} from "expo-router";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const auth = getAuth();
   const db = getFirestore();
+  const router = useRouter();
 
   const [newSession, setNewSession] = useState(false);
 
@@ -32,41 +33,62 @@ export default function HomeScreen() {
   })
 
   return (
-    <ThemedView className="flex-1 items-center flex-col pt-12 overflow-hidden">
-      <ThemedView style={{borderColor: Colors[colorScheme ?? 'light'].border}}
-                  className={"flex-row mb-6 items-center justify-between w-full border-b-[1px] pb-2 px-6"}>
-        <SvgLogo></SvgLogo>
-        <SvgMenu></SvgMenu>
-      </ThemedView>
-      <ThemedView className={"px-6"}>
-        <ThemedView style={{borderColor: Colors[colorScheme ?? 'light'].border}}
+    <ThemedView style={{ flex: 1, overflow: "hidden", flexDirection: "column", alignContent: "center", borderBottomWidth: 1, borderBottomColor: Colors[colorScheme ?? "light"].border}}>
+      <View style={{
+            borderColor: Colors[colorScheme ?? 'light'].border,
+            justifyContent: "center",
+            alignContent: "center",
+            width: "100%",
+            borderBottomWidth: 1,
+            paddingTop: 2,
+            paddingBottom: 10
+        }}>
+        <Text style={{ fontSize: 20, fontWeight: "bold", color: "white", marginLeft: 54}}>PuttLab</Text>
+        <Image source={require('@/assets/images/PuttLabLogo.png')}
+               style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
+      </View>
+      <View style={{ marginTop: 12, paddingHorizontal: 20 }}>
+        <View style={{borderColor: Colors[colorScheme ?? 'light'].border}}
                     className={"flex-row items-center justify-between w-full border-b-[1px] pb-6 mb-10"}>
-          <ThemedView className={"flex-row items-center"}>
+          <View className={"flex-row items-center"}>
             <Image source={require('../../assets/images/image.png')} style={{width: 60, height: 60, borderRadius: 30}}/>
-            <ThemedView className={"ml-4"}>
+            <View className={"ml-4"}>
               <ThemedText type="subtitle">{auth.currentUser.displayName}</ThemedText>
               <ThemedText
                 type="default">Since {(userData === undefined || userData.length === 0) ? "~~~~" : new Date(userData.date).getFullYear()}</ThemedText>
               <ThemedText
                 type="default">{(userData === undefined || userData.length === 0) ? "~" : userData.totalPutts} Total
                 Putts</ThemedText>
-            </ThemedView>
-          </ThemedView>
-          <ThemedView className="flex-col items-center justify-center">
-            <ThemedView style={{overflow: "hidden"}} type="secondary"
+            </View>
+          </View>
+          <View className="flex-col items-center justify-center">
+            <View style={{overflow: "hidden"}} type="secondary"
                         className={"w-[56px] h-[56px] rounded-full items-center justify-center border-[1px] mb-1 border-[#96c7f2]"}>
               <Image source={require('../../assets/images/pixelGradient.png')}
                      style={{position: "absolute", left: 0, width: 60, height: 60, zIndex: 10}}/>
               <ThemedText type="header" style={{lineHeight: 26, zIndex: 20, color: "#0081f1"}}>1.8</ThemedText>
-            </ThemedView>
+            </View>
             <ThemedText type="defaultSemiBold" style={{fontSize: 16}}>Strokes Gained</ThemedText>
-          </ThemedView>
-        </ThemedView>
-        <ThemedView className="flex-col mb-4">
-          <ThemedText className="mb-4" type="title">Recent Sessions</ThemedText>
-          <RecentSessions colorScheme={colorScheme} setNewSession={setNewSession}/>
-        </ThemedView>
-      </ThemedView>
+          </View>
+        </View>
+        <View style={{ backgroundColor: "#272922", borderColor: "#484A4B", flexDirection: "column", paddingTop: 12, borderRadius: 16, borderWidth: 1 }}>
+          <View style={{width: "100%", paddingBottom: 12, borderBottomWidth: 1, borderColor: "#484A4B", flexDirection: "row", justifyContent: "space-between" }}>
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: "white", textAlign: "left", marginLeft: 14, maxWidth: "50%" }}>Recent Sessions</Text>
+            <Pressable onPress={() => setNewSession(true)} style={({pressed}) => [{backgroundColor: pressed ? '#525E3A' : '#677943'}, {
+                         borderRadius: 8,
+                         height: "32",
+                         width: "32",
+                         flexDirection: "row",
+                         justifyContent: "center",
+                         alignItems: "center",
+                         marginRight: 12
+                     }]}>
+              <Text style={{ textAlign: "center", color: "white", fontSize: 20 }}>+</Text>
+            </Pressable>
+          </View>
+          <RecentSessions router={router} colorScheme={colorScheme} setNewSession={setNewSession}/>
+        </View>
+      </View>
       {newSession && <View className="absolute inset-0 flex items-center justify-center z-50 h-screen w-full"
                            style={{backgroundColor: colorScheme == 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"}}>
         <NewSession setNewSession={setNewSession}></NewSession>
@@ -75,13 +97,18 @@ export default function HomeScreen() {
   );
 }
 
-function RecentSessions({colorScheme, setNewSession}) {
+function RecentSessions({ router, colorScheme, setNewSession}) {
   const auth = getAuth();
   const db = getFirestore();
 
   const [recentSessions, setRecentSessions] = useState([])
   const [listedSessions, setListedSessions] = useState([])
 
+  const pressed = (session) => {
+    router.push({ pathname: `/simulation/recap`, params: { current: false, holes: session.holes, difficulty: session.difficulty, mode: session.mode, serializedPutts: JSON.stringify(session.putts), date: new Date(session.date) }});
+  }
+
+  // TODO THIS PRODUCES A FLASHING, ADD A LOADING USESTATE AND CREATE A PLACEHOLDER UNTIL IT LOADS FOR A SMOOTHER EXPERIENCE
   useEffect(() => {
     const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp"), limit(3));
 
@@ -95,18 +122,23 @@ function RecentSessions({colorScheme, setNewSession}) {
       setListedSessions(docs.map((session) => {
         let putts = 0;
         session.putts.forEach((putt) => {
-          if (putt.distance === 0) putts++;
+          if (putt.distanceMissed === 0) putts++;
           else putts += 2;
         });
 
+        const date = new Date(session.date);
+
         return (
-          <View key={session.timestamp} style={{ width: "100%", paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderColor: Colors[colorScheme ?? 'light'].border, flexDirection: "row", justifyContent: "space-between" }}>
-            <ThemedText>{session.type === "round-simulation" ? session.holes + " Hole Simulation" : "N/A"}</ThemedText>
-            <View style={{ flexDirection: "row", gap: 12, width: "50%"}}>
+          <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({ pressed }) => [{ backgroundColor: pressed ? "#393A35" : "transparent", borderBottomLeftRadius: 15, borderBottomRightRadius: 15 }, { width: "100%", paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: "#484A4B", flexDirection: "row", justifyContent: "space-between", alignContent: "center" }]}>
+            <View>
+              <ThemedText>{session.type === "round-simulation" ? session.holes + " Hole Simulation" : "N/A"}</ThemedText>
+              <ThemedText secondary={true} style={{ fontSize: 13, marginTop: -6 }}>{date.getMonth() + "/" + date.getDay()}</ThemedText>
+            </View>
+            <View style={{ flexDirection: "row", gap: 12, width: "50%", height: "auto", alignItems: "center" }}>
               <ThemedText style={{ width: "50%" }}>{session.type === "round-simulation" ? session.difficulty : "N/A"}</ThemedText>
               <ThemedText style={{ width: "50%" }}>{session.type === "round-simulation" ? putts : "N/A"}</ThemedText>
             </View>
-          </View>
+          </Pressable>
         )
       }));
 
@@ -116,34 +148,31 @@ function RecentSessions({colorScheme, setNewSession}) {
     });
   }, []);
 
-  return recentSessions == [] ? (
-    <ThemedView style={{borderColor: Colors[colorScheme ?? 'light'].border}}
+  return recentSessions.length === 0 ? (
+    <View style={{borderColor: Colors[colorScheme ?? 'light'].border}}
                 className={"border items-center rounded-lg border-solid p-12 py-[40px]"}>
       <ThemedText type="subtitle">No sessions</ThemedText>
       <ThemedText secondary={true} className="text-center mb-8">Start a session to simulate 18 holes of make or break
         putts.</ThemedText>
       <ThemedButton onPress={() => setNewSession(true)} title="New session"></ThemedButton>
-    </ThemedView>
+    </View>
   ) : (
-    <ThemedView style={{borderColor: Colors[colorScheme ?? 'light'].border, elevation: 2}}
-                className={"border items-center rounded-lg border-solid"}>
+    <View style={{alignContent: "center"}}>
       <View style={{
         width: "100%",
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderColor: Colors[colorScheme ?? 'light'].border,
         flexDirection: "row",
         justifyContent: "space-between"
       }}>
-        <ThemedText type={"default"} style={{textAlign: "left"}} secondary={true}>Sessions</ThemedText>
+        <Text style={{ textAlign: "left", color: "#898989" }}>Sessions</Text>
         <View style={{ flexDirection: "row", gap: 12, width: "50%"}}>
-          <ThemedText style={{ width: "50%" }} secondary={true}>Difficulty</ThemedText>
-          <ThemedText style={{ width: "50%" }} secondary={true}>Putts Made</ThemedText>
+          <Text style={{ textAlign: "left", color: "#898989", width: "50%" }}>Difficulty</Text>
+          <Text style={{ textAlign: "left", color: "#898989", width: "50%" }}>Total Putts</Text>
         </View>
       </View>
       {listedSessions}
 
-    </ThemedView>
+    </View>
   );
 }

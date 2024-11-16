@@ -63,21 +63,20 @@ export default function CreateAccount() {
 
                 });
 
-                console.log(user.uid)
-
                 setDoc(doc(db, `users/${user.uid}`), {
                     skill: state.skill,
                     frequency: state.frequency,
                     putts: state.putts,
                     date: new Date().toISOString(),
                     totalPutts: 0,
+                    sessions: 0,
                     username: state.username
                 }).then((data) => {
                     console.log("made document");
                 })
-                    .catch((error) => {
-                        console.log(error);
-                    });
+                .catch((error) => {
+                    console.log(error);
+                });
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -94,7 +93,7 @@ export default function CreateAccount() {
 
     return (
         <View style={{
-            backgroundColor: Colors[colorScheme ?? "light"].backgroundColor,
+            backgroundColor: Colors[colorScheme ?? "light"].background,
             width: "100%",
             height: "100%",
             paddingTop: 50,
@@ -294,10 +293,6 @@ function Putts({colorScheme, state, setState}) {
     )
 }
 
-function Name({colorScheme, state, setState}) {
-
-}
-
 function Done({}) {
     return (
         <View style={{flexDirection: "row", gap: 10, flex: 0, justifyContent: "center"}}>
@@ -455,7 +450,7 @@ function Signup({colorScheme, setState, state, create}) {
                     borderWidth: 1,
                     borderColor: nameFocused ? Colors[colorScheme ?? "light"].buttonPrimaryBorder : Colors[colorScheme ?? "light"].buttonSecondaryBorder,
                     borderRadius: 10,
-                    paddingVertical: 4,
+                    paddingVertical: 8,
                     paddingHorizontal: 10,
                     fontSize: 16,
                     color: Colors[colorScheme ?? "light"].text,
@@ -475,7 +470,7 @@ function Signup({colorScheme, setState, state, create}) {
                         borderWidth: 1,
                         borderColor: emailFocused ? invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidFocusedBorder : Colors[colorScheme ?? "light"].inputFocusedBorder : invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidBorder : Colors[colorScheme ?? "light"].inputBorder,
                         borderRadius: 10,
-                        paddingVertical: 4,
+                        paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
                         color: invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidText : Colors[colorScheme ?? "light"].text,
@@ -508,7 +503,7 @@ function Signup({colorScheme, setState, state, create}) {
                         borderWidth: 1,
                         borderColor: passwordFocused ? invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidFocusedBorder : Colors[colorScheme ?? "light"].buttonPrimaryBorder : invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidBorder : Colors[colorScheme ?? "light"].buttonSecondaryBorder,
                         borderRadius: 10,
-                        paddingVertical: 4,
+                        paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
                         color: invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidText : Colors[colorScheme ?? "light"].text,
@@ -533,27 +528,27 @@ function Signup({colorScheme, setState, state, create}) {
                     fontSize: 16
                 }}>!</Text>}
             </View>
-            <Text style={{color: !requirements.invalid ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>Password
+            <Text style={{color: !requirements.invalid ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText, marginBottom: 4 }}>Password
                 Requirements:</Text>
-            <View style={{flexDirection: "row", gap: 10, alignContent: "center"}}>
+            <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4 }}>
                 {requirements.hasLength ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
                     style={{color: requirements.hasLength ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>At
                     least 6 characters</Text>
             </View>
-            <View style={{flexDirection: "row", gap: 10, alignContent: "center"}}>
+            <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4 }}>
                 {requirements.hasNumber ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
                     style={{color: requirements.hasNumber ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>At
                     least 1 number</Text>
             </View>
-            <View style={{flexDirection: "row", gap: 10, alignContent: "center"}}>
+            <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4 }}>
                 {requirements.hasUppercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
                     style={{color: requirements.hasUppercase ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>Contains
                     an uppercase</Text>
             </View>
-            <View style={{flexDirection: "row", gap: 10, alignContent: "center"}}>
+            <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4 }}>
                 {requirements.hasLowercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
                     style={{color: requirements.hasLowercase ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>Contains

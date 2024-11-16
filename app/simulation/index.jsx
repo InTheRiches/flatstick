@@ -81,11 +81,6 @@ export default function Simulation() {
     }));
   };
 
-  const resetState = () => {
-    setState(initialState);
-    console.log("state reset")
-  }
-
   useEffect(() => {
     updateField("distance", generateDistance(difficulty));
   }, []);
@@ -157,8 +152,6 @@ export default function Simulation() {
       return
     }
 
-    // TODO add a singular button at the bottom for if you miss > 5ft
-    // find the distance to center of the point in x and y
     const distanceX = width / 2 - point.x;
     const distanceY = height / 2 - point.y;
     const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
@@ -212,12 +205,41 @@ export default function Simulation() {
     // TODO DO STUFF
   }
 
+  const roundTo = (num, decimalPlaces) => {
+    const factor = Math.pow(10, decimalPlaces);
+    return Math.round(num * factor) / factor;
+  };
+
   const submit = () => {
+    const distanceX = width / 2 - point.x;
+    const distanceY = height / 2 - point.y;
+    const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+
+    const conversionFactor = 10 / width;
+    const distanceMissedFeet = distanceMissed * conversionFactor;
+
+    const puttsCopy = [...putts];
+    puttsCopy[hole - 1] = {
+      distance: distance,
+      break: puttBreak,
+      missRead: missRead,
+      distanceMissed: distanceMissedFeet,
+      point: point
+    };
+    updateField("putts", puttsCopy);
+
     const trimmedPutts = [];
 
-    putts.forEach((putt) => {
+    let totalPutts = 0;
+
+    puttsCopy.forEach((putt) => {
       if (putt !== undefined) {
-        trimmedPutts.push({distance: putt.distance, break: putt.break, missRead: putt.missRead, distanceMissed: putt.distanceMissed});
+        if (putt.distanceMissed === 0) totalPutts++;
+        else {
+            totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
+        }
+
+        trimmedPutts.push({distance: putt.distance, xDistance: roundTo((width / 2 - putt.point.x) * (10 / width), 2), yDistance: roundTo((height / 2 - putt.point.y) * (10 / height), 2), break: putt.break, missRead: putt.missRead, distanceMissed: putt.distanceMissed});
       }
     });
 
@@ -233,8 +255,7 @@ export default function Simulation() {
       putts: trimmedPutts,
       type: "round-simulation"
     }).then(() => {
-        // TODO add a cool little session review at the end
-        router.push({ pathname: `/` });
+        router.push({ pathname: `/simulation/recap`, params: { current: true, holes: holes, difficulty: difficulty, mode: mode, serializedPutts: JSON.stringify(trimmedPutts), date: new Date().toISOString() }});
     });
 
     const sfDocRef = doc(db, `users/${auth.currentUser.uid}`);
@@ -245,7 +266,7 @@ export default function Simulation() {
         throw "Document does not exist!";
       }
 
-      const newPutts = sfDoc.data().totalPutts + holes;
+      const newPutts = sfDoc.data().totalPutts + totalPutts;
       transaction.update(sfDocRef, { totalPutts: newPutts });
     }).then(() => {
         console.log("Transaction successfully committed!");
@@ -256,7 +277,7 @@ export default function Simulation() {
   }
 
   return (
-    <ThemedView className="flex-1 items-center flex-col pt-12 overflow-hidden">
+    <ThemedView className="flex-1 items-center flex-col overflow-hidden">
       <ThemedView style={{borderColor: Colors[colorScheme ?? 'light'].border}}
                   className={"flex-row mb-4 items-center justify-between w-full border-b-[1px] pb-2 px-6"}>
         <SvgLogo></SvgLogo>
