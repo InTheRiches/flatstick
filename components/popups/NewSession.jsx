@@ -19,13 +19,14 @@ export function NewSession({setNewSession}) {
 
     const router = useRouter();
 
+    // TODO CHANGE ALL THE CLOSE BUTTONS COLORS, THEY ARE CURRENTLY PLAIN GRAY
     return (
         <ThemedView style={{ borderColor: colorScheme == 'light' ? "white" : Colors['dark'].border, borderWidth: 1, width: "auto", maxWidth: "80%", maxHeight: "70%", borderRadius: 16, paddingTop: 5 }}>
-            <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignContent: 'center', width: "100%", paddingHorizontal: 24, paddingTop: 8, paddingBottom: 8, borderBottomWidth: 1, borderColor: Colors[colorScheme ?? 'light'].border }}>
+            <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignContent: 'center', width: "100%", paddingLeft: 24, paddingRight: 16, paddingTop: 8, paddingBottom: 8, borderBottomWidth: 1, borderColor: Colors[colorScheme ?? 'light'].border }}>
                 <ThemedText type="header">New Session</ThemedText>
                 <TouchableWithoutFeedback onPress={() => setNewSession(false)}>
                     <View style={{ justifyContent: 'center' }}>
-                        <SvgClose stroke={"#424647"} width={24} height={24}></SvgClose>
+                        <SvgClose stroke={"#424647"} width={32} height={32}></SvgClose>
                     </View>
                 </TouchableWithoutFeedback>
             </View>
