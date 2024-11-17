@@ -25,7 +25,7 @@ export function NewSession({setNewSession}) {
                 <ThemedText type="header">New Session</ThemedText>
                 <TouchableWithoutFeedback onPress={() => setNewSession(false)}>
                     <View style={{ justifyContent: 'center' }}>
-                        <SvgClose></SvgClose>
+                        <SvgClose stroke={"#424647"} width={24} height={24}></SvgClose>
                     </View>
                 </TouchableWithoutFeedback>
             </View>

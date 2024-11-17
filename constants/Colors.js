@@ -37,6 +37,16 @@ export const Colors = {
     buttonDangerDisabledBackground: "#FEE2E2",
     buttonDangerDisabledBorder: "#FEE2E2",
     buttonDangerDisabledText: "#FFFFFF",
+
+    inputBackground: "rgba(191,209,123,0.2)",
+    inputFocusedBackground: "rgba(191,209,123,0.4)",
+    inputInvalidBackground: "#F5D3D3",
+    inputBorder: "#ACCD30",
+    inputFocusedBorder: "#6C801F",
+    inputText: "#3C4420",
+    inputInvalidBorder: "#CE7070",
+    inputInvalidFocusedBorder: "#F86868",
+    inputInvalidText: "#FF3D3D"
   },
   dark: {
     text: '#fff',
@@ -69,11 +79,12 @@ export const Colors = {
     buttonDangerDisabledBorder: "#C13838",
     buttonDangerDisabledText: "#C13838",
 
-    inputBackground: "#202425",
-    inputFocusedBackground: "#202425",
+    inputBackground: "rgba(191,209,123,0.1)",
+    inputFocusedBackground: "rgba(191,209,123,0.1)",
     inputInvalidBackground: "#202425",
-    inputBorder: "#4c5155",
-    inputFocusedBorder: "#06B2FF",
+    inputBorder: "#606E43",
+    inputFocusedBorder: "#606E43",
+    inputText: "#606E43",
     inputInvalidBorder: "#943737",
     inputInvalidFocusedBorder: "#dc2626",
     inputInvalidText: "#CF5151"

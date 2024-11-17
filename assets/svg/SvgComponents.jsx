@@ -25,11 +25,9 @@ const SvgLogo = (props) => (
 const SvgMenu = (props) => (
   <Svg     
     xmlns="http://www.w3.org/2000/svg"
-    width={21}
-    height={17}
     fill="none"
     {...props}>
-    <Path d="M1 1H21M1 8.5H21M1 16H21" stroke="#424647" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <Path d="M1 1H21M1 8.5H21M1 16H21" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </Svg>
 )
 
@@ -38,11 +36,10 @@ const SvgClose = (props) => (
     xmlns="http://www.w3.org/2000/svg" 
     fill="none"
     strokeWidth="1.5"
-    width={24} 
-    height={24}
     viewBox="0 0 24 24"
+    {...props}
     >
-    <Path stroke="#424647" strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    <Path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
   </Svg>
 )
 

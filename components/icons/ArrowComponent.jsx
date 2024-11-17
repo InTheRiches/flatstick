@@ -26,7 +26,7 @@ const getRotationAngle = (horizontalBreak, verticalSlope) => {
   return rotationMap[`${horizontalBreak},${verticalSlope}`] || '0deg';
 };
 
-const ArrowComponent = ({ horizontalBreak, verticalSlope, colorScheme }) => {
+const ArrowComponent = ({ horizontalBreak, verticalSlope, selected }) => {
   const rotation = getRotationAngle(horizontalBreak, verticalSlope);
 
   return (
@@ -34,10 +34,10 @@ const ArrowComponent = ({ horizontalBreak, verticalSlope, colorScheme }) => {
       {(horizontalBreak === 2 && verticalSlope === 1) ?
         <View style={{ width: 33, height: 33, borderRadius: 50, backgroundColor: Colors[colorScheme ?? "light"].text, marginRight: 6 }}></View> :
         <SvgArrow
-          width="28"
-          height="28"
-          stroke={Colors[colorScheme ?? "light"].text}
-          style={{ transform: [{ rotate: rotation }], marginBottom: 4.5 }}
+          width="24"
+          height="24"
+          stroke={selected ? 'white' : "#C13838"}
+          style={{ transform: [{ rotate: rotation }] }}
         />}
     </View>
   );
