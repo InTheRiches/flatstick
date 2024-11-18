@@ -78,7 +78,7 @@ export default function Login() {
     }
 
     const updatePassword = (password) => {
-        updateField("passwrd", password);
+        updateField("password", password);
 
         if (errorCode !== "") setErrorCode("");
     }
@@ -94,7 +94,7 @@ export default function Login() {
                       alignContent: "center"
                   }}>
                 <ThemedText type={"title"} style={{marginBottom: 30}}>Sign in to your account</ThemedText>
-                <ThemedText style={{fontSize: 16, marginBottom: 8}}>Login with:</ThemedText>
+                <ThemedText style={{fontSize: 16, marginBottom: 8}} secondary={true}>Login with:</ThemedText>
                 <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
                     <Pressable style={({pressed}) => [{
                                    flex: 1,
@@ -195,7 +195,7 @@ export default function Login() {
                         onBlur={() => updateField("passwordFocused", false)}
                         secureTextEntry={true}
                         value={state.password}
-                        onChangeText={(text) => updateField("password", text)}
+                        onChangeText={(text) => updatePassword(text)}
                     />
                     {errorCode === "auth/invalid-credential" && <Text style={{
                         position: "absolute",
