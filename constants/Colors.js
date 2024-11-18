@@ -83,12 +83,12 @@ export const Colors = {
 
     inputBackground: "#272922",
     inputFocusedBackground: "rgba(191,209,123,0.1)",
-    inputInvalidBackground: "#202425",
     inputBorder: "#484A4B",
     inputFocusedBorder: "#606E43",
     inputText: "#fff",
     inputInvalidBorder: "#943737",
     inputInvalidFocusedBorder: "#dc2626",
-    inputInvalidText: "#CF5151"
+    inputInvalidText: "#CF5151",
+    inputInvalidBackground: "rgba(255,74,74,0.15)",
   },
 };

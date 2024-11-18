@@ -182,7 +182,7 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
         docs.push(doc.data());
       });
 
-      setListedSessions(docs.map((session) => {
+      setListedSessions(docs.map((session, index) => {
         let putts = 0;
         session.putts.forEach((putt) => {
           if (putt.distanceMissed === 0) putts++;
@@ -194,7 +194,19 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
         console.log(date.toISOString())
 
         return (
-          <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({ pressed }) => [{ backgroundColor: pressed ? colorScheme === "dark" ? "#393A35" : "#E5E5E5" : "transparent", borderBottomLeftRadius: 15, borderBottomRightRadius: 15 }, { width: "100%", paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "row", justifyContent: "space-between", alignContent: "center" }]}>
+          <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({ pressed }) => [{
+                       backgroundColor: pressed ? colorScheme === "dark" ? "#393A35" : "#E5E5E5" : "transparent",
+                       borderBottomLeftRadius: index < docs.length - 1 ? 0 : 15,
+                       borderBottomRightRadius: index < docs.length - 1 ? 0 : 15
+                     }, {
+                       width: "100%",
+                       paddingHorizontal: 16,
+                       paddingVertical: 10,
+                       borderTopWidth: 1,
+                       borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "row",
+                       justifyContent: "space-between",
+                       alignContent: "center"
+                     }]}>
             <View>
               <ThemedText>{session.type === "round-simulation" ? session.holes + " Hole Simulation" : "N/A"}</ThemedText>
               <ThemedText secondary={true} style={{ fontSize: 13, marginTop: -6 }}>{(date.getMonth()+1) + "/" + date.getDate()}</ThemedText>
@@ -221,8 +233,7 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
   return loading ? <View></View> : recentSessions.length === 0 ? (
     <View style={{ alignItems: "center", padding: 24, paddingVertical: 48 }}>
       <ThemedText type="subtitle">No sessions</ThemedText>
-      <ThemedText secondary={true} style={{ textAlign: "center", marginBottom: 24 }}>Start a session to simulate 18 holes of make or break
-        putts.</ThemedText>
+      <ThemedText secondary={true} style={{ textAlign: "center", marginBottom: 24 }}>No putts to review—it’s like the green’s waiting for your genius. Start a new session to show the green you’re serious this time… or at least slightly less terrible.</ThemedText>
       <ThemedButton onPress={() => setNewSession(true)} title="New session"></ThemedButton>
     </View>
   ) : (
