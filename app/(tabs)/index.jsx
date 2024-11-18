@@ -41,7 +41,7 @@ export default function HomeScreen() {
       <View style={{ marginTop: 12, paddingHorizontal: 20 }}>
         <Profile userData={userData} auth={auth}></Profile>
         <View style={{ backgroundColor: colorScheme === "dark" ? "#272922" : "transparent", borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "column", paddingTop: 12, borderRadius: 16, borderWidth: 1 }}>
-          <View style={{width: "100%", paddingBottom: 12, borderBottomWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "row", justifyContent: "space-between" }}>
+          <View style={{width: "100%", paddingBottom: 12, flexDirection: "row", justifyContent: "space-between" }}>
             <Text style={{ fontSize: 20, fontWeight: "bold", color: Colors[colorScheme ?? "light"].text, textAlign: "left", marginLeft: 14, maxWidth: "50%" }}>Recent Sessions</Text>
             <Pressable onPress={() => setNewSession(true)} style={({pressed}) => [{backgroundColor: pressed ? '#525E3A' : '#677943'}, {
                          borderRadius: 8,
@@ -94,7 +94,7 @@ function Profile({ userData, auth }) {
         </View>
       </View>
       <View style={{ flexDirection: "column", justifyContent: "center", alignContent: "center" }}>
-        <View style={{overflow: "hidden", width: 56, height: 56, borderRadius: 50, alignSelf: "center", alignItems: "center", justifyContent: "center", borderWidth: 1, marginBottom: 1, borderColor: Colors[colorScheme ?? "light"].buttonPrimaryBackground, backgroundColor: Colors[colorScheme ?? "light"].border}} type="secondary">
+        <View style={{overflow: "hidden", width: 56, height: 56, borderRadius: 50, alignSelf: "center", alignItems: "center", justifyContent: "center", borderWidth: 1, marginBottom: 1, borderColor: colorScheme === "light" ? Colors["light"].border : Colors["dark"].buttonPrimaryBackground, backgroundColor: colorScheme === "light" ? "transparent" : Colors["dark"].border}} type="secondary">
           <ThemedText type="header" style={{lineHeight: 26, zIndex: 20, color: Colors[colorScheme ?? "light"].text}}>1.8</ThemedText>
         </View>
         <ThemedText type="defaultSemiBold" style={{ alignSelf: 'flex-start', fontSize: 16, width: "auto", textAlign: "center" }}>Strokes Gained</ThemedText>
@@ -161,6 +161,7 @@ function Header({ signOut }) {
   )
 }
 
+// TODO Consider adding a see more button that brings up a dedication menu with a insights graphic for each session
 function RecentSessions({ router, colorScheme, setNewSession}) {
   const auth = getAuth();
   const db = getFirestore();
@@ -203,7 +204,8 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
                        paddingHorizontal: 16,
                        paddingVertical: 10,
                        borderTopWidth: 1,
-                       borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border, flexDirection: "row",
+                       borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border,
+                       flexDirection: "row",
                        justifyContent: "space-between",
                        alignContent: "center"
                      }]}>
@@ -231,13 +233,13 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
   }, [recentSessions])
 
   return loading ? <View></View> : recentSessions.length === 0 ? (
-    <View style={{ alignItems: "center", padding: 24, paddingVertical: 48 }}>
+    <View style={{ alignItems: "center", padding: 24, paddingVertical: 48, borderTopWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border }}>
       <ThemedText type="subtitle">No sessions</ThemedText>
       <ThemedText secondary={true} style={{ textAlign: "center", marginBottom: 24 }}>No putts to review—it’s like the green’s waiting for your genius. Start a new session to show the green you’re serious this time… or at least slightly less terrible.</ThemedText>
       <ThemedButton onPress={() => setNewSession(true)} title="New session"></ThemedButton>
     </View>
   ) : (
-    <View style={{alignContent: "center"}}>
+    <View style={{alignContent: "center", borderTopWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border }}>
       <View style={{
         width: "100%",
         paddingHorizontal: 16,
