@@ -72,6 +72,7 @@ const initialState = {
   putts: []
 }
 
+// TODO WHEN SWITCHING TO THE NEXT HOLE, ADD A POPUP ASKING HOW MANY PUTTS IT TOOK TO FINISH OUT THE HOLE
 export default function Simulation() {
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
@@ -716,7 +717,7 @@ function BigMiss({ largeMissBy, updateField, nextHole }) {
           <Text style={{ color: "white", fontWeight: 600, fontSize: 24, marginTop: 6 }}>!</Text>
         </View>
         <View style={{ marginTop: 12 }}>
-          <ThemedText type={"header"} style={{ fontWeight: 500, textAlign: "center" }}>Miss &gt;5ft</ThemedText>
+          <ThemedText type={"header"} style={{ fontWeight: 500, textAlign: "center" }}>Miss &gt;3ft</ThemedText>
           <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Putting for the rough, are we? You might need GPS for the next one.</ThemedText>
         </View>
       </View>
