@@ -29,6 +29,7 @@ function Loading({}) {
     )
   }
 
+// TODO ADD DISPLAY NAME ENTRY, AS WELL AS PROFILE ICON
 export default function CreateAccount() {
     const colorScheme = useColorScheme();
     const db = getFirestore();
@@ -159,8 +160,8 @@ export default function CreateAccount() {
                               style={{transform: [{rotate: "45deg"}]}}></SvgArrow>
                 </Pressable>
             </View>
-            <Pressable onPress={() => router.push({pathname: `/login`})}>
-                <Text style={{ color: Colors[colorScheme ?? "light"].textLink }}>Or login here.</Text>
+            <Pressable onPress={() => router.push({pathname: `/login`})} style={({ pressed }) => [{ marginTop: 24, borderWidth: 1, borderRadius: 12, backgroundColor: pressed ? Colors[colorScheme ?? "light"].buttonSecondaryDisabledBackground : "transparent", borderColor: Colors[colorScheme ?? "light"].border, marginHorizontal: 16, paddingVertical: 10 }]}>
+                <Text style={{ color: Colors[colorScheme ?? "light"].text, textAlign: "center" }}>Already have an account? Click <Text style={{ color: Colors[colorScheme ?? "light"].textLink }}>here</Text> to login.</Text>
             </Pressable>
         </View>
     )
