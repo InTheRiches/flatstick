@@ -66,14 +66,14 @@ export default function SimulationRecap() {
             // Check the quadrant based on the rotated ranges
             if (putt.distanceMissed < 2) center++
             else if (degrees > -45 && degrees <= 45) {
-                if (putt.distanceMissed < 5)
+                if (putt.distanceMissed <= 2)
                     right++;
                 else
                     farRight++;
             } else if (degrees > 45 && degrees <= 135) {
                 long++;
             } else if (degrees > -135 && degrees <= -45) {
-                if (putt.distanceMissed < 5)
+                if (putt.distanceMissed <= 2)
                     left++;
                 else
                     farLeft++;

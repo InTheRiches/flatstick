@@ -145,7 +145,7 @@ export default function Simulation() {
       const distanceY = height / 2 - point.y;
       const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
 
-      const conversionFactor = 10 / width;
+      const conversionFactor = 5 / width;
       distanceMissedFeet = distanceMissed * conversionFactor;
     }
 
@@ -213,7 +213,7 @@ export default function Simulation() {
       const distanceY = height / 2 - point.y;
       const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
 
-      const conversionFactor = 10 / width;
+      const conversionFactor = 5 / width;
       distanceMissedFeet = distanceMissed * conversionFactor;
     }
 
@@ -281,7 +281,7 @@ export default function Simulation() {
     const distanceY = height / 2 - point.y;
     const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
 
-    const conversionFactor = 10 / width;
+    const conversionFactor = 5 / width;
     const distanceMissedFeet = distanceMissed * conversionFactor;
 
     const puttsCopy = [...putts];
@@ -387,12 +387,17 @@ export default function Simulation() {
             {/*  <ThemedText type="subtitle" style={{marginLeft: 12}}>Miss-read?</ThemedText>*/}
             {/*</View>*/}
             <View style={{ alignSelf: "center", flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">5 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">3 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">2 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
               <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">1 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">0 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
               <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">1 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">3 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">5 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">2 ft</ThemedText>
+              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
             </View>
             <GestureDetector gesture={singleTap}>
               <View onLayout={onLayout} style={{ alignSelf: "center", alignItems: "center", justifyContent: "center", width: "100%"}}>
