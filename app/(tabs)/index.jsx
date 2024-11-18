@@ -94,10 +94,8 @@ function Profile({ userData, auth }) {
         </View>
       </View>
       <View style={{ flexDirection: "column", justifyContent: "center", alignContent: "center" }}>
-        <View style={{overflow: "hidden", width: 56, height: 56, borderRadius: 50, alignSelf: "center", alignItems: "center", justifyContent: "center", borderWidth: 1, marginBottom: 1, borderColor: "#96c7f2"}} type="secondary">
-          <Image source={require('../../assets/images/pixelGradient.png')}
-                 style={{position: "absolute", left: 0, width: 60, height: 60, zIndex: 10}}/>
-          <ThemedText type="header" style={{lineHeight: 26, zIndex: 20, color: "#0081f1"}}>1.8</ThemedText>
+        <View style={{overflow: "hidden", width: 56, height: 56, borderRadius: 50, alignSelf: "center", alignItems: "center", justifyContent: "center", borderWidth: 1, marginBottom: 1, borderColor: Colors[colorScheme ?? "light"].buttonPrimaryBackground, backgroundColor: Colors[colorScheme ?? "light"].border}} type="secondary">
+          <ThemedText type="header" style={{lineHeight: 26, zIndex: 20, color: Colors[colorScheme ?? "light"].text}}>1.8</ThemedText>
         </View>
         <ThemedText type="defaultSemiBold" style={{ alignSelf: 'flex-start', fontSize: 16, width: "auto", textAlign: "center" }}>Strokes Gained</ThemedText>
       </View>
@@ -125,10 +123,10 @@ function Header({ signOut }) {
              style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
       {menuOpen ?
         <Pressable onPress={() => setMenuOpen(false)} style={{ position: "absolute", right: 2, top: -14, padding: 12 }}>
-          <SvgClose width={32} height={32} stroke={Colors[colorScheme ?? "light"].textSecondary}></SvgClose>
+          <SvgClose width={32} height={32} stroke={"#484A4B"}></SvgClose>
         </Pressable> :
         <Pressable onPress={() => setMenuOpen(true)} style={{ position: "absolute", right: 8, bottom: 4, padding: 12 }}>
-          <SvgMenu width={21} height={17} stroke={Colors[colorScheme ?? "light"].textSecondary}></SvgMenu>
+          <SvgMenu width={21} height={17} stroke={"#484A4B"}></SvgMenu>
         </Pressable>}
       { menuOpen && (
           <View style={{position: "absolute", width: "100%", top: "100%", marginTop: 14, zIndex: 50 }}>

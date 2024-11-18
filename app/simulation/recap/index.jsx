@@ -90,7 +90,7 @@ export default function SimulationRecap() {
     }, []);
 
     return (
-        <ThemedView className="flex-1 items-center flex-col" style={{justifyContent: "space-between"}}>
+        <ThemedView style={{ flex: 1, alignItems: "center", flexDirection: "column", justifyContent: "space-between" }}>
             <View>
                 <ThemedView style={{
                     borderColor: Colors[colorScheme ?? 'light'].border,
@@ -106,11 +106,11 @@ export default function SimulationRecap() {
                         fontSize: 16,
                         fontWeight: "medium",
                         color: Colors[colorScheme ?? 'light'].text
-                    }}>Simulation Recap</Text>
+                    }}>Session Recap</Text>
                     <Image source={require('@/assets/images/PuttLabLogo.png')}
                            style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
                 </ThemedView>
-                <ThemedView className={"px-6"} style={{width: "100%", paddingTop: 32}}>
+                <ThemedView style={{ paddingHorizontal: 24, width: "100%", paddingTop: 32}}>
                     <ThemedText style={{textAlign: "center"}} type={"header"}>Good Job!</ThemedText>
                     <ThemedText style={{textAlign: "center", marginBottom: 24}} type={"default"}>This {current === "true" ? "is" : "was"} your nth
                         session.</ThemedText>
@@ -220,7 +220,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData, date, colorSchem
                     borderBottomWidth: 1,
                     borderColor: "#677943",
                     paddingVertical: 6
-                }}>Session Recap</Text>
+                }}>Stats</Text>
                 <View style={{flexDirection: "row"}}>
                     <View style={{
                         flexDirection: "column",

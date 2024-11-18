@@ -344,7 +344,7 @@ export default function Simulation() {
   }
 
   return ( loading ? <Loading></Loading> :
-    <ThemedView className="flex-1 items-center flex-col overflow-hidden">
+    <ThemedView>
       <ThemedView style={{
             borderColor: Colors[colorScheme ?? 'light'].border,
             justifyContent: "center",
@@ -366,10 +366,10 @@ export default function Simulation() {
       </ThemedView>
       <View style={{width: "100%", paddingHorizontal: 24}}>
         <View style={{display: "flex", flexDirection: "column", marginBottom: 12 }}>
-          <ThemedText className="mb-1" type="title">Hole {hole}</ThemedText>
+          <ThemedText style={{ marginBottom: 6 }} type="title">Hole {hole}</ThemedText>
           <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance} puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
 
-          <Pressable onPress={() => updateField("missRead", !missRead)} style={{ marginTop: 12, marginBottom: 8, paddingRight: 20, paddingLeft: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: missRead ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", alignSelf: "center", flexDirection: "row", justifyContent: "center", alignItems: 'center', }}>
+          <Pressable onPress={() => updateField("missRead", !missRead)} style={{ marginTop: 12, marginBottom: 4, paddingRight: 20, paddingLeft: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: missRead ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", alignSelf: "center", flexDirection: "row", justifyContent: "center", alignItems: 'center', }}>
             {missRead ?
               <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} width={20} height={20} stroke={missRead ? 'white' : "#C13838"}>
                 <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -452,8 +452,19 @@ export default function Simulation() {
         </View>
       </View>
       {(confirmLeave || confirmSubmit || largeMiss) &&
-        <View className="absolute inset-0 flex items-center justify-center z-50 h-screen w-full"
-          style={{backgroundColor: colorScheme === 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"}}>
+        <View style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 50,
+                height: '100%',
+                width: '100%',
+                backgroundColor: colorScheme === 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"
+              }}>
           {confirmLeave && <ConfirmExit cancel={() => updateField("confirmLeave", false)} end={fullReset}></ConfirmExit>}
           {confirmSubmit && <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)} submit={submit}></ConfirmSubmit>}
           {(largeMiss && !confirmLeave) && <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
