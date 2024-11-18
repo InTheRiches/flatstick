@@ -1,6 +1,6 @@
 // src/contexts/SessionProvider.js
 import React, { useContext, createContext, useEffect, useState } from 'react';
-import {getAuth, getReactNativePersistence, initializeAuth} from "firebase/auth";
+import {getAuth, getReactNativePersistence, initializeAuth, signInWithEmailAndPassword} from "firebase/auth";
 import { useStorageState } from './StorageState';
 import {initializeApp} from "firebase/app";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -47,7 +47,7 @@ export function SessionProvider({ children }) {
   // Firebase sign-in function
   const signIn = async (email, password) => {
     try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
       setSession(token || null);
     } catch (error) {
