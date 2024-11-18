@@ -8,6 +8,7 @@ import {SvgArrow, SvgGoogle} from "@/assets/svg/SvgComponents";
 import {createUserWithEmailAndPassword, getAuth, updateProfile} from "firebase/auth";
 import {getFirestore, setDoc, doc} from "firebase/firestore";
 import {useRouter} from "expo-router";
+import Loading from "../../components/popups/Loading";
 
 const initialState = {
     skill: -1,
@@ -20,14 +21,6 @@ const initialState = {
     email: "",
     invalid: false,
 }
-
-function Loading({}) {
-    return (
-      <View style={{ width: "100%", height: "100%", flexDirection: "flow", justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    )
-  }
 
 // TODO ADD DISPLAY NAME ENTRY, AS WELL AS PROFILE ICON
 export default function CreateAccount() {

@@ -10,10 +10,11 @@ import {NewSession} from '@/components/popups/NewSession';
 import React, {useEffect, useState} from 'react';
 import {getAuth} from "firebase/auth";
 import {doc, getDoc, getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
-import {useRouter} from "expo-router";
+import {useNavigation, useRouter} from "expo-router";
 import { useSession } from '@/contexts/ctx';
 import {SvgClose, SvgMenu} from "@/assets/svg/SvgComponents";
 import Svg, {Path} from "react-native-svg";
+import Loading from "@/components/popups/Loading";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -162,16 +163,18 @@ function Header({ signOut }) {
 }
 
 // TODO Consider adding a see more button that brings up a dedication menu with a insights graphic for each session
-function RecentSessions({ router, colorScheme, setNewSession}) {
+function RecentSessions({ colorScheme, setNewSession}) {
   const auth = getAuth();
   const db = getFirestore();
+
+  const navigation = useNavigation();
 
   const [recentSessions, setRecentSessions] = useState([]);
   const [listedSessions, setListedSessions] = useState([null]);
   const [loading, setLoading] = useState(true)
 
   const pressed = (session) => {
-    router.push({ pathname: `/simulation/recap`, params: { current: false, holes: session.holes, difficulty: session.difficulty, mode: session.mode, serializedPutts: JSON.stringify(session.putts), date: new Date(session.date) }});
+    navigation.navigate("simulation/recap/index", { current: false, holes: session.holes, difficulty: session.difficulty, mode: session.mode, serializedPutts: JSON.stringify(session.putts), date: new Date(session.date) });
   }
 
   useEffect(() => {
@@ -191,8 +194,6 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
         });
 
         const date = new Date(session.date);
-
-        console.log(date.toISOString())
 
         return (
           <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({ pressed }) => [{
@@ -235,7 +236,7 @@ function RecentSessions({ router, colorScheme, setNewSession}) {
   return loading ? <View></View> : recentSessions.length === 0 ? (
     <View style={{ alignItems: "center", padding: 24, paddingVertical: 48, borderTopWidth: 1, borderColor: colorScheme === "dark" ? "#484A4B" : Colors["light"].border }}>
       <ThemedText type="subtitle">No sessions</ThemedText>
-      <ThemedText secondary={true} style={{ textAlign: "center", marginBottom: 24 }}>No putts to review—it’s like the green’s waiting for your genius. Start a new session to show the green you’re serious this time… or at least slightly less terrible.</ThemedText>
+      <ThemedText secondary={true} style={{ textAlign: "center", marginBottom: 24 }}>No putts to review — it’s like the green’s waiting for you. Start a new session to show the green you’re serious this time… or at least slightly less terrible.</ThemedText>
       <ThemedButton onPress={() => setNewSession(true)} title="New session"></ThemedButton>
     </View>
   ) : (

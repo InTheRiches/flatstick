@@ -18,6 +18,7 @@ import React from "react";
 import {getFirestore, setDoc, doc, runTransaction} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "../../components/utils/GeneratePushID";
+import Loading from "../../components/popups/Loading";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 // AND THEY GO BACK, NOT SHOW BOTH DIALOGES ON TOP OF EACH OTHER, AND TO CANCEL THE OTHER ONE BENEATH IT
@@ -109,7 +110,7 @@ export default function Simulation() {
     updateField("distance", generateDistance(difficulty));
   }, []);
 
-  console.log(largeMiss)
+  console.log(largeMiss + "hey")
 
   React.useEffect(() => {
     const onBackPress = () => {
@@ -293,6 +294,7 @@ export default function Simulation() {
       distanceMissed: distanceMissedFeet,
       point: point
     };
+
     updateField("putts", puttsCopy);
 
     const trimmedPutts = [];
@@ -306,11 +308,9 @@ export default function Simulation() {
             totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
         }
 
-        trimmedPutts.push({distance: putt.distance, xDistance: roundTo((width / 2 - putt.point.x) * (10 / width), 2), yDistance: roundTo((height / 2 - putt.point.y) * (10 / height), 2), break: putt.break, missRead: putt.missRead, distanceMissed: putt.distanceMissed});
+        trimmedPutts.push({distance: putt.distance, xDistance: roundTo(-1*(width / 2 - putt.point.x) * (5 / width), 2), yDistance: roundTo(-1 * (height / 2 - putt.point.y) * (5 / height), 2), break: putt.break, missRead: putt.missRead, distanceMissed: putt.distanceMissed});
       }
     });
-
-    // TODO MAKE A SPINNING WHEEL SCREEN AS IT UPLOADS
 
     updateField("loading", true)
     // Add a new document in collection "cities"
@@ -344,7 +344,7 @@ export default function Simulation() {
 
   }
 
-  return ( loading ? <Loading></Loading> :
+  return ( loading ? <Loading/> :
     <ThemedView>
       <ThemedView style={{
             borderColor: Colors[colorScheme ?? 'light'].border,
@@ -477,14 +477,6 @@ export default function Simulation() {
         </View>}
     </ThemedView>
   );
-}
-
-function Loading({}) {
-  return (
-    <View style={{ width: "100%", height: "100%", flexDirection: "flow", justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" />
-    </View>
-  )
 }
 
 function GreenVisual({ distance, puttBreak, slope, imageSource }) {

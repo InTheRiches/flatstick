@@ -1,14 +1,14 @@
 import {ThemedText} from "@/components/ThemedText";
-import {View, Text, Pressable, TextInput, ActivityIndicator} from "react-native";
+import {View, Text, Pressable, TextInput} from "react-native";
 import {Colors} from "@/constants/Colors";
 import {useColorScheme} from "@/hooks/useColorScheme";
 import {useEffect, useState} from "react";
-import Svg, {Path} from "react-native-svg";
-import {SvgArrow, SvgGoogle} from "@/assets/svg/SvgComponents";
-import {createUserWithEmailAndPassword, getAuth, updateProfile} from "firebase/auth";
-import {getFirestore, setDoc, doc} from "firebase/firestore";
+import {SvgGoogle} from "@/assets/svg/SvgComponents";
+import {getAuth} from "firebase/auth";
+import {getFirestore} from "firebase/firestore";
 import {useRouter} from "expo-router";
 import {useSession} from "../../contexts/ctx";
+import Loading from "../../components/popups/Loading";
 
 const initialState = {
     password: "",
@@ -17,21 +17,6 @@ const initialState = {
     emailFocused: false,
     passwordFocused: false,
     invalidEmail: false
-}
-
-// TODO MAKE ALL THE LOADING SCREENS THE SAME FROM GRABBING A GLOBAL COMPONENT
-function Loading({}) {
-    return (
-        <View style={{
-            width: "100%",
-            height: "100%",
-            flexDirection: "flow",
-            justifyContent: "center",
-            alignItems: "center"
-        }}>
-            <ActivityIndicator size="large"/>
-        </View>
-    )
 }
 
 export default function Login() {

@@ -27,6 +27,8 @@ export default function RootLayout() {
                 headerShown: false
               }}>
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name={"simulation/index"}/>
+              <Stack.Screen name={"simulation/recap/index"}/>
               <Stack.Screen name="+not-found" />
             </Stack>
           </ThemeProvider>

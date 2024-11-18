@@ -3,7 +3,7 @@ import {Colors} from "../../../constants/Colors";
 import {ThemedText} from "../../../components/ThemedText";
 import {useColorScheme} from "../../../hooks/useColorScheme";
 import {View, Image, Text, Pressable} from "react-native";
-import {useLocalSearchParams, useRouter} from "expo-router";
+import {useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
 
 const initialMisses = {
@@ -21,7 +21,7 @@ export default function SimulationRecap() {
     const putts = JSON.parse(serializedPutts);
 
     const colorScheme = useColorScheme();
-    const router = useRouter();
+    const navigation = useNavigation();
 
     const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
     const [totalPutts, setTotalPutts] = useState(0);
@@ -64,7 +64,7 @@ export default function SimulationRecap() {
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
-            if (putt.distanceMissed < 2) center++
+            if (putt.distanceMissed <= 0.5) center++
             else if (degrees > -45 && degrees <= 45) {
                 if (putt.distanceMissed <= 2)
                     right++;
@@ -78,7 +78,6 @@ export default function SimulationRecap() {
                 else
                     farLeft++;
             } else {
-                console.log(degrees + "short")
                 short++;
             }
         });
@@ -120,7 +119,12 @@ export default function SimulationRecap() {
                 </ThemedView>
             </View>
             <View style={{width: "100%", paddingBottom: 24, paddingHorizontal: 32}}>
-                <Pressable onPress={() => router.push({ pathname: `/` })} style={({pressed}) => [{backgroundColor: pressed ? '#282d1d' : '#333D20'}, {
+                <Pressable onPress={() => {
+                               if (current !== "true")
+                                   navigation.goBack();
+                               else
+                                   navigation.navigate("(tabs)")
+                           }} style={({pressed}) => [{backgroundColor: pressed ? '#282d1d' : '#333D20'}, {
                     paddingVertical: 10,
                     borderRadius: 10,
                     width: "100%"
