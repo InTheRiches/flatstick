@@ -649,8 +649,7 @@ function ConfirmSubmit({ submit, cancel }) {
         </View>
       </View>
       <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Submit Session</ThemedText>
-      <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Are you
-        sure you want to submit this session? Once you submit, you cannot change any of the putts.</ThemedText>
+      <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Done putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your shoes.</ThemedText>
       <Pressable onPress={submit} style={{
         backgroundColor: Colors[colorScheme ?? "light"].buttonPrimaryBackground,
         paddingVertical: 10,
