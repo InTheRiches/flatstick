@@ -159,6 +159,9 @@ export default function CreateAccount() {
                               style={{transform: [{rotate: "45deg"}]}}></SvgArrow>
                 </Pressable>
             </View>
+            <Pressable onPress={() => router.push({pathname: `/login`})}>
+                <Text style={{ color: Colors[colorScheme ?? "light"].textLink }}>Or login here.</Text>
+            </Pressable>
         </View>
     )
 }
