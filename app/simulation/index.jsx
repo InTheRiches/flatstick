@@ -97,12 +97,9 @@ export default function Simulation() {
   };
 
   useEffect(() => {
-    if (confirmLeave === true) {
-      if (largeMiss) {
-        console.log("matched large miss")
-        updateField("largeMissBy", [0, 0]);
-        updateField("largeMiss", false);
-      }
+    if (confirmLeave === true && largeMiss) {
+      updateField("largeMissBy", [0, 0]);
+      updateField("largeMiss", false);
     }
   }, [confirmLeave])
 
@@ -110,9 +107,7 @@ export default function Simulation() {
     updateField("distance", generateDistance(difficulty));
   }, []);
 
-  console.log(largeMiss + "hey")
-
-  React.useEffect(() => {
+  useEffect(() => {
     const onBackPress = () => {
       updateField("confirmLeave", true);
 
@@ -128,9 +123,8 @@ export default function Simulation() {
   }, []);
 
   const nextHole = () => {
-    if (hole === holes || (!largeMiss && point.x === undefined)) {
+    if (hole === holes || (!largeMiss && point.x === undefined))
       return;
-    }
 
     let distanceMissedFeet = 0;
 
@@ -140,8 +134,7 @@ export default function Simulation() {
       const distanceX = largeMissBy[0]*8;
       const distanceY = largeMissBy[1]*8;
       distanceMissedFeet = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-    }
-    else {
+    } else {
       // find the distance to center of the point in x and y
       const distanceX = width / 2 - point.x;
       const distanceY = height / 2 - point.y;
@@ -162,7 +155,7 @@ export default function Simulation() {
     updateField("putts", puttsCopy);
 
     // generate new data
-    if (putts[hole] == undefined) {
+    if (putts[hole] === undefined) {
       updateField("point", {});
       updateField("missRead", false);
       updateField("center", false);
@@ -181,8 +174,7 @@ export default function Simulation() {
       updateField("point", {});
       updateField("largeMiss", true);
       updateField("largeMissBy", [nextPutt.point.x, nextPutt.point.y])
-    }
-    else {
+    } else {
       updateField("point", nextPutt.point);
       updateField("largeMissBy", [0, 0]);
     }
@@ -197,9 +189,8 @@ export default function Simulation() {
 
   // IF THE LAST HOLE HAD A BIG MISS, OPEN THE BIG MISS MENU
   const lastHole = () => {
-    if (hole === 1) {
+    if (hole === 1)
       return
-    }
 
     let distanceMissedFeet = 0;
 
