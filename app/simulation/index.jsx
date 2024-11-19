@@ -366,9 +366,9 @@ export default function Simulation() {
               <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} width={20} height={20} stroke={missRead ? 'white' : "#C13838"}>
                 <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
               </Svg> :
-              <SvgClose width={20} height={20} stroke={ missRead ? 'white' : "#C13838" }></SvgClose>
+              <SvgClose width={20} height={20} stroke={ 'white' }></SvgClose>
             }
-            <Text style={{ color: missRead ? 'white' : "#C13838", marginLeft: 8 }}>Misread</Text>
+            <Text style={{ color: 'white', marginLeft: 8 }}>Misread</Text>
           </Pressable>
           <View>
             {/*<ThemedText type="title" style={{marginTop: 18}}>Result</ThemedText>*/}
