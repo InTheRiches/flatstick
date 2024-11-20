@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Text, StatusBar, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import useColors from "@/hooks/useColors";
 
 export function HorizRadioButton({ options, selectedOption, setSelectedOption }) {
-    const colorScheme = useColorScheme();
+    const colors = useColors();
 
     const handleSelectOption = (option) => {
         if (selectedOption === option)
@@ -21,7 +20,7 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
         const isSelected = selectedOption === option;
 
         // Set the base border color
-        style = isSelected ? { ...style, borderColor: "#7F944F", backgroundColor: "#59663A" } : { ...style, borderColor: Colors[colorScheme ?? 'light'].border };
+        style = { ...style, borderColor: isSelected ? colors.radioButtonSelectedBorder : colors.radioButtonBorder, backgroundColor: isSelected ? colors.radioButtonSelectedBackground : colors.radioButtonBackground };
 
         // If the previous or next option is selected, disable overlapping borders
         if (index > 0 && selectedOption === options[index - 1])
@@ -35,7 +34,7 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
         if (index === options.length - 1)
             style = { ...style, borderRightWidth: 1, borderTopRightRadius: 8, borderBottomRightRadius: 8 };
 
-        if (index != options.length - 1 && selectedOption == undefined) {
+        if (index !== options.length - 1 && selectedOption === undefined) {
             style = { ...style, borderRightWidth: 0 };
         }
 
@@ -47,12 +46,10 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
                 activeOpacity={0.75}
             >
                 <View style={[styles.radioCircle,
-                    { backgroundColor: selectedOption === option ? '#7F944F' : Colors[colorScheme ?? 'light'].background, borderColor: selectedOption === option ? '#7F944F' : Colors[colorScheme ?? 'light'].border }]}>
-                    {selectedOption === option &&
-                        <View style={styles.selectedRadioInnerCircle} />
-                    }
+                    { backgroundColor: isSelected ? colors.radioButtonSelectedRadio : colors.radioButtonBorder }]}>
+                    <View style={{...styles.radioInnerCircle, backgroundColor: colors.radioButtonBackground }} />
                 </View>
-                <ThemedText style={ selectedOption === option ? { ...styles.option, color: "white" } : styles.option }>{option}</ThemedText>
+                <ThemedText style={{ ...styles.option, color: isSelected ? colors.radioButtonSelectedText : colors.radioButtonText }}>{option}</ThemedText>
             </TouchableOpacity>
         );
     };
@@ -89,16 +86,14 @@ const styles = StyleSheet.create({
         height: 15,
         width: 15,
         borderRadius: 12,
-        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 2,
     },
-    selectedRadioInnerCircle: {
+    radioInnerCircle: {
         height: 6,
         width: 6,
         borderRadius: 6,
-        backgroundColor: 'white',
     },
     option: {
         fontSize: 14,

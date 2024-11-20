@@ -1,16 +1,14 @@
 import {Redirect, Tabs} from 'expo-router';
 import React from 'react';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { SvgHome, SvgPractice } from '@/assets/svg/SvgComponents';
 import { useSession } from '@/contexts/ctx';
 import {Text} from "react-native";
 import {getAuth} from "firebase/auth";
+import useColors from "@/hooks/useColors";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colors = useColors();
 
   const { session, isLoading } = useSession();
 
@@ -38,9 +36,9 @@ export default function TabLayout() {
 
   return (
     <Tabs screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].buttonPrimaryBorder,
-        tabBarActiveBackgroundColor: Colors[colorScheme ?? 'light'].background,
-        tabBarInactiveBackgroundColor: Colors[colorScheme ?? 'light'].background,
+        tabBarActiveTintColor: colors.buttonPrimaryBorder,
+        tabBarActiveBackgroundColor: colors.background,
+        tabBarInactiveBackgroundColor: colors.background,
         headerShown: false,
         tabBarStyle: {
           borderTopWidth: 0, 
@@ -51,7 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <SvgHome stroke={focused ? Colors[colorScheme ?? 'light'].buttonPrimaryBorder : Colors[colorScheme ?? 'light'].border} fill={focused ? Colors[colorScheme ?? 'light'].buttonPrimaryBackground : Colors[colorScheme ?? 'light'].border} width={25} height={25} />
+            <SvgHome stroke={focused ? colors.buttonPrimaryBorder : colors.border} fill={focused ? colors.buttonPrimaryBackground : colors.border} width={25} height={25} />
           ),
         }}
       />
@@ -60,7 +58,7 @@ export default function TabLayout() {
         options={{
           title: 'Practice',
           tabBarIcon: ({ color, focused }) => (
-            <SvgPractice stroke={focused ? Colors[colorScheme ?? 'light'].buttonPrimaryBorder : Colors[colorScheme ?? 'light'].border} fill={focused ? Colors[colorScheme ?? 'light'].buttonPrimaryBackground : "transparent"} width={25} height={25} />
+            <SvgPractice stroke={focused ? colors.buttonPrimaryBorder : colors.border} fill={focused ? colors.buttonPrimaryBackground : "transparent"} width={25} height={25} />
           ),
         }}
       />

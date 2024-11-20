@@ -32,7 +32,7 @@ const ArrowComponent = ({ horizontalBreak, verticalSlope, selected }) => {
   return (
     <View style={{marginBottom: 2}}>
       {(horizontalBreak === 2 && verticalSlope === 1) ?
-        <View style={{ width: 33, height: 33, borderRadius: 50, backgroundColor: Colors[colorScheme ?? "light"].text, marginRight: 6 }}></View> :
+        <View style={{ width: 33, height: 33, borderRadius: 50, backgroundColor: colors.text, marginRight: 6 }}></View> :
         <SvgArrow
           width="24"
           height="24"

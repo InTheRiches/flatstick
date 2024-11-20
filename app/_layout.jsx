@@ -1,22 +1,24 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import * as NavigationBar from 'expo-navigation-bar';
-import { Colors } from '@/constants/Colors';
 import { SessionProvider } from '@/contexts/ctx';
-import {StatusBar, View} from "react-native";
+import {StatusBar, useColorScheme} from "react-native";
+import useColors from "@/hooks/useColors";
 
 export default function RootLayout() {
+  const colors = useColors();
+
   const colorScheme = useColorScheme();
 
-  NavigationBar.setBackgroundColorAsync(Colors[colorScheme ?? 'light'].background);
+  // TODO FIND A WAY TO CHANGE THE STATUS BAR COLOR WHEN A MODAL IS OPEN
+
+  NavigationBar.setBackgroundColorAsync(colors.background);
 
   return (
       <SessionProvider>
-        <StatusBar backgroundColor={Colors[colorScheme ?? 'light'].background} />
+        <StatusBar backgroundColor={colors.background} />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack

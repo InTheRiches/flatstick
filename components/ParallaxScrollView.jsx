@@ -10,6 +10,7 @@ import { ThemedView } from '@/components/ThemedView';
 
 const HEADER_HEIGHT = 250;
 
+// TODO DOES THIS ALLOW THE DRAG TO RELOAD?
 export default function ParallaxScrollView({
   children,
   headerImage,

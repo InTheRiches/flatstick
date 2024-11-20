@@ -1,13 +1,8 @@
-import { Text, StyleSheet, Pressable } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Image } from 'react-native';
-
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { StyleSheet, Pressable, Text } from 'react-native';
+import useColors from "../hooks/useColors";
 
 export function DangerButton({ onPress, title = 'Save', disabled = false, ...rest }) {
-    const colorScheme = useColorScheme();
+    const colors = useColors();
 
     const styles = StyleSheet.create({
         button: {
@@ -16,18 +11,17 @@ export function DangerButton({ onPress, title = 'Save', disabled = false, ...res
           paddingVertical: 8,
           paddingHorizontal: 24,
           borderRadius: 6,
-          backgroundColor: disabled ? Colors[colorScheme ?? 'light'].buttonDangerDisabledBackground : Colors[colorScheme ?? 'light'].buttonDangerBackground,
+          backgroundColor: disabled ? colors.buttonDangerDisabledBackground : colors.buttonDangerBackground,
           borderStyle: "solid",
           borderWidth: 1,
-          borderColor: disabled ? Colors[colorScheme ?? 'light'].buttonDangerDisabledBorder : Colors[colorScheme ?? 'light'].buttonDangerBorder,
-          overflow: "hidden",
+          borderColor: disabled ? colors.buttonDangerDisabledBorder : colors.buttonDangerBorder,
           alignSelf: "center",
         }
       });
 
     return (
         <Pressable style={styles.button} onPress={onPress} {...rest}>
-            <ThemedText lightColor={disabled ? Colors[colorScheme ?? 'light'].buttonDangerDisabledText : Colors[colorScheme ?? 'light'].buttonDangerText } darkColor={disabled ? Colors['dark'].buttonDangerDisabledText : Colors[colorScheme ?? 'light'].buttonDangerText } type="defaultSemiBold">{title}</ThemedText>
+            <Text style={{ color: disabled ? colors.buttonDangerDisabledText : colors.buttonDangerText, fontWeight: 500 }}>{title}</Text>
         </Pressable>
     );
 }

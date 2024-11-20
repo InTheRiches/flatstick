@@ -1,7 +1,5 @@
 import {ThemedText} from "@/components/ThemedText";
 import {View, Text, Pressable, TextInput} from "react-native";
-import {Colors} from "@/constants/Colors";
-import {useColorScheme} from "@/hooks/useColorScheme";
 import {useEffect, useState} from "react";
 import {SvgGoogle} from "@/assets/svg/SvgComponents";
 import {getAuth} from "firebase/auth";
@@ -9,6 +7,7 @@ import {getFirestore} from "firebase/firestore";
 import {useRouter} from "expo-router";
 import {useSession} from "../../contexts/ctx";
 import Loading from "../../components/popups/Loading";
+import useColors from "../../hooks/useColors";
 
 const initialState = {
     password: "",
@@ -20,10 +19,8 @@ const initialState = {
 }
 
 export default function Login() {
-    const colorScheme = useColorScheme();
-    const db = getFirestore();
+    const colors = useColors();
     const router = useRouter();
-
     const {signIn} = useSession();
 
     const [state, setState] = useState(initialState);
@@ -70,7 +67,7 @@ export default function Login() {
 
     return (loading ? <Loading/> :
             <View style={{
-                      backgroundColor: Colors[colorScheme ?? "light"].background,
+                      backgroundColor: colors.background,
                       width: "100%",
                       height: "100%",
                       paddingTop: 50,
@@ -89,10 +86,10 @@ export default function Login() {
                                    alignContent: "center",
                                    justifyContent: "center",
                                    borderWidth: 1,
-                                   borderColor: pressed ? Colors[colorScheme ?? "light"].inputFocusedBorder : Colors[colorScheme ?? "light"].inputBorder,
-                                   backgroundColor: pressed ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                                   borderColor: pressed ? colors.inputFocusedBorder : colors.inputBorder,
+                                   backgroundColor: pressed ? colors.inputFocusedBackground : colors.inputBackground
                                }]}>
-                        <SvgGoogle fill={Colors[colorScheme ?? "light"].inputBorder}
+                        <SvgGoogle fill={colors.inputBorder}
                                    style={{width: 24, height: 24}}></SvgGoogle>
                     </Pressable>
                     <Pressable style={({pressed}) => [{
@@ -103,10 +100,10 @@ export default function Login() {
                                    alignContent: "center",
                                    justifyContent: "center",
                                    borderWidth: 1,
-                                   borderColor: pressed ? Colors[colorScheme ?? "light"].inputFocusedBorder : Colors[colorScheme ?? "light"].inputBorder,
-                                   backgroundColor: pressed ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                                   borderColor: pressed ? colors.inputFocusedBorder : colors.inputBorder,
+                                   backgroundColor: pressed ? colors.inputFocusedBackground : colors.inputBackground
                                }]}>
-                        <SvgGoogle fill={Colors[colorScheme ?? "light"].inputBorder}
+                        <SvgGoogle fill={colors.inputBorder}
                                    style={{width: 24, height: 24}}></SvgGoogle>
                     </Pressable>
                 </View>
@@ -114,14 +111,14 @@ export default function Login() {
                     <View style={{
                               height: 1,
                               flex: 1,
-                              backgroundColor: Colors[colorScheme ?? "light"].textSecondary,
+                              backgroundColor: colors.textSecondary,
                               marginTop: 12
                           }}></View>
                     <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
                     <View style={{
                               height: 1,
                               flex: 1,
-                              backgroundColor: Colors[colorScheme ?? "light"].textSecondary,
+                              backgroundColor: colors.textSecondary,
                               marginTop: 12
                           }}></View>
                 </View>
@@ -131,13 +128,13 @@ export default function Login() {
                         style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidFocusedBorder : Colors[colorScheme ?? "light"].inputFocusedBorder : state.invalidEmail || errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidBorder : Colors[colorScheme ?? "light"].inputBorder,
+                            borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidBorder : colors.inputBorder,
                             borderRadius: 10,
                             paddingVertical: 8,
                             paddingHorizontal: 10,
                             fontSize: 16,
-                            color: state.invalidEmail || errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidText : Colors[colorScheme ?? "light"].inputText,
-                            backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidBackground : state.emailFocused ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                            color: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidText : colors.inputText,
+                            backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidBackground : state.emailFocused ? colors.inputFocusedBackground : colors.inputBackground
                         }}
                         onFocus={() => updateField("emailFocused", true)}
                         value={state.email}
@@ -158,9 +155,9 @@ export default function Login() {
                     }}>!</Text>}
                 </View>
                 {errorCode === "auth/invalid-credential" ?
-                    <Text style={{color: Colors[colorScheme ?? "light"].inputInvalidText, marginTop: 4}}>Please check your email and password and try again.</Text>
+                    <Text style={{color: colors.inputInvalidText, marginTop: 4}}>Please check your email and password and try again.</Text>
                     : state.invalidEmail &&
-                    <Text style={{color: Colors[colorScheme ?? "light"].inputInvalidText, marginTop: 4}}>Please enter a valid email.</Text>}
+                    <Text style={{color: colors.inputInvalidText, marginTop: 4}}>Please enter a valid email.</Text>}
 
                 <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
                 <View style={{flexDirection: "row"}}>
@@ -168,13 +165,13 @@ export default function Login() {
                         style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidFocusedBorder : Colors[colorScheme ?? "light"].inputFocusedBorder : state.invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidBorder : Colors[colorScheme ?? "light"].inputBorder,
+                            borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : state.invalidPassword ? colors.inputInvalidBorder : colors.inputBorder,
                             borderRadius: 10,
                             paddingVertical: 8,
                             paddingHorizontal: 10,
                             fontSize: 16,
-                            color: errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidText : Colors[colorScheme ?? "light"].inputText,
-                            backgroundColor: errorCode === "auth/invalid-credential" ? Colors[colorScheme ?? "light"].inputInvalidBackground : state.passwordFocused ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                            color: errorCode === "auth/invalid-credential" ? colors.inputInvalidText : colors.inputText,
+                            backgroundColor: errorCode === "auth/invalid-credential" ? colors.inputInvalidBackground : state.passwordFocused ? colors.inputFocusedBackground : colors.inputBackground
                         }}
                         onFocus={() => updateField("passwordFocused", true)}
                         onBlur={() => updateField("passwordFocused", false)}
@@ -196,7 +193,7 @@ export default function Login() {
                     }}>!</Text>}
                 </View>
                 {errorCode === "auth/invalid-credential" &&
-                    <Text style={{color: Colors[colorScheme ?? "light"].inputInvalidText, marginTop: 4}}>Please check your email and password and try again.</Text>}
+                    <Text style={{color: colors.inputInvalidText, marginTop: 4}}>Please check your email and password and try again.</Text>}
                 <Pressable onPress={() => {
                     if (state.invalidEmail) return;
                     login();
@@ -205,12 +202,12 @@ export default function Login() {
                     borderRadius: 10,
                     marginTop: 48,
                     borderWidth: state.invalidEmail ? 1 : 0,
-                    borderColor: Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBorder,
-                    backgroundColor: state.invalidEmail ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBackground : Colors[colorScheme ?? "light"].buttonPrimaryBorder
+                    borderColor: colors.buttonDisabledBorder,
+                    backgroundColor: state.invalidEmail ? colors.buttonDisabledBackground : colors.buttonPrimaryBorder
                 }}>
                     <Text style={{
                         textAlign: "center",
-                        color: state.invalidEmail ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledText : "white"
+                        color: state.invalidEmail ? colors.buttonDisabledText : "white"
                     }}>Login</Text>
                 </Pressable>
             </View>
@@ -318,14 +315,14 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 <View style={{
                     height: 1,
                     flex: 1,
-                    backgroundColor: Colors[colorScheme ?? "light"].textSecondary,
+                    backgroundColor: colors.textSecondary,
                     marginTop: 12
                 }}></View>
                 <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
                 <View style={{
                     height: 1,
                     flex: 1,
-                    backgroundColor: Colors[colorScheme ?? "light"].textSecondary,
+                    backgroundColor: colors.textSecondary,
                     marginTop: 12
                 }}></View>
             </View>
@@ -335,13 +332,13 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 style={{
                     flex: 0,
                     borderWidth: 1,
-                    borderColor: nameFocused ? Colors[colorScheme ?? "light"].inputFocusedBorder : Colors[colorScheme ?? "light"].inputBorder,
+                    borderColor: nameFocused ? colors.inputFocusedBorder : colors.inputBorder,
                     borderRadius: 10,
                     paddingVertical: 8,
                     paddingHorizontal: 10,
                     fontSize: 16,
-                    color: Colors[colorScheme ?? "light"].inputText,
-                    backgroundColor: nameFocused ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                    color: colors.inputText,
+                    backgroundColor: nameFocused ? colors.inputFocusedBackground : colors.inputBackground
                 }}
                 onFocus={() => setNameFocused(true)}
                 onBlur={() => setNameFocused(false)}
@@ -354,13 +351,13 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: emailFocused ? invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidFocusedBorder : Colors[colorScheme ?? "light"].inputFocusedBorder : invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidBorder : Colors[colorScheme ?? "light"].inputBorder,
+                        borderColor: emailFocused ? invalidEmail ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : invalidEmail ? colors.inputInvalidBorder : colors.inputBorder,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidText : Colors[colorScheme ?? "light"].inputText,
-                        backgroundColor: invalidEmail ? Colors[colorScheme ?? "light"].inputInvalidBackground : emailFocused ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                        color: invalidEmail ? colors.inputInvalidText : colors.inputText,
+                        backgroundColor: invalidEmail ? colors.inputInvalidBackground : emailFocused ? colors.inputFocusedBackground : colors.inputBackground
                     }}
                     onFocus={() => setEmailFocused(true)}
                     value={state.email}
@@ -381,7 +378,7 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 }}>!</Text>}
             </View>
             {errorCode === "auth/email-already-in-use" &&
-                <Text style={{color: Colors[colorScheme ?? "light"].inputInvalidText, marginTop: 4}}>That email is
+                <Text style={{color: colors.inputInvalidText, marginTop: 4}}>That email is
                     already in use!</Text>}
 
             <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
@@ -390,13 +387,13 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: passwordFocused ? invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidFocusedBorder : Colors[colorScheme ?? "light"].inputFocusedBorder : invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidBorder : Colors[colorScheme ?? "light"].inputBorder,
+                        borderColor: passwordFocused ? invalidPassword ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : invalidPassword ? colors.inputInvalidBorder : colors.inputBorder,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidText : Colors[colorScheme ?? "light"].inputText,
-                        backgroundColor: invalidPassword ? Colors[colorScheme ?? "light"].inputInvalidBackground : passwordFocused ? Colors[colorScheme ?? "light"].inputFocusedBackground : Colors[colorScheme ?? "light"].inputBackground
+                        color: invalidPassword ? colors.inputInvalidText : colors.inputText,
+                        backgroundColor: invalidPassword ? colors.inputInvalidBackground : passwordFocused ? colors.inputFocusedBackground : colors.inputBackground
                     }}
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
@@ -418,32 +415,32 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 }}>!</Text>}
             </View>
             <Text style={{
-                color: !requirements.invalid ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText,
+                color: !requirements.invalid ? '#16a34a' : colors.inputInvalidText,
                 marginBottom: 4
             }}>Password
                 Requirements:</Text>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasLength ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasLength ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>At
+                    style={{color: requirements.hasLength ? '#16a34a' : colors.inputInvalidText}}>At
                     least 6 characters</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasNumber ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasNumber ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>At
+                    style={{color: requirements.hasNumber ? '#16a34a' : colors.inputInvalidText}}>At
                     least 1 number</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasUppercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasUppercase ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>Contains
+                    style={{color: requirements.hasUppercase ? '#16a34a' : colors.inputInvalidText}}>Contains
                     an uppercase</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasLowercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasLowercase ? '#16a34a' : Colors[colorScheme ?? "light"].inputInvalidText}}>Contains
+                    style={{color: requirements.hasLowercase ? '#16a34a' : colors.inputInvalidText}}>Contains
                     a lowercase</Text>
             </View>
 
@@ -455,12 +452,12 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 borderRadius: 10,
                 marginTop: 48,
                 borderWidth: (invalidPassword || invalidEmail || state.username.length === 0) ? 1 : 0,
-                borderColor: Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBorder,
-                backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBackground : Colors[colorScheme ?? "light"].buttonPrimaryBorder
+                borderColor: colors.buttonDisabledBorder,
+                backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.buttonDisabledBackground : colors.buttonPrimaryBorder
             }}>
                 <Text style={{
                     textAlign: "center",
-                    color: (invalidPassword || invalidEmail || state.username.length === 0) ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledText : "white"
+                    color: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.buttonDisabledText : "white"
                 }}>Create your account</Text>
             </Pressable>
         </View>

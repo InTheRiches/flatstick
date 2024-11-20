@@ -1,13 +1,9 @@
-import { Text, StyleSheet, Pressable } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Image } from 'react-native';
+import { StyleSheet, Pressable, Text } from 'react-native';
+import useColors from "@/hooks/useColors";
 
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
+// TODO MAKE COMPONENTS FOR DISABLED BUTTONS, PRIMARY BUTTONS, SECONDARY BUTTONS, etc
 export function ThemedButton({ onPress, title = 'Save', disabled = false, ...rest }) {
-    const colorScheme = useColorScheme();
+    const colors = useColors();
 
     const styles = StyleSheet.create({
         button: {
@@ -16,10 +12,10 @@ export function ThemedButton({ onPress, title = 'Save', disabled = false, ...res
           paddingVertical: 8,
           paddingHorizontal: 24,
           borderRadius: 8,
-          backgroundColor: disabled ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBackground : Colors[colorScheme ?? 'light'].buttonPrimaryBackground,
+          backgroundColor: disabled ? colors.buttonDisabledBackground : colors.buttonPrimaryBackground,
           borderStyle: "solid",
           borderWidth: 1,
-          borderColor: disabled ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBorder : Colors[colorScheme ?? 'light'].buttonPrimaryBorder,
+          borderColor: disabled ? colors.buttonDisabledBorder : colors.buttonPrimaryBorder,
           overflow: "hidden",
           alignSelf: "center"
         }
@@ -27,13 +23,8 @@ export function ThemedButton({ onPress, title = 'Save', disabled = false, ...res
 
     return (
         <Pressable style={styles.button} onPress={onPress} {...rest}>
-            <ThemedText lightColor={disabled ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledText : Colors[colorScheme ?? 'light'].buttonPrimaryText } darkColor={disabled ? Colors['dark'].buttonSecondaryDisabledText : Colors[colorScheme ?? 'light'].buttonPrimaryText } type="defaultSemiBold">{title}</ThemedText>
+            <Text style={{ color: disabled ? colors.buttonDisabledText : colors.buttonPrimaryText, fontWeight: 500 }}>{title}</Text>
         </Pressable>
     );
 }
-
-{/* <Pressable style={styles.button} onPress={onPress}>
-<Image source={require('../assets/images/pixelGradient.png')} style={{ position: "absolute", left: 0, width: 120, height: 40 }} />
-<ThemedText type="defaultSemiBold" style={{ color: "#0081f1"}}>{title}</ThemedText>
-</Pressable> */}
 

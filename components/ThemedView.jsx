@@ -1,10 +1,10 @@
 import { View } from 'react-native';
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import useColors from "@/hooks/useColors";
 
 export function ThemedView({ style, type, ...otherProps }) {
 
-  const backgroundColor = useThemeColor(type == "secondary" ? 'backgroundSecondary' : 'background');
+  const backgroundColor = useColors()[type === "secondary" ? 'backgroundSecondary' : 'background'];
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;
 }

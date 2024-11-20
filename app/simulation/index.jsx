@@ -1,14 +1,11 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
 import {ThemedButton} from '@/components/ThemedButton';
-import {Checkbox} from "@/components/Checkbox";
-import {useColorScheme} from '@/hooks/useColorScheme';
 import {useRouter, useLocalSearchParams, useNavigation} from 'expo-router';
-import {Image, Pressable, Text, BackHandler, ActivityIndicator} from 'react-native';
+import {Image, Pressable, Text, BackHandler} from 'react-native';
 import {GestureDetector, Gesture, TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
-import {Colors} from '@/constants/Colors';
-import {SvgClose, SvgLogo, SvgMenu, SvgWarning} from '../../assets/svg/SvgComponents';
+import {SvgClose, SvgWarning} from '../../assets/svg/SvgComponents';
 import {View} from 'react-native';
 import {useEffect, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
@@ -19,6 +16,7 @@ import {getFirestore, setDoc, doc, runTransaction} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "../../components/utils/GeneratePushID";
 import Loading from "../../components/popups/Loading";
+import useColors from "../../hooks/useColors";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 // AND THEY GO BACK, NOT SHOW BOTH DIALOGES ON TOP OF EACH OTHER, AND TO CANCEL THE OTHER ONE BENEATH IT
@@ -75,7 +73,7 @@ const initialState = {
 
 // TODO WHEN SWITCHING TO THE NEXT HOLE, ADD A POPUP ASKING HOW MANY PUTTS IT TOOK TO FINISH OUT THE HOLE
 export default function Simulation() {
-  const colorScheme = useColorScheme();
+  const colors = useColors();
   const navigation = useNavigation();
   const db = getFirestore();
   const auth = getAuth();
@@ -85,7 +83,22 @@ export default function Simulation() {
   const holes = parseInt(localHoles);
 
   const [
-    {loading, confirmLeave, largeMiss, largeMissBy, confirmSubmit, width, height, center, point, hole, puttBreak, distance, missRead, putts},
+    {
+      loading,
+      confirmLeave,
+      largeMiss,
+      largeMissBy,
+      confirmSubmit,
+      width,
+      height,
+      center,
+      point,
+      hole,
+      puttBreak,
+      distance,
+      missRead,
+      putts
+    },
     setState
   ] = useState(initialState);
 
@@ -131,8 +144,8 @@ export default function Simulation() {
     if (largeMiss) {
       console.log("hello")
       // find the distance to center of the point in x and y
-      const distanceX = largeMissBy[0]*8;
-      const distanceY = largeMissBy[1]*8;
+      const distanceX = largeMissBy[0] * 8;
+      const distanceY = largeMissBy[1] * 8;
       distanceMissedFeet = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
     } else {
       // find the distance to center of the point in x and y
@@ -150,7 +163,7 @@ export default function Simulation() {
       break: puttBreak,
       missRead: missRead,
       distanceMissed: distanceMissedFeet,
-      point: largeMiss ? { x: largeMissBy[0], y: largeMissBy[1] } : point
+      point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
     };
     updateField("putts", puttsCopy);
 
@@ -196,11 +209,10 @@ export default function Simulation() {
 
     if (largeMiss) {
       // find the distance to center of the point in x and y
-      const distanceX = largeMissBy[0]*8;
-      const distanceY = largeMissBy[1]*8;
+      const distanceX = largeMissBy[0] * 8;
+      const distanceY = largeMissBy[1] * 8;
       distanceMissedFeet = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-    }
-    else {
+    } else {
       // find the distance to center of the point in x and y
       const distanceX = width / 2 - point.x;
       const distanceY = height / 2 - point.y;
@@ -216,7 +228,7 @@ export default function Simulation() {
       break: puttBreak,
       missRead: missRead,
       distanceMissed: distanceMissedFeet,
-      point: largeMiss ? { x: largeMissBy[0], y: largeMissBy[1] } : point
+      point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
     };
     updateField("putts", puttsCopy);
 
@@ -225,8 +237,7 @@ export default function Simulation() {
       updateField("point", {});
       updateField("largeMiss", true);
       updateField("largeMissBy", [lastPutt.point.x, lastPutt.point.y])
-    }
-    else {
+    } else {
       updateField("point", lastPutt.point);
       updateField("largeMiss", false);
       updateField("largeMissBy", [0, 0]);
@@ -296,10 +307,17 @@ export default function Simulation() {
       if (putt !== undefined) {
         if (putt.distanceMissed === 0) totalPutts++;
         else {
-            totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
+          totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
         }
 
-        trimmedPutts.push({distance: putt.distance, xDistance: roundTo(-1*(width / 2 - putt.point.x) * (5 / width), 2), yDistance: roundTo(-1 * (height / 2 - putt.point.y) * (5 / height), 2), break: putt.break, missRead: putt.missRead, distanceMissed: putt.distanceMissed});
+        trimmedPutts.push({
+          distance: putt.distance,
+          xDistance: roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2),
+          yDistance: roundTo(-1 * (height / 2 - putt.point.y) * (5 / height), 2),
+          break: putt.break,
+          missRead: putt.missRead,
+          distanceMissed: putt.distanceMissed
+        });
       }
     });
 
@@ -314,7 +332,17 @@ export default function Simulation() {
       putts: trimmedPutts,
       type: "round-simulation"
     }).then(() => {
-        router.push({ pathname: `/simulation/recap`, params: { current: true, holes: holes, difficulty: difficulty, mode: mode, serializedPutts: JSON.stringify(trimmedPutts), date: new Date().toISOString() }});
+      router.push({
+        pathname: `/simulation/recap`,
+        params: {
+          current: true,
+          holes: holes,
+          difficulty: difficulty,
+          mode: mode,
+          serializedPutts: JSON.stringify(trimmedPutts),
+          date: new Date().toISOString()
+        }
+      });
     });
 
     const sfDocRef = doc(db, `users/${auth.currentUser.uid}`);
@@ -326,219 +354,236 @@ export default function Simulation() {
       }
 
       const newPutts = sfDoc.data().totalPutts + totalPutts;
-      transaction.update(sfDocRef, { totalPutts: newPutts });
+      transaction.update(sfDocRef, {totalPutts: newPutts});
     }).then(() => {
-        console.log("Transaction successfully committed!");
-      }).catch((e) => {
+      console.log("Transaction successfully committed!");
+    }).catch((e) => {
       console.log("Transaction failed: ", e);
     });
 
   }
 
-  return ( loading ? <Loading/> :
-    <ThemedView>
-      <ThemedView style={{
-            borderColor: Colors[colorScheme ?? 'light'].border,
-            justifyContent: "center",
-            alignContent: "center",
-            width: "100%",
-            borderBottomWidth: 1,
-            paddingTop: 6,
-            paddingBottom: 10,
-            marginBottom: 8
+  return (loading ? <Loading/> :
+      <ThemedView>
+        <ThemedView style={{
+          borderColor: colors.border,
+          justifyContent: "center",
+          alignContent: "center",
+          width: "100%",
+          borderBottomWidth: 1,
+          paddingTop: 6,
+          paddingBottom: 10,
+          marginBottom: 8
         }}>
-        <Text style={{
+          <Text style={{
             textAlign: "center",
             fontSize: 16,
             fontWeight: "medium",
-            color: Colors[colorScheme ?? 'light'].text
-        }}>9 Hole Simulation</Text>
-        <Image source={require('@/assets/images/PuttLabLogo.png')}
-               style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
-      </ThemedView>
-      <View style={{width: "100%", paddingHorizontal: 24}}>
-        <View style={{display: "flex", flexDirection: "column", marginBottom: 12 }}>
-          <ThemedText style={{ marginBottom: 6 }} type="title">Hole {hole}</ThemedText>
-          <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance} puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
+            color: colors.text
+          }}>9 Hole Simulation</Text>
+          <Image source={require('@/assets/images/PuttLabLogo.png')}
+                 style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
+        </ThemedView>
+        <View style={{width: "100%", paddingHorizontal: 24}}>
+          <View style={{display: "flex", flexDirection: "column", marginBottom: 12}}>
+            <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
+            <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
+                         puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
 
-          <Pressable onPress={() => updateField("missRead", !missRead)} style={{ marginTop: 12, marginBottom: 4, paddingRight: 20, paddingLeft: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: missRead ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", alignSelf: "center", flexDirection: "row", justifyContent: "center", alignItems: 'center', }}>
-            {missRead ?
-              <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} width={20} height={20} stroke={missRead ? 'white' : "#C13838"}>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </Svg> :
-              <SvgClose width={20} height={20} stroke={ 'white' }></SvgClose>
-            }
-            <Text style={{ color: 'white', marginLeft: 8 }}>Misread</Text>
-          </Pressable>
-          <View>
-            {/*<ThemedText type="title" style={{marginTop: 18}}>Result</ThemedText>*/}
-            {/*<ThemedText type="subtitle" secondary={true} style={{ fontWeight: "normal", fontSize: 15 }}>Click on the grid where your*/}
-            {/*  putt went.</ThemedText>*/}
-            {/*<View style={{flexDirection: "row", marginTop: 8, marginBottom: 10}}>*/}
-            {/*  <Checkbox checked={missRead} setChecked={(e) => updateField("missRead", e)}></Checkbox>*/}
-            {/*  <ThemedText type="subtitle" style={{marginLeft: 12}}>Miss-read?</ThemedText>*/}
-            {/*</View>*/}
-            <View style={{ alignSelf: "center", flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">2 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">1 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">0 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">1 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F">2 ft</ThemedText>
-              <ThemedText type="defaultSemiBold" lightColor="#B2C490" darkColor="#A5CA5F"></ThemedText>
-            </View>
-            <GestureDetector gesture={singleTap}>
-              <View onLayout={onLayout} style={{ alignSelf: "center", alignItems: "center", justifyContent: "center", width: "100%"}}>
-                <Image
-                  source={require('../../assets/images/putting-grid.png')}
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 12,
-                    borderColor: colorScheme === "dark" ? "#CEDD94" : "transparent",
-                    width: "100%",
-                    aspectRatio: "1",
-                    height: undefined
-                  }}/>
-                <View style={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                        position: "absolute",
-                        left: width / 2 - (width / 20),
-                        top: height / 2 - (width / 20),
-                        width: width / 10 + 1,
-                        height: width / 10 + 1,
-                        borderRadius: 24,
-                        backgroundColor: center ? "#333D20" : "#fff"
-                      }}>
-                  {center ? (
-                      <Svg width={24} height={24} stroke={"white"} xmlns="http://www.w3.org/2000/svg" fill="none"
-                           viewBox="0 0 24 24" strokeWidth="3">
-                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                      </Svg>
-                    ) : (
-                      <Svg width={24} height={24} stroke={"#D9D9D9"} xmlns="http://www.w3.org/2000/svg" fill="none"
-                           viewBox="0 0 24 24" strokeWidth="3">
-                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                      </Svg>
-                    )}
-                </View>
-                {point.x !== undefined && center !== true ? (
-                  <Image source={require('../../assets/images/golf-ball.png')} style={{
-                           position: "absolute",
-                           left: point.x - 12,
-                           top: point.y - 12,
-                           width: 24,
-                           height: 24,
-                           borderRadius: 12,
-                           backgroundColor: "#fff"
-                         }}></Image>
-                ) : null}
+            <Pressable onPress={() => updateField("missRead", !missRead)} style={{
+              marginTop: 12,
+              marginBottom: 4,
+              paddingRight: 20,
+              paddingLeft: 10,
+              paddingVertical: 8,
+              borderRadius: 8,
+              backgroundColor: missRead ? colors.buttonDangerBackground : colors.buttonDangerDisabledBackground,
+              alignSelf: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: 'center',
+            }}>
+              {missRead ?
+                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} width={20}
+                     height={20} stroke={'white'}>
+                  <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                </Svg> :
+                <SvgClose width={20} height={20} stroke={'white'}></SvgClose>
+              }
+              <Text style={{color: 'white', marginLeft: 8}}>Misread</Text>
+            </Pressable>
+            <View>
+              <View style={{alignSelf: "center", flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
+                <ThemedText></ThemedText>
+                <ThemedText type="defaultSemiBold" style={{color: colors.puttingGridText}}>2 ft</ThemedText>
+                <ThemedText></ThemedText>
+                <ThemedText type="defaultSemiBold" style={{color: colors.puttingGridText}}>1 ft</ThemedText>
+                <ThemedText></ThemedText>
+                <ThemedText type="defaultSemiBold" style={{color: colors.puttingGridText}}>0 ft</ThemedText>
+                <ThemedText></ThemedText>
+                <ThemedText type="defaultSemiBold" style={{color: colors.puttingGridText}}>1 ft</ThemedText>
+                <ThemedText></ThemedText>
+                <ThemedText type="defaultSemiBold" style={{color: colors.puttingGridText}}>2 ft</ThemedText>
+                <ThemedText></ThemedText>
               </View>
-            </GestureDetector>
-            <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, }}>
-              <ThemedButton title="Back" disabled={hole === 1} onPress={() => lastHole()}></ThemedButton>
-              <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
-              {hole === holes ? <ThemedButton title="Submit" disabled={point.x === undefined} onPress={() => {if (point.x !== undefined) updateField("confirmSubmit", true)}}></ThemedButton>
-                : <ThemedButton title="Next" disabled={point.x === undefined} onPress={() => nextHole()}></ThemedButton>}
+              <GestureDetector gesture={singleTap}>
+                <View onLayout={onLayout}
+                      style={{alignSelf: "center", alignItems: "center", justifyContent: "center", width: "100%"}}>
+                  <Image
+                    source={require('../../assets/images/putting-grid.png')}
+                    style={{
+                      borderWidth: 1,
+                      borderRadius: 12,
+                      borderColor: colors.puttingGridBorder,
+                      width: "100%",
+                      aspectRatio: "1",
+                      height: undefined
+                    }}/>
+                  <View style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "absolute",
+                    left: width / 2 - (width / 20),
+                    top: height / 2 - (width / 20),
+                    width: width / 10 + 1,
+                    height: width / 10 + 1,
+                    borderRadius: 24,
+                    backgroundColor: center ? colors.checkmarkBackground : colors.checkmarkBareBackground
+                  }}>
+                    <Svg width={24} height={24} stroke={center ? colors.checkmarkColor : colors.checkmarkBareColor}
+                         xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" strokeWidth="3">
+                      <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                    </Svg>
+                  </View>
+                  {point.x !== undefined && center !== true ? (
+                    <Image source={require('../../assets/images/golf-ball.png')} style={{
+                      position: "absolute",
+                      left: point.x - 12,
+                      top: point.y - 12,
+                      width: 24,
+                      height: 24,
+                      borderRadius: 12,
+                      backgroundColor: "#fff"
+                    }}></Image>
+                  ) : null}
+                </View>
+              </GestureDetector>
+              <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14,}}>
+                <ThemedButton title="Back" disabled={hole === 1} onPress={() => lastHole()}></ThemedButton>
+                <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
+                {hole === holes ? <ThemedButton title="Submit" disabled={point.x === undefined} onPress={() => {
+                    if (point.x !== undefined) updateField("confirmSubmit", true)
+                  }}></ThemedButton>
+                  : <ThemedButton title="Next" disabled={point.x === undefined}
+                                  onPress={() => nextHole()}></ThemedButton>}
+              </View>
             </View>
           </View>
         </View>
-      </View>
-      {(confirmLeave || confirmSubmit || largeMiss) &&
-        <View style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 50,
-                height: '100%',
-                width: '100%',
-                backgroundColor: colorScheme === 'light' ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.8)"
-              }}>
-          {confirmLeave && <ConfirmExit cancel={() => updateField("confirmLeave", false)} end={fullReset}></ConfirmExit>}
-          {confirmSubmit && <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)} submit={submit}></ConfirmSubmit>}
-          {(largeMiss && !confirmLeave) && <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
-        </View>}
-    </ThemedView>
+        {(confirmLeave || confirmSubmit || largeMiss) &&
+          <View style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 50,
+            height: '100%',
+            width: '100%',
+            backgroundColor: colors.backgroundTinted
+          }}>
+            {confirmLeave &&
+              <ConfirmExit cancel={() => updateField("confirmLeave", false)} end={fullReset}></ConfirmExit>}
+            {confirmSubmit &&
+              <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)} submit={submit}></ConfirmSubmit>}
+            {(largeMiss && !confirmLeave) &&
+              <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
+          </View>}
+      </ThemedView>
   );
 }
 
-function GreenVisual({ distance, puttBreak, slope, imageSource }) {
-    return (
-        <View style={{backgroundColor: "#333D20", flexDirection: "column", borderRadius: 16, elevation: 4, overflow: "hidden" }}>
-            <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
-                <Image source={imageSource} style={{
-                    width: "100%",
-                    height: "auto",
-                    aspectRatio: 2,
-                }}></Image>
-            </View>
-            <View style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: "#677943"}}>
-                <View style={{flexDirection: "row"}}>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: "#677943",
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: "#B2C490"}}>Break</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: "white",
-                            fontWeight: "bold"
-                              }}>{puttBreak}</Text>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 0.7,
-                        borderRightWidth: 1,
-                        borderColor: "#677943",
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: "#B2C490"}}>Slope</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: "white",
-                            fontWeight: "bold"
-                        }}>{slope}</Text>
-                    </View>
-                    <View style={{flexDirection: "column", flex: 0.7, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: "#B2C490"}}>Distance</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: "white",
-                            fontWeight: "bold"
-                        }}>{distance}ft</Text>
-                    </View>
-                </View>
-            </View>
+function GreenVisual({distance, puttBreak, slope, imageSource}) {
+  const colors = useColors();
+
+  return (
+    <View style={{
+      backgroundColor: colors.puttingVisualBackground,
+      flexDirection: "column",
+      borderRadius: 16,
+      elevation: 4,
+      overflow: "hidden"
+    }}>
+      <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
+        <Image source={imageSource} style={{
+          width: "100%",
+          height: "auto",
+          aspectRatio: 2,
+        }}></Image>
+      </View>
+      <View
+        style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: colors.puttingVisualBorder}}>
+        <View style={{flexDirection: "row"}}>
+          <View style={{
+            flexDirection: "column",
+            flex: 1,
+            borderRightWidth: 1,
+            borderColor: colors.puttingVisualBorder,
+            paddingBottom: 12,
+            paddingTop: 6,
+            paddingLeft: 12
+          }}>
+            <Text style={{fontSize: 14, textAlign: "left", color: colors.puttingVisualSecondaryText}}>Break</Text>
+            <Text style={{
+              fontSize: 20,
+              textAlign: "left",
+              color: "white",
+              fontWeight: "bold"
+            }}>{puttBreak}</Text>
+          </View>
+          <View style={{
+            flexDirection: "column",
+            flex: 0.7,
+            borderRightWidth: 1,
+            borderColor: colors.puttingVisualBorder,
+            paddingBottom: 12,
+            paddingTop: 6,
+            paddingLeft: 12
+          }}>
+            <Text style={{fontSize: 14, textAlign: "left", color: colors.puttingVisualSecondaryText}}>Slope</Text>
+            <Text style={{
+              fontSize: 20,
+              textAlign: "left",
+              color: "white",
+              fontWeight: "bold"
+            }}>{slope}</Text>
+          </View>
+          <View style={{flexDirection: "column", flex: 0.7, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
+            <Text style={{fontSize: 14, textAlign: "left", color: colors.puttingVisualSecondaryText}}>Distance</Text>
+            <Text style={{
+              fontSize: 20,
+              textAlign: "left",
+              color: "white",
+              fontWeight: "bold"
+            }}>{distance}ft</Text>
+          </View>
         </View>
-    )
+      </View>
+    </View>
+  )
 }
 
 // TODO MAKE THIS UPLOAD A PARTIAL ROUND
 function ConfirmExit({end, partial, cancel}) {
-  const colorScheme = useColorScheme();
+  const colors = useColors();
 
   return (
     <View style={{
-      borderColor: colorScheme === 'light' ? "white" : "#424647",
-      backgroundColor: colorScheme === "light" ? "#fbfcfd" : "#0c0d0e",
+      borderColor: colors.popupBorder,
+      backgroundColor: colors.background,
       borderWidth: 1,
       width: "auto",
       maxWidth: "70%",
@@ -556,56 +601,56 @@ function ConfirmExit({end, partial, cancel}) {
           flexDirection: "row",
           justifyContent: "center",
           borderRadius: 50,
-          backgroundColor: Colors[colorScheme ?? "light"].buttonDangerBackground
+          backgroundColor: colors.buttonDangerBackground
         }}>
           <SvgWarning width={26} height={26}
-                      stroke={Colors[colorScheme ?? "light"].buttonDangerText}></SvgWarning>
+                      stroke={colors.buttonDangerText}></SvgWarning>
         </View>
       </View>
-      <ThemedText type={"header"} style={{ fontWeight: 500, textAlign: "center", marginTop: 14 }}>End Session</ThemedText>
+      <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>End Session</ThemedText>
       <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Are you
         sure you want to end this session? You can always upload the partial round, otherwise all data will be lost.
         This action cannot be undone.</ThemedText>
-      <Pressable onPress={end} style={{
-        backgroundColor: Colors[colorScheme ?? "light"].buttonDangerBackground,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 16
-      }}>
-        <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].buttonDangerText, fontWeight: 500}}>End
+      <Pressable onPress={end} style={({ pressed }) => [{
+                   backgroundColor: pressed ? colors.buttonDangerDepressedBackground : colors.buttonDangerBackground,
+                   paddingVertical: 10,
+                   borderRadius: 10,
+                   marginTop: 16
+                 }]}>
+        <Text style={{textAlign: "center", color: colors.buttonDangerText, fontWeight: 500}}>End
           Session</Text>
       </Pressable>
-      <Pressable onPress={partial} style={{
-        backgroundColor: Colors[colorScheme ?? "light"].backgroundSecondary,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 10,
-        borderWidth: 1,
-        borderColor: colorScheme === 'light' ? "white" : "#424647"
-      }}>
-        <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].text, fontWeight: 500}}>Upload as
+      <Pressable onPress={partial} style={({ pressed }) => [{
+                   backgroundColor: pressed ? colors.buttonSecondaryDepressedBackground : colors.buttonSecondaryBackground,
+                   paddingVertical: 10,
+                   borderRadius: 10,
+                   marginTop: 10,
+                   borderWidth: 1,
+                   borderColor: colors.buttonSecondaryBorder
+                 }]}>
+        <Text style={{textAlign: "center", color: colors.text, fontWeight: 500}}>Upload as
           Partial</Text>
       </Pressable>
-      <Pressable onPress={cancel} style={{
-        backgroundColor: Colors[colorScheme ?? "light"].backgroundSecondary,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 10,
-        borderWidth: 1,
-        borderColor: colorScheme === 'light' ? "white" : "#424647"
-      }}>
-        <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].text, fontWeight: 500}}>Cancel</Text>
+      <Pressable onPress={cancel} style={({ pressed }) => [{
+                   backgroundColor: pressed ? colors.buttonSecondaryDepressedBackground : colors.buttonSecondaryBackground,
+                   paddingVertical: 10,
+                   borderRadius: 10,
+                   marginTop: 10,
+                   borderWidth: 1,
+                   borderColor: colors.buttonSecondaryBorder
+                 }]}>
+        <Text style={{textAlign: "center", color: colors.text, fontWeight: 500}}>Cancel</Text>
       </Pressable>
     </View>
   )
 }
 
-function ConfirmSubmit({ submit, cancel }) {
-  const colorScheme = useColorScheme();
+function ConfirmSubmit({submit, cancel}) {
+  const colors = useColors();
 
   return (
     <ThemedView style={{
-      borderColor: colorScheme == 'light' ? "white" : Colors['dark'].border,
+      borderColor: colors.popupBorder,
       borderWidth: 1,
       width: "auto",
       maxWidth: "70%",
@@ -623,41 +668,43 @@ function ConfirmSubmit({ submit, cancel }) {
           flexDirection: "row",
           justifyContent: "center",
           borderRadius: 50,
-          backgroundColor: Colors[colorScheme ?? "light"].buttonPrimaryBackground
+          backgroundColor: colors.checkmarkBackground
         }}>
-          <Svg width={24} height={24} stroke={"#333D20"} xmlns="http://www.w3.org/2000/svg" fill="none"
+          <Svg width={24} height={24} stroke={colors.checkmarkColor} xmlns="http://www.w3.org/2000/svg" fill="none"
                viewBox="0 0 24 24" strokeWidth="3">
             <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
           </Svg>
         </View>
       </View>
-      <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Submit Session</ThemedText>
-      <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Done putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your shoes.</ThemedText>
+      <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Submit
+        Session</ThemedText>
+      <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 4}}>Done
+        putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your shoes.</ThemedText>
       <Pressable onPress={submit} style={{
-        backgroundColor: Colors[colorScheme ?? "light"].buttonPrimaryBackground,
+        backgroundColor: colors.buttonPrimaryBackground,
         paddingVertical: 10,
         borderRadius: 10,
-        marginTop: 16
+        marginTop: 32
       }}>
-        <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].buttonDangerText, fontWeight: 500}}>Submit
+        <Text style={{textAlign: "center", color: colors.buttonPrimaryText, fontWeight: 500}}>Submit
           Session</Text>
       </Pressable>
       <Pressable onPress={cancel} style={{
-        backgroundColor: Colors[colorScheme ?? "light"].backgroundSecondary,
+        backgroundColor: colors.buttonSecondaryBackground,
         paddingVertical: 10,
         borderRadius: 10,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: Colors[colorScheme ?? "light"].border
+        borderColor: colors.buttonSecondaryBorder
       }}>
-        <Text style={{textAlign: "center", color: Colors[colorScheme ?? "light"].text, fontWeight: 500}}>Cancel</Text>
+        <Text style={{textAlign: "center", color: colors.text, fontWeight: 500}}>Cancel</Text>
       </Pressable>
     </ThemedView>
   )
 }
 
-function BigMiss({ largeMissBy, updateField, nextHole }) {
-  const colorScheme = useColorScheme();
+function BigMiss({largeMissBy, updateField, nextHole}) {
+  const colors = useColors();
 
   const isEqual = (arr, arr2) =>
     Array.isArray(arr) && arr.length === arr2.length && arr.every((val, index) => val === arr2[index]);
@@ -669,93 +716,172 @@ function BigMiss({ largeMissBy, updateField, nextHole }) {
 
   return (
     <View style={{
-            borderColor: colorScheme === 'light' ? "white" : "#424647",
-            backgroundColor: colorScheme === "light" ? "#fbfcfd" : "#0c0d0e",
-            borderWidth: 1,
-            width: "auto",
-            maxWidth: "70%",
-            maxHeight: "70%",
-            borderRadius: 16,
-            paddingTop: 18,
-            paddingBottom: 20,
-            paddingHorizontal: 20,
-            flexDirection: "col"
-          }}>
-      <TouchableWithoutFeedback onPress={close} style={{ position: "absolute", right: -10, top: -8 }}>
-        <View style={{ justifyContent: 'center', alignItems: "center", flexDirection: "row" }}>
-          <SvgClose stroke={colorScheme === 'light' ? Colors["light"].border : "#424647"} width={36} height={36}></SvgClose>
-        </View>
-      </TouchableWithoutFeedback>
-      <View style={{ flexDirection: "column", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      borderColor: colors.popupBorder,
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      width: "auto",
+      maxWidth: "70%",
+      maxHeight: "70%",
+      borderRadius: 16,
+      paddingTop: 18,
+      paddingBottom: 16,
+      paddingHorizontal: 16,
+      flexDirection: "col",
+      alignItems: "center",
+    }}>
+      <View style={{ width: "100%", flexDirection: "row", justifyContent: "flex-end" }}>
+        <Pressable onPress={() => updateField("largeMiss", false)} style={({pressed}) => [{
+                     backgroundColor: pressed ? colors.buttonPrimaryDepressed : colors.buttonPrimaryBackground,
+                     borderColor: colors.buttonPrimaryBorder,
+                     borderRadius: 8,
+                     justifyContent: 'center',
+                     alignItems: "center",
+                     borderWidth: 1,
+                     padding: 3,
+                 }]}>
+                     <SvgClose stroke={colors.buttonPrimaryText} width={24} height={24}></SvgClose>
+                 </Pressable>
+      </View>
+      <View style={{flexDirection: "column", justifyContent: "space-between", alignItems: "center", marginBottom: 24}}>
         <View style={{
-                height: 48,
-                aspectRatio: 1,
-                alignContent: "center",
-                flexDirection: "row",
-                justifyContent: "center",
-                borderRadius: 50,
-                backgroundColor: Colors[colorScheme ?? "light"].buttonDangerBackground
-              }}>
-          <Text style={{ color: "white", fontWeight: 600, fontSize: 24, marginTop: 6 }}>!</Text>
+          height: 48,
+          aspectRatio: 1,
+          alignContent: "center",
+          flexDirection: "row",
+          justifyContent: "center",
+          borderRadius: 50,
+          backgroundColor: colors.buttonDangerBackground
+        }}>
+          <Text style={{color: "white", fontWeight: 600, fontSize: 24, marginTop: 6}}>!</Text>
         </View>
-        <View style={{ marginTop: 12 }}>
-          <ThemedText type={"header"} style={{ fontWeight: 500, textAlign: "center" }}>Miss &gt;3ft</ThemedText>
-          <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Putting for the rough, are we? You might need GPS for the next one.</ThemedText>
+        <View style={{marginTop: 12}}>
+          <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center"}}>Miss &gt;3ft</ThemedText>
+          <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Putting
+            for the rough, are we? You might need GPS for the next one.</ThemedText>
         </View>
       </View>
-      <View style={{ flexDirection: "row", gap: 12, alignSelf: "center" }}>
-        <View style={{ flexDirection: "column", gap: 12 }}>
-          <Pressable onPress={() => updateField("largeMissBy", [1, 1])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [1, 1]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+      <View style={{flexDirection: "row", gap: 12, alignSelf: "center"}}>
+        <View style={{flexDirection: "column", gap: 12}}>
+          <Pressable onPress={() => updateField("largeMissBy", [1, 1])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={1} verticalSlope={0}
                             selected={isEqual(largeMissBy, [1, 1])}></ArrowComponent>
           </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [1, 0])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [1, 0]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+          <Pressable onPress={() => updateField("largeMissBy", [1, 0])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={1} verticalSlope={1}
                             selected={isEqual(largeMissBy, [1, 0])}></ArrowComponent>
           </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [1, -1])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [1, -1]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+          <Pressable onPress={() => updateField("largeMissBy", [1, -1])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={1} verticalSlope={2}
                             selected={isEqual(largeMissBy, [1, -1])}></ArrowComponent>
           </Pressable>
         </View>
-        <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
-          <Pressable onPress={() => updateField("largeMissBy", [0, 1])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [0, 1]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+        <View style={{flexDirection: "column", justifyContent: "space-between"}}>
+          <Pressable onPress={() => updateField("largeMissBy", [0, 1])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={2} verticalSlope={0}
                             selected={isEqual(largeMissBy, [0, 1])}></ArrowComponent>
           </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [0, -1])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [0, -1]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+          <Pressable onPress={() => updateField("largeMissBy", [0, -1])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={2} verticalSlope={2}
                             selected={isEqual(largeMissBy, [0, -1])}></ArrowComponent>
           </Pressable>
         </View>
-        <View style={{ flexDirection: "column", gap: 12 }}>
-          <Pressable onPress={() => updateField("largeMissBy", [-1, 1])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [-1, 1]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+        <View style={{flexDirection: "column", gap: 12}}>
+          <Pressable onPress={() => updateField("largeMissBy", [-1, 1])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={0} verticalSlope={0}
                             selected={isEqual(largeMissBy, [-1, 1])}></ArrowComponent>
           </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [-1, 0])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [-1, 0]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+          <Pressable onPress={() => updateField("largeMissBy", [-1, 0])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={0} verticalSlope={1}
                             selected={isEqual(largeMissBy, [-1, 0])}></ArrowComponent>
           </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [-1, -1])} style={{ aspectRatio: 1, padding: 20, backgroundColor: isEqual(largeMissBy, [-1, -1]) ? Colors[colorScheme ?? "light"].buttonDangerBackground : "#751C21", justifyContent: "center", flexDirection: "row", alignItems: "center", borderRadius: 50 }}>
+          <Pressable onPress={() => updateField("largeMissBy", [-1, -1])} style={{
+            aspectRatio: 1,
+            padding: 20,
+            backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.buttonDangerBackground : "#751C21",
+            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 50
+          }}>
             <ArrowComponent horizontalBreak={0} verticalSlope={2}
                             selected={isEqual(largeMissBy, [-1, -1])}></ArrowComponent>
           </Pressable>
         </View>
       </View>
       <Pressable onPress={() => {
-                   if (!isEqual(largeMissBy, [0,0])) {
-                     nextHole();
-                   }
-                 }} style={{
-         backgroundColor: isEqual(largeMissBy, [0,0]) ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBackground : Colors[colorScheme ?? "light"].buttonDangerBackground,
-         paddingVertical: 10,
-         borderRadius: 10,
-         marginTop: 28,
-         borderWidth: 1,
-         borderColor: isEqual(largeMissBy, [0,0]) ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBorder : "transparent"
-       }}>
-        <Text style={{textAlign: "center", color: isEqual(largeMissBy, [0,0]) ? Colors[colorScheme ?? 'light'].buttonSecondaryDisabledBorder : Colors[colorScheme ?? "light"].buttonDangerText, fontWeight: 500}}>Submit</Text>
+        if (!isEqual(largeMissBy, [0, 0])) {
+          nextHole();
+        }
+      }} style={{
+        backgroundColor: isEqual(largeMissBy, [0, 0]) ? colors.buttonDisabledBackground : colors.buttonDangerBackground,
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 28,
+        borderWidth: 1,
+        borderColor: isEqual(largeMissBy, [0, 0]) ? colors.buttonDisabledBorder : "transparent",
+        paddingHorizontal: 64
+      }}>
+        <Text style={{
+          textAlign: "center",
+          color: isEqual(largeMissBy, [0, 0]) ? colors.buttonDisabledText : colors.buttonDangerText,
+          fontWeight: 500
+        }}>Submit</Text>
       </Pressable>
     </View>
   )

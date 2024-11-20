@@ -1,10 +1,9 @@
 import {ThemedView} from "../../../components/ThemedView";
-import {Colors} from "../../../constants/Colors";
 import {ThemedText} from "../../../components/ThemedText";
-import {useColorScheme} from "../../../hooks/useColorScheme";
 import {View, Image, Text, Pressable} from "react-native";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
+import useColors from "../../../hooks/useColors";
 
 const initialMisses = {
     farLeft: 0,
@@ -20,7 +19,7 @@ export default function SimulationRecap() {
     const { current, holes, difficulty, mode, serializedPutts, date} = useLocalSearchParams();
     const putts = JSON.parse(serializedPutts);
 
-    const colorScheme = useColorScheme();
+    const colors = useColors();
     const navigation = useNavigation();
 
     const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
@@ -91,8 +90,8 @@ export default function SimulationRecap() {
     return (
         <ThemedView style={{ flex: 1, alignItems: "center", flexDirection: "column", justifyContent: "space-between" }}>
             <View>
-                <ThemedView style={{
-                    borderColor: Colors[colorScheme ?? 'light'].border,
+                <View style={{
+                    borderColor: colors.border,
                     justifyContent: "center",
                     alignContent: "center",
                     width: "100%",
@@ -104,19 +103,18 @@ export default function SimulationRecap() {
                         textAlign: "center",
                         fontSize: 16,
                         fontWeight: "medium",
-                        color: Colors[colorScheme ?? 'light'].text
+                        color: colors.text
                     }}>Session Recap</Text>
                     <Image source={require('@/assets/images/PuttLabLogo.png')}
                            style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
-                </ThemedView>
-                <ThemedView style={{ paddingHorizontal: 24, width: "100%", paddingTop: 32}}>
+                </View>
+                <View style={{ paddingHorizontal: 24, width: "100%", paddingTop: 32}}>
                     <ThemedText style={{textAlign: "center"}} type={"header"}>Good Job!</ThemedText>
                     <ThemedText style={{textAlign: "center", marginBottom: 24}} type={"default"}>This {current === "true" ? "is" : "was"} your nth
                         session.</ThemedText>
                     <RecapVisual holes={holes} totalPutts={totalPutts} avgDistance={averageDistance}
-                                 makeData={{farLeft, left, center, right, farRight, long, short}} date={date}
-                                 colorScheme={colorScheme}></RecapVisual>
-                </ThemedView>
+                                 makeData={{farLeft, left, center, right, farRight, long, short}} date={date}></RecapVisual>
+                </View>
             </View>
             <View style={{width: "100%", paddingBottom: 24, paddingHorizontal: 32}}>
                 <Pressable onPress={() => {
@@ -124,12 +122,12 @@ export default function SimulationRecap() {
                                    navigation.goBack();
                                else
                                    navigation.navigate("(tabs)")
-                           }} style={({pressed}) => [{backgroundColor: pressed ? '#282d1d' : '#333D20'}, {
+                           }} style={({pressed}) => [{backgroundColor: pressed ? colors.buttonPrimaryDepressed : colors.buttonPrimaryBackground }, {
                     paddingVertical: 10,
                     borderRadius: 10,
                     width: "100%"
                 }]}>
-                    <Text style={{textAlign: "center", color: "white", fontSize: 18, fontWeight: 400}}>
+                    <Text style={{textAlign: "center", color: colors.buttonPrimaryText, fontSize: 18, fontWeight: 400}}>
                         {current === "true" ? "Continue" : "Back"}
                     </Text>
                 </Pressable>
@@ -138,12 +136,14 @@ export default function SimulationRecap() {
     )
 }
 
-function RecapVisual({holes, totalPutts, avgDistance, makeData, date, colorScheme}) {
+function RecapVisual({ holes, totalPutts, avgDistance, makeData }) {
     const gridData = Array.from({length: 15}, (_, index) => index + 1);
 
+    const colors = useColors();
+
     return (
-        <View style={{backgroundColor: "#333D20", flexDirection: "column", paddingTop: 12, borderRadius: 16, elevation: 4}}>
-            <View style={{width: "100%", paddingBottom: 12, borderBottomWidth: 1, borderColor: "#677943"}}>
+        <View style={{backgroundColor: colors.puttingVisualBackground, flexDirection: "column", paddingTop: 12, borderRadius: 16, elevation: 4}}>
+            <View style={{width: "100%", paddingBottom: 12, borderBottomWidth: 1, borderColor: colors.puttingVisualBorder}}>
                 <Text style={{fontSize: 16, textAlign: "center", color: "white"}}>Session Recap</Text>
                 <View style={{position: "absolute", left: 12, flexDirection: "row", gap: 8}}>
                     <Image source={require('@/assets/images/PuttLabLogo.png')} style={{width: 25, height: 25}}/>
@@ -216,13 +216,13 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData, date, colorSchem
                     })}
                 </View>
             </View>
-            <View style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: "#677943"}}>
+            <View style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: colors.puttingVisualBorder}}>
                 <Text style={{
                     fontSize: 16,
                     textAlign: "center",
                     color: "white",
                     borderBottomWidth: 1,
-                    borderColor: "#677943",
+                    borderColor: colors.puttingVisualBorder,
                     paddingVertical: 6
                 }}>Stats</Text>
                 <View style={{flexDirection: "row"}}>
@@ -230,12 +230,12 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData, date, colorSchem
                         flexDirection: "column",
                         flex: 1,
                         borderRightWidth: 1,
-                        borderColor: "#677943",
+                        borderColor: colors.puttingVisualBorder,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
                     }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: "#B2C490"}}>Make %</Text>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.puttingVisualSecondaryText}}>Make %</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
@@ -247,12 +247,12 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData, date, colorSchem
                         flexDirection: "column",
                         flex: 1,
                         borderRightWidth: 1,
-                        borderColor: "#677943",
+                        borderColor: colors.puttingVisualBorder,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
                     }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: "#B2C490"}}>Avg. Distance</Text>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.puttingVisualSecondaryText}}>Avg. Distance</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
@@ -261,7 +261,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData, date, colorSchem
                         }}>{avgDistance}ft</Text>
                     </View>
                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: "#B2C490"}}>Putts</Text>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.puttingVisualSecondaryText}}>Putts</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",

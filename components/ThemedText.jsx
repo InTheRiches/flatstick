@@ -1,15 +1,16 @@
-import { Text, StyleSheet, Platform } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Text, StyleSheet } from 'react-native';
+import useColors from "@/hooks/useColors";
 
 export function ThemedText({
   style,
-  lightColor = undefined,
-  darkColor = undefined,
   secondary = false,
   type = 'default',
   ...rest
 }) {
-  const color = useThemeColor(secondary ? 'textSecondary' : 'text', lightColor, darkColor);
+  const colors = useColors();
+
+  const color = colors[secondary ? "textSecondary" : "text"];
+
   return (
     <Text
       style={[
