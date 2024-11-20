@@ -11,7 +11,7 @@ export default function Loading({}) {
             flexDirection: "flow",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: colors.background
+            backgroundColor: colors.background.primary
         }}>
             <ActivityIndicator size="large"/>
         </View>

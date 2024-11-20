@@ -12,10 +12,10 @@ export function ThemedButton({ onPress, title = 'Save', disabled = false, ...res
           paddingVertical: 8,
           paddingHorizontal: 24,
           borderRadius: 8,
-          backgroundColor: disabled ? colors.buttonDisabledBackground : colors.buttonPrimaryBackground,
+          backgroundColor: disabled ? colors.button.disabled.background : colors.button.primary.background,
           borderStyle: "solid",
           borderWidth: 1,
-          borderColor: disabled ? colors.buttonDisabledBorder : colors.buttonPrimaryBorder,
+          borderColor: disabled ? colors.button.disabled.border : colors.button.primary.border,
           overflow: "hidden",
           alignSelf: "center"
         }
@@ -23,7 +23,7 @@ export function ThemedButton({ onPress, title = 'Save', disabled = false, ...res
 
     return (
         <Pressable style={styles.button} onPress={onPress} {...rest}>
-            <Text style={{ color: disabled ? colors.buttonDisabledText : colors.buttonPrimaryText, fontWeight: 500 }}>{title}</Text>
+            <Text style={{ color: disabled ? colors.button.disabled.text : colors.button.primary.text, fontWeight: 500 }}>{title}</Text>
         </Pressable>
     );
 }

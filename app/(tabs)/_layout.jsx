@@ -36,9 +36,9 @@ export default function TabLayout() {
 
   return (
     <Tabs screenOptions={{
-        tabBarActiveTintColor: colors.buttonPrimaryBorder,
-        tabBarActiveBackgroundColor: colors.background,
-        tabBarInactiveBackgroundColor: colors.background,
+        tabBarActiveTintColor: colors.button.primary.border,
+        tabBarActiveBackgroundColor: colors.background.primary,
+        tabBarInactiveBackgroundColor: colors.background.primary,
         headerShown: false,
         tabBarStyle: {
           borderTopWidth: 0, 
@@ -49,7 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <SvgHome stroke={focused ? colors.buttonPrimaryBorder : colors.border} fill={focused ? colors.buttonPrimaryBackground : colors.border} width={25} height={25} />
+            <SvgHome stroke={focused ? colors.button.primary.border : colors.border.default} fill={focused ? colors.button.primary.border : colors.border.default} width={25} height={25} />
           ),
         }}
       />
@@ -58,7 +58,7 @@ export default function TabLayout() {
         options={{
           title: 'Practice',
           tabBarIcon: ({ color, focused }) => (
-            <SvgPractice stroke={focused ? colors.buttonPrimaryBorder : colors.border} fill={focused ? colors.buttonPrimaryBackground : "transparent"} width={25} height={25} />
+            <SvgPractice stroke={focused ? colors.button.primary.border : colors.border.default} fill={focused ? colors.button.primary.background : "transparent"} width={25} height={25} />
           ),
         }}
       />

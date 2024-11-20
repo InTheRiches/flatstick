@@ -111,7 +111,7 @@ export default function CreateAccount() {
 
     return ( loading ? <Loading/> :
         <View style={{
-                  backgroundColor: colors.background,
+                  backgroundColor: colors.background.primary,
                   width: "100%",
                   height: "100%",
                   paddingTop: 50,
@@ -133,7 +133,7 @@ export default function CreateAccount() {
                 gap: 72
             }}>
                 <Pressable onPress={lastTab} style={{
-                    backgroundColor: colors.buttonPrimaryBorder,
+                    backgroundColor: colors.button.primary.border,
                     padding: 16,
                     aspectRatio: 1,
                     borderRadius: 50,
@@ -143,7 +143,7 @@ export default function CreateAccount() {
                               style={{transform: [{rotate: "-135 deg"}]}}></SvgArrow>
                 </Pressable>
                 <Pressable onPress={nextTab} style={{
-                    backgroundColor: colors.buttonPrimaryBorder,
+                    backgroundColor: colors.button.primary.border,
                     padding: 16,
                     aspectRatio: 1,
                     borderRadius: 50,
@@ -153,8 +153,8 @@ export default function CreateAccount() {
                               style={{transform: [{rotate: "45deg"}]}}></SvgArrow>
                 </Pressable>
             </View>
-            <Pressable onPress={() => router.push({pathname: `/login`})} style={({ pressed }) => [{ marginTop: 24, borderWidth: 1, borderRadius: 12, backgroundColor: pressed ? colors.buttonDisabledBackground : "transparent", borderColor: colors.border, marginHorizontal: 16, paddingVertical: 10 }]}>
-                <Text style={{ color: colors.text, textAlign: "center" }}>Already have an account? Click <Text style={{ color: colors.textLink }}>here</Text> to login.</Text>
+            <Pressable onPress={() => router.push({pathname: `/login`})} style={({ pressed }) => [{ marginTop: 24, borderWidth: 1, borderRadius: 12, backgroundColor: pressed ? colors.button.disabled.background : "transparent", borderColor: colors.border.default, marginHorizontal: 16, paddingVertical: 10 }]}>
+                <Text style={{ color: colors.text.primary, textAlign: "center" }}>Already have an account? Click <Text style={{ color: colors.text.link }}>here</Text> to login.</Text>
             </Pressable>
         </View>
     )
@@ -176,26 +176,26 @@ function Skill({state, setState}) {
             <SelectableButton onPress={() => setSkill(0)} selected={state.skill === 0} title={"Hacker"} subtitle={"25+ Handicap (or unknown)"}/>
             <Pressable onPress={() => setSkill(1)} style={{
                 borderWidth: 1,
-                borderColor: state.skill === 1 ? colors.radioButtonSelectedBorder : colors.radioButtonBorder,
-                backgroundColor: state.skill === 1 ? colors.radioButtonSelectedBackground : colors.radioButtonBackground,
+                borderColor: state.skill === 1 ? colors.button.radio.selected.border : colors.button.radio.border,
+                backgroundColor: state.skill === 1 ? colors.button.radio.selected.background : colors.button.radio.background,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Bogey Golf</Text>
-                <Text style={{color: colors.textSecondary}}>10-25 Handicap</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Bogey Golf</Text>
+                <Text style={{color: colors.text.secondary}}>10-25 Handicap</Text>
                 {state.skill === 1 && <SelectionCheck/>}
             </Pressable>
             <Pressable onPress={() => setSkill(2)} style={{
                 borderWidth: 1,
-                borderColor: state.skill === 2 ? colors.radioButtonSelectedBorder : colors.radioButtonBorder,
-                backgroundColor: state.skill === 2 ? colors.radioButtonSelectedBackground : colors.radioButtonBackground,
+                borderColor: state.skill === 2 ? colors.button.radio.selected.border : colors.button.radio.border,
+                backgroundColor: state.skill === 2 ? colors.button.radio.selected.background : colors.button.radio.background,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Single Digit</Text>
-                <Text style={{color: colors.textSecondary}}>&lt;10 Handicap</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Single Digit</Text>
+                <Text style={{color: colors.text.secondary}}>&lt;10 Handicap</Text>
                 {state.skill === 2 && <SelectionCheck/>}
             </Pressable>
         </View>
@@ -208,14 +208,14 @@ function SelectableButton({ onPress, selected, title, subtitle }) {
     return (
         <Pressable onPress={onPress} style={{
                        borderWidth: 1,
-                       borderColor: selected ? colors.radioButtonSelectedBorder : colors.radioButtonBorder,
-                       backgroundColor: selected ? colors.radioButtonSelectedBackground : colors.radioButtonBackground,
+                       borderColor: selected ? colors.button.radio.selected.border : colors.button.radio.border,
+                       backgroundColor: selected ? colors.button.radio.selected.background : colors.button.radio.background,
                        borderRadius: 10,
                        paddingHorizontal: 12,
                        paddingVertical: 12
                    }}>
-                       <Text style={{color: colors.text, fontSize: 18}}>{title}</Text>
-                       <Text style={{color: colors.textSecondary}}>{subtitle}</Text>
+                       <Text style={{color: colors.text.primary, fontSize: 18}}>{title}</Text>
+                       <Text style={{color: colors.text.secondary}}>{subtitle}</Text>
                        {selected && <SelectionCheck/>}
                    </Pressable>
     )
@@ -236,38 +236,38 @@ function Frequency({ state, setState }) {
             <ThemedText type={"title"} style={{marginBottom: 12}}>How often do you play?</ThemedText>
             <Pressable onPress={() => setFrequency(0)} style={{
                 borderWidth: 1,
-                borderColor: state.frequency === 0 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.frequency === 0 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.frequency === 0 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.frequency === 0 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Occassionally</Text>
-                <Text style={{color: colors.textSecondary}}>&lt;10 Rounds a year</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Occassionally</Text>
+                <Text style={{color: colors.text.secondary}}>&lt;10 Rounds a year</Text>
                 {state.frequency === 0 && <SelectionCheck/>}
             </Pressable>
             <Pressable onPress={() => setFrequency(1)} style={{
                 borderWidth: 1,
-                borderColor: state.frequency === 1 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.frequency === 1 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.frequency === 1 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.frequency === 1 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Committed</Text>
-                <Text style={{color: colors.textSecondary}}>10-30 Rounds a year </Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Committed</Text>
+                <Text style={{color: colors.text.secondary}}>10-30 Rounds a year </Text>
                 {state.frequency === 1 && <SelectionCheck/>}
             </Pressable>
             <Pressable onPress={() => setFrequency(2)} style={{
                 borderWidth: 1,
-                borderColor: state.frequency === 2 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.frequency === 2 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.frequency === 2 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.frequency === 2 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Addicted</Text>
-                <Text style={{color: colors.textSecondary}}>30+ Rounds a year</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Addicted</Text>
+                <Text style={{color: colors.text.secondary}}>30+ Rounds a year</Text>
                 {state.frequency === 2 && <SelectionCheck/>}
             </Pressable>
         </View>
@@ -289,50 +289,50 @@ function Putts({ state, setState }) {
             <ThemedText type={"title"} style={{marginBottom: 12}}>How many putts per round?</ThemedText>
             <Pressable onPress={() => setPutts(0)} style={{
                 borderWidth: 1,
-                borderColor: state.putts === 0 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.putts === 0 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.putts === 0 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.putts === 0 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>3 Putt Pro</Text>
-                <Text style={{color: colors.textSecondary}}>40+ Putts</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>3 Putt Pro</Text>
+                <Text style={{color: colors.text.secondary}}>40+ Putts</Text>
                 {state.putts === 0 && <SelectionCheck/>}
             </Pressable>
             <Pressable onPress={() => setPutts(1)} style={{
                 borderWidth: 1,
-                borderColor: state.putts === 1 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.putts === 1 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.putts === 1 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.putts === 1 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Average</Text>
-                <Text style={{color: colors.textSecondary}}>30-40 Putts </Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Average</Text>
+                <Text style={{color: colors.text.secondary}}>30-40 Putts </Text>
                 {state.putts === 1 && <SelectionCheck/>}
             </Pressable>
             <Pressable onPress={() => setPutts(2)} style={{
                 borderWidth: 1,
-                borderColor: state.putts === 2 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.putts === 2 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.putts === 2 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.putts === 2 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>Pro</Text>
-                <Text style={{color: colors.textSecondary}}>&lt;30 Putts</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>Pro</Text>
+                <Text style={{color: colors.text.secondary}}>&lt;30 Putts</Text>
                 {state.putts === 2 && <SelectionCheck/>}
             </Pressable>
             <Pressable onPress={() => setPutts(3)} style={{
                 borderWidth: 1,
-                borderColor: state.putts === 3 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border,
-                backgroundColor: state.putts === 3 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background,
+                borderColor: state.putts === 3 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
+                backgroundColor: state.putts === 3 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
             }}>
-                <Text style={{color: colors.text, fontSize: 18}}>No clue</Text>
-                <Text style={{color: colors.textSecondary}}>We will just assume 30-40</Text>
+                <Text style={{color: colors.text.primary, fontSize: 18}}>No clue</Text>
+                <Text style={{color: colors.text.secondary}}>We will just assume 30-40</Text>
                 {state.putts === 3 && <SelectionCheck/>}
             </Pressable>
         </View>
@@ -351,7 +351,7 @@ function Done({ nextTab }) {
                     flexDirection: "row",
                     justifyContent: "center",
                     borderRadius: 50,
-                    backgroundColor: colors.buttonPrimaryBackground
+                    backgroundColor: colors.button.primary.background
                 }}>
                     <Svg width={24} height={24} stroke={"white"} xmlns="http://www.w3.org/2000/svg" fill="none"
                          viewBox="0 0 24 24" strokeWidth="3">
@@ -362,14 +362,14 @@ function Done({ nextTab }) {
             <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Account Created</ThemedText>
             <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10, marginBottom: 16}}>Your account has teed-off! Continue to begin your putting journey!</ThemedText>
             <Pressable onPress={nextTab} style={{
-                backgroundColor: colors.buttonPrimaryBackground,
+                backgroundColor: colors.button.primary.background,
                 paddingVertical: 10,
                 borderRadius: 10,
                 marginTop: 16
             }}>
                 <Text style={{
                     textAlign: "center",
-                    color: colors.buttonDangerText,
+                    color: colors.button.danger.text,
                     fontWeight: 500
                 }}>Continue</Text>
             </Pressable>
@@ -502,14 +502,14 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                 <View style={{
                     height: 1,
                     flex: 1,
-                    backgroundColor: colors.textSecondary,
+                    backgroundColor: colors.text.secondary,
                     marginTop: 12
                 }}></View>
                 <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
                 <View style={{
                     height: 1,
                     flex: 1,
-                    backgroundColor: colors.textSecondary,
+                    backgroundColor: colors.text.secondary,
                     marginTop: 12
                 }}></View>
             </View>
@@ -519,13 +519,13 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                 style={{
                     flex: 0,
                     borderWidth: 1,
-                    borderColor: nameFocused ? colors.inputFocusedBorder : colors.inputBorder,
+                    borderColor: nameFocused ? colors.input.focused.border : colors.input.border,
                     borderRadius: 10,
                     paddingVertical: 8,
                     paddingHorizontal: 10,
                     fontSize: 16,
-                    color: colors.inputText,
-                    backgroundColor: nameFocused ? colors.inputFocusedBackground : colors.inputBackground
+                    color: colors.input.text,
+                    backgroundColor: nameFocused ? colors.input.focused.background : colors.input.background
                 }}
                 onFocus={() => setNameFocused(true)}
                 onBlur={() => setNameFocused(false)}
@@ -538,13 +538,13 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: emailFocused ? invalidEmail ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : invalidEmail ? colors.inputInvalidBorder : colors.inputBorder,
+                        borderColor: emailFocused ? invalidEmail ? colors.input.invalid.focusedBorderer : colors.input.focused.border : invalidEmail ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: invalidEmail ? colors.inputInvalidText : colors.inputText,
-                        backgroundColor: invalidEmail ? colors.inputInvalidBackground : emailFocused ? colors.inputFocusedBackground : colors.inputBackground
+                        color: invalidEmail ? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: invalidEmail ? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
                     }}
                     onFocus={() => setEmailFocused(true)}
                     value={state.email}
@@ -564,7 +564,7 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                     fontSize: 16
                 }}>!</Text>}
             </View>
-            {errorCode === "auth/email-already-in-use" && <Text style={{color: colors.inputInvalidText, marginTop: 4 }}>That email is already in use!</Text>}
+            {errorCode === "auth/email-already-in-use" && <Text style={{color: colors.input.invalid.text, marginTop: 4 }}>That email is already in use!</Text>}
 
             <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
             <View style={{flexDirection: "row", marginBottom: 12}}>
@@ -572,13 +572,13 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: passwordFocused ? invalidPassword ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : invalidPassword ? colors.inputInvalidBorder : colors.inputBorder,
+                        borderColor: passwordFocused ? invalidPassword ? colors.input.invalid.focusedBorderer : colors.input.focused.border : invalidPassword ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: invalidPassword ? colors.inputInvalidText : colors.inputText,
-                        backgroundColor: invalidPassword ? colors.inputInvalidBackground : passwordFocused ? colors.inputFocusedBackground : colors.inputBackground
+                        color: invalidPassword ? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: invalidPassword ? colors.input.invalid.background : passwordFocused ? colors.input.focused.background : colors.input.backgroundd
                     }}
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
@@ -600,32 +600,32 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                 }}>!</Text>}
             </View>
             <Text style={{
-                color: !requirements.invalid ? '#16a34a' : colors.inputInvalidText,
+                color: !requirements.invalid ? '#16a34a' : colors.input.invalid.text,
                 marginBottom: 4
             }}>Password
                 Requirements:</Text>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasLength ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasLength ? '#16a34a' : colors.inputInvalidText}}>At
+                    style={{color: requirements.hasLength ? '#16a34a' : colors.input.invalid.text}}>At
                     least 6 characters</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasNumber ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasNumber ? '#16a34a' : colors.inputInvalidText}}>At
+                    style={{color: requirements.hasNumber ? '#16a34a' : colors.input.invalid.text}}>At
                     least 1 number</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasUppercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasUppercase ? '#16a34a' : colors.inputInvalidText}}>Contains
+                    style={{color: requirements.hasUppercase ? '#16a34a' : colors.input.invalid.text}}>Contains
                     an uppercase</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasLowercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasLowercase ? '#16a34a' : colors.inputInvalidText}}>Contains
+                    style={{color: requirements.hasLowercase ? '#16a34a' : colors.input.invalid.text}}>Contains
                     a lowercase</Text>
             </View>
 
@@ -638,7 +638,7 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                 marginTop: 48,
                 borderWidth: (invalidPassword || invalidEmail || state.username.length === 0) ? 1 : 0,
                 borderColor: colors.buttonDisabledBorder,
-                backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.buttonDisabledBackground : colors.buttonPrimaryBorder
+                backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.button.disabled.background : colors.button.primary.border
             }}>
                 <Text style={{textAlign: "center", color: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.buttonDisabledText : "white"}}>Create your account</Text>
             </Pressable>

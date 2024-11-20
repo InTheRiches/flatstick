@@ -11,17 +11,16 @@ export function DangerButton({ onPress, title = 'Save', disabled = false, ...res
           paddingVertical: 8,
           paddingHorizontal: 24,
           borderRadius: 6,
-          backgroundColor: disabled ? colors.buttonDangerDisabledBackground : colors.buttonDangerBackground,
-          borderStyle: "solid",
+          backgroundColor: disabled ? colors.button.danger.disabled.background : colors.button.danger.background,
           borderWidth: 1,
-          borderColor: disabled ? colors.buttonDangerDisabledBorder : colors.buttonDangerBorder,
+          borderColor: disabled ? colors.button.danger.disabled.border : colors.button.danger.border,
           alignSelf: "center",
         }
       });
 
     return (
         <Pressable style={styles.button} onPress={onPress} {...rest}>
-            <Text style={{ color: disabled ? colors.buttonDangerDisabledText : colors.buttonDangerText, fontWeight: 500 }}>{title}</Text>
+            <Text style={{ color: disabled ? colors.buttonDangerDisabledText : colors.button.danger.text, fontWeight: 500 }}>{title}</Text>
         </Pressable>
     );
 }

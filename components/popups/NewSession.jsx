@@ -8,6 +8,8 @@ import {SvgClose} from '@/assets/svg/SvgComponents';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {useRouter} from 'expo-router';
 import useColors from "@/hooks/useColors";
+import {PrimaryButton} from "@/components/buttons/PrimaryButton";
+import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 
 export function NewSession({setNewSession}) {
     const colors = useColors();
@@ -21,7 +23,7 @@ export function NewSession({setNewSession}) {
     // TODO CHANGE ALL THE CLOSE BUTTONS COLORS, THEY ARE CURRENTLY PLAIN GRAY, make them contrast more
     return (
         <ThemedView style={{
-            borderColor: colors.popupBorder,
+            borderColor: colors.border.popup,
             borderWidth: 1,
             width: "auto",
             maxWidth: "80%",
@@ -40,22 +42,13 @@ export function NewSession({setNewSession}) {
                 paddingTop: 6,
                 paddingBottom: 8,
                 borderBottomWidth: 1,
-                borderColor: colors.border
+                borderColor: colors.border.default
             }}>
                 <ThemedText type="header">New Session</ThemedText>
-                <Pressable onPress={() => setNewSession(false)} style={({pressed}) => [{
-                    backgroundColor: pressed ? colors.buttonPrimaryDepressed : colors.buttonPrimaryBackground,
-                    borderColor: colors.buttonPrimaryBorder,
-                    borderRadius: 8,
-                    justifyContent: 'center',
-                    alignItems: "center",
-                    marginTop: -3,
-                    marginRight: -2,
-                    borderWidth: 1,
-                    padding: 3,
-                }]}>
-                    <SvgClose stroke={colors.buttonPrimaryText} width={24} height={24}></SvgClose>
-                </Pressable>
+                <SecondaryButton onPress={() => setNewSession(false)}
+                               style={{marginTop: -3, marginRight: -2, borderWidth: 1, padding: 3, borderRadius: 8}}>
+                    <SvgClose stroke={colors.button.secondary.text} width={24} height={24}></SvgClose>
+                </SecondaryButton>
             </View>
             <View style={{flexDirection: "column", alignItems: "center"}}>
                 <View style={{paddingHorizontal: 24, marginTop: 12}}>
@@ -80,33 +73,20 @@ export function NewSession({setNewSession}) {
                     marginTop: 20,
                     marginBottom: 24
                 }}>
-                    <Pressable onPress={() => {
-                        if (holes === undefined || difficulty === undefined || mode === undefined) return;
-                        router.push({
-                            pathname: `/simulation`,
-                            params: {localHoles: holes === "9 Holes" ? 9 : 18, difficulty: difficulty, mode: mode}
-                        });
-                        setNewSession(false);
-                    }}
-                               style={({pressed}) => [{backgroundColor: holes === undefined || difficulty === undefined || mode === undefined ? colors.buttonSecondaryBackground : pressed ? colors.buttonPrimaryDepressed : colors.buttonPrimaryBackground}, {
-                                   paddingVertical: 12,
-                                   paddingHorizontal: 24,
-                                   borderRadius: 8,
-                                   flexDirection: "row",
-                                   justifyContent: "center",
-                                   alignItems: "center",
-                                   overflow: "hidden",
-                                   alignSelf: "center",
-                                   borderColor: holes === undefined || difficulty === undefined || mode === undefined ? colors.buttonSecondaryBorder : "transparent",
-                                   borderWidth: 1
-                               }]}>
-                        <Text style={{
-                            textAlign: "center",
-                            color: holes === undefined || difficulty === undefined || mode === undefined ? colors.textSecondary : colors.buttonPrimaryText,
-                            fontSize: 14,
-                            fontWeight: "bold"
-                        }}>Start</Text>
-                    </Pressable>
+                    <PrimaryButton title={"Start"}
+                                   disabled={holes === undefined || difficulty === undefined || mode === undefined}
+                                   onPress={() => {
+                                       if (holes === undefined || difficulty === undefined || mode === undefined) return;
+                                       router.push({
+                                           pathname: `/simulation`,
+                                           params: {
+                                               localHoles: holes === "9 Holes" ? 9 : 18,
+                                               difficulty: difficulty,
+                                               mode: mode
+                                           }
+                                       });
+                                       setNewSession(false);
+                                   }}></PrimaryButton>
                 </View>
             </View>
         </ThemedView>

@@ -67,7 +67,7 @@ export default function Login() {
 
     return (loading ? <Loading/> :
             <View style={{
-                      backgroundColor: colors.background,
+                      backgroundColor: colors.background.primary,
                       width: "100%",
                       height: "100%",
                       paddingTop: 50,
@@ -86,10 +86,10 @@ export default function Login() {
                                    alignContent: "center",
                                    justifyContent: "center",
                                    borderWidth: 1,
-                                   borderColor: pressed ? colors.inputFocusedBorder : colors.inputBorder,
-                                   backgroundColor: pressed ? colors.inputFocusedBackground : colors.inputBackground
+                                   borderColor: pressed ? colors.input.focused.border : colors.input.border,
+                                   backgroundColor: pressed ? colors.input.focused.background : colors.input.backgroundd
                                }]}>
-                        <SvgGoogle fill={colors.inputBorder}
+                        <SvgGoogle fill={colors.input.border}
                                    style={{width: 24, height: 24}}></SvgGoogle>
                     </Pressable>
                     <Pressable style={({pressed}) => [{
@@ -100,10 +100,10 @@ export default function Login() {
                                    alignContent: "center",
                                    justifyContent: "center",
                                    borderWidth: 1,
-                                   borderColor: pressed ? colors.inputFocusedBorder : colors.inputBorder,
-                                   backgroundColor: pressed ? colors.inputFocusedBackground : colors.inputBackground
+                                   borderColor: pressed ? colors.input.focused.border : colors.input.border,
+                                   backgroundColor: pressed ? colors.input.focused.background :colors.input.backgroundd
                                }]}>
-                        <SvgGoogle fill={colors.inputBorder}
+                        <SvgGoogle fill={colors.input.border}
                                    style={{width: 24, height: 24}}></SvgGoogle>
                     </Pressable>
                 </View>
@@ -111,14 +111,14 @@ export default function Login() {
                     <View style={{
                               height: 1,
                               flex: 1,
-                              backgroundColor: colors.textSecondary,
+                              backgroundColor: colors.text.secondary,
                               marginTop: 12
                           }}></View>
                     <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
                     <View style={{
                               height: 1,
                               flex: 1,
-                              backgroundColor: colors.textSecondary,
+                              backgroundColor: colors.text.secondary,
                               marginTop: 12
                           }}></View>
                 </View>
@@ -128,13 +128,13 @@ export default function Login() {
                         style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidBorder : colors.inputBorder,
+                            borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.borderer : colors.input.border,
                             borderRadius: 10,
                             paddingVertical: 8,
                             paddingHorizontal: 10,
                             fontSize: 16,
-                            color: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidText : colors.inputText,
-                            backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.inputInvalidBackground : state.emailFocused ? colors.inputFocusedBackground : colors.inputBackground
+                            color: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.text : colors.input.text,
+                            backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.background : state.emailFocused ? colors.input.focused.background : colors.input.background
                         }}
                         onFocus={() => updateField("emailFocused", true)}
                         value={state.email}
@@ -155,9 +155,9 @@ export default function Login() {
                     }}>!</Text>}
                 </View>
                 {errorCode === "auth/invalid-credential" ?
-                    <Text style={{color: colors.inputInvalidText, marginTop: 4}}>Please check your email and password and try again.</Text>
+                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password and try again.</Text>
                     : state.invalidEmail &&
-                    <Text style={{color: colors.inputInvalidText, marginTop: 4}}>Please enter a valid email.</Text>}
+                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
 
                 <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
                 <View style={{flexDirection: "row"}}>
@@ -165,13 +165,13 @@ export default function Login() {
                         style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : state.invalidPassword ? colors.inputInvalidBorder : colors.inputBorder,
+                            borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidPassword ? colors.input.invalid.border : colors.input.border,
                             borderRadius: 10,
                             paddingVertical: 8,
                             paddingHorizontal: 10,
                             fontSize: 16,
-                            color: errorCode === "auth/invalid-credential" ? colors.inputInvalidText : colors.inputText,
-                            backgroundColor: errorCode === "auth/invalid-credential" ? colors.inputInvalidBackground : state.passwordFocused ? colors.inputFocusedBackground : colors.inputBackground
+                            color: errorCode === "auth/invalid-credential" ? colors.input.invalid.text : colors.input.text,
+                            backgroundColor: errorCode === "auth/invalid-credential" ? colors.input.invalid.background : state.passwordFocused ? colors.input.focused.background : colors.input.background
                         }}
                         onFocus={() => updateField("passwordFocused", true)}
                         onBlur={() => updateField("passwordFocused", false)}
@@ -193,7 +193,7 @@ export default function Login() {
                     }}>!</Text>}
                 </View>
                 {errorCode === "auth/invalid-credential" &&
-                    <Text style={{color: colors.inputInvalidText, marginTop: 4}}>Please check your email and password and try again.</Text>}
+                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password and try again.</Text>}
                 <Pressable onPress={() => {
                     if (state.invalidEmail) return;
                     login();
@@ -202,13 +202,12 @@ export default function Login() {
                     borderRadius: 10,
                     marginTop: 48,
                     borderWidth: state.invalidEmail ? 1 : 0,
-                    borderColor: colors.buttonDisabledBorder,
-                    backgroundColor: state.invalidEmail ? colors.buttonDisabledBackground : colors.buttonPrimaryBorder
+                    borderColor: colors.button.disabled.border,
+                    backgroundColor: state.invalidEmail ? colors.button.disabled.background : colors.button.primary.border
                 }}>
                     <Text style={{
                         textAlign: "center",
-                        color: state.invalidEmail ? colors.buttonDisabledText : "white"
-                    }}>Login</Text>
+                        color: state.invalidEmail ? colors.button.disabled.text : colors.button.primary.text }}>Login</Text>
                 </Pressable>
             </View>
     )
@@ -315,14 +314,14 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 <View style={{
                     height: 1,
                     flex: 1,
-                    backgroundColor: colors.textSecondary,
+                    backgroundColor: colors.text.secondary,
                     marginTop: 12
                 }}></View>
                 <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
                 <View style={{
                     height: 1,
                     flex: 1,
-                    backgroundColor: colors.textSecondary,
+                    backgroundColor: colors.text.secondary,
                     marginTop: 12
                 }}></View>
             </View>
@@ -332,13 +331,13 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 style={{
                     flex: 0,
                     borderWidth: 1,
-                    borderColor: nameFocused ? colors.inputFocusedBorder : colors.inputBorder,
+                    borderColor: nameFocused ? colors.input.focused.border : colors.input.border,
                     borderRadius: 10,
                     paddingVertical: 8,
                     paddingHorizontal: 10,
                     fontSize: 16,
-                    color: colors.inputText,
-                    backgroundColor: nameFocused ? colors.inputFocusedBackground : colors.inputBackground
+                    color: colors.input.text,
+                    backgroundColor: nameFocused ? colors.input.focused.background : colors.input.background
                 }}
                 onFocus={() => setNameFocused(true)}
                 onBlur={() => setNameFocused(false)}
@@ -351,13 +350,13 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: emailFocused ? invalidEmail ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : invalidEmail ? colors.inputInvalidBorder : colors.inputBorder,
+                        borderColor: emailFocused ? invalidEmail ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalidEmail ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: invalidEmail ? colors.inputInvalidText : colors.inputText,
-                        backgroundColor: invalidEmail ? colors.inputInvalidBackground : emailFocused ? colors.inputFocusedBackground : colors.inputBackground
+                        color: invalidEmail ? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: invalidEmail ? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
                     }}
                     onFocus={() => setEmailFocused(true)}
                     value={state.email}
@@ -378,7 +377,7 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 }}>!</Text>}
             </View>
             {errorCode === "auth/email-already-in-use" &&
-                <Text style={{color: colors.inputInvalidText, marginTop: 4}}>That email is
+                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is
                     already in use!</Text>}
 
             <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
@@ -387,13 +386,13 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: passwordFocused ? invalidPassword ? colors.inputInvalidFocusedBorder : colors.inputFocusedBorder : invalidPassword ? colors.inputInvalidBorder : colors.inputBorder,
+                        borderColor: passwordFocused ? invalidPassword ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalidPassword ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: invalidPassword ? colors.inputInvalidText : colors.inputText,
-                        backgroundColor: invalidPassword ? colors.inputInvalidBackground : passwordFocused ? colors.inputFocusedBackground : colors.inputBackground
+                        color: invalidPassword ? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: invalidPassword ? colors.input.invalid.background : passwordFocused ? colors.input.focused.background : colors.input.background
                     }}
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
@@ -415,32 +414,32 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 }}>!</Text>}
             </View>
             <Text style={{
-                color: !requirements.invalid ? '#16a34a' : colors.inputInvalidText,
+                color: !requirements.invalid ? '#16a34a' : colors.input.invalid.text,
                 marginBottom: 4
             }}>Password
                 Requirements:</Text>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasLength ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasLength ? '#16a34a' : colors.inputInvalidText}}>At
+                    style={{color: requirements.hasLength ? '#16a34a' : colors.input.invalid.text}}>At
                     least 6 characters</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasNumber ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasNumber ? '#16a34a' : colors.inputInvalidText}}>At
+                    style={{color: requirements.hasNumber ? '#16a34a' : colors.input.invalid.text}}>At
                     least 1 number</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasUppercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasUppercase ? '#16a34a' : colors.inputInvalidText}}>Contains
+                    style={{color: requirements.hasUppercase ? '#16a34a' : colors.input.invalid.text}}>Contains
                     an uppercase</Text>
             </View>
             <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                 {requirements.hasLowercase ? <ValidRequirement/> : <InvalidRequirement/>}
                 <Text
-                    style={{color: requirements.hasLowercase ? '#16a34a' : colors.inputInvalidText}}>Contains
+                    style={{color: requirements.hasLowercase ? '#16a34a' : colors.input.invalid.text}}>Contains
                     a lowercase</Text>
             </View>
 
@@ -453,7 +452,7 @@ function Signup({errorCode, setErrorCode, colorScheme, setState, state, create})
                 marginTop: 48,
                 borderWidth: (invalidPassword || invalidEmail || state.username.length === 0) ? 1 : 0,
                 borderColor: colors.buttonDisabledBorder,
-                backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.buttonDisabledBackground : colors.buttonPrimaryBorder
+                backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.button.disabled.background : colors.button.primary.border
             }}>
                 <Text style={{
                     textAlign: "center",

@@ -14,12 +14,12 @@ export default function RootLayout() {
 
   // TODO FIND A WAY TO CHANGE THE STATUS BAR COLOR WHEN A MODAL IS OPEN
 
-  NavigationBar.setBackgroundColorAsync(colors.background);
+  NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
   return (
       <SessionProvider>
-        <StatusBar backgroundColor={colors.background} />
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar backgroundColor={colors.background.primary} style={{ flex: 1 }}/>
+        <GestureHandlerRootView>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack
               screenOptions={{

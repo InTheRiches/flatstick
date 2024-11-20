@@ -9,7 +9,7 @@ export function ThemedText({
 }) {
   const colors = useColors();
 
-  const color = colors[secondary ? "textSecondary" : "text"];
+  const color = colors["text"][secondary ? "secondary" : "primary"];
 
   return (
     <Text

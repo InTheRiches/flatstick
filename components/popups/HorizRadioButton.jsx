@@ -20,7 +20,7 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
         const isSelected = selectedOption === option;
 
         // Set the base border color
-        style = { ...style, borderColor: isSelected ? colors.radioButtonSelectedBorder : colors.radioButtonBorder, backgroundColor: isSelected ? colors.radioButtonSelectedBackground : colors.radioButtonBackground };
+        style = { ...style, borderColor: isSelected ? colors.button.radio.selected.border : colors.button.radio.border, backgroundColor: isSelected ? colors.button.radio.selected.background : colors.button.radio.background };
 
         // If the previous or next option is selected, disable overlapping borders
         if (index > 0 && selectedOption === options[index - 1])
@@ -46,10 +46,10 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
                 activeOpacity={0.75}
             >
                 <View style={[styles.radioCircle,
-                    { backgroundColor: isSelected ? colors.radioButtonSelectedRadio : colors.radioButtonBorder }]}>
-                    <View style={{...styles.radioInnerCircle, backgroundColor: colors.radioButtonBackground }} />
+                    { backgroundColor: isSelected ? colors.button.radio.selected.radio : colors.button.radio.border }]}>
+                    <View style={{...styles.radioInnerCircle, backgroundColor: colors.button.radio.background }} />
                 </View>
-                <ThemedText style={{ ...styles.option, color: isSelected ? colors.radioButtonSelectedText : colors.radioButtonText }}>{option}</ThemedText>
+                <ThemedText style={{ ...styles.option, color: isSelected ? colors.button.radio.selected.text : colors.button.radio.text }}>{option}</ThemedText>
             </TouchableOpacity>
         );
     };
