@@ -126,7 +126,7 @@ export default function CreateAccount() {
                 <Signup errorCode={errorCode} setErrorCode={setErrorCode} state={state} setState={setState} create={createAccount}/>}
             {state.tab === 4 && <Done nextTab={nextTab}/>}
             <View style={{
-                          display: state.tab === 3 || state.tab === 4 ? "none" : "static",
+                display: state.tab === 3 || state.tab === 4 ? "none" : "static",
                 flexDirection: "row",
                 justifyContent: "center",
                 alignContent: "center",
@@ -402,6 +402,8 @@ function SelectionCheck({}) {
 function Signup({ errorCode, setErrorCode, setState, state, create}) {
     const router = useRouter();
     const colors = useColors();
+
+    const colorScheme = useColorScheme();
 
     const [emailFocused, setEmailFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
