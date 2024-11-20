@@ -61,6 +61,8 @@ export default function CreateAccount() {
     const createAccount = () => {
         if (state.invalid) return;
 
+        console.log("account creation attempted");
+
         const auth = getAuth();
 
         // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISNT AS HARSH OF A TRANSITION
@@ -73,24 +75,24 @@ export default function CreateAccount() {
                 const user = userCredential.user;
 
                 updateProfile(user, {
-                        displayName: state.username,
-                    }).then(() => {
+                    displayName: state.username,
+                }).then(() => {
 
-                    }).catch((error) => {
+                }).catch((error) => {
 
-                    });
+                });
 
                 setDoc(doc(db, `users/${user.uid}`), {
-                        skill: state.skill,
-                        frequency: state.frequency,
-                        putts: state.putts,
-                        date: new Date().toISOString(),
-                        totalPutts: 0,
-                        sessions: 0,
-                        username: state.username
-                    }).then((data) => {
-                        console.log("made document");
-                    })
+                    skill: state.skill,
+                    frequency: state.frequency,
+                    putts: state.putts,
+                    date: new Date().toISOString(),
+                    totalPutts: 0,
+                    sessions: 0,
+                    username: state.username
+                }).then((data) => {
+                    console.log("made document");
+                })
                     .catch((error) => {
                         console.log(error);
                     });
@@ -110,45 +112,55 @@ export default function CreateAccount() {
             });
     }
 
-    return ( loading ? <Loading/> :
-        <View style={{
-                  backgroundColor: colors.background.primary,
-                  width: "100%",
-                  height: "100%",
-                  paddingTop: 50,
-                  paddingHorizontal: 24,
-                  justifyContent: "center",
-                  alignContent: "center",
-                  flexDirection: "column"
-              }}>
-            {state.tab === 0 && <Skill state={state} setState={setState}/>}
-            {state.tab === 1 && <Frequency state={state} setState={setState}/>}
-            {state.tab === 2 && <Putts state={state} setState={setState}/>}
-            {state.tab === 3 &&
-                <Signup errorCode={errorCode} setErrorCode={setErrorCode} state={state} setState={setState} create={createAccount}/>}
-            {state.tab === 4 && <Done nextTab={nextTab}/>}
+    return (loading ? <Loading/> :
             <View style={{
-                display: state.tab === 3 || state.tab === 4 ? "none" : "static",
-                flexDirection: "row",
+                backgroundColor: colors.background.primary,
+                width: "100%",
+                height: "100%",
+                paddingTop: 50,
+                paddingHorizontal: 24,
                 justifyContent: "center",
                 alignContent: "center",
-                gap: 72,
-                marginTop: 48,
-                marginBottom: 48,
+                flexDirection: "column"
             }}>
-                <PrimaryButton onPress={lastTab} style={{ aspectRatio: 1, borderRadius: 50, padding: 16, }}>
-                    <SvgArrow width={16} height={16} stroke={"white"}
-                                         style={{transform: [{rotate: "-135 deg"}]}}></SvgArrow>
-                </PrimaryButton>
-                <PrimaryButton onPress={nextTab} style={{ aspectRatio: 1, borderRadius: 50, padding: 16, }}>
-                    <SvgArrow width={16} height={16} stroke={"white"}
-                                         style={{transform: [{rotate: "45 deg"}]}}></SvgArrow>
-                </PrimaryButton>
+                {state.tab === 0 && <Skill state={state} setState={setState}/>}
+                {state.tab === 1 && <Frequency state={state} setState={setState}/>}
+                {state.tab === 2 && <Putts state={state} setState={setState}/>}
+                {state.tab === 3 &&
+                    <Signup errorCode={errorCode} setErrorCode={setErrorCode} state={state} setState={setState}
+                            create={createAccount}/>}
+                {state.tab === 4 && <Done nextTab={nextTab}/>}
+                <View style={{
+                    display: state.tab === 3 || state.tab === 4 ? "none" : "static",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignContent: "center",
+                    gap: 72,
+                    marginTop: 48,
+                    marginBottom: 48,
+                }}>
+                    <PrimaryButton onPress={lastTab} style={{aspectRatio: 1, borderRadius: 50, padding: 16,}}>
+                        <SvgArrow width={16} height={16} stroke={"white"}
+                                  style={{transform: [{rotate: "-135deg"}]}}></SvgArrow>
+                    </PrimaryButton>
+                    <PrimaryButton onPress={nextTab} style={{aspectRatio: 1, borderRadius: 50, padding: 16,}}>
+                        <SvgArrow width={16} height={16} stroke={"white"}
+                                  style={{transform: [{rotate: "45deg"}]}}></SvgArrow>
+                    </PrimaryButton>
+                </View>
+                {state.tab !== 4 && <Pressable onPress={() => router.push({pathname: `/login`})}
+                                               style={({pressed}) => [{
+                                                   marginTop: 24,
+                                                   borderWidth: 1,
+                                                   borderRadius: 12,
+                                                   backgroundColor: pressed ? colors.button.disabled.background : "transparent",
+                                                   borderColor: colors.border.default,
+                                                   paddingVertical: 10
+                                               }]}>
+                    <Text style={{color: colors.text.primary, textAlign: "center"}}>Already have an account? Click <Text
+                        style={{color: colors.text.link}}>here</Text> to login.</Text>
+                </Pressable>}
             </View>
-            { state.tab !== 4 &&<Pressable onPress={() => router.push({pathname: `/login`})} style={({ pressed }) => [{ marginTop: 24, borderWidth: 1, borderRadius: 12, backgroundColor: pressed ? colors.button.disabled.background : "transparent", borderColor: colors.border.default, paddingVertical: 10 }]}>
-                <Text style={{ color: colors.text.primary, textAlign: "center" }}>Already have an account? Click <Text style={{ color: colors.text.link }}>here</Text> to login.</Text>
-            </Pressable>}
-        </View>
     )
 }
 
@@ -165,52 +177,49 @@ function Skill({state, setState}) {
     return (
         <View style={{flexDirection: "column", gap: 10}}>
             <ThemedText type={"title"} style={{marginBottom: 12}}>What is your skill level?</ThemedText>
-            <SelectableButton onPress={() => setSkill(0)} selected={state.skill === 0} title={"Hacker"} subtitle={"25+ Handicap (or unknown)"}/>
-            <SelectableButton onPress={() => setSkill(1)} selected={state.skill === 1} title={"Bogey Golf"} subtitle={"10-25 Handicap"}/>
-            <SelectableButton onPress={() => setSkill(2)} selected={state.skill === 2} title={"Single Digit"} subtitle={"<10 Handicap"}/>
+            <SelectableButton onPress={() => setSkill(0)} selected={state.skill === 0} title={"Hacker"}
+                              subtitle={"25+ Handicap (or unknown)"}/>
+            <SelectableButton onPress={() => setSkill(1)} selected={state.skill === 1} title={"Bogey Golf"}
+                              subtitle={"10-25 Handicap"}/>
+            <SelectableButton onPress={() => setSkill(2)} selected={state.skill === 2} title={"Single Digit"}
+                              subtitle={"<10 Handicap"}/>
         </View>
     )
 }
 
-function SelectableButton({ onPress, selected, title, subtitle }) {
+function SelectableButton({onPress, selected, title, subtitle}) {
     const colors = useColors();
 
     return (
         <Pressable onPress={onPress} style={{
-                       borderWidth: 1,
-                       borderColor: selected ? colors.button.radio.selected.border : colors.button.radio.border,
-                       backgroundColor: selected ? colors.button.radio.selected.background : colors.button.radio.background,
-                       borderRadius: 10,
-                       paddingHorizontal: 12,
-                       paddingVertical: 12
-                   }}>
-                       <Text style={{color: colors.text.primary, fontSize: 18}}>{title}</Text>
-                       <Text style={{color: colors.text.secondary}}>{subtitle}</Text>
-                       {selected && <SelectionCheck/>}
-                   </Pressable>
-    )
-}
-
-function SelectionCheck({}) {
-    const colors = useColors();
-    return (
-        <View style={{
-            position: "absolute",
-            right: -10,
-            top: -10,
-            backgroundColor: colors.checkmark.background,
-            padding: 6,
-            borderRadius: 50
+            borderWidth: 1,
+            borderColor: selected ? colors.button.radio.selected.border : colors.button.radio.border,
+            backgroundColor: selected ? colors.button.radio.selected.background : colors.button.radio.background,
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12
         }}>
-            <Svg width={18} height={18} stroke={colors.checkmark.color} xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" strokeWidth="3">
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-            </Svg>
-        </View>
+            <Text style={{color: colors.text.primary, fontSize: 18}}>{title}</Text>
+            <Text style={{color: colors.text.secondary}}>{subtitle}</Text>
+            {selected && <View style={{
+                position: "absolute",
+                right: -10,
+                top: -10,
+                backgroundColor: colors.checkmark.background,
+                padding: 6,
+                borderRadius: 50
+            }}>
+                <Svg width={18} height={18} stroke={colors.checkmark.color} xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24" strokeWidth="3">
+                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                </Svg>
+            </View>}
+        </Pressable>
     )
 }
 
-function Frequency({ state, setState }) {
+function Frequency({state, setState}) {
     const colors = useColors();
 
     const colorScheme = useColorScheme();
@@ -225,14 +234,17 @@ function Frequency({ state, setState }) {
     return (
         <View style={{flexDirection: "column", gap: 10}}>
             <ThemedText type={"title"} style={{marginBottom: 12}}>How often do you play?</ThemedText>
-            <SelectableButton onPress={() => setFrequency(0)} selected={state.frequency === 0} title={"Occassionally"} subtitle={"<10 Rounds a year"}/>
-            <SelectableButton onPress={() => setFrequency(1)} selected={state.frequency === 1} title={"Committed"} subtitle={"10-30 Rounds a year"}/>
-            <SelectableButton onPress={() => setFrequency(2)} selected={state.frequency === 2} title={"Addicted"} subtitle={"30+ Rounds a year"}/>
+            <SelectableButton onPress={() => setFrequency(0)} selected={state.frequency === 0} title={"Occassionally"}
+                              subtitle={"<10 Rounds a year"}/>
+            <SelectableButton onPress={() => setFrequency(1)} selected={state.frequency === 1} title={"Committed"}
+                              subtitle={"10-30 Rounds a year"}/>
+            <SelectableButton onPress={() => setFrequency(2)} selected={state.frequency === 2} title={"Addicted"}
+                              subtitle={"30+ Rounds a year"}/>
         </View>
     )
 }
 
-function Putts({ state, setState }) {
+function Putts({state, setState}) {
     const colors = useColors();
 
     const colorScheme = useColorScheme();
@@ -247,18 +259,21 @@ function Putts({ state, setState }) {
     return (
         <View style={{flexDirection: "column", gap: 10}}>
             <ThemedText type={"title"} style={{marginBottom: 12}}>How many putts per round?</ThemedText>
-            <SelectableButton onPress={() => setPutts(0)} selected={state.putts === 0} title={"3 Putt Pro"} subtitle={"40+ Putts"}/>
-            <SelectableButton onPress={() => setPutts(1)} selected={state.putts === 1} title={"Amateur"} subtitle={"30-40 Putts"}/>
-            <SelectableButton onPress={() => setPutts(2)} selected={state.putts === 2} title={"Pro"} subtitle={"<30 Putts"}/>
+            <SelectableButton onPress={() => setPutts(0)} selected={state.putts === 0} title={"3 Putt Pro"}
+                              subtitle={"40+ Putts"}/>
+            <SelectableButton onPress={() => setPutts(1)} selected={state.putts === 1} title={"Amateur"}
+                              subtitle={"30-40 Putts"}/>
+            <SelectableButton onPress={() => setPutts(2)} selected={state.putts === 2} title={"Pro"}
+                              subtitle={"<30 Putts"}/>
         </View>
     )
 }
 
-function Done({ nextTab }) {
+function Done({nextTab}) {
     const colors = useColors();
 
     return (
-        <View style={{ width: "80%", alignSelf: "center" }}>
+        <View style={{width: "80%", alignSelf: "center"}}>
             <View style={{justifyContent: "center", flexDirection: "row", width: "100%"}}>
                 <View style={{
                     padding: 12,
@@ -268,21 +283,26 @@ function Done({ nextTab }) {
                     borderRadius: 50,
                     backgroundColor: colors.checkmark.background
                 }}>
-                    <Svg width={24} height={24} stroke={colors.checkmark.color} xmlns="http://www.w3.org/2000/svg" fill="none"
+                    <Svg width={24} height={24} stroke={colors.checkmark.color} xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
                          viewBox="0 0 24 24" strokeWidth="3">
                         <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                     </Svg>
                 </View>
             </View>
-            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Account Created</ThemedText>
-            <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10, marginBottom: 48}}>Your account has teed-off! Continue to begin your putting journey!</ThemedText>
-            <PrimaryButton onPress={nextTab} title={"Continue"} style={{ paddingVertical: 10, borderRadius: 10 }}></PrimaryButton>
+            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Account
+                Created</ThemedText>
+            <ThemedText type={"default"} secondary={true}
+                        style={{textAlign: "center", lineHeight: 18, marginTop: 10, marginBottom: 48}}>Your account has
+                teed-off! Continue to begin your putting journey!</ThemedText>
+            <PrimaryButton onPress={nextTab} title={"Continue"}
+                           style={{paddingVertical: 10, borderRadius: 10}}></PrimaryButton>
         </View>
     );
 }
 
-// TODO ADD USERNAME VALIDATION, AND PREVENT DUPLICATES
-function Signup({ errorCode, setErrorCode, setState, state, create}) {
+// TODO ADD USERNAME VALIDATION, AND PREVENT DUPLICATES, ALSO, DO YOU NEED DISPLAY NAME AND USERNAME, OR JUST ONE?
+function Signup({errorCode, setErrorCode, setState, state, create}) {
     const colors = useColors();
 
     const [emailFocused, setEmailFocused] = useState(false);
@@ -354,33 +374,33 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
     return (
         <View>
             <ThemedText type={"title"} style={{marginBottom: 30}}>Create Your Account</ThemedText>
-            <ThemedText style={{fontSize: 16, marginBottom: 4}}>Create with:</ThemedText>
+            <ThemedText secondary={true} style={{fontSize: 16, marginBottom: 4}}>Create with:</ThemedText>
             <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
                 <Pressable style={({pressed}) => [{
-                               flex: 1,
-                               paddingVertical: 12,
-                               borderRadius: 10,
-                               flexDirection: "row",
-                               alignContent: "center",
-                               justifyContent: "center",
-                               borderWidth: 1,
-                               borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                               backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                           }]}>
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    flexDirection: "row",
+                    alignContent: "center",
+                    justifyContent: "center",
+                    borderWidth: 1,
+                    borderColor: pressed ? colors.input.focused.border : colors.input.border,
+                    backgroundColor: pressed ? colors.input.focused.background : colors.input.background
+                }]}>
                     <SvgGoogle fill={colors.input.border}
                                style={{width: 24, height: 24}}></SvgGoogle>
                 </Pressable>
                 <Pressable style={({pressed}) => [{
-                               flex: 1,
-                               paddingVertical: 12,
-                               borderRadius: 10,
-                               flexDirection: "row",
-                               alignContent: "center",
-                               justifyContent: "center",
-                               borderWidth: 1,
-                               borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                               backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                           }]}>
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    flexDirection: "row",
+                    alignContent: "center",
+                    justifyContent: "center",
+                    borderWidth: 1,
+                    borderColor: pressed ? colors.input.focused.border : colors.input.border,
+                    backgroundColor: pressed ? colors.input.focused.background : colors.input.background
+                }]}>
                     <SvgGoogle fill={colors.input.border}
                                style={{width: 24, height: 24}}></SvgGoogle>
                 </Pressable>
@@ -451,8 +471,10 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                     fontSize: 16
                 }}>!</Text>}
             </View>
-            {invalidEmail && errorCode !== "auth/email-already-in-use" && <Text style={{ color: colors.input.invalid.text, marginTop: 4 }}>Please enter a valid email.</Text>}
-            {errorCode === "auth/email-already-in-use" && <Text style={{color: colors.input.invalid.text, marginTop: 4 }}>That email is already in use!</Text>}
+            {invalidEmail && errorCode !== "auth/email-already-in-use" &&
+                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
+            {errorCode === "auth/email-already-in-use" &&
+                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}
 
             <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
             <View style={{flexDirection: "row", marginBottom: 12}}>
@@ -522,7 +544,7 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                            style={{
                                paddingVertical: 10,
                                borderRadius: 10,
-                               marginTop: 48
+                               marginTop: 32
                            }}
                            title={"Create your account"}></PrimaryButton>
 

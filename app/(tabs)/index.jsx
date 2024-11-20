@@ -39,7 +39,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={{
-      flex: 1,
+      height: "100%",
       overflow: "hidden",
       flexDirection: "column",
       alignContent: "center",

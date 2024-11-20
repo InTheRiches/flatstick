@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import {SvgArrow} from "../../assets/svg/SvgComponents";
-import {Colors} from "../../constants/Colors"; // Adjust this import based on your setup
 
 // Define mappings for horizontal break and slope
 const getRotationAngle = (horizontalBreak, verticalSlope) => {

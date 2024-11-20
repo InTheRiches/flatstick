@@ -1,6 +1,5 @@
 import { useColorScheme } from 'react-native';
 import {useMemo} from "react";
-import {Colors} from "../constants/Colors";
 import {DarkTheme, LightTheme} from "@/constants/ModularColors";
 
 export default function useColors() {

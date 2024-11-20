@@ -9,7 +9,7 @@ export function PrimaryButton({onPress, title = 'Save', disabled = false, childr
     button: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: 8,
+      paddingVertical: 10,
       paddingHorizontal: 32,
       borderRadius: 8,
       borderStyle: "solid",

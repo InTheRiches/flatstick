@@ -1,11 +1,9 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {Pressable, Text, View} from 'react-native';
-import {HorizRadioButton} from '@/components/popups/HorizRadioButton';
+import {View} from 'react-native';
+import {HorizRadioButton} from '@/components/buttons/HorizRadioButton';
 import React, {useState} from 'react';
-import {ThemedButton} from "@/components/ThemedButton";
 import {SvgClose} from '@/assets/svg/SvgComponents';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {useRouter} from 'expo-router';
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";

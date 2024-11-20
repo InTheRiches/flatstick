@@ -16,15 +16,15 @@ export const LightTheme = {
     button: {
       primary: {
         border: '#D0C597',
-        text: 'white',
+        text: 'black',
         background: '#D0C597',
         depressed: '#C0B78E'
       },
       secondary: {
-        background: 'rgba(59, 130, 246, 0.15)',
+        background: '#fff',
         border: '#B5B3B3',
         text: '#111827',
-        depressed: '#969696',
+        depressed: '#D1D1D1',
       },
       disabled: {
         background: '#f1f2f3',
@@ -36,15 +36,15 @@ export const LightTheme = {
         border: '#DC2626',
         text: '#FFFFFF',
         disabled: {
-          background: '#FEE2E2',
+          background: '#ffa3a3',
           border: '#FEE2E2',
           text: '#FFFFFF',
         },
       },
       radio: {
         border: '#CFCFCF',
-        background: 'transparent',
-        text: 'white',
+        background: 'white',
+        text: 'black',
         selected: {
           border: '#D0C597',
           background: 'rgba(208, 197, 151, 0.5)',
@@ -81,7 +81,7 @@ export const LightTheme = {
       },
     },
     checkmark: {
-      background: '#659B0D',
+      background: '#659B0D', // TODO FIND A DIFFERENT COLOR FOR THIS, ESPECIALLY FOR THE PUTTING GREEN AS IT DOESNT CONTRAST WELL
       color: 'white',
       bare: {
         color: '#D9D9D9',
@@ -147,12 +147,12 @@ export const DarkTheme = {
       },
     },
     input: {
-      background: '#272922',
+      background: '#1E1F20',
       border: '#484A4B',
       text: '#fff',
       focused: {
-        background: 'rgba(191,209,123,0.1)',
-        border: '#606E43'
+        background: 'rgba(191,209,123,0.2)',
+        border: '#677943'
       },
       invalid: {
         border: '#943737',

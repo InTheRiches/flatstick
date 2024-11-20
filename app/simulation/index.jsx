@@ -724,7 +724,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [1, 1])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -736,7 +736,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [1, 0])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -748,7 +748,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [1, -1])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -762,7 +762,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [0, 1])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -774,7 +774,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [0, -1])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -788,7 +788,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [-1, 1])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -800,7 +800,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [-1, 0])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",
@@ -812,7 +812,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
           <Pressable onPress={() => updateField("largeMissBy", [-1, -1])} style={{
             aspectRatio: 1,
             padding: 20,
-            backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : "#751C21",
+            backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
             justifyContent: "center",
             flexDirection: "row",
             alignItems: "center",

@@ -20,7 +20,8 @@ export function HorizRadioButton({ options, selectedOption, setSelectedOption })
         const isSelected = selectedOption === option;
 
         // Set the base border color
-        style = { ...style, borderColor: isSelected ? colors.button.radio.selected.border : colors.button.radio.border, backgroundColor: isSelected ? colors.button.radio.selected.background : colors.button.radio.background };
+        style = { ...style, borderColor: isSelected ? colors.button.radio.selected.border : colors.button.radio.border,
+            backgroundColor: isSelected ? colors.button.radio.selected.background : colors.button.radio.background };
 
         // If the previous or next option is selected, disable overlapping borders
         if (index > 0 && selectedOption === options[index - 1])
