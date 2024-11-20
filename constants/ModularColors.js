@@ -15,21 +15,21 @@ export const LightTheme = {
     },
     button: {
       primary: {
-        border: '#677943',
+        border: '#D0C597',
         text: 'white',
-        background: '#677943',
-        depressed: '#525E3A',
-        disabled: {
-          background: '#f1f2f3',
-          border: '#D1D1D1',
-          text: '#C4C4C4',
-        }
+        background: '#D0C597',
+        depressed: '#C0B78E'
       },
       secondary: {
         background: 'rgba(59, 130, 246, 0.15)',
         border: '#B5B3B3',
         text: '#111827',
         depressed: '#969696',
+      },
+      disabled: {
+        background: '#f1f2f3',
+        border: '#D1D1D1',
+        text: '#C4C4C4',
       },
       danger: {
         background: '#DC2626',
@@ -42,12 +42,12 @@ export const LightTheme = {
         },
       },
       radio: {
-        border: '#484A4B',
-        background: '#1E1F20',
+        border: '#CFCFCF',
+        background: 'transparent',
         text: 'white',
         selected: {
-          border: '#B8B08D',
-          background: '#B8B08D',
+          border: '#D0C597',
+          background: 'rgba(208, 197, 151, 0.5)',
           radio: '#1E1F20',
           text: 'black',
         },
@@ -81,7 +81,7 @@ export const LightTheme = {
       },
     },
     checkmark: {
-      background: '#333D20',
+      background: '#659B0D',
       color: 'white',
       bare: {
         color: '#D9D9D9',
