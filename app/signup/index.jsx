@@ -1,5 +1,5 @@
 import {ThemedText} from "@/components/ThemedText";
-import {View, Text, Pressable, TextInput} from "react-native";
+import {View, Text, Pressable, TextInput, useColorScheme} from "react-native";
 import {useEffect, useState} from "react";
 import Svg, {Path} from "react-native-svg";
 import {SvgArrow, SvgGoogle} from "@/assets/svg/SvgComponents";
@@ -224,6 +224,8 @@ function SelectableButton({ onPress, selected, title, subtitle }) {
 function Frequency({ state, setState }) {
     const colors = useColors();
 
+    const colorScheme = useColorScheme();
+
     const setFrequency = (id) => {
         setState(prevState => ({
             ...prevState,
@@ -236,8 +238,8 @@ function Frequency({ state, setState }) {
             <ThemedText type={"title"} style={{marginBottom: 12}}>How often do you play?</ThemedText>
             <Pressable onPress={() => setFrequency(0)} style={{
                 borderWidth: 1,
-                borderColor: state.frequency === 0 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
-                backgroundColor: state.frequency === 0 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
+                borderColor: state.frequency === 0 ? colors.button.radio.selected.border : colors.button.radio.border,
+                backgroundColor: state.frequency === 0 ? colors.button.radio.selected.background : colors.button.radio.background,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
@@ -248,8 +250,8 @@ function Frequency({ state, setState }) {
             </Pressable>
             <Pressable onPress={() => setFrequency(1)} style={{
                 borderWidth: 1,
-                borderColor: state.frequency === 1 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
-                backgroundColor: state.frequency === 1 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
+                borderColor: state.frequency === 1 ? colors.button.radio.selected.border : colors.button.radio.border,
+                backgroundColor: state.frequency === 1 ? colors.button.radio.selected.background : colors.button.radio.background,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
@@ -260,8 +262,8 @@ function Frequency({ state, setState }) {
             </Pressable>
             <Pressable onPress={() => setFrequency(2)} style={{
                 borderWidth: 1,
-                borderColor: state.frequency === 2 ? colorScheme === "light" ? "#ACCD30" : "#606E43" : colors.border.default,
-                backgroundColor: state.frequency === 2 ? colorScheme === "light" ? "rgba(191,209,123,0.4)" : "rgba(191,209,123,0.1)" : colors.background.primary,
+                borderColor: state.frequency === 2 ? colors.button.radio.selected.border : colors.button.radio.border,
+                backgroundColor: state.frequency === 2 ? colors.button.radio.selected.background : colors.button.radio.background,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 12
@@ -276,6 +278,8 @@ function Frequency({ state, setState }) {
 
 function Putts({ state, setState }) {
     const colors = useColors();
+
+    const colorScheme = useColorScheme();
 
     const setPutts = (id) => {
         setState(prevState => ({
@@ -538,7 +542,7 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: emailFocused ? invalidEmail ? colors.input.invalid.focusedBorderer : colors.input.focused.border : invalidEmail ? colors.input.invalid.border : colors.input.border,
+                        borderColor: emailFocused ? invalidEmail ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalidEmail ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
@@ -572,7 +576,7 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: passwordFocused ? invalidPassword ? colors.input.invalid.focusedBorderer : colors.input.focused.border : invalidPassword ? colors.input.invalid.border : colors.input.border,
+                        borderColor: passwordFocused ? invalidPassword ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalidPassword ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
@@ -637,10 +641,10 @@ function Signup({ errorCode, setErrorCode, setState, state, create}) {
                 borderRadius: 10,
                 marginTop: 48,
                 borderWidth: (invalidPassword || invalidEmail || state.username.length === 0) ? 1 : 0,
-                borderColor: colors.buttonDisabledBorder,
+                borderColor: colors.button.disabled.border,
                 backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.button.disabled.background : colors.button.primary.border
             }}>
-                <Text style={{textAlign: "center", color: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.buttonDisabledText : "white"}}>Create your account</Text>
+                <Text style={{textAlign: "center", color: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.button.disabled.text : "white"}}>Create your account</Text>
             </Pressable>
         </View>
     )
