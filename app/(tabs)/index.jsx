@@ -40,11 +40,12 @@ export default function HomeScreen() {
   return (
     <ThemedView style={{
       height: "100%",
+      flex: 1,
       overflow: "hidden",
       flexDirection: "column",
       alignContent: "center",
       borderBottomWidth: 1,
-      borderBottomColor: colors.border.default
+      borderBottomColor: colors.border.default,
     }}>
       <Header signOut={signOut}></Header>
       <View style={{marginTop: 12, paddingHorizontal: 20}}>
