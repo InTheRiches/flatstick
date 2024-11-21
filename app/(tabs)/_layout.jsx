@@ -35,18 +35,20 @@ export default function TabLayout() {
   }
 
   return (
-    <Tabs screenOptions={{
-        tabBarActiveTintColor: colors.button.primary.border,
-        tabBarActiveBackgroundColor: colors.background.primary,
-        tabBarInactiveBackgroundColor: colors.background.primary,
-        headerShown: false,
-        tabBarStyle: {
-          borderTopWidth: 0, 
-        }
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
+      <Tabs screenOptions={{
+              tabBarActiveTintColor: colors.button.primary.border,
+              tabBarActiveBackgroundColor: colors.background.primary,
+              tabBarInactiveBackgroundColor: colors.background.primary,
+              headerShown: false,
+              tabBarStyle: {
+                borderTopWidth: 0,
+                paddingBottom: 0,
+                maxHeight: 48
+              }
+            }}>
+        <Tabs.Screen
+          name="index"
+          options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <SvgHome stroke={focused ? colors.button.primary.border : colors.border.default} fill={focused ? colors.button.primary.border : colors.border.default} width={25} height={25} />
