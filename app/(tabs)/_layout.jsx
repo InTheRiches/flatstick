@@ -43,7 +43,7 @@ export default function TabLayout() {
               tabBarStyle: {
                 borderTopWidth: 0,
                 paddingBottom: 0,
-                maxHeight: 48
+                maxHeight: 48 // TODO THIS IS A TEMP FIX, THE STUPID TAB BAR ICONS ARE WAYYY TOO TALL WITHOUT THIS
               }
             }}>
         <Tabs.Screen

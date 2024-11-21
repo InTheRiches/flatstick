@@ -1,9 +1,8 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {ThemedButton} from '@/components/ThemedButton';
 import {useRouter, useLocalSearchParams, useNavigation} from 'expo-router';
-import {Image, Pressable, Text, BackHandler} from 'react-native';
-import {GestureDetector, Gesture, TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {Image, Pressable, Text, BackHandler, Platform} from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '../../assets/svg/SvgComponents';
 import {View} from 'react-native';
@@ -74,6 +73,9 @@ const initialState = {
 }
 
 // TODO WHEN SWITCHING TO THE NEXT HOLE, ADD A POPUP ASKING HOW MANY PUTTS IT TOOK TO FINISH OUT THE HOLE
+// TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
+// ABOVE THAT, MAKE A GOAL MENU, THAT SHOWS THE GOAL THAT ALIGNS WITH THE PUTT, IF NONE, JUST SAY "make a goal if you need to work on this"
+
 export default function Simulation() {
   const colors = useColors();
   const navigation = useNavigation();
@@ -386,7 +388,7 @@ export default function Simulation() {
           <Image source={require('@/assets/images/PuttLabLogo.png')}
                  style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
         </ThemedView>
-        <View style={{width: "100%", paddingHorizontal: 24}}>
+        <View style={{width: "100%", paddingHorizontal: Platform.OS === "ios" ? 32 : 24 }}>
           <View style={{display: "flex", flexDirection: "column", marginBottom: 12}}>
             <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
             <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
@@ -471,13 +473,13 @@ export default function Simulation() {
                   ) : null}
                 </View>
               </GestureDetector>
-              <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14,}}>
-                <PrimaryButton title="Back" disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
+              <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4 }}>
+                <PrimaryButton style={{ borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96 }} title="Back" disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
                 <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
                 {hole === holes ? <PrimaryButton title="Submit" disabled={point.x === undefined} onPress={() => {
                     if (point.x !== undefined) updateField("confirmSubmit", true)
                   }}></PrimaryButton>
-                  : <PrimaryButton title="Next" disabled={point.x === undefined}
+                  : <PrimaryButton style={{ borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96 }} title="Next" disabled={point.x === undefined}
                                    onPress={() => nextHole()}></PrimaryButton>}
               </View>
             </View>
@@ -521,9 +523,9 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
     }}>
       <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
         <Image source={imageSource} style={{
-          width: "100%",
+          width: Platform.OS === "ios" ? "90%" : "100%",
           height: "auto",
-          aspectRatio: 2,
+          aspectRatio: 2
         }}></Image>
       </View>
       <View

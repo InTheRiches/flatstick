@@ -75,7 +75,7 @@ export default function CreateAccount() {
                 const user = userCredential.user;
 
                 updateProfile(user, {
-                    displayName: state.username,
+                    displayName: state.username
                 }).then(() => {
 
                 }).catch((error) => {
