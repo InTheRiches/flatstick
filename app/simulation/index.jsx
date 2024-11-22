@@ -2,7 +2,7 @@ import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
 import {useRouter, useLocalSearchParams, useNavigation} from 'expo-router';
 import {Image, Pressable, Text, BackHandler, Platform} from 'react-native';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '../../assets/svg/SvgComponents';
 import {View} from 'react-native';
@@ -18,6 +18,7 @@ import Loading from "../../components/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import {SecondaryButton} from "../../components/buttons/SecondaryButton";
+import {useStatistics} from "../../contexts/Statistics";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 // AND THEY GO BACK, NOT SHOW BOTH DIALOGES ON TOP OF EACH OTHER, AND TO CANCEL THE OTHER ONE BENEATH IT
@@ -79,6 +80,8 @@ const initialState = {
 export default function Simulation() {
   const colors = useColors();
   const navigation = useNavigation();
+  const {updateStats} = useStatistics();
+
   const db = getFirestore();
   const auth = getAuth();
   const router = useRouter();
@@ -87,21 +90,21 @@ export default function Simulation() {
   const holes = parseInt(localHoles);
 
   const [{
-      loading,
-      confirmLeave,
-      largeMiss,
-      largeMissBy,
-      confirmSubmit,
-      width,
-      height,
-      center,
-      point,
-      hole,
-      puttBreak,
-      distance,
-      missRead,
-      putts
-    },
+    loading,
+    confirmLeave,
+    largeMiss,
+    largeMissBy,
+    confirmSubmit,
+    width,
+    height,
+    center,
+    point,
+    hole,
+    puttBreak,
+    distance,
+    missRead,
+    putts
+  },
     setState
   ] = useState(initialState);
 
@@ -335,16 +338,18 @@ export default function Simulation() {
       putts: trimmedPutts,
       type: "round-simulation"
     }).then(() => {
-      router.push({
-        pathname: `/simulation/recap`,
-        params: {
-          current: true,
-          holes: holes,
-          difficulty: difficulty,
-          mode: mode,
-          serializedPutts: JSON.stringify(trimmedPutts),
-          date: new Date().toISOString()
-        }
+      updateStats().then(() => {
+        router.push({
+          pathname: `/simulation/recap`,
+          params: {
+            current: true,
+            holes: holes,
+            difficulty: difficulty,
+            mode: mode,
+            serializedPutts: JSON.stringify(trimmedPutts),
+            date: new Date().toISOString()
+          }
+        });
       });
     });
 
@@ -387,7 +392,7 @@ export default function Simulation() {
           <Image source={require('@/assets/images/PuttLabLogo.png')}
                  style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
         </ThemedView>
-        <View style={{width: "100%", paddingHorizontal: Platform.OS === "ios" ? 32 : 24 }}>
+        <View style={{width: "100%", paddingHorizontal: Platform.OS === "ios" ? 32 : 24}}>
           <View style={{display: "flex", flexDirection: "column", marginBottom: 12}}>
             <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
             <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
@@ -472,13 +477,15 @@ export default function Simulation() {
                   ) : null}
                 </View>
               </GestureDetector>
-              <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4 }}>
-                <PrimaryButton style={{ borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96 }} title="Back" disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
+              <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
+                <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
+                               disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
                 <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
                 {hole === holes ? <PrimaryButton title="Submit" disabled={point.x === undefined} onPress={() => {
                     if (point.x !== undefined) updateField("confirmSubmit", true)
                   }}></PrimaryButton>
-                  : <PrimaryButton style={{ borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96 }} title="Next" disabled={point.x === undefined}
+                  : <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Next"
+                                   disabled={point.x === undefined}
                                    onPress={() => nextHole()}></PrimaryButton>}
               </View>
             </View>
@@ -623,8 +630,10 @@ function ConfirmExit({end, partial, cancel}) {
         <Text style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>End
           Session</Text>
       </Pressable>
-      <SecondaryButton onPress={partial} title={"Upload as Partial"} style={{ marginTop: 10, paddingVertical: 10, borderRadius: 10 }}></SecondaryButton>
-      <SecondaryButton onPress={cancel} title={"Cancel"} style={{ marginTop: 10, paddingVertical: 10, borderRadius: 10 }}></SecondaryButton>
+      <SecondaryButton onPress={partial} title={"Upload as Partial"}
+                       style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
+      <SecondaryButton onPress={cancel} title={"Cancel"}
+                       style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
     </View>
   )
 }
@@ -664,8 +673,10 @@ function ConfirmSubmit({submit, cancel}) {
         Session</ThemedText>
       <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 8}}>Done
         putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your shoes.</ThemedText>
-      <PrimaryButton onPress={submit} title={"Submit"} style={{ paddingVertical: 10, borderRadius: 10, marginTop: 32 }}></PrimaryButton>
-      <SecondaryButton onPress={cancel} title={"Cancel"} style={{ paddingVertical: 10, borderRadius: 10, marginTop: 10 }}></SecondaryButton>
+      <PrimaryButton onPress={submit} title={"Submit"}
+                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></PrimaryButton>
+      <SecondaryButton onPress={cancel} title={"Cancel"}
+                       style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></SecondaryButton>
     </ThemedView>
   )
 }
@@ -698,8 +709,8 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
     }}>
       <View style={{width: "100%", flexDirection: "row", justifyContent: "flex-end"}}>
         <SecondaryButton onPress={() => updateField("largeMiss", false)}
-                       style={{padding: 3, borderRadius: 8}}>
-            <SvgClose stroke={colors.button.secondary.text} width={24} height={24}></SvgClose>
+                         style={{padding: 3, borderRadius: 8}}>
+          <SvgClose stroke={colors.button.secondary.text} width={24} height={24}></SvgClose>
         </SecondaryButton>
       </View>
       <View style={{flexDirection: "column", justifyContent: "space-between", alignItems: "center", marginBottom: 24}}>

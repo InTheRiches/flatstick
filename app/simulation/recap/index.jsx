@@ -66,6 +66,7 @@ export default function SimulationRecap() {
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
+            // TODO IF YOU MISS RIGHT SHORT, IT APPEARS AS LONG RIGHT
             if (putt.distanceMissed <= 0.5) center++
             else if (degrees > -45 && degrees <= 45) {
                 if (putt.distanceMissed <= 2)
@@ -122,7 +123,9 @@ export default function SimulationRecap() {
                 </View>
             </View>
             <View style={{width: "100%", paddingBottom: 24, paddingHorizontal: 32}}>
-                <PrimaryButton onPress={() => current !== "true" ? navigation.goBack() : navigation.navigate("(tabs)")} title={current === "true" ? "Continue" : "Back"} style={{ paddingVertical: 10, borderRadius: 10 }}></PrimaryButton>
+                <PrimaryButton onPress={() => current !== "true" ? navigation.goBack() : navigation.navigate("(tabs)")}
+                               title={current === "true" ? "Continue" : "Back"}
+                               style={{paddingVertical: 10, borderRadius: 10}}></PrimaryButton>
             </View>
         </ThemedView>
     )

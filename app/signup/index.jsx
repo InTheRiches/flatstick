@@ -89,7 +89,8 @@ export default function CreateAccount() {
                     date: new Date().toISOString(),
                     totalPutts: 0,
                     sessions: 0,
-                    username: state.username
+                    username: state.username,
+                    stats: {},
                 }).then((data) => {
                     console.log("made document");
                 })

@@ -15,27 +15,21 @@ import Svg, {Path} from "react-native-svg";
 import useColors from "@/hooks/useColors";
 import {Dimensions} from 'react-native';
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
+import {useUserData} from "@/contexts/UserData";
+import {useStatistics} from "@/contexts/Statistics";
 
 export default function HomeScreen() {
   const colors = useColors();
 
   const auth = getAuth();
   const db = getFirestore();
+
   const router = useRouter();
   const {signOut, isLoading} = useSession();
+  const {userData} = useUserData();
+  const {getAllStats, updateStats} = useStatistics();
 
   const [newSession, setNewSession] = useState(false);
-  const [userData, setUserData] = useState([]);
-
-  useEffect(() => {
-    const docRef = doc(db, `users/${auth.currentUser.uid}`);
-    getDoc(docRef).then((data) => {
-      setUserData(data.data());
-    })
-      .catch((error) => {
-
-      });
-  })
 
   return (
     <ThemedView style={{
@@ -67,7 +61,15 @@ export default function HomeScreen() {
               marginLeft: 14,
               maxWidth: "50%"
             }}>Recent Sessions</Text>
-            <PrimaryButton onPress={() => setNewSession(true)} style={{ height: "32", width: "32", alignItems: "center", justifyContent: "center", flexDirection: "row", borderRadius: 8, marginRight: 12 }}>
+            <PrimaryButton onPress={() => setNewSession(true)} style={{
+              height: "32",
+              width: "32",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "row",
+              borderRadius: 8,
+              marginRight: 12
+            }}>
               <Text style={{textAlign: "center", color: colors.button.primary.text, fontSize: 20}}>+</Text>
             </PrimaryButton>
           </View>

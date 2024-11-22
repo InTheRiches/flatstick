@@ -1,16 +1,15 @@
-import {createContext, useContext} from "react";
+import {createContext, useContext, useState} from "react";
 import {
     collection,
     doc,
     getDoc,
     getDocs,
     getFirestore,
-    limit,
-    orderBy,
     query,
     runTransaction
 } from "firebase/firestore";
 import {getAuth} from "firebase/auth";
+import {useUserData} from "@/contexts/UserData";
 
 const StatisticsContext = createContext({
     updateStats: () => Promise.resolve(),
@@ -39,7 +38,8 @@ export function StatisticsProvider({children}) {
     const db = getFirestore();
     const auth = getAuth();
 
-    let currentStats = {};
+    const {puttSessions, updateData} = useUserData();
+    const [currentStats, setCurrentStats] = useState({});
 
     const updateStats = async () => {
         const newStats = {
@@ -51,8 +51,16 @@ export function StatisticsProvider({children}) {
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
                 percentMade: 0,
 
+                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                missReadDistribution: {
+                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
+                    neutral: [0, 0, 0], // neutral
+                    downhill: [0, 0, 0] // downhill
+                },
+
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
+                // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
                         straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
@@ -79,8 +87,16 @@ export function StatisticsProvider({children}) {
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
                 percentMade: 0,
 
+                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                missReadDistribution: {
+                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
+                    neutral: [0, 0, 0], // neutral
+                    downhill: [0, 0, 0] // downhill
+                },
+
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
+                // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
                         straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
@@ -107,8 +123,16 @@ export function StatisticsProvider({children}) {
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
                 percentMade: 0,
 
+                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                missReadDistribution: {
+                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
+                    neutral: [0, 0, 0], // neutral
+                    downhill: [0, 0, 0] // downhill
+                },
+
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
+                // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
                         straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
@@ -135,8 +159,16 @@ export function StatisticsProvider({children}) {
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
                 percentMade: 0,
 
+                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                missReadDistribution: {
+                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
+                    neutral: [0, 0, 0], // neutral
+                    downhill: [0, 0, 0] // downhill
+                },
+
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
+                // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
                         straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
@@ -154,22 +186,14 @@ export function StatisticsProvider({children}) {
                         rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 }
-            }
+            },
         };
-
-        const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"));
-
-        const querySnapshot = await getDocs(q);
-
-        let docs = [];
-        querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            docs.push(doc.data());
-        });
 
         let totalPutts = 0;
 
-        docs.map((session, index) => {
+        console.log(puttSessions);
+
+        puttSessions.map((session, index) => {
             session.putts.forEach((putt) => {
                 const {distance, distanceMissed, missRead, xDistance, yDistance, slope, puttBreak} = putt;
 
@@ -188,19 +212,24 @@ export function StatisticsProvider({children}) {
                 // Increment total putts
                 statCategory.totalPutts++;
 
+                if (missRead) {
+                    statCategory.totalMissRead++;
+                    statCategory.missReadDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]]++;
+                }
+
                 newStats[distance].totalPutts += 1;
 
                 // Determine angle/quadrant and increment missDistribution
                 const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
                 if (distanceMissed === 0)
-                    statCategory.totalMade++;
+                    statCategory.percentMade++;
                 else if (degrees > -22.5 && degrees <= 22.5) {
                     statCategory.missDistribution[2]++; // right
                 } else if (degrees > 22.5 && degrees <= 67.5) {
                     statCategory.missDistribution[1]++; // past right
 
-                    if (distanceMissed <= distance + 2) statCategory.percentJustLong++;
-                    else if (distanceMissed > distance) statCategory.percentTooLong++;
+                    if (distanceMissed <= 2) statCategory.percentJustLong++;
+                    else statCategory.percentTooLong++;
                 } else if (degrees > 67.5 && degrees <= 112.5) {
                     statCategory.missDistribution[0]++; // past
 
@@ -209,8 +238,8 @@ export function StatisticsProvider({children}) {
                 } else if (degrees > 112.5 && degrees <= 157.5) {
                     statCategory.missDistribution[7]++; // past left
 
-                    if (distanceMissed <= distance + 2) statCategory.percentJustLong++;
-                    else if (distanceMissed > distance) statCategory.percentTooLong++;
+                    if (distanceMissed <= 2) statCategory.percentJustLong++;
+                    else statCategory.percentTooLong++;
                 } else if (degrees > -67.5 && degrees <= -22.5) {
                     statCategory.missDistribution[3]++; // short right
                 } else if (degrees > -112.5 && degrees <= -67.5) {
@@ -258,28 +287,15 @@ export function StatisticsProvider({children}) {
             // Calculate percentages
             if (statCategory.totalPutts > 0) {
                 statCategory.percentMade = (statCategory.percentMade / statCategory.totalPutts) * 100;
-                statCategory.percentShort = (statCategory.missDistribution[5] / statCategory.totalPutts) * 100;
+                statCategory.percentShort = (statCategory.percentShort / statCategory.totalPutts) * 100;
                 statCategory.percentTooLong = (statCategory.missDistribution[1] / statCategory.totalPutts) * 100;
                 statCategory.percentJustLong = (statCategory.percentJustLong / statCategory.totalPutts) * 100;
             }
         }
 
-        currentStats = newStats;
+        setCurrentStats(newStats);
 
-        const sfDocRef = doc(db, `users/${auth.currentUser.uid}`);
-
-        runTransaction(db, async (transaction) => {
-            const sfDoc = await transaction.get(sfDocRef);
-            if (!sfDoc.exists()) {
-                throw "Document does not exist!";
-            }
-
-            transaction.update(sfDocRef, {totalPutts: totalPutts, stats: newStats});
-        }).then(() => {
-            console.log("Update stats successfully committed!");
-        }).catch((e) => {
-            console.log("Update stats transaction failed: ", e);
-        });
+        updateData({totalPutts: totalPutts, stats: newStats});
     }
 
     const getAllStats = async () => {
@@ -287,7 +303,7 @@ export function StatisticsProvider({children}) {
             const docRef = doc(db, `users/${auth.currentUser.uid}`);
             const data = await getDoc(docRef);
 
-            currentStats = data.data().stats;
+            setCurrentStats(data.data().stats);
         }
         return currentStats;
     }
