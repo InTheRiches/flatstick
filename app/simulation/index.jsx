@@ -24,7 +24,7 @@ import {SecondaryButton} from "../../components/buttons/SecondaryButton";
 const breaks = [
   "Left to Right",
   "Right to Left",
-  "Neutral",
+  "Straight",
 ]
 
 const slopes = [
@@ -86,8 +86,7 @@ export default function Simulation() {
   const {localHoles, difficulty, mode} = useLocalSearchParams();
   const holes = parseInt(localHoles);
 
-  const [
-    {
+  const [{
       loading,
       confirmLeave,
       largeMiss,
@@ -318,7 +317,7 @@ export default function Simulation() {
           distance: putt.distance,
           xDistance: roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2),
           yDistance: roundTo(-1 * (height / 2 - putt.point.y) * (5 / height), 2),
-          break: putt.break,
+          puttBreak: putt.break,
           missRead: putt.missRead,
           distanceMissed: putt.distanceMissed
         });
