@@ -2,23 +2,16 @@ import {Redirect, Tabs} from 'expo-router';
 import React from 'react';
 
 import {SvgHome, SvgPractice} from '@/assets/svg/SvgComponents';
-import {useSession} from '@/contexts/ctx';
 import {Text} from "react-native";
 import {getAuth} from "firebase/auth";
 import useColors from "@/hooks/useColors";
-import {useUserData} from "@/contexts/UserData";
+import {useSession} from "@/contexts/AppCtx";
 
 export default function TabLayout() {
   const colors = useColors();
 
   const {session, isLoading} = useSession();
 
-  // Initialize the userData object
-  const {initialize} = useUserData();
-
-  useEffect(() => {
-    initialize();
-  });
   // You can keep the splash screen open, or render a loading screen like we do here.
   if (isLoading) {
     return <Text>Loading...</Text>;

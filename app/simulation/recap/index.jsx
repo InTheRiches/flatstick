@@ -66,7 +66,6 @@ export default function SimulationRecap() {
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
-            // TODO IF YOU MISS RIGHT SHORT, IT APPEARS AS LONG RIGHT
             if (putt.distanceMissed <= 0.5) center++
             else if (degrees > -45 && degrees <= 45) {
                 if (putt.distanceMissed <= 2)
@@ -76,12 +75,12 @@ export default function SimulationRecap() {
             } else if (degrees > 45 && degrees <= 135) {
                 long++;
             } else if (degrees > -135 && degrees <= -45) {
+                short++;
+            } else {
                 if (putt.distanceMissed <= 2)
                     left++;
                 else
                     farLeft++;
-            } else {
-                short++;
             }
         });
 

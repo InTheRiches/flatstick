@@ -19,6 +19,7 @@ import useColors from "../../hooks/useColors";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import {SecondaryButton} from "../../components/buttons/SecondaryButton";
 import {useStatistics} from "../../contexts/Statistics";
+import {useAppContext} from "../../contexts/AppCtx";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 // AND THEY GO BACK, NOT SHOW BOTH DIALOGES ON TOP OF EACH OTHER, AND TO CANCEL THE OTHER ONE BENEATH IT
@@ -80,7 +81,7 @@ const initialState = {
 export default function Simulation() {
   const colors = useColors();
   const navigation = useNavigation();
-  const {updateStats} = useStatistics();
+  const {updateStats} = useAppContext();
 
   const db = getFirestore();
   const auth = getAuth();
@@ -319,7 +320,7 @@ export default function Simulation() {
         trimmedPutts.push({
           distance: putt.distance,
           xDistance: roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2),
-          yDistance: roundTo(-1 * (height / 2 - putt.point.y) * (5 / height), 2),
+          yDistance: roundTo((height / 2 - putt.point.y) * (5 / height), 2),
           puttBreak: putt.break,
           missRead: putt.missRead,
           distanceMissed: putt.distanceMissed
@@ -350,25 +351,12 @@ export default function Simulation() {
             date: new Date().toISOString()
           }
         });
+      }).catch((error) => {
+        console.log("updateStats " + error);
       });
+    }).catch((error) => {
+      console.log("setDocs " + error);
     });
-
-    const sfDocRef = doc(db, `users/${auth.currentUser.uid}`);
-
-    runTransaction(db, async (transaction) => {
-      const sfDoc = await transaction.get(sfDocRef);
-      if (!sfDoc.exists()) {
-        throw "Document does not exist!";
-      }
-
-      const newPutts = sfDoc.data().totalPutts + totalPutts;
-      transaction.update(sfDocRef, {totalPutts: newPutts});
-    }).then(() => {
-      console.log("Transaction successfully committed!");
-    }).catch((e) => {
-      console.log("Transaction failed: ", e);
-    });
-
   }
 
   return (loading ? <Loading/> :

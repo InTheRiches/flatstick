@@ -9,14 +9,12 @@ import React, {useEffect, useState} from 'react';
 import {getAuth} from "firebase/auth";
 import {doc, getDoc, getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
 import {useNavigation, useRouter} from "expo-router";
-import {useSession} from '@/contexts/ctx';
 import {SvgClose, SvgMenu} from "@/assets/svg/SvgComponents";
 import Svg, {Path} from "react-native-svg";
 import useColors from "@/hooks/useColors";
 import {Dimensions} from 'react-native';
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
-import {useUserData} from "@/contexts/UserData";
-import {useStatistics} from "@/contexts/Statistics";
+import {useAppContext, useSession} from "@/contexts/AppCtx";
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -26,8 +24,7 @@ export default function HomeScreen() {
 
   const router = useRouter();
   const {signOut, isLoading} = useSession();
-  const {userData} = useUserData();
-  const {getAllStats, updateStats} = useStatistics();
+  const {userData} = useAppContext();
 
   const [newSession, setNewSession] = useState(false);
 

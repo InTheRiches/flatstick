@@ -1,13 +1,12 @@
 import {ThemedText} from "@/components/ThemedText";
 import {View, Text, Pressable, TextInput} from "react-native";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {SvgGoogle} from "@/assets/svg/SvgComponents";
 import {getAuth} from "firebase/auth";
-import {getFirestore} from "firebase/firestore";
 import {useRouter} from "expo-router";
-import {useSession} from "../../contexts/ctx";
 import Loading from "../../components/popups/Loading";
 import useColors from "../../hooks/useColors";
+import {useSession} from "../../contexts/AppCtx";
 
 const initialState = {
     password: "",
@@ -29,10 +28,10 @@ export default function Login() {
 
     const updateField = (field, value) => {
         setState(prevState => ({
-          ...prevState,
-          [field]: value,
+            ...prevState,
+            [field]: value,
         }));
-      };
+    };
 
     const login = () => {
         if (state.invalid) return;
@@ -67,60 +66,60 @@ export default function Login() {
 
     return (loading ? <Loading/> :
             <View style={{
-                      backgroundColor: colors.background.primary,
-                      width: "100%",
-                      height: "100%",
-                      paddingTop: 50,
-                      paddingHorizontal: 24,
-                      justifyContent: "center",
-                      alignContent: "center"
-                  }}>
+                backgroundColor: colors.background.primary,
+                width: "100%",
+                height: "100%",
+                paddingTop: 50,
+                paddingHorizontal: 24,
+                justifyContent: "center",
+                alignContent: "center"
+            }}>
                 <ThemedText type={"title"} style={{marginBottom: 30}}>Sign in to your account</ThemedText>
                 <ThemedText style={{fontSize: 16, marginBottom: 8}} secondary={true}>Login with:</ThemedText>
                 <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
                     <Pressable style={({pressed}) => [{
-                                   flex: 1,
-                                   paddingVertical: 12,
-                                   borderRadius: 10,
-                                   flexDirection: "row",
-                                   alignContent: "center",
-                                   justifyContent: "center",
-                                   borderWidth: 1,
-                                   borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                                   backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                               }]}>
+                        flex: 1,
+                        paddingVertical: 12,
+                        borderRadius: 10,
+                        flexDirection: "row",
+                        alignContent: "center",
+                        justifyContent: "center",
+                        borderWidth: 1,
+                        borderColor: pressed ? colors.input.focused.border : colors.input.border,
+                        backgroundColor: pressed ? colors.input.focused.background : colors.input.background
+                    }]}>
                         <SvgGoogle fill={colors.input.border}
                                    style={{width: 24, height: 24}}></SvgGoogle>
                     </Pressable>
                     <Pressable style={({pressed}) => [{
-                                   flex: 1,
-                                   paddingVertical: 12,
-                                   borderRadius: 10,
-                                   flexDirection: "row",
-                                   alignContent: "center",
-                                   justifyContent: "center",
-                                   borderWidth: 1,
-                                   borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                                   backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                               }]}>
+                        flex: 1,
+                        paddingVertical: 12,
+                        borderRadius: 10,
+                        flexDirection: "row",
+                        alignContent: "center",
+                        justifyContent: "center",
+                        borderWidth: 1,
+                        borderColor: pressed ? colors.input.focused.border : colors.input.border,
+                        backgroundColor: pressed ? colors.input.focused.background : colors.input.background
+                    }]}>
                         <SvgGoogle fill={colors.input.border}
                                    style={{width: 24, height: 24}}></SvgGoogle>
                     </Pressable>
                 </View>
                 <View style={{width: "100%", flexDirection: "row", gap: 10}}>
                     <View style={{
-                              height: 1,
-                              flex: 1,
-                              backgroundColor: colors.text.secondary,
-                              marginTop: 12
-                          }}></View>
+                        height: 1,
+                        flex: 1,
+                        backgroundColor: colors.text.secondary,
+                        marginTop: 12
+                    }}></View>
                     <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
                     <View style={{
-                              height: 1,
-                              flex: 1,
-                              backgroundColor: colors.text.secondary,
-                              marginTop: 12
-                          }}></View>
+                        height: 1,
+                        flex: 1,
+                        backgroundColor: colors.text.secondary,
+                        marginTop: 12
+                    }}></View>
                 </View>
                 <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</ThemedText>
                 <View style={{flexDirection: "row"}}>
@@ -155,7 +154,8 @@ export default function Login() {
                     }}>!</Text>}
                 </View>
                 {errorCode === "auth/invalid-credential" ?
-                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password and try again.</Text>
+                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
+                        and try again.</Text>
                     : state.invalidEmail &&
                     <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
 
@@ -193,7 +193,8 @@ export default function Login() {
                     }}>!</Text>}
                 </View>
                 {errorCode === "auth/invalid-credential" &&
-                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password and try again.</Text>}
+                    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
+                        and try again.</Text>}
                 <Pressable onPress={() => {
                     if (state.invalidEmail) return;
                     login();
@@ -207,11 +208,20 @@ export default function Login() {
                 }}>
                     <Text style={{
                         textAlign: "center",
-                        color: state.invalidEmail ? colors.button.disabled.text : colors.button.primary.text }}>Login</Text>
+                        color: state.invalidEmail ? colors.button.disabled.text : colors.button.primary.text
+                    }}>Login</Text>
                 </Pressable>
 
-                <Pressable onPress={() => router.push({pathname: `/signup`})} style={({ pressed }) => [{ marginTop: 32, borderWidth: 1, borderRadius: 12, backgroundColor: pressed ? colors.button.disabled.background : "transparent", borderColor: colors.border.default, paddingVertical: 10 }]}>
-                    <Text style={{ color: colors.text.primary, textAlign: "center" }}>Don't have an account? Click <Text style={{ color: colors.text.link }}>here</Text> to signup.</Text>
+                <Pressable onPress={() => router.push({pathname: `/signup`})} style={({pressed}) => [{
+                    marginTop: 32,
+                    borderWidth: 1,
+                    borderRadius: 12,
+                    backgroundColor: pressed ? colors.button.disabled.background : "transparent",
+                    borderColor: colors.border.default,
+                    paddingVertical: 10
+                }]}>
+                    <Text style={{color: colors.text.primary, textAlign: "center"}}>Don't have an account? Click <Text
+                        style={{color: colors.text.link}}>here</Text> to signup.</Text>
                 </Pressable>
             </View>
     )

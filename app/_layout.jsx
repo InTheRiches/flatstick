@@ -3,13 +3,11 @@ import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
-import {SessionProvider} from '@/contexts/ctx';
 import {Platform, StatusBar, useColorScheme} from "react-native";
 import useColors from "@/hooks/useColors";
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {UserDataProvider} from "@/contexts/UserData";
-import {StatisticsProvider} from "@/contexts/Statistics";
+import {AppProvider} from "@/contexts/AppCtx";
 
 export default function RootLayout() {
   const colors = useColors();
@@ -20,29 +18,24 @@ export default function RootLayout() {
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
-  // TODO MAYBE MERGE ALL THE CONTEXT PROVIDERS INTO ONE?
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}} edges={['top', 'bottom']}>
-      <UserDataProvider>
-        <StatisticsProvider>
-          <SessionProvider>
-            <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
-            <GestureHandlerRootView>
-              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <Stack
-                  screenOptions={{
-                    headerShown: false
-                  }}>
-                  <Stack.Screen name="(tabs)"/>
-                  <Stack.Screen name={"simulation/index"}/>
-                  <Stack.Screen name={"simulation/recap/index"}/>
-                  <Stack.Screen name="+not-found"/>
-                </Stack>
-              </ThemeProvider>
-            </GestureHandlerRootView>
-          </SessionProvider>
-        </StatisticsProvider>
-      </UserDataProvider>
+      <AppProvider>
+        <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
+        <GestureHandlerRootView>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack
+              screenOptions={{
+                headerShown: false
+              }}>
+              <Stack.Screen name="(tabs)"/>
+              <Stack.Screen name={"simulation/index"}/>
+              <Stack.Screen name={"simulation/recap/index"}/>
+              <Stack.Screen name="+not-found"/>
+            </Stack>
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      </AppProvider>
     </SafeAreaView>
   );
 }
