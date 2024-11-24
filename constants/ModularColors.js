@@ -97,8 +97,8 @@ export const DarkTheme = {
     link: '#42aaf5',
   },
   background: {
-    primary: '#161718',
-    secondary: '#1E1F20',
+    primary: '#141414',
+    secondary: '#2D2D2D',
     tinted: 'rgba(0, 0, 0, 0.8)',
   },
   border: {
@@ -107,10 +107,10 @@ export const DarkTheme = {
   },
   button: {
     primary: {
-      border: '#B8B08D',
+      border: 'transparent',
       text: 'black',
-      background: '#B8B08D',
-      depressed: '#908A70',
+      background: 'white',
+      depressed: '#C3C3C3',
     },
     secondary: {
       background: '#202425',

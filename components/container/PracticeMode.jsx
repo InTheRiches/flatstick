@@ -1,4 +1,4 @@
-import {Pressable, Text, View} from "react-native";
+import {Pressable, ScrollView, Text, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../buttons/PrimaryButton";
 import {CollapsableContainer} from "./CollapsableContainer";
@@ -54,16 +54,17 @@ export default function PracticeMode({name, link, description}) {
                             <Path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                         </Svg>
                     </Animated.View>
-                    <Text style={{fontSize: 18}}>{name}</Text>
+                    <Text style={{fontSize: 18, color: colors.text.primary}}>{name}</Text>
                 </View>
                 <PrimaryButton onPress={() => {
-                }} style={{borderRadius: 30, padding: 6}}>
-                    <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
-                         viewBox="0 0 24 24" strokeWidth={1.5}
-                         stroke={colors.text.primary} className="size-6">
-                        <Path strokeLinecap="round" strokeLinejoin="round"
-                              d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
-                    </Svg>
+                }} style={{
+                    borderRadius: 30,
+                    paddingHorizontal: 10,
+                    paddingVertical: 2,
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
+                    <Text style={{fontSize: 20}}>+</Text>
                 </PrimaryButton>
             </Pressable>
             <CollapsableContainer expanded={expanded}>

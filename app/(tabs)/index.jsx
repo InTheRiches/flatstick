@@ -1,6 +1,6 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {Pressable, View, Text} from 'react-native';
+import {Pressable, View, Text, ScrollView} from 'react-native';
 import {ThemedButton} from "@/components/ThemedButton";
 import {Image} from 'react-native';
 
@@ -34,7 +34,7 @@ export default function HomeScreen() {
     const [newSession, setNewSession] = useState(false);
 
     return (
-        <ThemedView style={{
+        <View style={{
             height: "100%",
             flex: 1,
             overflow: "hidden",
@@ -42,198 +42,151 @@ export default function HomeScreen() {
             alignContent: "center",
             borderBottomWidth: 1,
             borderBottomColor: colors.border.default,
-            paddingHorizontal: 20
+            paddingHorizontal: 20,
+            backgroundColor: colors.background.primary
         }}>
-            <Header></Header>
-            <View
-                style={{
-                    backgroundColor: colors.background.secondary,
-                    paddingHorizontal: 16,
-                    paddingTop: 8,
-                    paddingBottom: 14,
-                    borderTopLeftRadius: 16,
-                    borderTopRightRadius: 16,
-                    borderBottomLeftRadius: 8,
-                    borderBottomRightRadius: 8,
-                    marginBottom: 4
-                }}>
-                <View style={{
-                    flexDirection: "row",
-                    paddingBottom: 16,
-                    borderBottomWidth: 2,
-                    borderColor: colors.border.default,
-                    marginBottom: 16
-                }}>
-                    <View style={{flex: 1}}>
-                        <Text style={{textAlign: "left",}}>11/22</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 24}}>Previous</Text>
-                        <Text style={{
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontSize: 24,
-                            marginTop: -10
-                        }}>Session</Text>
+            <ScrollView>
+                <Header></Header>
+                <View
+                    style={{
+                        backgroundColor: colors.background.secondary,
+                        paddingHorizontal: 16,
+                        paddingTop: 8,
+                        paddingBottom: 14,
+                        borderTopLeftRadius: 16,
+                        borderTopRightRadius: 16,
+                        borderBottomLeftRadius: 8,
+                        borderBottomRightRadius: 8,
+                        marginBottom: 4
+                    }}>
+                    <View style={{
+                        flexDirection: "row",
+                        paddingBottom: 16,
+                        borderBottomWidth: 2,
+                        borderColor: colors.border.default,
+                        marginBottom: 16
+                    }}>
+                        <View style={{flex: 1}}>
+                            <Text style={{textAlign: "left", color: colors.text.primary}}>11/22</Text>
+                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 24}}>Previous</Text>
+                            <Text style={{
+                                textAlign: "left",
+                                color: colors.text.primary,
+                                fontSize: 24,
+                                marginTop: -10
+                            }}>Session</Text>
+                        </View>
+                        <View style={{flex: 1}}>
+                            <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
+                            <Text
+                                style={{textAlign: "right", color: colors.text.primary, fontSize: 24}}>Simulation</Text>
+                            <Text style={{
+                                textAlign: "right",
+                                color: colors.text.primary,
+                                fontSize: 24,
+                                marginTop: -10
+                            }}>Summary</Text>
+                        </View>
                     </View>
-                    <View style={{flex: 1}}>
-                        <Text style={{textAlign: "right"}}>#132</Text>
-                        <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24}}>Simulation</Text>
-                        <Text style={{
-                            textAlign: "right",
-                            color: colors.text.primary,
-                            fontSize: 24,
-                            marginTop: -10
-                        }}>Summary</Text>
-                    </View>
-                </View>
-                <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                    <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>Easy</Text>
-                    </View>
-                    <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>24%</Text>
-                    </View>
-                    <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>16</Text>
-                    </View>
-                    <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>1.2ft</Text>
-                    </View>
-                </View>
-            </View>
-            <View
-                style={{
-                    backgroundColor: colors.background.secondary,
-                    paddingHorizontal: 12,
-                    paddingTop: 8,
-                    paddingBottom: 14,
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                    borderBottomLeftRadius: 16,
-                    borderBottomRightRadius: 16,
-                    marginBottom: 32
-                }}>
-                <View style={{
-                    flexDirection: "row",
-                    paddingBottom: 4,
-                }}>
-                    <View style={{flex: 1}}>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Unfinished Round</Text>
-                        <Text style={{
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontSize: 24,
-                            marginTop: -6
-                        }}>Simulation</Text>
-                    </View>
-                    <View style={{flex: 1}}>
-                        <Text style={{textAlign: "right", color: colors.text.secondary}}>Started at 1:32</Text>
-                        <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -6}}>Resume
-                            -></Text>
+                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                        <View>
+                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
+                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>Easy</Text>
+                        </View>
+                        <View>
+                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
+                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>24%</Text>
+                        </View>
+                        <View>
+                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
+                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>16</Text>
+                        </View>
+                        <View>
+                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
+                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>1.2ft</Text>
+                        </View>
                     </View>
                 </View>
-                <View style={{flexDirection: "row", alignItems: "center"}}>
-                    <View
-                        style={{
-                            height: 6,
-                            marginTop: 1,
-                            backgroundColor: "black",
-                            borderRadius: 24,
-                            flex: 1,
-                        }}></View>
-                    <View style={{alignSelf: 'center', paddingLeft: 10}}>
-                        <Text style={{color: colors.text.primary}}>Hole 12</Text>
+                <View
+                    style={{
+                        backgroundColor: colors.background.secondary,
+                        paddingHorizontal: 12,
+                        paddingTop: 8,
+                        paddingBottom: 14,
+                        borderTopLeftRadius: 8,
+                        borderTopRightRadius: 8,
+                        borderBottomLeftRadius: 16,
+                        borderBottomRightRadius: 16,
+                        marginBottom: 32
+                    }}>
+                    <View style={{
+                        flexDirection: "row",
+                        paddingBottom: 4,
+                    }}>
+                        <View style={{flex: 1}}>
+                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Unfinished Round</Text>
+                            <Text style={{
+                                textAlign: "left",
+                                color: colors.text.primary,
+                                fontSize: 24,
+                                marginTop: -6
+                            }}>Simulation</Text>
+                        </View>
+                        <View style={{flex: 1}}>
+                            <Text style={{textAlign: "right", color: colors.text.secondary}}>Started at 1:32</Text>
+                            <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -6}}>Resume
+                                -></Text>
+                        </View>
+                    </View>
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+                        <View
+                            style={{
+                                height: 6,
+                                marginTop: 1,
+                                backgroundColor: colors.text.primary,
+                                borderRadius: 24,
+                                flex: 1,
+                            }}></View>
+                        <View style={{alignSelf: 'center', paddingLeft: 10}}>
+                            <Text style={{color: colors.text.primary}}>Hole 12</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
-            <View style={{gap: 12}}>
-                <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New Practice</Text>
-                <PracticeMode
-                    description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                    name={"18 Hole Simulation"}/>
-                <PracticeMode
-                    description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                    name={"Pressure Putting"}/>
-                <PracticeMode
-                    description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                    name={"Ladder Challenge"}/>
-                <SecondaryButton onPress={() => {
-                }} style={{
-                    borderRadius: 50,
-                    flexDirection: "row",
-                    alignSelf: "center",
-                    paddingLeft: 12,
-                    gap: 12,
-                    paddingRight: 6,
-                    paddingVertical: 4
-                }}>
-                    <Text style={{color: colors.button.secondary.text, fontSize: 18}}>See All Modes</Text>
-                    <View style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.secondary.text}}>
-                        <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" strokeWidth={1.5}
-                             stroke={colors.button.secondary.background} className="size-6">
-                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                  d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
-                        </Svg>
-                    </View>
-                </SecondaryButton>
-            </View>
-        </ThemedView>
-    );
-}
-
-function Profile({userData, auth}) {
-    const colors = useColors();
-
-    return (
-        <View style={{
-            borderColor: colors.border.default,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            borderBottomWidth: 1,
-            paddingBottom: 24,
-            marginBottom: 24
-        }}>
-            <View style={{flexDirection: "row", alignItems: "center"}}>
-                <Image source={require('../../assets/images/image.png')}
-                       style={{width: 60, height: 60, borderRadius: 30}}/>
-                <View style={{marginLeft: 12}}>
-                    <ThemedText type="subtitle">{auth.currentUser.displayName}</ThemedText>
-                    <ThemedText
-                        type="default">Since {(userData === undefined || userData.length === 0) ? "~~~~" : new Date(userData.date).getFullYear()}</ThemedText>
-                    <ThemedText
-                        type="default">{(userData === undefined || userData.length === 0) ? "~" : userData.totalPutts} Total
-                        Putts</ThemedText>
+                <View style={{gap: 12, marginBottom: 18}}>
+                    <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New Practice</Text>
+                    <PracticeMode
+                        description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
+                        name={"18 Hole Simulation"}/>
+                    <PracticeMode
+                        description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
+                        name={"Pressure Putting"}/>
+                    <PracticeMode
+                        description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
+                        name={"Ladder Challenge"}/>
+                    <SecondaryButton onPress={() => {
+                    }} style={{
+                        borderRadius: 50,
+                        flexDirection: "row",
+                        alignSelf: "center",
+                        paddingLeft: 12,
+                        gap: 12,
+                        paddingRight: 6,
+                        paddingVertical: 4
+                    }}>
+                        <Text style={{color: colors.button.secondary.text, fontSize: 18}}>See All Modes</Text>
+                        <View style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.secondary.text}}>
+                            <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke={colors.button.secondary.background} className="size-6">
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                            </Svg>
+                        </View>
+                    </SecondaryButton>
                 </View>
-            </View>
-            <View style={{flexDirection: "column", justifyContent: "center", alignContent: "center"}}>
-                <View style={{
-                    overflow: "hidden",
-                    width: 56,
-                    height: 56,
-                    borderRadius: 50,
-                    alignSelf: "center",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderWidth: 1,
-                    marginBottom: 1,
-                    backgroundColor: colors.background.secondary,
-                    borderColor: colors.border.default
-                }} type="secondary">
-                    <ThemedText type="header"
-                                style={{lineHeight: 26, zIndex: 20, color: colors.text.primary}}>1.8</ThemedText>
-                </View>
-                <ThemedText type="defaultSemiBold"
-                            style={{alignSelf: 'flex-start', fontSize: 16, width: "auto", textAlign: "center"}}>Strokes
-                    Gained</ThemedText>
-            </View>
+            </ScrollView>
         </View>
-    )
+    );
 }
 
 function Header({signOut}) {
@@ -244,7 +197,7 @@ function Header({signOut}) {
     return (
         <View style={{
             justifyContent: "space-between",
-            alignContent: "center",
+            alignItems: "center",
             flexDirection: "row",
             width: "100%",
             paddingTop: 2,
@@ -252,23 +205,17 @@ function Header({signOut}) {
         }}>
             <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0}}>
                 <Text style={{color: colors.text.secondary, fontSize: 16}}>Welcome Back,</Text>
-                <Text style={{fontSize: 24, fontWeight: 500}}>Hayden Williams</Text>
+                <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Hayden Williams</Text>
             </View>
-            <View style={{
-                aspectRatio: 1,
-                height: 48,
-                backgroundColor: "white",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 30
-            }}>
+            <PrimaryButton onPress={() => {
+            }} style={{borderRadius: 30, aspectRatio: 1, height: 42}}>
                 <Svg width={28} height={28} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                      strokeWidth={1.5}
-                     stroke="black">
+                     stroke={colors.button.primary.text}>
                     <Path strokeLinecap="round" strokeLinejoin="round"
                           d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
                 </Svg>
-            </View>
+            </PrimaryButton>
         </View>
     )
 }
