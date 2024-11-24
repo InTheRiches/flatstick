@@ -178,7 +178,7 @@ const DrawerNewSession = ({newSessionRef}) => {
                     <PrimaryButton title={"Start Session"} onPress={() => {
                         newSessionRef.current?.dismiss();
                         router.push({
-                            pathname: `/simulation`,
+                            pathname: `/simulation/round`,
                             params: {
                                 localHoles: 18,
                                 difficulty: difficulty,

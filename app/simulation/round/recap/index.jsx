@@ -1,10 +1,10 @@
-import {ThemedView} from "../../../components/ThemedView";
-import {ThemedText} from "../../../components/ThemedText";
+import {ThemedView} from "@/components/ThemedView";
+import {ThemedText} from "@/components/ThemedText";
 import {View, Image, Text, Pressable} from "react-native";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
-import useColors from "../../../hooks/useColors";
-import {PrimaryButton} from "../../../components/buttons/PrimaryButton";
+import useColors from "@/hooks/useColors";
+import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 
 const initialMisses = {
     farLeft: 0,
@@ -138,7 +138,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
 
     return (
         <View style={{
-            backgroundColor: colors.putting.visual.background,
+            backgroundColor: colors.background.secondary,
             flexDirection: "column",
             paddingTop: 12,
             borderRadius: 16,
@@ -148,7 +148,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                 width: "100%",
                 paddingBottom: 12,
                 borderBottomWidth: 1,
-                borderColor: colors.putting.visual.border
+                borderColor: colors.border.default
             }}>
                 <Text style={{fontSize: 16, textAlign: "center", color: "white"}}>Session Recap</Text>
                 <View style={{position: "absolute", left: 12, flexDirection: "row", gap: 8}}>
@@ -226,14 +226,14 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                 width: "100%",
                 flexDirection: "column",
                 borderTopWidth: 1,
-                borderColor: colors.putting.visual.border
+                borderColor: colors.border.default
             }}>
                 <Text style={{
                     fontSize: 16,
                     textAlign: "center",
                     color: "white",
                     borderBottomWidth: 1,
-                    borderColor: colors.putting.visual.border,
+                    borderColor: colors.border.default,
                     paddingVertical: 6
                 }}>Stats</Text>
                 <View style={{flexDirection: "row"}}>
@@ -241,7 +241,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         flexDirection: "column",
                         flex: 0.7,
                         borderRightWidth: 1,
-                        borderColor: colors.putting.visual.border,
+                        borderColor: colors.border.default,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
@@ -249,7 +249,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 14,
                             textAlign: "left",
-                            color: colors.putting.visual.secondaryText
+                            color: colors.text.secondary
                         }}>Make %</Text>
                         <Text style={{
                             fontSize: 20,
@@ -262,7 +262,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         flexDirection: "column",
                         flex: 1,
                         borderRightWidth: 1,
-                        borderColor: colors.putting.visual.border,
+                        borderColor: colors.border.default,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
@@ -270,7 +270,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 14,
                             textAlign: "left",
-                            color: colors.putting.visual.secondaryText
+                            color: colors.text.secondary
                         }}>Avg.Miss Distance</Text>
                         <Text style={{
                             fontSize: 20,
@@ -289,7 +289,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 14,
                             textAlign: "left",
-                            color: colors.putting.visual.secondaryText
+                            color: colors.text.secondary
                         }}>Putts</Text>
                         <Text style={{
                             fontSize: 20,

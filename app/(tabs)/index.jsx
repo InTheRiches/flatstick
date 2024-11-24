@@ -44,84 +44,7 @@ export default function HomeScreen() {
         }}>
             <ScrollView>
                 <Header></Header>
-                <View
-                    style={{
-                        backgroundColor: colors.background.secondary,
-                        paddingHorizontal: 16,
-                        paddingTop: 8,
-                        paddingBottom: 14,
-                        borderTopLeftRadius: 16,
-                        borderTopRightRadius: 16,
-                        borderBottomLeftRadius: 8,
-                        borderBottomRightRadius: 8,
-                        marginBottom: 4
-                    }}>
-                    <View style={{
-                        flexDirection: "row",
-                        paddingBottom: 16,
-                        borderBottomWidth: 2,
-                        borderColor: colors.border.default,
-                        marginBottom: 16
-                    }}>
-                        <View style={{flex: 1}}>
-                            <Text style={{textAlign: "left", color: colors.text.primary}}>11/22</Text>
-                            <Text style={{
-                                textAlign: "left",
-                                color: colors.text.primary,
-                                fontSize: 24
-                            }}>Previous</Text>
-                            <Text style={{
-                                textAlign: "left",
-                                color: colors.text.primary,
-                                fontSize: 24,
-                                marginTop: -10
-                            }}>Session</Text>
-                        </View>
-                        <View style={{flex: 1}}>
-                            <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
-                            <Text
-                                style={{
-                                    textAlign: "right",
-                                    color: colors.text.primary,
-                                    fontSize: 24
-                                }}>Simulation</Text>
-                            <Text style={{
-                                textAlign: "right",
-                                color: colors.text.primary,
-                                fontSize: 24,
-                                marginTop: -10
-                            }}>Summary</Text>
-                        </View>
-                    </View>
-                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                        <View>
-                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
-                            <Text style={{
-                                textAlign: "left",
-                                color: colors.text.primary,
-                                fontSize: 18
-                            }}>Easy</Text>
-                        </View>
-                        <View>
-                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                            <Text
-                                style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>24%</Text>
-                        </View>
-                        <View>
-                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
-                            <Text
-                                style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>16</Text>
-                        </View>
-                        <View>
-                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                            <Text style={{
-                                textAlign: "left",
-                                color: colors.text.primary,
-                                fontSize: 18
-                            }}>1.2ft</Text>
-                        </View>
-                    </View>
-                </View>
+                <MostRecentSession unfinished={false}></MostRecentSession>
                 <View
                     style={{
                         backgroundColor: colors.background.secondary,
@@ -183,7 +106,8 @@ export default function HomeScreen() {
                         onPress={() => newSessionRef.current?.present()}/>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                        name={"Pressure Putting"}/>
+                        name={"Pressure Putting"}
+                        onPress={() => router.push({pathname: `/simulation/pressure`})}/>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                         name={"Ladder Challenge"}/>
@@ -250,92 +174,36 @@ function Header({signOut}) {
 }
 
 // TODO Consider adding a see more button that brings up a dedication menu with a insights graphic for each session
-function RecentSessions({setNewSession}) {
+function MostRecentSession({unfinished}) {
     const auth = getAuth();
     const db = getFirestore();
 
     const navigation = useNavigation();
 
-    const [recentSessions, setRecentSessions] = useState([]);
-    const [listedSessions, setListedSessions] = useState([null]);
+    const [recentSession, setRecentSession] = useState(null);
     const [loading, setLoading] = useState(true)
 
     const colors = useColors();
 
-    const pressed = (session) => {
-        navigation.navigate("simulation/recap/index", {
-            current: false,
-            holes: session.holes,
-            difficulty: session.difficulty,
-            mode: session.mode,
-            serializedPutts: JSON.stringify(session.putts),
-            date: session.date
-        });
-    }
-
     useEffect(() => {
-        const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp", "desc"), limit(3));
+        const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp", "desc"), limit(1));
         getDocs(q).then((querySnapshot) => {
-            let docs = [];
             querySnapshot.forEach((doc) => {
                 // doc.data() is never undefined for query doc snapshots
-                docs.push(doc.data());
+                setRecentSession(doc.data());
             });
-
-            setListedSessions(docs.map((session, index) => {
-                let putts = 0;
-                session.putts.forEach((putt) => {
-                    if (putt.distanceMissed === 0) putts++;
-                    else putts += 2;
-                });
-
-                const date = new Date(session.date);
-
-                return (
-                    <Pressable onPress={(e) => pressed(session)} key={session.timestamp} style={({pressed}) => [{
-                        backgroundColor: pressed ? colors.background.primary : "transparent",
-                        borderBottomLeftRadius: index < docs.length - 1 ? 0 : 15,
-                        borderBottomRightRadius: index < docs.length - 1 ? 0 : 15
-                    }, {
-                        width: "100%",
-                        paddingHorizontal: 16,
-                        paddingVertical: 10,
-                        borderTopWidth: 1,
-                        borderColor: colors.border.default,
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignContent: "center"
-                    }]}>
-                        <View>
-                            <ThemedText>{session.type === "round-simulation" ? session.holes + " Hole Simulation" : "N/A"}</ThemedText>
-                            <ThemedText secondary={true} style={{
-                                fontSize: 13,
-                                marginTop: -6
-                            }}>{(date.getMonth() + 1) + "/" + date.getDate()}</ThemedText>
-                        </View>
-                        <View
-                            style={{flexDirection: "row", gap: 12, width: "50%", height: "auto", alignItems: "center"}}>
-                            <ThemedText
-                                style={{width: "50%"}}>{session.type === "round-simulation" ? session.difficulty : "N/A"}</ThemedText>
-                            <ThemedText
-                                style={{width: "50%"}}>{session.type === "round-simulation" ? putts : "N/A"}</ThemedText>
-                        </View>
-                    </Pressable>
-                )
-            }));
-
-            setRecentSessions(docs);
         }).catch((error) => {
             console.log("couldnt find the documents: " + error)
         });
     }, []);
 
     useEffect(() => {
-        if (listedSessions[0] !== null)
+        if (recentSession !== null)
             setLoading(false);
-    }, [recentSessions])
+    }, [recentSession])
 
-    return loading ? <View></View> : recentSessions.length === 0 ? (
+    // TODO ADD A PLACEHOLDER FOR WHEN THERE ARE NO SESSIONS
+    return loading ? <View></View> : recentSession === null ? (
         <View style={{
             alignItems: "center",
             padding: 24,
@@ -349,25 +217,93 @@ function RecentSessions({setNewSession}) {
                 green’s waiting for you. Start a new session to show the green you’re serious this time… or at least
                 slightly
                 less terrible.</ThemedText>
-            <ThemedButton onPress={() => setNewSession(true)} title="New session"></ThemedButton>
         </View>
     ) : (
-        <View style={{alignContent: "center", borderTopWidth: 1, borderColor: colors.border.default}}>
-            <View style={{
-                width: "100%",
+        <View
+            style={{
+                backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
-                paddingVertical: 8,
-                flexDirection: "row",
-                justifyContent: "space-between"
+                paddingTop: 8,
+                paddingBottom: 14,
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+                borderBottomLeftRadius: unfinished ? 8 : 16,
+                borderBottomRightRadius: unfinished ? 8 : 16,
+                marginBottom: unfinished ? 4 : 0
             }}>
-                <Text style={{textAlign: "left", color: "#898989"}}>Sessions</Text>
-                <View style={{flexDirection: "row", gap: 12, width: "50%"}}>
-                    <Text style={{textAlign: "left", color: "#898989", width: "50%"}}>Difficulty</Text>
-                    <Text style={{textAlign: "left", color: "#898989", width: "50%"}}>Total Putts</Text>
+            <View style={{
+                flexDirection: "row",
+                paddingBottom: 16,
+                borderBottomWidth: 2,
+                borderColor: colors.border.default,
+                marginBottom: 16
+            }}>
+                <View style={{flex: 1}}>
+                    <Text style={{textAlign: "left", color: colors.text.primary}}>11/22</Text>
+                    <Text style={{
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontSize: 24
+                    }}>Previous</Text>
+                    <Text style={{
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontSize: 24,
+                        marginTop: -10
+                    }}>Session</Text>
+                </View>
+                <View style={{flex: 1}}>
+                    <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
+                    <Text
+                        style={{
+                            textAlign: "right",
+                            color: colors.text.primary,
+                            fontSize: 24
+                        }}>Simulation</Text>
+                    <Text style={{
+                        textAlign: "right",
+                        color: colors.text.primary,
+                        fontSize: 24,
+                        marginTop: -10
+                    }}>Summary</Text>
                 </View>
             </View>
-            {listedSessions}
-
+            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                <View>
+                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
+                    <Text style={{
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontSize: 18
+                    }}>{recentSession.difficulty}</Text>
+                </View>
+                <View>
+                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
+                    <Text
+                        style={{
+                            textAlign: "left",
+                            color: colors.text.primary,
+                            fontSize: 18
+                        }}>{recentSession.madePercent * 100}%</Text>
+                </View>
+                <View>
+                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
+                    <Text
+                        style={{
+                            textAlign: "left",
+                            color: colors.text.primary,
+                            fontSize: 18
+                        }}>{recentSession.totalPutts}</Text>
+                </View>
+                <View>
+                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
+                    <Text style={{
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontSize: 18
+                    }}>{recentSession.avgMiss}ft</Text>
+                </View>
+            </View>
         </View>
     );
 }
