@@ -4,7 +4,7 @@ import {Pressable, View, Text, ScrollView} from 'react-native';
 import {ThemedButton} from "@/components/ThemedButton";
 import {Image} from 'react-native';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {getAuth} from "firebase/auth";
 import {doc, getDoc, getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
 import {useNavigation, useRouter} from "expo-router";
@@ -20,6 +20,9 @@ import Animated, {
 import {CollapsableContainer} from "@/components/container/CollapsableContainer";
 import PracticeMode from "@/components/container/PracticeMode";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
+import DrawerNewSession from "@/components/popups/DrawerNewSession";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -32,6 +35,8 @@ export default function HomeScreen() {
     const {userData} = useAppContext();
 
     const [newSession, setNewSession] = useState(false);
+
+    const newSessionRef = useRef(null);
 
     return (
         <View style={{
@@ -68,7 +73,11 @@ export default function HomeScreen() {
                     }}>
                         <View style={{flex: 1}}>
                             <Text style={{textAlign: "left", color: colors.text.primary}}>11/22</Text>
-                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 24}}>Previous</Text>
+                            <Text style={{
+                                textAlign: "left",
+                                color: colors.text.primary,
+                                fontSize: 24
+                            }}>Previous</Text>
                             <Text style={{
                                 textAlign: "left",
                                 color: colors.text.primary,
@@ -79,7 +88,11 @@ export default function HomeScreen() {
                         <View style={{flex: 1}}>
                             <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
                             <Text
-                                style={{textAlign: "right", color: colors.text.primary, fontSize: 24}}>Simulation</Text>
+                                style={{
+                                    textAlign: "right",
+                                    color: colors.text.primary,
+                                    fontSize: 24
+                                }}>Simulation</Text>
                             <Text style={{
                                 textAlign: "right",
                                 color: colors.text.primary,
@@ -91,19 +104,29 @@ export default function HomeScreen() {
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                         <View>
                             <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
-                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>Easy</Text>
+                            <Text style={{
+                                textAlign: "left",
+                                color: colors.text.primary,
+                                fontSize: 18
+                            }}>Easy</Text>
                         </View>
                         <View>
                             <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>24%</Text>
+                            <Text
+                                style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>24%</Text>
                         </View>
                         <View>
                             <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
-                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>16</Text>
+                            <Text
+                                style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>16</Text>
                         </View>
                         <View>
                             <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                            <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>1.2ft</Text>
+                            <Text style={{
+                                textAlign: "left",
+                                color: colors.text.primary,
+                                fontSize: 18
+                            }}>1.2ft</Text>
                         </View>
                     </View>
                 </View>
@@ -124,7 +147,8 @@ export default function HomeScreen() {
                         paddingBottom: 4,
                     }}>
                         <View style={{flex: 1}}>
-                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Unfinished Round</Text>
+                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Unfinished
+                                Round</Text>
                             <Text style={{
                                 textAlign: "left",
                                 color: colors.text.primary,
@@ -133,8 +157,14 @@ export default function HomeScreen() {
                             }}>Simulation</Text>
                         </View>
                         <View style={{flex: 1}}>
-                            <Text style={{textAlign: "right", color: colors.text.secondary}}>Started at 1:32</Text>
-                            <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -6}}>Resume
+                            <Text style={{textAlign: "right", color: colors.text.secondary}}>Started at
+                                1:32</Text>
+                            <Text style={{
+                                textAlign: "right",
+                                color: colors.text.primary,
+                                fontSize: 24,
+                                marginTop: -6
+                            }}>Resume
                                 -></Text>
                         </View>
                     </View>
@@ -153,10 +183,12 @@ export default function HomeScreen() {
                     </View>
                 </View>
                 <View style={{gap: 12, marginBottom: 18}}>
-                    <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New Practice</Text>
+                    <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New
+                        Practice</Text>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                        name={"18 Hole Simulation"}/>
+                        name={"18 Hole Simulation"}
+                        onPress={() => newSessionRef.current?.present()}/>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                         name={"Pressure Putting"}/>
@@ -170,11 +202,15 @@ export default function HomeScreen() {
                         alignSelf: "center",
                         paddingLeft: 12,
                         gap: 12,
-                        paddingRight: 6,
-                        paddingVertical: 4
+                        paddingRight: 8,
+                        paddingVertical: 8
                     }}>
                         <Text style={{color: colors.button.secondary.text, fontSize: 18}}>See All Modes</Text>
-                        <View style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.secondary.text}}>
+                        <View style={{
+                            borderRadius: 30,
+                            padding: 6,
+                            backgroundColor: colors.button.secondary.text
+                        }}>
                             <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke={colors.button.secondary.background} className="size-6">
@@ -185,6 +221,7 @@ export default function HomeScreen() {
                     </SecondaryButton>
                 </View>
             </ScrollView>
+            <DrawerNewSession newSessionRef={newSessionRef}></DrawerNewSession>
         </View>
     );
 }

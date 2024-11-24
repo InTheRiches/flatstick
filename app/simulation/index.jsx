@@ -54,7 +54,7 @@ function generateBreak() {
 
 function generateDistance(difficulty) {
   // Generate a random distance
-  return Math.floor(Math.random() * (difficulty === "Easy" ? 6 : difficulty === "Medium" ? 12 : 20)) + 3;
+  return Math.floor(Math.random() * (difficulty === "easy" ? 10 : difficulty === "medium" ? 20 : 40)) + 3;
 }
 
 const initialState = {
@@ -360,32 +360,21 @@ export default function Simulation() {
   }
 
   return (loading ? <Loading/> :
-      <ThemedView>
-        <ThemedView style={{
-          borderColor: colors.border.default,
-          justifyContent: "center",
-          alignContent: "center",
+      <ThemedView style={{flexGrow: 1}}>
+        <View style={{
           width: "100%",
-          borderBottomWidth: 1,
-          paddingTop: 6,
-          paddingBottom: 10,
-          marginBottom: 8
+          flexGrow: 1,
+          paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
+          flexDirection: "column",
+          justifyContent: "space-between",
+          marginBottom: 20
         }}>
-          <Text style={{
-            textAlign: "center",
-            fontSize: 16,
-            fontWeight: "medium",
-            color: colors.text.primary
-          }}>9 Hole Simulation</Text>
-          <Image source={require('@/assets/images/PuttLabLogo.png')}
-                 style={{position: "absolute", left: 12, top: -2, width: 35, height: 35}}/>
-        </ThemedView>
-        <View style={{width: "100%", paddingHorizontal: Platform.OS === "ios" ? 32 : 24}}>
-          <View style={{display: "flex", flexDirection: "column", marginBottom: 12}}>
+          <View>
             <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
             <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
                          puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
-
+          </View>
+          <View>
             <Pressable onPress={() => updateField("missRead", !missRead)} style={{
               marginTop: 12,
               marginBottom: 4,
@@ -408,75 +397,73 @@ export default function Simulation() {
               }
               <Text style={{color: 'white', marginLeft: 8}}>Misread</Text>
             </Pressable>
-            <View>
-              <View style={{alignSelf: "center", flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
-                <ThemedText></ThemedText>
-                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2 ft</ThemedText>
-                <ThemedText></ThemedText>
-                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1 ft</ThemedText>
-                <ThemedText></ThemedText>
-                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>0 ft</ThemedText>
-                <ThemedText></ThemedText>
-                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1 ft</ThemedText>
-                <ThemedText></ThemedText>
-                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2 ft</ThemedText>
-                <ThemedText></ThemedText>
-              </View>
-              <GestureDetector gesture={singleTap}>
-                <View onLayout={onLayout}
-                      style={{alignSelf: "center", alignItems: "center", justifyContent: "center", width: "100%"}}>
-                  <Image
-                    source={require('../../assets/images/putting-grid.png')}
-                    style={{
-                      borderWidth: 1,
-                      borderRadius: 12,
-                      borderColor: colors.putting.grid.border,
-                      width: "100%",
-                      aspectRatio: "1",
-                      height: undefined
-                    }}/>
-                  <View style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "absolute",
-                    left: width / 2 - (width / 20),
-                    top: height / 2 - (width / 20),
-                    width: width / 10 + 1,
-                    height: width / 10 + 1,
-                    borderRadius: 24,
-                    backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
-                  }}>
-                    <Svg width={24} height={24} stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
-                         xmlns="http://www.w3.org/2000/svg" fill="none"
-                         viewBox="0 0 24 24" strokeWidth="3">
-                      <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                    </Svg>
-                  </View>
-                  {point.x !== undefined && center !== true ? (
-                    <Image source={require('../../assets/images/golf-ball.png')} style={{
-                      position: "absolute",
-                      left: point.x - 12,
-                      top: point.y - 12,
-                      width: 24,
-                      height: 24,
-                      borderRadius: 12,
-                      backgroundColor: "#fff"
-                    }}></Image>
-                  ) : null}
-                </View>
-              </GestureDetector>
-              <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
-                <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
-                               disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
-                {hole === holes ? <PrimaryButton title="Submit" disabled={point.x === undefined} onPress={() => {
-                    if (point.x !== undefined) updateField("confirmSubmit", true)
-                  }}></PrimaryButton>
-                  : <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Next"
-                                   disabled={point.x === undefined}
-                                   onPress={() => nextHole()}></PrimaryButton>}
-              </View>
+            <View style={{alignSelf: "center", flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
+              <ThemedText></ThemedText>
+              <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2 ft</ThemedText>
+              <ThemedText></ThemedText>
+              <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1 ft</ThemedText>
+              <ThemedText></ThemedText>
+              <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>0 ft</ThemedText>
+              <ThemedText></ThemedText>
+              <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1 ft</ThemedText>
+              <ThemedText></ThemedText>
+              <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2 ft</ThemedText>
+              <ThemedText></ThemedText>
             </View>
+            <GestureDetector gesture={singleTap}>
+              <View onLayout={onLayout}
+                    style={{alignSelf: "center", alignItems: "center", justifyContent: "center", width: "100%"}}>
+                <Image
+                  source={require('../../assets/images/putting-grid.png')}
+                  style={{
+                    borderWidth: 1,
+                    borderRadius: 12,
+                    borderColor: colors.putting.grid.border,
+                    width: "100%",
+                    aspectRatio: "1",
+                    height: undefined
+                  }}/>
+                <View style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "absolute",
+                  left: width / 2 - (width / 20),
+                  top: height / 2 - (width / 20),
+                  width: width / 10 + 1,
+                  height: width / 10 + 1,
+                  borderRadius: 24,
+                  backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
+                }}>
+                  <Svg width={24} height={24} stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
+                       xmlns="http://www.w3.org/2000/svg" fill="none"
+                       viewBox="0 0 24 24" strokeWidth="3">
+                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                  </Svg>
+                </View>
+                {point.x !== undefined && center !== true ? (
+                  <Image source={require('../../assets/images/golf-ball.png')} style={{
+                    position: "absolute",
+                    left: point.x - 12,
+                    top: point.y - 12,
+                    width: 24,
+                    height: 24,
+                    borderRadius: 12,
+                    backgroundColor: "#fff"
+                  }}></Image>
+                ) : null}
+              </View>
+            </GestureDetector>
+          </View>
+          <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
+            <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
+                           disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
+            <DangerButton onPress={() => updateField("largeMiss", true)} title={"Miss > 5ft?"}></DangerButton>
+            {hole === holes ? <PrimaryButton title="Submit" disabled={point.x === undefined} onPress={() => {
+                if (point.x !== undefined) updateField("confirmSubmit", true)
+              }}></PrimaryButton>
+              : <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Next"
+                               disabled={point.x === undefined}
+                               onPress={() => nextHole()}></PrimaryButton>}
           </View>
         </View>
         {(confirmLeave || confirmSubmit || largeMiss) &&
@@ -509,7 +496,7 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
 
   return (
     <View style={{
-      backgroundColor: colors.putting.visual.background,
+      backgroundColor: colors.background.secondary,
       flexDirection: "column",
       borderRadius: 16,
       elevation: 4,
@@ -523,18 +510,18 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
         }}></Image>
       </View>
       <View
-        style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: colors.putting.visual.border}}>
+        style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: colors.border.default}}>
         <View style={{flexDirection: "row"}}>
           <View style={{
             flexDirection: "column",
             flex: 1,
             borderRightWidth: 1,
-            borderColor: colors.putting.visual.border,
+            borderColor: colors.border.default,
             paddingBottom: 12,
             paddingTop: 6,
             paddingLeft: 12
           }}>
-            <Text style={{fontSize: 14, textAlign: "left", color: colors.putting.visual.secondaryText}}>Break</Text>
+            <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</Text>
             <Text style={{
               fontSize: 20,
               textAlign: "left",
@@ -546,12 +533,12 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
             flexDirection: "column",
             flex: 0.7,
             borderRightWidth: 1,
-            borderColor: colors.putting.visual.border,
+            borderColor: colors.border.default,
             paddingBottom: 12,
             paddingTop: 6,
             paddingLeft: 12
           }}>
-            <Text style={{fontSize: 14, textAlign: "left", color: colors.putting.visual.secondaryText}}>Slope</Text>
+            <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</Text>
             <Text style={{
               fontSize: 20,
               textAlign: "left",
@@ -560,7 +547,7 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
             }}>{slope}</Text>
           </View>
           <View style={{flexDirection: "column", flex: 0.7, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
-            <Text style={{fontSize: 14, textAlign: "left", color: colors.putting.visual.secondaryText}}>Distance</Text>
+            <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</Text>
             <Text style={{
               fontSize: 20,
               textAlign: "left",

@@ -6,6 +6,8 @@ import {Text} from "react-native";
 import {getAuth} from "firebase/auth";
 import useColors from "@/hooks/useColors";
 import {useSession} from "@/contexts/AppCtx";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 export default function TabLayout() {
   const colors = useColors();
@@ -35,37 +37,43 @@ export default function TabLayout() {
   }
 
   return (
-    <Tabs screenOptions={{
-      tabBarActiveTintColor: colors.text.primary,
-      tabBarActiveBackgroundColor: colors.background.primary,
-      tabBarInactiveBackgroundColor: colors.background.primary,
-      headerShown: false,
-      tabBarStyle: {
-        borderTopWidth: 0,
-        paddingBottom: 0,
-        maxHeight: 48 // TODO THIS IS A TEMP FIX, THE STUPID TAB BAR ICONS ARE WAYYY TOO TALL WITHOUT THIS
-      }
-    }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({color, focused}) => (
-            <SvgHome stroke={focused ? colors.text.primary : colors.border.default}
-                     fill={focused ? colors.text.primary : colors.border.default} width={25} height={25}/>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="practice"
-        options={{
-          title: 'Practice',
-          tabBarIcon: ({color, focused}) => (
-            <SvgPractice stroke={focused ? colors.text.primary : colors.border.default}
-                         fill={focused ? "transparent" : "transparent"} width={25} height={25}/>
-          ),
-        }}
-      />
-    </Tabs>
-  );
+    <GestureHandlerRootView>
+      <BottomSheetModalProvider>
+        <Tabs screenOptions={{
+          tabBarActiveTintColor: colors.text.primary,
+          tabBarActiveBackgroundColor: colors.background.primary,
+          tabBarInactiveBackgroundColor: colors.background.primary,
+          headerShown: false,
+          tabBarStyle: {
+            borderTopWidth: 0,
+            paddingBottom: 0,
+            maxHeight: 48 // TODO THIS IS A TEMP FIX, THE STUPID TAB BAR ICONS ARE WAYYY TOO TALL WITHOUT THIS
+          }
+        }}>
+          <Tabs.Screen
+            name="index"
+            options={{
+              title: 'Home',
+              tabBarIcon: ({color, focused}) => (
+                <SvgHome stroke={focused ? colors.text.primary : colors.border.default}
+                         fill={focused ? colors.text.primary : colors.border.default} width={25} height={25}/>
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="practice"
+            options={{
+              title: 'Practice',
+              tabBarIcon: ({color, focused}) => (
+                <SvgPractice stroke={focused ? colors.text.primary : colors.border.default}
+                             fill={focused ? "transparent" : "transparent"} width={25} height={25}/>
+              ),
+            }}
+          />
+        </Tabs>
+
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
+  )
+    ;
 }

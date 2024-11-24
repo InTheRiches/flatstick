@@ -11,7 +11,7 @@ import Animated, {
     withTiming,
 } from "react-native-reanimated";
 
-export default function PracticeMode({name, link, description}) {
+export default function PracticeMode({name, link, description, onPress}) {
     const [expanded, setExpanded] = useState(false);
     const colors = useColors();
 
@@ -56,8 +56,7 @@ export default function PracticeMode({name, link, description}) {
                     </Animated.View>
                     <Text style={{fontSize: 18, color: colors.text.primary}}>{name}</Text>
                 </View>
-                <PrimaryButton onPress={() => {
-                }} style={{
+                <PrimaryButton onPress={onPress} style={{
                     borderRadius: 30,
                     paddingHorizontal: 10,
                     paddingVertical: 2,
