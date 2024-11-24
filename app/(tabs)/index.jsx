@@ -6,23 +6,15 @@ import {Image} from 'react-native';
 
 import React, {useEffect, useRef, useState} from 'react';
 import {getAuth} from "firebase/auth";
-import {doc, getDoc, getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
+import {getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
 import {useNavigation, useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import useColors from "@/hooks/useColors";
 import {useAppContext, useSession} from "@/contexts/AppCtx";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from "react-native-reanimated";
-import {CollapsableContainer} from "@/components/container/CollapsableContainer";
 import PracticeMode from "@/components/container/PracticeMode";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import DrawerNewSession from "@/components/popups/DrawerNewSession";
-import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
-import {GestureHandlerRootView} from "react-native-gesture-handler";
 
 export default function HomeScreen() {
     const colors = useColors();

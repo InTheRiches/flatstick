@@ -1,12 +1,9 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, StyleSheet, Button, Pressable} from 'react-native';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import BottomSheet, {
+import React, {useState} from 'react';
+import {View, Text, Pressable} from 'react-native';
+import {
     BottomSheetModal,
     BottomSheetView,
-    BottomSheetModalProvider, BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import ApplePay from "@/components/popups/ApplePay";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
