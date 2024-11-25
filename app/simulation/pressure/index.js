@@ -96,10 +96,24 @@ export default function Simulation() {
                         <Text style={{color: colors.text.secondary, fontSize: 16}}>Pressure Putting</Text>
                         <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Setup</Text>
                     </View>
-                    <Step title={"Initial Setup"} index={1}
-                          description={"Find a putt, 5ft long, and place 8 balls in a circle around the hole."}/>
-                    <Step title={"Finish Setup"} index={2}
-                          description={"Add two balls to each end, like the picture. It will look like a hurricane."}/>
+                    <View style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        marginBottom: 16,
+                        backgroundColor: colors.background.secondary,
+                        borderRadius: 16
+                    }}>
+                        <Text style={{color: "#D0C597", fontWeight: 500}}>STEP 1</Text>
+                        <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>Initial Setup</Text>
+                        <Text style={{marginTop: 2, color: colors.text.primary}}>Find a putt, 5ft long, and place 8
+                            balls in a circle around the hole.</Text>
+                        <Image source={"@/assets/images/hurricaneImage.png"}
+                               style={{aspectRatio: 1920 / 1080, width: "100%", height: "auto"}}></Image>
+                        <Text style={{color: "#D0C597", fontWeight: 500}}>STEP 2</Text>
+                        <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>Finish Setup</Text>
+                        <Text style={{marginTop: 2, color: colors.text.primary}}>Add two balls to each end, like the
+                            picture. It will look like a hurricane.</Text>
+                    </View>
                     <View style={{
                         paddingHorizontal: 12,
                         paddingVertical: 8,
@@ -147,24 +161,6 @@ export default function Simulation() {
                     </View>}
             </ThemedView>
     );
-}
-
-function Step({title, description, index}) {
-    const colors = useColors();
-
-    return (
-        <View style={{
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            marginBottom: 16,
-            backgroundColor: colors.background.secondary,
-            borderRadius: 16
-        }}>
-            <Text style={{color: "#D0C597", fontWeight: 500}}>STEP {index}</Text>
-            <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>{title}</Text>
-            <Text style={{marginTop: 2, color: colors.text.primary}}>{description}</Text>
-        </View>
-    )
 }
 
 function ConfirmExit({end, cancel}) {
