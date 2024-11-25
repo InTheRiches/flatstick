@@ -6,7 +6,7 @@ import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withSpring} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
 import {View} from 'react-native';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import React from "react";
 import {getFirestore, setDoc, doc, runTransaction} from "firebase/firestore";
@@ -91,7 +91,38 @@ export default function Simulation() {
 
     return (loading ? <Loading/> :
             <ThemedView style={{flexGrow: 1}}>
-                <ArrowInput/>
+                <View style={{paddingHorizontal: 24}}>
+                    <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, marginBottom: 12}}>
+                        <Text style={{color: colors.text.secondary, fontSize: 16}}>Pressure Putting</Text>
+                        <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Setup</Text>
+                    </View>
+                    <Step title={"Initial Setup"} index={1}
+                          description={"Find a putt, 5ft long, and place 8 balls in a circle around the hole."}/>
+                    <Step title={"Finish Setup"} index={2}
+                          description={"Add two balls to each end, like the picture. It will look like a hurricane."}/>
+                    <View style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        marginBottom: 16,
+                        backgroundColor: colors.background.secondary,
+                        borderRadius: 16,
+                        flexDirection: "row", // Ensures horizontal alignment
+                    }}>
+                        <View style={{flex: 1, paddingRight: 8}}>
+                            <Text style={{color: "#D0C597", fontWeight: "500"}}>STEP 4</Text>
+                            <Text style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
+                                Identify Break
+                            </Text>
+                            <Text style={{marginTop: 2, color: colors.text.primary}}>
+                                Pick a ball in the initial circle, and mark its break below. You will
+                                start from this ball for the remainder of the simulation.
+                            </Text>
+                        </View>
+                        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                            <ArrowInput/>
+                        </View>
+                    </View>
+                </View>
 
                 {(confirmLeave || confirmSubmit) &&
                     <View style={{
@@ -116,6 +147,24 @@ export default function Simulation() {
                     </View>}
             </ThemedView>
     );
+}
+
+function Step({title, description, index}) {
+    const colors = useColors();
+
+    return (
+        <View style={{
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            marginBottom: 16,
+            backgroundColor: colors.background.secondary,
+            borderRadius: 16
+        }}>
+            <Text style={{color: "#D0C597", fontWeight: 500}}>STEP {index}</Text>
+            <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>{title}</Text>
+            <Text style={{marginTop: 2, color: colors.text.primary}}>{description}</Text>
+        </View>
+    )
 }
 
 function ConfirmExit({end, cancel}) {
@@ -216,36 +265,28 @@ function ConfirmSubmit({submit, cancel}) {
 }
 
 const angleImages = {
-    45: require("@/assets/images/greens/rightForward.png"),
-    90: require("@/assets/images/greens/right.png"),
-    135: require("@/assets/images/greens/backRight.png"),
-    315: require("@/assets/images/greens/leftForward.png"),
-    270: require("@/assets/images/greens/left.png"),
-    225: require("@/assets/images/greens/backLeft.png"),
-    0: require("@/assets/images/greens/forward.png"),
-    360: require("@/assets/images/greens/forward.png"),
-    180: require("@/assets/images/greens/back.png"),
+    45: require("@/assets/images/breakSelector/forwardRight.png"),
+    90: require("@/assets/images/breakSelector/right.png"),
+    135: require("@/assets/images/breakSelector/backRight.png"),
+    315: require("@/assets/images/breakSelector/forwardLeft.png"),
+    270: require("@/assets/images/breakSelector/left.png"),
+    225: require("@/assets/images/breakSelector/backLeft.png"),
+    0: require("@/assets/images/breakSelector/forward.png"),
+    360: require("@/assets/images/breakSelector/forward.png"),
+    180: require("@/assets/images/breakSelector/back.png"),
 }
 
-const blockValue = (oldVal, newVal) => {
-    "worklet";
-    if ((oldVal > 1.5 * PI && newVal < PI / 2) || oldVal === 0) {
-        return 2 * PI;
-    }
-    if (oldVal < PI / 2 && newVal > 1.5 * PI) {
-        return 0.01;
-    }
-    return newVal;
-};
-
-export const DELTA = PI / 6.5;
-
+// TODO MAKE THE ARROW GREEN IMAGE, MAKE THE ARROWS CENTERED, AS THEY RIGHT KNOW MOVE AROUND A LITTLE WHEN THEY ROTATE
 const ArrowInput = () => {
-    const rotation = useSharedValue(0); // Rotation in degrees
-
     const [theta, setTheta] = useState(0);
     const [baseX, setBaseX] = useState(0);
-    const [baseY, setBaseY] = useState(0)
+    const [baseY, setBaseY] = useState(0);
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
+    const [imageAbsoluteX, setImageAbsoluteX] = useState(0);
+    const [imageAbsoluteY, setImageAbsoluteY] = useState(0);
+
+    const imageRef = useRef(null);
 
     const onLayout = (event) => {
         const {x, y} = event.nativeEvent.layout;
@@ -254,6 +295,21 @@ const ArrowInput = () => {
         setBaseY(y);
     };
 
+    const measurePosition = () => {
+        if (imageRef.current) {
+            imageRef.current.measure((fx, fy, width, height, px, py) => {
+                setImageAbsoluteX(px);
+                setImageAbsoluteY(py);
+                setWidth(width);
+                setHeight(height);
+            });
+        }
+    };
+
+    useEffect(() => {
+        measurePosition();
+    });
+
     // Gesture definition for rotation
     const gesture = Gesture.Pan()
         .onUpdate((event) => {
@@ -261,12 +317,13 @@ const ArrowInput = () => {
             let y = event.absoluteY - baseY;
 
             const newVal = normalizeRad(
-                canvas2Polar({x, y}, {x: 200, y: 200}).theta
+                canvas2Polar({x, y}, {x: imageAbsoluteX + (width / 2), y: imageAbsoluteY + (height / 2)}).theta
             ) * 57.2958;
 
-            console.log(x + ":" + y)
-
             const finalRad = Math.round(newVal / 45) * 45;
+
+            console.log("center x: " + (imageAbsoluteX + (width)));
+            console.log(x + ":" + y)
 
             if (finalRad === 0 || finalRad === 180)
                 runOnJS(setTheta)(finalRad)
@@ -279,13 +336,13 @@ const ArrowInput = () => {
     return (
         <View style={{justifyContent: "center", alignItems: "center"}}>
             <GestureDetector gesture={gesture}>
-                <View onLayout={onLayout}>
+                <View onLayout={onLayout} ref={imageRef}>
                     <Image
                         source={angleImages[theta]}
                         style={{
                             height: 1,
                             width: 1,
-                            opacity: 0
+                            opacity: 0,
                         }} // height and width must be non-zero or else onLoad does not fire on Android
                         onLoad={() => {
                             setVisibleImageSource(angleImages[theta]);
@@ -294,9 +351,9 @@ const ArrowInput = () => {
                     <Image
                         source={visibleImageSource}
                         style={{
-                            width: "400",
+                            width: "100%", // Set a fixed width
                             height: "auto",
-                            aspectRatio: 2,
+                            aspectRatio: 1 // Ensure it doesn't stretch
                         }}
                     />
                 </View>

@@ -44,7 +44,7 @@ export default function HomeScreen() {
         }}>
             <ScrollView>
                 <Header></Header>
-                <MostRecentSession unfinished={false}></MostRecentSession>
+                <MostRecentSession unfinished={true}></MostRecentSession>
                 <View
                     style={{
                         backgroundColor: colors.background.secondary,

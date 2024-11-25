@@ -53,8 +53,21 @@ function generateBreak() {
 }
 
 function generateDistance(difficulty) {
-    // Generate a random distance
-    return Math.floor(Math.random() * (difficulty === "easy" ? 10 : difficulty === "medium" ? 20 : 40)) + 3;
+    let minDistance, maxDistance;
+
+    if (difficulty === "easy") {
+        minDistance = 3; // Easy: Minimum 3 ft
+        maxDistance = 10; // Easy: Maximum 10 ft
+    } else if (difficulty === "medium") {
+        minDistance = 5; // Medium: Minimum 5 ft
+        maxDistance = 20; // Medium: Maximum 20 ft
+    } else if (difficulty === "hard") {
+        minDistance = 8; // Hard: Minimum 8 ft
+        maxDistance = 40; // Hard: Maximum 40 ft
+    }
+
+    // Generate random distance between minDistance and maxDistance
+    return Math.floor(Math.random() * (maxDistance - minDistance + 1)) + minDistance;
 }
 
 const initialState = {
