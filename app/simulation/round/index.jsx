@@ -11,14 +11,13 @@ import Svg, {Path} from 'react-native-svg';
 import {DangerButton} from "@/components/DangerButton";
 import ArrowComponent from "@/components/icons/ArrowComponent";
 import React from "react";
-import {getFirestore, setDoc, doc, runTransaction} from "firebase/firestore";
+import {getFirestore, setDoc, doc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
-import {useStatistics} from "@/contexts/Statistics";
 import {useAppContext} from "@/contexts/AppCtx";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
@@ -334,7 +333,7 @@ export default function Simulation() {
                     totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
                 }
 
-                avgMiss += putt.distance;
+                avgMiss += putt.distanceMissed;
 
                 trimmedPutts.push({
                     distance: putt.distance,
@@ -648,7 +647,7 @@ function ConfirmExit({end, partial, cancel}) {
                 lost.
                 This action cannot be undone.</ThemedText>
             <Pressable onPress={end} style={({pressed}) => [{
-                backgroundColor: pressed ? colors.buttonDangerDepressedBackground : colors.button.danger.background,
+                backgroundColor: pressed ? colors.button.danger.depressed : colors.button.danger.background,
                 paddingVertical: 10,
                 borderRadius: 10,
                 marginTop: 16

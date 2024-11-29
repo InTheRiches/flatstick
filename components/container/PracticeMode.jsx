@@ -11,7 +11,7 @@ import Animated, {
     withTiming,
 } from "react-native-reanimated";
 
-export default function PracticeMode({name, link, description, onPress}) {
+export default function PracticeMode({name, link, description, onPress, time, distance, focus}) {
     const [expanded, setExpanded] = useState(false);
     const colors = useColors();
 
@@ -76,22 +76,19 @@ export default function PracticeMode({name, link, description, onPress}) {
                 }}>
                     <Text style={{color: colors.text.secondary}}>{description}</Text>
                 </View>
-                <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 4}}>
+                <View
+                    style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 4, paddingRight: 12}}>
                     <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>Easy</Text>
+                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Time</Text>
+                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{time}</Text>
                     </View>
                     <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>24%</Text>
+                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Distance</Text>
+                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{distance}</Text>
                     </View>
                     <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>16</Text>
-                    </View>
-                    <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>1.2ft</Text>
+                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Focus</Text>
+                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{focus}</Text>
                     </View>
                 </View>
             </CollapsableContainer>

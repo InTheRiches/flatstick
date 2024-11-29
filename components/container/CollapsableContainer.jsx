@@ -34,7 +34,7 @@ export const CollapsableContainer = ({children, expanded}) => {
 
   return (
     <Animated.View style={[collapsableStyle, {overflow: "hidden"}]}>
-      <View style={{position: "absolute"}} onLayout={onLayout}>
+      <View style={{position: "absolute", width: "100%"}} onLayout={onLayout}>
         {children}
       </View>
     </Animated.View>

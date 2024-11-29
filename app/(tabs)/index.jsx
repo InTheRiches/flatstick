@@ -43,7 +43,7 @@ export default function HomeScreen() {
             backgroundColor: colors.background.primary
         }}>
             <ScrollView>
-                <Header></Header>
+                <Header auth={auth}></Header>
                 <MostRecentSession unfinished={true}></MostRecentSession>
                 <View
                     style={{
@@ -103,14 +103,21 @@ export default function HomeScreen() {
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                         name={"18 Hole Simulation"}
+                        distance={"3 - 40ft"}
+                        time={"10 - 20min"}
+                        focus={"Adaptability"}
                         onPress={() => newSessionRef.current?.present()}/>
                     <PracticeMode
-                        description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
+                        description={"A mode designed to replicate the pressure of a championship-winning putt, where every stroke counts and the stakes feel real."}
                         name={"Pressure Putting"}
+                        distance={"< 8ft"}
+                        time={"10min"}
+                        focus={"Consistency"}
                         onPress={() => router.push({pathname: `/simulation/pressure`})}/>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                        name={"Ladder Challenge"}/>
+                        name={"Ladder Challenge"}
+                        distance={"< 8ft"}/>
                     <SecondaryButton onPress={() => {
                     }} style={{
                         borderRadius: 50,
@@ -142,7 +149,7 @@ export default function HomeScreen() {
     );
 }
 
-function Header({signOut}) {
+function Header({signOut, auth}) {
     const colors = useColors();
 
     const [menuOpen, setMenuOpen] = useState(false);
@@ -158,7 +165,11 @@ function Header({signOut}) {
         }}>
             <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0}}>
                 <Text style={{color: colors.text.secondary, fontSize: 16}}>Welcome Back,</Text>
-                <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Hayden Williams</Text>
+                <Text style={{
+                    fontSize: 24,
+                    fontWeight: 500,
+                    color: colors.text.primary
+                }}>{auth.currentUser.displayName}</Text>
             </View>
             <PrimaryButton onPress={() => {
             }} style={{borderRadius: 30, aspectRatio: 1, height: 42}}>
@@ -197,26 +208,36 @@ function MostRecentSession({unfinished}) {
         });
     }, []);
 
-    useEffect(() => {
-        if (recentSession !== null)
-            setLoading(false);
-    }, [recentSession])
+    let date;
+    if (recentSession !== null)
+        date = new Date(recentSession.date);
+    else
+        date = new Date();
 
-    // TODO ADD A PLACEHOLDER FOR WHEN THERE ARE NO SESSIONS
-    return loading ? <View></View> : recentSession === null ? (
-        <View style={{
-            alignItems: "center",
-            padding: 24,
-            paddingVertical: 48,
-            borderTopWidth: 1,
-            borderColor: colors.border.default
-        }}>
-            <ThemedText type="subtitle">No sessions</ThemedText>
-            <ThemedText secondary={true} style={{textAlign: "center", marginBottom: 24}}>No putts to review — it’s like
-                the
-                green’s waiting for you. Start a new session to show the green you’re serious this time… or at least
-                slightly
-                less terrible.</ThemedText>
+    return recentSession === null ? (
+        <View
+            style={{
+                backgroundColor: colors.background.secondary,
+                paddingHorizontal: 16,
+                paddingTop: 8,
+                paddingBottom: 14,
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+                borderBottomLeftRadius: unfinished ? 8 : 16,
+                borderBottomRightRadius: unfinished ? 8 : 16,
+                marginBottom: unfinished ? 4 : 0
+            }}>
+            <Text style={{
+                textAlign: "left",
+                color: colors.text.primary,
+                fontSize: 24,
+
+            }}>No sessions</Text>
+            <Text style={{
+                textAlign: "left",
+                color: colors.text.secondary,
+                fontSize: 16
+            }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</Text>
         </View>
     ) : (
         <View
@@ -233,13 +254,14 @@ function MostRecentSession({unfinished}) {
             }}>
             <View style={{
                 flexDirection: "row",
-                paddingBottom: 16,
+                paddingBottom: 12,
                 borderBottomWidth: 2,
                 borderColor: colors.border.default,
-                marginBottom: 16
+                marginBottom: 14
             }}>
                 <View style={{flex: 1}}>
-                    <Text style={{textAlign: "left", color: colors.text.primary}}>11/22</Text>
+                    <Text style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
+                        "/" + date.getDate()}</Text>
                     <Text style={{
                         textAlign: "left",
                         color: colors.text.primary,
@@ -249,7 +271,7 @@ function MostRecentSession({unfinished}) {
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 24,
-                        marginTop: -10
+                        marginTop: -8
                     }}>Session</Text>
                 </View>
                 <View style={{flex: 1}}>
@@ -264,7 +286,7 @@ function MostRecentSession({unfinished}) {
                         textAlign: "right",
                         color: colors.text.primary,
                         fontSize: 24,
-                        marginTop: -10
+                        marginTop: -8
                     }}>Summary</Text>
                 </View>
             </View>
