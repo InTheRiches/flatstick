@@ -88,6 +88,10 @@ export const LightTheme = {
       background: '#fff'
     }
   },
+  stepMarker: {
+    background: "#EDE7CE",
+    text: "#B3A15D"
+  }
 };
 
 export const DarkTheme = {
@@ -151,8 +155,8 @@ export const DarkTheme = {
     border: '#484A4B',
     text: '#fff',
     focused: {
-      background: 'rgba(191,209,123,0.2)',
-      border: '#677943'
+      background: '#333334',
+      border: 'white',
     },
     invalid: {
       border: '#943737',
@@ -181,4 +185,8 @@ export const DarkTheme = {
       background: '#fff'
     }
   },
+  stepMarker: {
+    background: "#264B14",
+    text: "#83DB51"
+  }
 };

@@ -91,27 +91,61 @@ export default function Simulation() {
 
     return (loading ? <Loading/> :
             <ThemedView style={{flexGrow: 1}}>
-                <View style={{paddingHorizontal: 24}}>
-                    <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, marginBottom: 12}}>
+                <View style={{paddingHorizontal: 24, gap: 32}}>
+                    <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, marginBottom: -12}}>
                         <Text style={{color: colors.text.secondary, fontSize: 16}}>Pressure Putting</Text>
                         <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Setup</Text>
                     </View>
-                    <View style={{
-                        paddingHorizontal: 12,
-                        paddingVertical: 8,
-                        marginBottom: 16,
-                        backgroundColor: colors.background.secondary,
-                        borderRadius: 16
-                    }}>
-                        <Text style={{color: "#D0C597", fontWeight: 500}}>STEP 1</Text>
-                        <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>Initial Setup</Text>
-                        <Text style={{marginTop: 2, color: colors.text.primary}}>Find a putt, 5ft long, and place 8
+                    <View>
+                        <View style={{flexDirection: "row", justifyContent: "flex-start"}}>
+                            <View style={{alignSelf: 'flex-start', paddingRight: 14}}>
+                                <Text style={{
+                                    fontSize: 20,
+                                    fontWeight: 500,
+                                    color: colors.text.primary,
+                                }}>Initial
+                                    Setup</Text>
+                            </View>
+                            <View style={{
+                                paddingHorizontal: 10,
+                                paddingVertical: 2,
+                                backgroundColor: colors.stepMarker.background,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                borderRadius: 16,
+                                borderWidth: 1,
+                                borderColor: colors.stepMarker.text,
+                            }}>
+                                <Text style={{color: colors.stepMarker.text, fontWeight: 500}}>STEP 1</Text>
+                            </View>
+                        </View>
+                        <Text style={{marginTop: 4, color: colors.text.primary}}>Find a putt, 5ft long, and place 8
                             balls in a circle around the hole.</Text>
-                        <Image source={"@/assets/images/hurricaneImage.png"}
-                               style={{aspectRatio: 1920 / 1080, width: "100%", height: "auto"}}></Image>
-                        <Text style={{color: "#D0C597", fontWeight: 500}}>STEP 2</Text>
-                        <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>Finish Setup</Text>
-                        <Text style={{marginTop: 2, color: colors.text.primary}}>Add two balls to each end, like the
+                    </View>
+                    <View>
+                        <View style={{flexDirection: "row", justifyContent: "flex-start"}}>
+                            <View style={{alignSelf: 'flex-start', paddingRight: 14}}>
+                                <Text style={{
+                                    fontSize: 20,
+                                    fontWeight: 500,
+                                    color: colors.text.primary,
+                                }}>Finish
+                                    Setup</Text>
+                            </View>
+                            <View style={{
+                                paddingHorizontal: 10,
+                                paddingVertical: 2,
+                                backgroundColor: colors.stepMarker.background,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                borderRadius: 16,
+                                borderWidth: 1,
+                                borderColor: colors.stepMarker.text,
+                            }}>
+                                <Text style={{color: colors.stepMarker.text, fontWeight: 500}}>STEP 2</Text>
+                            </View>
+                        </View>
+                        <Text style={{marginTop: 4, color: colors.text.primary}}>Add two balls to each end, like the
                             picture. It will look like a hurricane.</Text>
                     </View>
                     <View style={{
@@ -128,7 +162,8 @@ export default function Simulation() {
                                 Identify Break
                             </Text>
                             <Text style={{marginTop: 2, color: colors.text.primary}}>
-                                Pick a ball in the initial circle, and mark its break below. You will
+                                Pick a ball in the initial circle, and rotate the green until it matches the given
+                                break. You will
                                 start from this ball for the remainder of the simulation.
                             </Text>
                         </View>

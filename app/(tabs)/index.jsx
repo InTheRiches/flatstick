@@ -67,8 +67,7 @@ export default function HomeScreen() {
                             <Text style={{
                                 textAlign: "left",
                                 color: colors.text.primary,
-                                fontSize: 24,
-                                marginTop: -6
+                                fontSize: 20,
                             }}>Simulation</Text>
                         </View>
                         <View style={{flex: 1}}>
@@ -77,8 +76,7 @@ export default function HomeScreen() {
                             <Text style={{
                                 textAlign: "right",
                                 color: colors.text.primary,
-                                fontSize: 24,
-                                marginTop: -6
+                                fontSize: 20,
                             }}>Resume
                                 -></Text>
                         </View>

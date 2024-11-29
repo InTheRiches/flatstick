@@ -312,6 +312,8 @@ export function AppProvider({children}) {
             },
         };
 
+        await refreshData();
+
         let totalPutts = 0;
 
         puttSessions.map((session, index) => {
@@ -342,9 +344,11 @@ export function AppProvider({children}) {
 
                 // Determine angle/quadrant and increment missDistribution
                 const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
-                if (distanceMissed === 0)
+                console.log(distanceMissed);
+                if (distanceMissed === 0) {
                     statCategory.percentMade++;
-                else if (degrees > -22.5 && degrees <= 22.5) {
+                    console.log("made the putt")
+                } else if (degrees > -22.5 && degrees <= 22.5) {
                     statCategory.missDistribution[2]++; // right
                 } else if (degrees > 22.5 && degrees <= 67.5) {
                     statCategory.missDistribution[1]++; // past right
@@ -391,9 +395,6 @@ export function AppProvider({children}) {
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {
             const statCategory = newStats[category];
-
-            console.log(statCategory);
-            console.log(statCategory.totalPutts);
 
             // Finalize average miss distances
             for (const slope of ["uphill", "neutral", "downhill"]) {

@@ -17,7 +17,7 @@ const initialMisses = {
 }
 
 export default function SimulationRecap() {
-    const {current, holes, difficulty, mode, serializedPutts, date} = useLocalSearchParams();
+    const {current, holes, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
     const putts = JSON.parse(serializedPutts);
 
     const parsedDate = new Date(date);
@@ -27,7 +27,6 @@ export default function SimulationRecap() {
 
     const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
     const [totalPutts, setTotalPutts] = useState(0);
-    const [averageDistance, setAverageDistance] = useState(0);
 
     const updateMisses = (field, value) => {
         setMisses(prevState => ({
@@ -36,14 +35,8 @@ export default function SimulationRecap() {
         }));
     };
 
-    const roundTo = (num, decimalPlaces) => {
-        const factor = Math.pow(10, decimalPlaces);
-        return Math.round(num * factor) / factor;
-    };
-
     useEffect(() => {
         let totalPutts = 0;
-        let averageDistance = 0;
 
         let farLeft = 0
         let left = 0;
@@ -58,9 +51,6 @@ export default function SimulationRecap() {
             else {
                 totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
             }
-
-            if (averageDistance === 0) averageDistance = putt.distanceMissed;
-            else averageDistance = (averageDistance + putt.distanceMissed) / 2;
 
             const angle = Math.atan2(putt.yDistance, putt.xDistance); // atan2 handles dx = 0 cases
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
@@ -87,7 +77,6 @@ export default function SimulationRecap() {
         setMisses({farLeft, left, center, right, farRight, long: long, short});
 
         setTotalPutts(totalPutts);
-        setAverageDistance(roundTo(averageDistance, 1))
     }, []);
 
     return (
@@ -116,7 +105,7 @@ export default function SimulationRecap() {
                     <ThemedText style={{textAlign: "center", marginBottom: 24}}
                                 type={"default"}>This {current === "true" ? "is" : "was"} your nth
                         session.</ThemedText>
-                    <RecapVisual holes={holes} totalPutts={totalPutts} avgDistance={averageDistance}
+                    <RecapVisual holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
                                  makeData={{farLeft, left, center, right, farRight, long, short}}
                                  date={parsedDate}></RecapVisual>
                 </View>
@@ -271,7 +260,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                             fontSize: 14,
                             textAlign: "left",
                             color: colors.text.secondary
-                        }}>Avg.Miss Distance</Text>
+                        }}>Avg. Miss Distance</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",

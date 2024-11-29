@@ -347,6 +347,7 @@ export default function Simulation() {
         });
 
         avgMiss /= puttsCopy.length;
+        avgMiss = roundTo(avgMiss, 1);
         madePercent /= puttsCopy.length;
 
         updateField("loading", true)
@@ -371,6 +372,7 @@ export default function Simulation() {
                         holes: holes,
                         difficulty: difficulty,
                         mode: mode,
+                        avgMiss: avgMiss,
                         serializedPutts: JSON.stringify(trimmedPutts),
                         date: new Date().toISOString()
                     }
