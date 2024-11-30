@@ -140,11 +140,11 @@ export default function CreateAccount() {
                     marginBottom: 48,
                 }}>
                     <PrimaryButton onPress={lastTab} style={{aspectRatio: 1, borderRadius: 50, padding: 16,}}>
-                        <SvgArrow width={16} height={16} stroke={"white"}
+                        <SvgArrow width={16} height={16} stroke={"black"}
                                   style={{transform: [{rotate: "-135deg"}]}}></SvgArrow>
                     </PrimaryButton>
                     <PrimaryButton onPress={nextTab} style={{aspectRatio: 1, borderRadius: 50, padding: 16,}}>
-                        <SvgArrow width={16} height={16} stroke={"white"}
+                        <SvgArrow width={16} height={16} stroke={"black"}
                                   style={{transform: [{rotate: "45deg"}]}}></SvgArrow>
                     </PrimaryButton>
                 </View>
@@ -431,7 +431,7 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
-                        flex: 0,
+                        flex: 1,
                         borderWidth: 1,
                         borderColor: nameFocused ? invalidUsername ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalidUsername ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
@@ -563,7 +563,8 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
             </View>
 
             <PrimaryButton
-                onPress={!invalidPassword && !invalidEmail && !invalidUsername && state.username.length !== 0 && create}
+                onPress={!invalidPassword && !invalidEmail && !invalidUsername && state.username.length !== 0 ? create : () => {
+                }}
                 disabled={invalidPassword || invalidEmail || invalidUsername || state.username.length === 0 || state.email.length === 0 || state.email.password === 0}
                 style={{
                     paddingVertical: 10,

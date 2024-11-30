@@ -147,7 +147,7 @@ const angleImages = {
 }
 
 // TODO MAKE THE ARROW GREEN IMAGE, MAKE THE ARROWS CENTERED, AS THEY RIGHT KNOW MOVE AROUND A LITTLE WHEN THEY ROTATE
-const ArrowInput = (theta, setTheta) => {
+const ArrowInput = ({theta, setTheta}) => {
     const adjustTheta = (newTheta) => {
         setTheta(newTheta);
     }

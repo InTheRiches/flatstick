@@ -143,8 +143,8 @@ export const DarkTheme = {
       background: '#1E1F20',
       text: 'white',
       selected: {
-        border: '#B8B08D',
-        background: '#B8B08D',
+        border: 'white',
+        background: '#333334',
         radio: '#CAC4AA',
         text: 'black',
       },
@@ -186,7 +186,7 @@ export const DarkTheme = {
     }
   },
   stepMarker: {
-    background: "#264B14",
-    text: "#83DB51"
+    background: "#266623",
+    text: "#99D384"
   }
 };

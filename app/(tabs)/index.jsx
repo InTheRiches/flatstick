@@ -111,7 +111,7 @@ export default function HomeScreen() {
                         distance={"< 8ft"}
                         time={"10min"}
                         focus={"Consistency"}
-                        onPress={() => router.push({pathname: `/simulation/pressure`})}/>
+                        onPress={() => router.push({pathname: `/simulation/pressure/setup`})}/>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                         name={"Ladder Challenge"}
@@ -212,6 +212,11 @@ function MostRecentSession({unfinished}) {
     else
         date = new Date();
 
+    const roundTo = (num, decimalPlaces) => {
+        const factor = Math.pow(10, decimalPlaces);
+        return Math.round(num * factor) / factor;
+    };
+
     return recentSession === null ? (
         <View
             style={{
@@ -304,7 +309,7 @@ function MostRecentSession({unfinished}) {
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18
-                        }}>{recentSession.madePercent * 100}%</Text>
+                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
                 </View>
                 <View>
                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>

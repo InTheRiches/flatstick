@@ -21,7 +21,6 @@ import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
-// AND THEY GO BACK, NOT SHOW BOTH DIALOGES ON TOP OF EACH OTHER, AND TO CANCEL THE OTHER ONE BENEATH IT
 const breaks = [
     "Left to Right",
     "Right to Left",

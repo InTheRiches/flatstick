@@ -28,13 +28,6 @@ export default function SimulationRecap() {
     const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
     const [totalPutts, setTotalPutts] = useState(0);
 
-    const updateMisses = (field, value) => {
-        setMisses(prevState => ({
-            ...prevState,
-            [field]: value,
-        }));
-    };
-
     useEffect(() => {
         let totalPutts = 0;
 
