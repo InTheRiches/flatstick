@@ -160,7 +160,6 @@ export default function Simulation() {
         let distanceMissedFeet = 0;
 
         if (largeMiss) {
-            console.log("hello")
             // find the distance to center of the point in x and y
             const distanceX = largeMissBy[0] * 8;
             const distanceY = largeMissBy[1] * 8;

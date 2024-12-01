@@ -42,8 +42,6 @@ export default function HomeScreen() {
             ...prevState,
             [field]: value,
         }));
-
-        console.log("updating");
     };
 
     return (

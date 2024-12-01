@@ -188,5 +188,15 @@ export const DarkTheme = {
   stepMarker: {
     background: "#266623",
     text: "#99D384"
+  },
+  toggleable: {
+    border: "#4D4D4D",
+    background: "transparent",
+    color: "#fff",
+    toggled: {
+      border: "#40C2FF",
+      background: "#194064",
+      color: "#fff",
+    }
   }
 };

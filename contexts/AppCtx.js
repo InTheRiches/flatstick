@@ -429,15 +429,8 @@ export function AppProvider({children}) {
 
     // Get all statistics
     const getAllStats = async () => {
-        console.log("getting stats");
         if (Object.keys(currentStats).length === 0) {
-            console.log("length isnt 0");
-            console.log("getting stats 2")
-
-            console.log("hey: " + `users/${auth.currentUser}`)
-
             getDoc(doc(firestore, `users/${auth.currentUser.uid}`)).then((doc) => {
-                console.log("got data")
                 setCurrentStats(doc.data().stats || {});
             }).catch((error) => {
                 console.log("couldnt find the documents: " + error)

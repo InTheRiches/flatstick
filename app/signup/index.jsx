@@ -61,8 +61,6 @@ export default function CreateAccount() {
     const createAccount = () => {
         if (state.invalid) return;
 
-        console.log("account creation attempted");
-
         const auth = getAuth();
 
         // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISNT AS HARSH OF A TRANSITION

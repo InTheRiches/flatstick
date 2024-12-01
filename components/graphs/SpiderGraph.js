@@ -61,7 +61,7 @@ export default function RadarChart({
                 )}
                 strokeDasharray={dot}
                 stroke={colorCode}
-                strokeWidth="2.5"
+                strokeWidth="5"
                 fill={colorCode}
                 fillOpacity=".2"
             />
