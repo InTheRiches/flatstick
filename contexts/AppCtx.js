@@ -171,6 +171,7 @@ export function AppProvider({children}) {
         const newStats = {
             lessThanSix: {
                 totalPutts: 0,
+                rawPutts: 0,
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -207,6 +208,7 @@ export function AppProvider({children}) {
             },
             sixToTwelve: {
                 totalPutts: 0,
+                rawPutts: 0,
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -243,6 +245,7 @@ export function AppProvider({children}) {
             },
             twelveToTwenty: {
                 totalPutts: 0,
+                rawPutts: 0,
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -279,6 +282,7 @@ export function AppProvider({children}) {
             },
             twentyPlus: {
                 totalPutts: 0,
+                rawPutts: 0,
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -323,9 +327,6 @@ export function AppProvider({children}) {
             session.putts.forEach((putt) => {
                 const {distance, distanceMissed, missRead, xDistance, yDistance, slope, puttBreak} = putt;
 
-                if (distanceMissed === 0) totalPutts++;
-                else totalPutts += 2;
-
                 // Categorize putt distance
                 let category;
                 if (distance < 6) category = "lessThanSix";
@@ -335,15 +336,21 @@ export function AppProvider({children}) {
 
                 const statCategory = newStats[category];
 
+                if (distanceMissed === 0) {
+                    totalPutts++;
+                    statCategory.totalPutts++;
+                } else {
+                    totalPutts += 2;
+                    statCategory.totalPutts += 2;
+                }
+
                 // Increment total putts
-                statCategory.totalPutts++;
+                statCategory.rawPutts++;
 
                 if (missRead) {
                     statCategory.totalMissRead++;
                     statCategory.missReadDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]]++;
                 }
-
-                newStats[category].totalPutts += 1;
 
                 // Calculate slope and break distribution
                 const slopeBreakStats = statCategory.slopeAndBreakDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]];
@@ -415,11 +422,11 @@ export function AppProvider({children}) {
             }
 
             // Calculate percentages
-            if (statCategory.totalPutts > 0) {
-                statCategory.percentMade = (statCategory.percentMade / statCategory.totalPutts) * 100;
-                statCategory.percentShort = (statCategory.percentShort / statCategory.totalPutts) * 100;
-                statCategory.percentTooLong = (statCategory.missDistribution[1] / statCategory.totalPutts) * 100;
-                statCategory.percentJustLong = (statCategory.percentJustLong / statCategory.totalPutts) * 100;
+            if (statCategory.rawPutts > 0) {
+                statCategory.percentMade = (statCategory.percentMade / statCategory.rawPutts) * 100;
+                statCategory.percentShort = (statCategory.percentShort / statCategory.rawPutts) * 100;
+                statCategory.percentTooLong = (statCategory.missDistribution[1] / statCategory.rawPutts) * 100;
+                statCategory.percentJustLong = (statCategory.percentJustLong / statCategory.rawPutts) * 100;
             }
         }
 
