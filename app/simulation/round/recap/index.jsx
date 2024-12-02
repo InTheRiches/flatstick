@@ -74,7 +74,7 @@ export default function SimulationRecap() {
 
     return (
         <ThemedView style={{flex: 1, alignItems: "center", flexDirection: "column", justifyContent: "space-between"}}>
-            <View>
+            <View style={{width: "100%"}}>
                 <View style={{
                     borderColor: colors.border.default,
                     justifyContent: "center",
@@ -82,7 +82,7 @@ export default function SimulationRecap() {
                     width: "100%",
                     borderBottomWidth: 1,
                     paddingTop: 6,
-                    paddingBottom: 10
+                    paddingBottom: 10,
                 }}>
                     <Text style={{
                         textAlign: "center",
@@ -132,10 +132,11 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                 borderBottomWidth: 1,
                 borderColor: colors.border.default
             }}>
-                <Text style={{fontSize: 16, textAlign: "center", color: "white"}}>Session Recap</Text>
+                <Text style={{fontSize: 16, textAlign: "center", color: colors.text.primary}}>Session Recap</Text>
                 <View style={{position: "absolute", left: 12, flexDirection: "row", gap: 8}}>
-                    <Image source={require('@/assets/images/PuttLabLogo.png')} style={{width: 25, height: 25}}/>
-                    <Text style={{fontSize: 16, fontWeight: "bold", color: "white"}}>PuttLab</Text>
+                    <Image source={require('@/assets/images/PuttLabLogo.png')}
+                           style={{width: 30, height: 30, top: -4}}/>
+                    <Text style={{fontSize: 16, fontWeight: "bold", color: colors.text.primary}}>PuttLab</Text>
                 </View>
             </View>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
@@ -213,7 +214,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                 <Text style={{
                     fontSize: 16,
                     textAlign: "center",
-                    color: "white",
+                    color: colors.text.primary,
                     borderBottomWidth: 1,
                     borderColor: colors.border.default,
                     paddingVertical: 6
@@ -236,7 +237,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{Math.floor((makeData.center / holes) * 100)}%</Text>
                     </View>
@@ -257,7 +258,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{avgDistance}ft</Text>
                     </View>
@@ -276,7 +277,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{totalPutts}</Text>
                     </View>

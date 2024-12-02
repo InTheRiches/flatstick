@@ -10,6 +10,7 @@ import Animated, {
     useSharedValue,
     withTiming,
 } from "react-native-reanimated";
+import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 
 export default function PracticeMode({name, link, description, onPress, time, distance, focus}) {
     const [expanded, setExpanded] = useState(false);
@@ -59,11 +60,11 @@ export default function PracticeMode({name, link, description, onPress, time, di
                 <PrimaryButton onPress={onPress} style={{
                     borderRadius: 30,
                     paddingHorizontal: 10,
-                    paddingVertical: 2,
+                    aspectRatio: 1,
                     justifyContent: "center",
                     alignItems: "center"
                 }}>
-                    <Text style={{fontSize: 20}}>+</Text>
+                    <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
                 </PrimaryButton>
             </Pressable>
             <CollapsableContainer expanded={expanded}>

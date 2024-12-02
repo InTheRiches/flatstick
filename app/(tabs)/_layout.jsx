@@ -50,7 +50,7 @@ export default function TabLayout() {
           tabBarStyle: {
             borderTopWidth: 0,
             paddingBottom: 0,
-            maxHeight: isKeyboardVisible ? 0 : "auto",
+            maxHeight: isKeyboardVisible ? 0 : 48,
           }
         }}>
           <Tabs.Screen

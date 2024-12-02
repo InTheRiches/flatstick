@@ -35,11 +35,11 @@ const DrawerNewSession = ({newSessionRef}) => {
                         <Pressable onPress={() => setDifficulty("easy")} style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: difficulty === "easy" ? "#40C2FF" : "#4D4D4D",
+                            borderColor: difficulty === "easy" ? colors.toggleable.toggled.border : colors.toggleable.border,
                             borderRadius: 12,
                             paddingHorizontal: 8,
                             paddingVertical: 8,
-                            backgroundColor: difficulty === "easy" ? "#194064" : "transparent"
+                            backgroundColor: difficulty === "easy" ? colors.toggleable.toggled.background : "transparent"
                         }}>
                             {difficulty === "easy" && <View style={{
                                 position: "absolute",
@@ -61,11 +61,11 @@ const DrawerNewSession = ({newSessionRef}) => {
                         <Pressable onPress={() => setDifficulty("medium")} style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: difficulty === "medium" ? "#40C2FF" : "#4D4D4D",
+                            borderColor: difficulty === "medium" ? colors.toggleable.toggled.border : colors.toggleable.border,
                             borderRadius: 12,
                             paddingHorizontal: 8,
                             paddingVertical: 8,
-                            backgroundColor: difficulty === "medium" ? "#194064" : "transparent"
+                            backgroundColor: difficulty === "medium" ? colors.toggleable.toggled.background : "transparent"
                         }}>
                             {difficulty === "medium" && <View style={{
                                 position: "absolute",
@@ -87,11 +87,11 @@ const DrawerNewSession = ({newSessionRef}) => {
                         <Pressable onPress={() => setDifficulty("hard")} style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: difficulty === "hard" ? "#40C2FF" : "#4D4D4D",
+                            borderColor: difficulty === "hard" ? colors.toggleable.toggled.border : colors.toggleable.border,
                             borderRadius: 12,
                             paddingHorizontal: 8,
                             paddingVertical: 8,
-                            backgroundColor: difficulty === "hard" ? "#194064" : "transparent"
+                            backgroundColor: difficulty === "hard" ? colors.toggleable.toggled.background : "transparent"
                         }}>
                             {difficulty === "hard" && <View style={{
                                 position: "absolute",
@@ -121,11 +121,11 @@ const DrawerNewSession = ({newSessionRef}) => {
                         <Pressable onPress={() => setMode("random")} style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: mode === "random" ? "#40C2FF" : "#4D4D4D",
+                            borderColor: mode === "random" ? colors.toggleable.toggled.border : colors.toggleable.border,
                             borderRadius: 12,
                             paddingHorizontal: 8,
                             paddingVertical: 8,
-                            backgroundColor: mode === "random" ? "#194064" : "transparent"
+                            backgroundColor: mode === "random" ? colors.toggleable.toggled.background : "transparent"
                         }}>
                             {mode === "random" && <View style={{
                                 position: "absolute",
@@ -147,11 +147,11 @@ const DrawerNewSession = ({newSessionRef}) => {
                         <Pressable onPress={() => setMode("weaknesses")} style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: mode === "weaknesses" ? "#40C2FF" : "#4D4D4D",
+                            borderColor: mode === "weaknesses" ? colors.toggleable.toggled.border : colors.toggleable.border,
                             borderRadius: 12,
                             paddingHorizontal: 8,
                             paddingVertical: 8,
-                            backgroundColor: mode === "weaknesses" ? "#194064" : "transparent"
+                            backgroundColor: mode === "weaknesses" ? colors.toggleable.toggled.background : "transparent"
                         }}>
                             {mode === "weaknesses" && <View style={{
                                 position: "absolute",

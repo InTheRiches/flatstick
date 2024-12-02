@@ -9,6 +9,7 @@ import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 
+// TODO WHEN A USER OPENS ONE, CLOSE THE OTHER
 export default function BreakPopup({breakRef, brek, setBrek}) {
     const colors = useColors();
 
@@ -32,11 +33,11 @@ export default function BreakPopup({breakRef, brek, setBrek}) {
                     <Pressable onPress={() => setBrek(-1)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: brek === -1 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: brek === -1 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: brek === -1 ? "#194064" : "transparent"
+                        backgroundColor: brek === -1 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {brek === -1 && <View style={{
                             position: "absolute",
@@ -58,11 +59,11 @@ export default function BreakPopup({breakRef, brek, setBrek}) {
                     <Pressable onPress={() => setBrek(0)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: brek === 0 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: brek === 0 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: brek === 0 ? "#194064" : "transparent"
+                        backgroundColor: brek === 0 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {brek === 0 && <View style={{
                             position: "absolute",
@@ -113,11 +114,11 @@ export default function BreakPopup({breakRef, brek, setBrek}) {
                     <Pressable onPress={() => setBrek(2)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: brek === 2 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: brek === 2 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: brek === 2 ? "#194064" : "transparent"
+                        backgroundColor: brek === 2 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {brek === 2 && <View style={{
                             position: "absolute",

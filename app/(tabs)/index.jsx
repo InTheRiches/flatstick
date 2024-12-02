@@ -1,6 +1,6 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {Pressable, View, Text, ScrollView} from 'react-native';
+import {Pressable, View, Text, ScrollView, useColorScheme} from 'react-native';
 import {ThemedButton} from "@/components/ThemedButton";
 import {Image} from 'react-native';
 
@@ -124,7 +124,7 @@ export default function HomeScreen() {
                         paddingLeft: 12,
                         gap: 12,
                         paddingRight: 8,
-                        paddingVertical: 8
+                        paddingVertical: 6
                     }}>
                         <Text style={{color: colors.button.secondary.text, fontSize: 18}}>See All Modes</Text>
                         <View style={{
@@ -193,6 +193,7 @@ function MostRecentSession({unfinished}) {
     const [loading, setLoading] = useState(true)
 
     const colors = useColors();
+    const colorScheme = useColorScheme();
 
     useEffect(() => {
         const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp", "desc"), limit(1));
@@ -222,7 +223,7 @@ function MostRecentSession({unfinished}) {
             style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
-                paddingTop: 8,
+                paddingTop: 12,
                 paddingBottom: 14,
                 borderTopLeftRadius: 16,
                 borderTopRightRadius: 16,
@@ -233,13 +234,13 @@ function MostRecentSession({unfinished}) {
             <Text style={{
                 textAlign: "left",
                 color: colors.text.primary,
-                fontSize: 24,
-
+                fontSize: 20,
             }}>No sessions</Text>
             <Text style={{
                 textAlign: "left",
                 color: colors.text.secondary,
-                fontSize: 16
+                fontSize: 16,
+                marginTop: 4
             }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</Text>
         </View>
     ) : (
@@ -258,7 +259,7 @@ function MostRecentSession({unfinished}) {
             <View style={{
                 flexDirection: "row",
                 paddingBottom: 12,
-                borderBottomWidth: 2,
+                borderBottomWidth: colorScheme === "light" ? 1 : 2,
                 borderColor: colors.border.default,
                 marginBottom: 14
             }}>
@@ -299,7 +300,8 @@ function MostRecentSession({unfinished}) {
                     <Text style={{
                         textAlign: "left",
                         color: colors.text.primary,
-                        fontSize: 18
+                        fontSize: 18,
+                        fontWeight: "bold"
                     }}>{recentSession.difficulty}</Text>
                 </View>
                 <View>
@@ -308,7 +310,8 @@ function MostRecentSession({unfinished}) {
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
-                            fontSize: 18
+                            fontSize: 18,
+                            fontWeight: "bold"
                         }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
                 </View>
                 <View>
@@ -317,7 +320,8 @@ function MostRecentSession({unfinished}) {
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
-                            fontSize: 18
+                            fontSize: 18,
+                            fontWeight: "bold"
                         }}>{recentSession.totalPutts}</Text>
                 </View>
                 <View>
@@ -325,7 +329,8 @@ function MostRecentSession({unfinished}) {
                     <Text style={{
                         textAlign: "left",
                         color: colors.text.primary,
-                        fontSize: 18
+                        fontSize: 18,
+                        fontWeight: "bold"
                     }}>{recentSession.avgMiss}ft</Text>
                 </View>
             </View>

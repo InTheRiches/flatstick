@@ -1,7 +1,7 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
 import {useRouter, useLocalSearchParams, useNavigation} from 'expo-router';
-import {Image, Pressable, Text, BackHandler, Platform} from 'react-native';
+import {Image, Pressable, Text, BackHandler, Platform, useColorScheme} from 'react-native';
 import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
@@ -571,7 +571,7 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{puttBreak}</Text>
                     </View>
@@ -588,7 +588,7 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{slope}</Text>
                     </View>
@@ -598,7 +598,7 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{distance}ft</Text>
                     </View>
@@ -666,6 +666,8 @@ function ConfirmExit({end, partial, cancel}) {
 function ConfirmSubmit({submit, cancel}) {
     const colors = useColors();
 
+    const colorScheme = useColorScheme();
+
     return (
         <ThemedView style={{
             borderColor: colors.border.popup,
@@ -700,10 +702,21 @@ function ConfirmSubmit({submit, cancel}) {
             <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 8}}>Done
                 putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your
                 shoes.</ThemedText>
-            <PrimaryButton onPress={submit} title={"Submit"}
-                           style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></PrimaryButton>
-            <SecondaryButton onPress={cancel} title={"Cancel"}
-                             style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></SecondaryButton>
+            {colorScheme === "light" ?
+                [
+                    <SecondaryButton key={"primary"} onPress={submit} title={"Submit"}
+                                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></SecondaryButton>,
+                    <PrimaryButton key={"secondary"} onPress={cancel} title={"Cancel"}
+                                   style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></PrimaryButton>
+                ]
+                :
+                [
+                    <PrimaryButton key={"secondary"} onPress={submit} title={"Submit"}
+                                   style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></PrimaryButton>,
+                    <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
+                                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></SecondaryButton>
+                ]
+            }
         </ThemedView>
     )
 }

@@ -1,5 +1,7 @@
 import React from "react";
 import Svg, {G, Path, Text, Polyline} from "react-native-svg";
+import {useColorScheme} from "react-native";
+import useColors from "../../hooks/useColors";
 
 export default function RadarChart({
                                        graphSize,
@@ -8,6 +10,9 @@ export default function RadarChart({
                                        data,
                                        options,
                                    }) {
+    const colorScheme = useColorScheme();
+    const colors = useColors();
+
     const boxSize = graphSize * 3;
     const centerPos = boxSize / 2;
 
@@ -39,7 +44,7 @@ export default function RadarChart({
                 )}
                 stroke={`#928481`}
                 fill={`#222222`}
-                fillOpacity=".5"
+                fillOpacity={colorScheme === "light" ? "0.1" : ".5"}
             />
         );
     };
@@ -63,7 +68,7 @@ export default function RadarChart({
                 stroke={colorCode}
                 strokeWidth="5"
                 fill={colorCode}
-                fillOpacity=".2"
+                fillOpacity="0.2"
             />
         );
     };
@@ -95,8 +100,8 @@ export default function RadarChart({
                 x={posX(column.angle, 1.2)}
                 y={posY(column.angle, 1.2)}
                 dy={10 / 2}
-                fill="white"
-                fontWeight="bold"
+                fill={colors.text.primary}
+                fontWeight="500"
                 fontSize="48"
                 textAnchor="middle"
             >

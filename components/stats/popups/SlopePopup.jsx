@@ -32,11 +32,11 @@ const SlopePopup = ({slopeRef, slope, setSlope}) => {
                     <Pressable onPress={() => setSlope(-1)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: slope === -1 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: slope === -1 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: slope === -1 ? "#194064" : "transparent"
+                        backgroundColor: slope === -1 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {slope === -1 && <View style={{
                             position: "absolute",
@@ -58,11 +58,11 @@ const SlopePopup = ({slopeRef, slope, setSlope}) => {
                     <Pressable onPress={() => setSlope(0)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: slope === 0 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: slope === 0 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: slope === 0 ? "#194064" : "transparent"
+                        backgroundColor: slope === 0 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {slope === 0 && <View style={{
                             position: "absolute",
@@ -86,11 +86,11 @@ const SlopePopup = ({slopeRef, slope, setSlope}) => {
                     <Pressable onPress={() => setSlope(1)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: slope === 1 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: slope === 1 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: slope === 1 ? "#194064" : "transparent"
+                        backgroundColor: slope === 1 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {slope === 1 && <View style={{
                             position: "absolute",
@@ -112,11 +112,11 @@ const SlopePopup = ({slopeRef, slope, setSlope}) => {
                     <Pressable onPress={() => setSlope(2)} style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: slope === 2 ? "#40C2FF" : "#4D4D4D",
+                        borderColor: slope === 2 ? colors.toggleable.toggled.border : colors.toggleable.border,
                         borderRadius: 12,
                         paddingHorizontal: 8,
                         paddingVertical: 10,
-                        backgroundColor: slope === 2 ? "#194064" : "transparent"
+                        backgroundColor: slope === 2 ? colors.toggleable.toggled.background : colors.toggleable.background
                     }}>
                         {slope === 2 && <View style={{
                             position: "absolute",

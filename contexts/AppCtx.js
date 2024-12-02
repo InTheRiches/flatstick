@@ -301,7 +301,7 @@ export function AppProvider({children}) {
                 // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, putts made, past, past right, right, short right, short, short left, left, past left
                         leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
@@ -390,14 +390,14 @@ export function AppProvider({children}) {
                 // Average miss distance and increment directional miss count
                 slopeBreakStats[0] += distanceMissed; // Avg miss distance (will divide later)
 
-                if (degrees > -22.5 && degrees <= 22.5) slopeBreakStats[5]++; // right
-                else if (degrees > 22.5 && degrees <= 67.5) slopeBreakStats[4]++; // past right
-                else if (degrees > 67.5 && degrees <= 112.5) slopeBreakStats[3]++; // past
-                else if (degrees > 112.5 && degrees <= 157.5) slopeBreakStats[2]++; // past left
-                else if (degrees > -67.5 && degrees <= -22.5) slopeBreakStats[6]++; // short right
-                else if (degrees > -112.5 && degrees <= -67.5) slopeBreakStats[7]++; // short
-                else if (degrees > -157.5 && degrees <= -112.5) slopeBreakStats[8]++; // short left
-                else slopeBreakStats[9]++; // left
+                if (degrees > -22.5 && degrees <= 22.5) slopeBreakStats[4]++; // right
+                else if (degrees > 22.5 && degrees <= 67.5) slopeBreakStats[3]++; // past right
+                else if (degrees > 67.5 && degrees <= 112.5) slopeBreakStats[2]++; // past
+                else if (degrees > 112.5 && degrees <= 157.5) slopeBreakStats[9]++; // past left
+                else if (degrees > -67.5 && degrees <= -22.5) slopeBreakStats[5]++; // short right
+                else if (degrees > -112.5 && degrees <= -67.5) slopeBreakStats[6]++; // short
+                else if (degrees > -157.5 && degrees <= -112.5) slopeBreakStats[7]++; // short left
+                else slopeBreakStats[8]++; // left
             });
         });
 

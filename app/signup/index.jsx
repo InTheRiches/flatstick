@@ -115,7 +115,6 @@ export default function CreateAccount() {
                 backgroundColor: colors.background.primary,
                 width: "100%",
                 height: "100%",
-                paddingTop: 50,
                 paddingHorizontal: 24,
                 justifyContent: "center",
                 alignContent: "center",
@@ -151,7 +150,7 @@ export default function CreateAccount() {
                                                    marginTop: 24,
                                                    borderWidth: 1,
                                                    borderRadius: 12,
-                                                   backgroundColor: pressed ? colors.button.disabled.background : "transparent",
+                                                   backgroundColor: pressed ? colors.button.disabled.background : colors.background.secondary,
                                                    borderColor: colors.border.default,
                                                    paddingVertical: 10
                                                }]}>

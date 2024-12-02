@@ -55,7 +55,12 @@ export default function Stats({}) {
     }
 
     return (
-        <View style={{backgroundColor: colors.background.primary, height: "100%"}}>
+        <View style={{
+            backgroundColor: colors.background.primary,
+            height: "100%",
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border.default,
+        }}>
             <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600}}>Stats</Text>
             <View style={{flexDirection: "row", gap: 18, marginBottom: 24, marginTop: 12, paddingHorizontal: 24}}>
                 <Toggleable toggled={tab === 0} onToggle={() => scrollTo(0)} title={"Overview"}></Toggleable>
@@ -99,7 +104,6 @@ function MissesTab() {
         "leftToRight"
     ]
 
-    // TODO INVESTIGATE ISSUE WHERE PAST LEFT PUTTS WERENT BEING RECORDED, SPECIFICALLY WITH UPHILL LEFT TO RIGHT, IDK WHAT ITS DOING
     const calculateMisses = () => {
         if (brek === -1 && slope === -1) {
             const arrays = [
@@ -121,6 +125,8 @@ function MissesTab() {
 
             let totalPutts = 0;
             combinedMissDistribution.forEach(value => totalPutts += value);
+
+            console.log("neutral: " + combinedMissDistribution);
 
             // Calculate missDistribution
             const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
@@ -175,7 +181,7 @@ function MissesTab() {
         console.log(merged.slice(1));
         console.log(totalPutts);
         // Calculate missDistribution
-        const missDistribution = merged.slice(1).map((value) => value / totalPutts);
+        const missDistribution = merged.slice(2).map((value) => value / totalPutts);
 
         const maxPercentage = Math.max(...missDistribution) + 0.01;
 
@@ -207,7 +213,7 @@ function MissesTab() {
                             graphShape: 1,
                             showAxis: true,
                             showIndicator: true,
-                            colorList: ["#D0C597", "red"],
+                            colorList: ["#24b2ff", "red"],
                             dotList: [false, true],
                         }}></RadarChart>
         )
@@ -253,12 +259,30 @@ function OverviewTab() {
                         numberInterval={0}
                         data={[
                             (() => {
-                                let totalPutts = currentStats.lessThanSix.totalPutts;
-                                if (totalPutts === 0)
-                                    totalPutts = 1; // TODO ADD A PLACEHOLDER OR SOMETHING SAYING THERE IS NO DATA
-                                const missDistribution = currentStats.lessThanSix.missDistribution.map(
-                                    (value) => value / totalPutts
-                                );
+                                const arrays = [
+                                    currentStats.lessThanSix.missDistribution,
+                                    currentStats.sixToTwelve.missDistribution,
+                                    currentStats.twelveToTwenty.missDistribution,
+                                    currentStats.twentyPlus.missDistribution
+                                ];
+
+                                // Initialize an array of zeros with the same length as the arrays
+                                const combinedMissDistribution = Array(arrays[0].length).fill(0);
+
+                                // Iterate through each array and sum up their corresponding indices
+                                arrays.forEach(array => {
+                                    array.forEach((value, index) => {
+                                        combinedMissDistribution[index] += value;
+                                    });
+                                });
+
+                                let totalPutts = 0;
+                                combinedMissDistribution.forEach(value => totalPutts += value);
+
+                                console.log("neutral: " + combinedMissDistribution);
+
+                                // Calculate missDistribution
+                                const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
 
                                 const maxPercentage = Math.max(...missDistribution) + 0.01;
 
@@ -278,7 +302,7 @@ function OverviewTab() {
                             graphShape: 1,
                             showAxis: true,
                             showIndicator: true,
-                            colorList: ["#D0C597", "red"],
+                            colorList: ["#24b2ff", "red"],
                             dotList: [false, true],
                         }}></RadarChart>
         )

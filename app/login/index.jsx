@@ -127,7 +127,7 @@ export default function Login() {
                         style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.borderer : colors.input.border,
+                            borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.border : colors.input.border,
                             borderRadius: 10,
                             paddingVertical: 8,
                             paddingHorizontal: 10,
@@ -165,7 +165,7 @@ export default function Login() {
                         style={{
                             flex: 1,
                             borderWidth: 1,
-                            borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidPassword ? colors.input.invalid.border : colors.input.border,
+                            borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : errorCode === "auth/invalid-credential" ? colors.input.invalid.border : colors.input.border,
                             borderRadius: 10,
                             paddingVertical: 8,
                             paddingHorizontal: 10,
@@ -216,7 +216,7 @@ export default function Login() {
                     marginTop: 32,
                     borderWidth: 1,
                     borderRadius: 12,
-                    backgroundColor: pressed ? colors.button.disabled.background : "transparent",
+                    backgroundColor: pressed ? colors.button.disabled.background : colors.background.secondary,
                     borderColor: colors.border.default,
                     paddingVertical: 10
                 }]}>

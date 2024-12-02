@@ -15,16 +15,16 @@ export const LightTheme = {
   },
   button: {
     primary: {
-      border: '#DFDFDF',
+      border: '#CFCFCF',
       text: 'black',
-      background: '#DFDFDF',
-      depressed: '#B3B3B3'
+      background: 'white',
+      depressed: '#ededed'
     },
     secondary: {
       background: '#000',
       border: '#000',
       text: '#fff',
-      depressed: '#D1D1D1',
+      depressed: '#1c1c1c',
     },
     disabled: {
       background: '#f1f2f3',
@@ -46,15 +46,15 @@ export const LightTheme = {
       background: 'white',
       text: 'black',
       selected: {
-        border: '#D0C597',
-        background: 'rgba(208, 197, 151, 0.5)',
+        border: '#24b2ff', // TODO MAYBE MERGE THESE WITH TOGGLEABLES?
+        background: '#d9f2ff',
         radio: '#1E1F20',
         text: 'black',
       },
     },
   },
   input: {
-    background: '#f1f2f3',
+    background: 'white',
     border: '#D1D1D1',
     text: '#111827',
     invalid: {
@@ -64,8 +64,8 @@ export const LightTheme = {
       background: '#F5D3D3',
     },
     focused: {
-      background: 'rgba(191,209,123,0.2)',
-      border: '#ACCD30',
+      background: '#e6e6e6',
+      border: '#bababa',
     },
   },
   putting: {
@@ -81,7 +81,7 @@ export const LightTheme = {
     },
   },
   checkmark: {
-    background: '#659B0D', // TODO FIND A DIFFERENT COLOR FOR THIS, ESPECIALLY FOR THE PUTTING GREEN AS IT DOESNT CONTRAST WELL
+    background: '#40C2FF', // TODO FIND A DIFFERENT COLOR FOR THIS, ESPECIALLY FOR THE PUTTING GREEN AS IT DOESNT CONTRAST WELL
     color: 'white',
     bare: {
       color: '#D9D9D9',
@@ -91,6 +91,16 @@ export const LightTheme = {
   stepMarker: {
     background: "#EDE7CE",
     text: "#B3A15D"
+  },
+  toggleable: {
+    border: "#CFCFCF",
+    background: "#fff",
+    color: "#000",
+    toggled: {
+      border: "#24b2ff",
+      background: "#d9f2ff",
+      color: "#000",
+    }
   }
 };
 

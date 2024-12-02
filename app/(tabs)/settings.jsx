@@ -205,11 +205,11 @@ function Profile({state, updateField}) {
                 app to your mobile devices.</Text>
             <Pressable onPress={() => updateField("reminders", !state.reminders)} style={{
                 borderWidth: 1,
-                borderColor: state.reminders ? "#40C2FF" : "#4D4D4D",
+                borderColor: state.reminders ? colors.toggleable.toggled.border : colors.toggleable.border,
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.reminders ? "#194064" : "transparent",
+                backgroundColor: state.reminders ? colors.toggleable.toggled.background : "transparent",
                 flexDirection: "row",
                 alignSelf: "flex-start",
                 marginBottom: 12
@@ -235,11 +235,11 @@ function Profile({state, updateField}) {
             </Pressable>
             <Pressable onPress={() => updateField("goals", !state.goals)} style={{
                 borderWidth: 1,
-                borderColor: state.goals ? "#40C2FF" : "#4D4D4D",
+                borderColor: state.goals ? colors.toggleable.toggled.border : colors.toggleable.border,
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.goals ? "#194064" : "transparent",
+                backgroundColor: state.goals ? colors.toggleable.toggled.background : "transparent",
                 flexDirection: "row",
                 alignSelf: "flex-start",
                 marginBottom: 12
@@ -265,11 +265,11 @@ function Profile({state, updateField}) {
             </Pressable>
             <Pressable onPress={() => updateField("progress", !state.progress)} style={{
                 borderWidth: 1,
-                borderColor: state.progress ? "#40C2FF" : "#4D4D4D",
+                borderColor: state.progress ? colors.toggleable.toggled.border : colors.toggleable.border,
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.progress ? "#194064" : "transparent",
+                backgroundColor: state.progress ? colors.toggleable.toggled.background : "transparent",
                 flexDirection: "row",
                 alignSelf: "flex-start"
             }}>
