@@ -9,6 +9,7 @@ import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
 import {Toggleable} from "../../components/buttons/Toggleable";
+import DistancePopup from "../../components/stats/popups/DistancePopup";
 
 const tabs = [
     {
@@ -37,6 +38,13 @@ const breaks = [
     "Right to Left",
     "Straight",
     "Left to Right"
+]
+
+const distances = [
+    "<6 ft",
+    "6-12 ft",
+    "12-20 ft",
+    "20+ ft"
 ]
 
 export default function Stats({}) {
@@ -85,10 +93,11 @@ function MissesTab() {
     const {currentStats} = useAppContext();
     const [slope, setSlope] = useState(-1);
     const [brek, setBrek] = useState(-1);
-    const [distance, setDistance] = useState(null);
+    const [distance, setDistance] = useState(-1);
 
     const slopeRef = useRef(null);
     const breakRef = useRef(null);
+    const distanceRef = useRef(null);
 
     const {width} = Dimensions.get("screen")
 
@@ -104,14 +113,27 @@ function MissesTab() {
         "leftToRight"
     ]
 
+    const dataDistances = [
+        "lessThanSix",
+        "sixToTwelve",
+        "twelveToTwenty",
+        "twentyPlus"
+    ]
+
     const calculateMisses = () => {
         if (brek === -1 && slope === -1) {
-            const arrays = [
-                currentStats.lessThanSix.missDistribution,
-                currentStats.sixToTwelve.missDistribution,
-                currentStats.twelveToTwenty.missDistribution,
-                currentStats.twentyPlus.missDistribution
-            ];
+            let arrays = [];
+
+            if (distance !== -1) {
+                arrays = currentStats[dataDistances[distance]].missDistribution;
+            } else {
+                arrays = [
+                    currentStats.lessThanSix.missDistribution,
+                    currentStats.sixToTwelve.missDistribution,
+                    currentStats.twelveToTwenty.missDistribution,
+                    currentStats.twentyPlus.missDistribution
+                ];
+            }
 
             // Initialize an array of zeros with the same length as the arrays
             const combinedMissDistribution = Array(arrays[0].length).fill(0);
@@ -145,7 +167,13 @@ function MissesTab() {
             };
         }
 
-        const distances = ['lessThanSix', 'sixToTwelve', 'twelveToTwenty', 'twentyPlus'];
+        let distances = [];
+
+        if (distance !== -1) {
+            distances = [dataDistances[distance]];
+        } else {
+            distances = ['lessThanSix', 'sixToTwelve', 'twelveToTwenty', 'twentyPlus'];
+        }
 
         const merged = distances.reduce((acc, distance) => {
             const slopeBreakData = currentStats[distance]?.slopeAndBreakDistribution || {};
@@ -235,9 +263,15 @@ function MissesTab() {
                                title={brek === -1 ? "Filter Breaks" : "Break: " + breaks[brek]}
                                onPress={() => breakRef.current.present()}/>
             </View>
+            <View style={{flexDirection: "row", width: "100%", marginTop: 18}}>
+                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 10}}
+                               title={distance === -1 ? "Filter Distances" : "Distances: " + distances[distance]}
+                               onPress={() => distanceRef.current.present()}/>
+            </View>
             <MissDistribution currentStats={currentStats}/>
             <SlopePopup slopeRef={slopeRef} slope={slope} setSlope={setSlope}></SlopePopup>
             <BreakPopup breakRef={breakRef} brek={brek} setBrek={setBrek}></BreakPopup>
+            <DistancePopup distanceRef={distanceRef} distance={distance} setDistance={setDistance}></DistancePopup>
         </View>
     )
 }
