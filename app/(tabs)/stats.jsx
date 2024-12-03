@@ -296,10 +296,10 @@ function MissesTab() {
                       frontColor="#24b2ff"
                       roundedBottom={false}
                       xAxisThickness={1}
-                      xAxisColor={colors.text.primary}
+                      xAxisColor={"#928481"}
                       formatYLabel={(label) => label + " in"}
                       yAxisTextStyle={{color: colors.text.primary}}
-                      yAxisColor={colors.text.primary}
+                      yAxisColor={"#928481"}
                       yAxisThickness={1}
                       width={264}
                       disablePress={true}
@@ -335,7 +335,7 @@ function MissesTab() {
             </View>
             <MissDistribution currentStats={currentStats}/>
 
-            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Miss
+            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center", marginBottom: 12}}>Miss
                 Distance by Putt Distance</Text>
             <MissDistanceChart></MissDistanceChart>
 

@@ -88,7 +88,7 @@ export default function RadarChart({
                     [posX(column.angle, 1.1), posY(column.angle, 1.1)],
                 ])}
                 stroke="#000000"
-                strokeWidth=".5"
+                strokeWidth=".1"
             />
         );
     };
