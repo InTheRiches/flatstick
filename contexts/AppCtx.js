@@ -173,6 +173,8 @@ export function AppProvider({children}) {
                 totalPutts: 0,
                 rawPutts: 0,
 
+                avgMiss: 0, // in feet
+
                 percentShort: 0,
                 percentTooLong: 0,
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
@@ -209,6 +211,8 @@ export function AppProvider({children}) {
             sixToTwelve: {
                 totalPutts: 0,
                 rawPutts: 0,
+
+                avgMiss: 0, // in feet
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -247,6 +251,8 @@ export function AppProvider({children}) {
                 totalPutts: 0,
                 rawPutts: 0,
 
+                avgMiss: 0, // in feet
+
                 percentShort: 0,
                 percentTooLong: 0,
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
@@ -283,6 +289,8 @@ export function AppProvider({children}) {
             twentyPlus: {
                 totalPutts: 0,
                 rawPutts: 0,
+
+                avgMiss: 0, // in feet
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -336,16 +344,23 @@ export function AppProvider({children}) {
 
                 const statCategory = newStats[category];
 
+                // Increment total putts
+                statCategory.rawPutts++;
+
                 if (distanceMissed === 0) {
                     totalPutts++;
                     statCategory.totalPutts++;
                 } else {
                     totalPutts += 2;
                     statCategory.totalPutts += 2;
-                }
 
-                // Increment total putts
-                statCategory.rawPutts++;
+                    if (statCategory.avgMiss === 0)
+                        statCategory.avgMiss += distanceMissed;
+                    else {
+                        statCategory.avgMiss += distanceMissed;
+                        statCategory.avgMiss /= 2;
+                    }
+                }
 
                 if (missRead) {
                     statCategory.totalMissRead++;

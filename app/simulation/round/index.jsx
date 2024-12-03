@@ -191,7 +191,13 @@ export default function Simulation() {
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
 
-            updateField("puttBreak", generateBreak());
+            let newBreak = generateBreak();
+
+            if (puttBreak === newBreak) {
+                newBreak = generateBreak(); // this makes sure that there aren't two in a row
+            }
+
+            updateField("puttBreak", newBreak);
             updateField("distance", generateDistance(difficulty));
             updateField("hole", hole + 1);
             updateField("largeMiss", false);
@@ -297,24 +303,27 @@ export default function Simulation() {
         return Math.round(num * factor) / factor;
     };
 
-    const submit = () => {
-        const distanceX = width / 2 - point.x;
-        const distanceY = height / 2 - point.y;
-        const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-
-        const conversionFactor = 5 / width;
-        const distanceMissedFeet = distanceMissed * conversionFactor;
-
+    const submit = (partial = false) => {
         const puttsCopy = [...putts];
-        puttsCopy[hole - 1] = {
-            distance: distance,
-            break: puttBreak,
-            missRead: missRead,
-            distanceMissed: distanceMissedFeet,
-            point: point
-        };
 
-        updateField("putts", puttsCopy);
+        if (point.x !== undefined) {
+            const distanceX = width / 2 - point.x;
+            const distanceY = height / 2 - point.y;
+            const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+
+            const conversionFactor = 5 / width;
+            const distanceMissedFeet = distanceMissed * conversionFactor;
+
+            puttsCopy[hole - 1] = {
+                distance: distance,
+                break: puttBreak,
+                missRead: missRead,
+                distanceMissed: distanceMissedFeet,
+                point: point
+            };
+
+            updateField("putts", puttsCopy);
+        }
 
         const trimmedPutts = [];
 
@@ -354,7 +363,7 @@ export default function Simulation() {
             date: new Date().toISOString(),
             timestamp: new Date().getTime(),
             difficulty: difficulty,
-            holes: holes,
+            holes: partial ? puttsCopy.length : holes,
             mode: mode,
             putts: trimmedPutts,
             totalPutts: totalPutts,
@@ -367,7 +376,7 @@ export default function Simulation() {
                     pathname: `/simulation/round/recap`,
                     params: {
                         current: true,
-                        holes: holes,
+                        holes: partial ? puttsCopy.length : holes,
                         difficulty: difficulty,
                         mode: mode,
                         avgMiss: avgMiss,
@@ -394,7 +403,17 @@ export default function Simulation() {
                     marginBottom: 20
                 }}>
                     <View>
-                        <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
+                        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                            <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
+                            <Pressable onPress={() => updateField("confirmLeave", true)}>
+                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth={1.5}
+                                     stroke={colors.text.primary} width={32} height={32}>
+                                    <Path strokeLinecap="round" strokeLinejoin="round"
+                                          d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
+                                </Svg>
+                            </Pressable>
+                        </View>
                         <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
                                      puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
                     </View>
@@ -526,6 +545,7 @@ export default function Simulation() {
                     }}>
                         {confirmLeave &&
                             <ConfirmExit cancel={() => updateField("confirmLeave", false)}
+                                         partial={() => submit(true)}
                                          end={fullReset}></ConfirmExit>}
                         {confirmSubmit &&
                             <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
@@ -611,6 +631,7 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
 // TODO MAKE THIS UPLOAD A PARTIAL ROUND
 function ConfirmExit({end, partial, cancel}) {
     const colors = useColors();
+    const colorScheme = useColorScheme();
 
     return (
         <View style={{
@@ -655,10 +676,21 @@ function ConfirmExit({end, partial, cancel}) {
                 <Text style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>End
                     Session</Text>
             </Pressable>
-            <SecondaryButton onPress={partial} title={"Upload as Partial"}
-                             style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
-            <SecondaryButton onPress={cancel} title={"Cancel"}
-                             style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
+            {colorScheme === "light" ?
+                [
+                    <PrimaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
+                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></PrimaryButton>,
+                    <PrimaryButton key={"primary"} onPress={cancel} title={"Cancel"}
+                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></PrimaryButton>
+                ]
+                :
+                [
+                    <SecondaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
+                                     style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>,
+                    <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
+                                     style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
+                ]
+            }
         </View>
     )
 }

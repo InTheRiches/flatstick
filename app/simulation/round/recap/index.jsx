@@ -49,8 +49,9 @@ export default function SimulationRecap() {
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
-            if (putt.distanceMissed <= 0.5) center++
-            else if (degrees > -45 && degrees <= 45) {
+            if (putt.distanceMissed <= 0.5) {
+                center++
+            } else if (degrees > -45 && degrees <= 45) {
                 if (putt.distanceMissed <= 2)
                     right++;
                 else

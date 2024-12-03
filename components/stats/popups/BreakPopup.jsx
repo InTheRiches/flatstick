@@ -15,7 +15,9 @@ export default function BreakPopup({breakRef, brek, setBrek}) {
 
     // renders
     return (
-        <BottomSheetModal ref={breakRef}
+        <BottomSheetModal enableDismissOnClose={true}
+                          stackBehavior={"replace"}
+                          ref={breakRef}
                           backgroundStyle={{backgroundColor: colors.background.secondary}}>
             <BottomSheetView
                 style={{

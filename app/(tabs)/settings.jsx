@@ -46,8 +46,6 @@ export default function HomeScreen() {
 
     return (
         <View style={{
-            height: "100%",
-            flex: 1,
             overflow: "hidden",
             flexDirection: "column",
             alignContent: "center",
@@ -56,7 +54,7 @@ export default function HomeScreen() {
             paddingHorizontal: 20,
             backgroundColor: colors.background.primary,
         }}>
-            <ScrollView>
+            <ScrollView keyboardShouldPersistTaps={'handled'}>
                 <View style={{
                     flexDirection: "col",
                     alignItems: "flex-start",

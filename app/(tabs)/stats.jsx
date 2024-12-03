@@ -1,4 +1,4 @@
-import {Animated as NotReanimated, Dimensions, Pressable, Text, View} from "react-native";
+import {Animated as NotReanimated, Dimensions, FlatList, Pressable, ScrollView, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
@@ -65,16 +65,19 @@ export default function Stats({}) {
     return (
         <View style={{
             backgroundColor: colors.background.primary,
-            height: "100%",
             borderBottomWidth: 1,
             borderBottomColor: colors.border.default,
+            flex: 1
         }}>
             <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600}}>Stats</Text>
             <View style={{flexDirection: "row", gap: 18, marginBottom: 24, marginTop: 12, paddingHorizontal: 24}}>
                 <Toggleable toggled={tab === 0} onToggle={() => scrollTo(0)} title={"Overview"}></Toggleable>
                 <Toggleable toggled={tab === 1} onToggle={() => scrollTo(1)} title={"Misses"}></Toggleable>
             </View>
-            <Animated.FlatList
+            <FlatList
+                contentContainerStyle={{
+                    flexGrow: 1,
+                }}
                 ref={listRef}
                 data={tabs}
                 onScroll={handleScroll}
@@ -125,7 +128,7 @@ function MissesTab() {
             let arrays = [];
 
             if (distance !== -1) {
-                arrays = currentStats[dataDistances[distance]].missDistribution;
+                arrays = [currentStats[dataDistances[distance]].missDistribution];
             } else {
                 arrays = [
                     currentStats.lessThanSix.missDistribution,
@@ -148,7 +151,7 @@ function MissesTab() {
             let totalPutts = 0;
             combinedMissDistribution.forEach(value => totalPutts += value);
 
-            console.log("neutral: " + combinedMissDistribution);
+            if (totalPutts === 0) totalPutts = 1
 
             // Calculate missDistribution
             const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
@@ -184,7 +187,6 @@ function MissesTab() {
             if (slope !== -1 && brek !== -1) {
                 // Filter by both slope and break
                 const breakData = slopeBreakData[dataSlopes[slope]]?.[dataBreaks[brek]] || [];
-                console.log("breakdata" + breakData)
                 combinedArray = breakData;
             } else if (slope !== -1) {
                 // Filter only by slope (sum all breaks for the slope)
@@ -206,8 +208,6 @@ function MissesTab() {
 
         const totalPutts = merged.slice(1).reduce((sum, num) => sum + num, 0);
 
-        console.log(merged.slice(1));
-        console.log(totalPutts);
         // Calculate missDistribution
         const missDistribution = merged.slice(2).map((value) => value / totalPutts);
 
@@ -247,11 +247,53 @@ function MissesTab() {
         )
     }
 
+    const MissDistanceChart = () => {
+        const data = [{
+            value: currentStats.lessThanSix.avgMiss,
+            label: "< 6ft",
+            labelTextStyle: {color: 'white'},
+        }, {
+            value: currentStats.sixToTwelve.avgMiss,
+            label: "6 - 12ft",
+            labelTextStyle: {color: 'white'},
+        }, {
+            value: currentStats.twelveToTwenty.avgMiss,
+            label: "12 - 20ft",
+            labelTextStyle: {color: 'white'},
+        }, {
+            value: currentStats.twentyPlus.avgMiss,
+            label: "> 20ft",
+            labelTextStyle: {color: 'white'},
+        }]
+
+        return (
+            <BarChart barWidth={22}
+                      noOfSections={3}
+                      barBorderRadius={4}
+                      barBorderBottomLeftRadius={0}
+                      barBorderBottomRightRadius={0}
+                      frontColor="#D0C597"
+                      roundedBottom={false}
+                      xAxisThickness={1}
+                      xAxisColor={"white"}
+                      formatYLabel={(label) => label + "%"}
+                      yAxisTextStyle={{color: 'white'}}
+                      yAxisColor={"white"}
+                      yAxisThickness={1}
+                      width={264}
+                      disablePress={true}
+                      initialSpacing={24}
+                      spacing={48}
+                      data={data}/>
+        )
+    }
+
     return (
         <View style={{
             width: width,
             paddingHorizontal: 24,
             alignItems: "center",
+            flexDirection: "column",
         }}>
             <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Miss
                 Distribution</Text>
@@ -263,12 +305,19 @@ function MissesTab() {
                                title={brek === -1 ? "Filter Breaks" : "Break: " + breaks[brek]}
                                onPress={() => breakRef.current.present()}/>
             </View>
-            <View style={{flexDirection: "row", width: "100%", marginTop: 18}}>
+            <View style={{flexDirection: "row", width: "100%", marginTop: 6}}>
                 <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 10}}
                                title={distance === -1 ? "Filter Distances" : "Distances: " + distances[distance]}
-                               onPress={() => distanceRef.current.present()}/>
+                               onPress={() => {
+                                   distanceRef.current.present();
+                               }}/>
             </View>
             <MissDistribution currentStats={currentStats}/>
+
+            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Miss
+                Distance by Putt Distance</Text>
+            <MissDistanceChart></MissDistanceChart>
+
             <SlopePopup slopeRef={slopeRef} slope={slope} setSlope={setSlope}></SlopePopup>
             <BreakPopup breakRef={breakRef} brek={brek} setBrek={setBrek}></BreakPopup>
             <DistancePopup distanceRef={distanceRef} distance={distance} setDistance={setDistance}></DistancePopup>
@@ -348,54 +397,5 @@ function OverviewTab() {
                 Miss</Text>
             <MissDistribution/>
         </View>
-    )
-}
-
-function MakeBarChart({currentStats}) {
-    if (currentStats === undefined || Object.keys(currentStats).length === 0) {
-        return <View></View>
-    }
-
-    const data = [{
-        value: currentStats.lessThanSix.percentMade,
-        label: "< 6ft",
-        labelTextStyle: {color: 'white'},
-
-    }, {
-        value: currentStats.sixToTwelve.percentMade,
-        label: "6 - 12ft",
-        labelTextStyle: {color: 'white'},
-
-    }, {
-        value: currentStats.twelveToTwenty.percentMade,
-        label: "12 - 20ft",
-        labelTextStyle: {color: 'white'},
-
-    }, {
-        value: currentStats.twentyPlus.percentMade,
-        label: "> 20ft",
-        labelTextStyle: {color: 'white'},
-
-    }]
-
-    return (
-        <BarChart barWidth={22}
-                  noOfSections={3}
-                  barBorderRadius={4}
-                  barBorderBottomLeftRadius={0}
-                  barBorderBottomRightRadius={0}
-                  frontColor="#D0C597"
-                  roundedBottom={false}
-                  xAxisThickness={1}
-                  xAxisColor={"white"}
-                  formatYLabel={(label) => label + "%"}
-                  yAxisTextStyle={{color: 'white'}}
-                  yAxisColor={"white"}
-                  yAxisThickness={1}
-                  width={264}
-                  disablePress={true}
-                  initialSpacing={24}
-                  spacing={48}
-                  data={data}/>
     )
 }

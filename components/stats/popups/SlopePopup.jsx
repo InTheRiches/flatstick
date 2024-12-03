@@ -5,7 +5,6 @@ import {
     BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import useColors from "@/hooks/useColors";
-import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 
@@ -14,7 +13,9 @@ const SlopePopup = ({slopeRef, slope, setSlope}) => {
 
     // renders
     return (
-        <BottomSheetModal ref={slopeRef}
+        <BottomSheetModal enableDismissOnClose={true}
+                          stackBehavior={"replace"}
+                          ref={slopeRef}
                           backgroundStyle={{backgroundColor: colors.background.secondary}}>
             <BottomSheetView
                 style={{
