@@ -17,7 +17,7 @@ const initialMisses = {
 }
 
 export default function SimulationRecap() {
-    const {current, holes, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
+    const {current, holes, madePercent, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
     const putts = JSON.parse(serializedPutts);
 
     const parsedDate = new Date(date);
@@ -40,31 +40,28 @@ export default function SimulationRecap() {
         let short = 0;
 
         putts.forEach((putt) => {
-            if (putt.distanceMissed === 0) totalPutts++;
-            else {
-                totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
+            if (putt.largeMiss) {
+                totalPutts += 3; // TODO VERY VERY ROUGH ESTIMATE
             }
+            else if (putt.distanceMissed === 0) totalPutts++;
+            else totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
 
             const angle = Math.atan2(putt.yDistance, putt.xDistance); // atan2 handles dx = 0 cases
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
-            if (putt.distanceMissed <= 0.5) {
+            if (putt.distanceMissed <= 1 && !putt.largeMiss) {
                 center++
             } else if (degrees > -45 && degrees <= 45) {
-                if (putt.distanceMissed <= 2)
-                    right++;
-                else
-                    farRight++;
+                if (putt.distanceMissed <= 2 && !putt.largeMiss) right++;
+                else farRight++;
             } else if (degrees > 45 && degrees <= 135) {
                 long++;
             } else if (degrees > -135 && degrees <= -45) {
                 short++;
             } else {
-                if (putt.distanceMissed <= 2)
-                    left++;
-                else
-                    farLeft++;
+                if (putt.distanceMissed <= 2 && !putt.largeMiss) left++;
+                else farLeft++;
             }
         });
 
@@ -99,7 +96,7 @@ export default function SimulationRecap() {
                     <ThemedText style={{textAlign: "center", marginBottom: 24}}
                                 type={"default"}>This {current === "true" ? "is" : "was"} your nth
                         session.</ThemedText>
-                    <RecapVisual holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
+                    <RecapVisual makePercent={madePercent} holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
                                  makeData={{farLeft, left, center, right, farRight, long, short}}
                                  date={parsedDate}></RecapVisual>
                 </View>
@@ -114,7 +111,7 @@ export default function SimulationRecap() {
 }
 
 // TODO ADD DATE + # OF HOLES
-function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
+function RecapVisual({holes, totalPutts, avgDistance, makeData, makePercent}) {
     const gridData = Array.from({length: 15}, (_, index) => index + 1);
 
     const colors = useColors();
@@ -240,7 +237,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                             textAlign: "left",
                             color: colors.text.primary,
                             fontWeight: "bold"
-                        }}>{Math.floor((makeData.center / holes) * 100)}%</Text>
+                        }}>{Math.floor((makePercent / holes) * 100)}%</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",

@@ -213,6 +213,22 @@ function MissesTab() {
 
         const maxPercentage = Math.max(...missDistribution) + 0.01;
 
+        console.log(missDistribution);
+
+        // if missDistribution is empty (which means full of NaN), return an empty object
+        if (missDistribution.every(isNaN)) {
+            return {
+                "Long": 0,
+                "Long Right": 0,
+                "Right": 0,
+                "Short Right": 0,
+                "Short": 0,
+                "Short Left": 0,
+                "Left": 0,
+                "Long Left": 0,
+            };
+        }    
+
         return {
             "Long": missDistribution[0] / maxPercentage,
             "Long Right": missDistribution[1] / maxPercentage,
@@ -249,36 +265,41 @@ function MissesTab() {
 
     const MissDistanceChart = () => {
         const data = [{
-            value: currentStats.lessThanSix.avgMiss,
-            label: "< 6ft",
-            labelTextStyle: {color: 'white'},
+            value: currentStats.lessThanSix.avgMiss*12,
+            label: "<6",
+            labelTextStyle: {color: colors.text.primary},
         }, {
-            value: currentStats.sixToTwelve.avgMiss,
-            label: "6 - 12ft",
-            labelTextStyle: {color: 'white'},
+            value: currentStats.sixToTwelve.avgMiss*12,
+            label: "6-12",
+            labelTextStyle: {color: colors.text.primary},
         }, {
-            value: currentStats.twelveToTwenty.avgMiss,
-            label: "12 - 20ft",
-            labelTextStyle: {color: 'white'},
+            value: currentStats.twelveToTwenty.avgMiss*12,
+            label: "12-20",
+            labelTextStyle: {color: colors.text.primary},
         }, {
-            value: currentStats.twentyPlus.avgMiss,
-            label: "> 20ft",
-            labelTextStyle: {color: 'white'},
+            value: currentStats.twentyPlus.avgMiss*12,
+            label: ">20",
+            labelTextStyle: {color: colors.text.primary},
         }]
+
+        // biggest avgMiss:
+        const max = Math.max(...data.map((item) => item.value)) * 1.1;
 
         return (
             <BarChart barWidth={22}
+                      maxValue={max}
                       noOfSections={3}
+                      stepValue={max/3}
                       barBorderRadius={4}
                       barBorderBottomLeftRadius={0}
                       barBorderBottomRightRadius={0}
-                      frontColor="#D0C597"
+                      frontColor="#24b2ff"
                       roundedBottom={false}
                       xAxisThickness={1}
-                      xAxisColor={"white"}
-                      formatYLabel={(label) => label + "%"}
-                      yAxisTextStyle={{color: 'white'}}
-                      yAxisColor={"white"}
+                      xAxisColor={colors.text.primary}
+                      formatYLabel={(label) => label + " in"}
+                      yAxisTextStyle={{color: colors.text.primary}}
+                      yAxisColor={colors.text.primary}
                       yAxisThickness={1}
                       width={264}
                       disablePress={true}
@@ -289,7 +310,7 @@ function MissesTab() {
     }
 
     return (
-        <View style={{
+        <ScrollView bounces={false} contentContainerStyle={{
             width: width,
             paddingHorizontal: 24,
             alignItems: "center",
@@ -321,7 +342,7 @@ function MissesTab() {
             <SlopePopup slopeRef={slopeRef} slope={slope} setSlope={setSlope}></SlopePopup>
             <BreakPopup breakRef={breakRef} brek={brek} setBrek={setBrek}></BreakPopup>
             <DistancePopup distanceRef={distanceRef} distance={distance} setDistance={setDistance}></DistancePopup>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -332,9 +353,8 @@ function OverviewTab() {
     const {width} = Dimensions.get("screen")
 
     const MissDistribution = () => {
-        if (currentStats === undefined || Object.keys(currentStats).length === 0) {
+        if (currentStats === undefined || Object.keys(currentStats).length === 0)
             return <View></View>
-        }
 
         return (
             <RadarChart graphSize={400}
@@ -361,8 +381,6 @@ function OverviewTab() {
 
                                 let totalPutts = 0;
                                 combinedMissDistribution.forEach(value => totalPutts += value);
-
-                                console.log("neutral: " + combinedMissDistribution);
 
                                 // Calculate missDistribution
                                 const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);

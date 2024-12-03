@@ -159,12 +159,7 @@ export default function Simulation() {
 
         let distanceMissedFeet = 0;
 
-        if (largeMiss) {
-            // find the distance to center of the point in x and y
-            const distanceX = largeMissBy[0] * 8;
-            const distanceY = largeMissBy[1] * 8;
-            distanceMissedFeet = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-        } else {
+        if (!largeMiss) {
             // find the distance to center of the point in x and y
             const distanceX = width / 2 - point.x;
             const distanceY = height / 2 - point.y;
@@ -179,7 +174,8 @@ export default function Simulation() {
             distance: distance,
             break: puttBreak,
             missRead: missRead,
-            distanceMissed: distanceMissedFeet,
+            largeMiss: largeMiss,
+            distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
             point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
         };
         updateField("putts", puttsCopy);
@@ -206,7 +202,7 @@ export default function Simulation() {
 
         // load old data (as the person went back before now going forward)
         const nextPutt = puttsCopy[hole];
-        if (nextPutt.distanceMissed > 7.15) {
+        if (nextPutt.largeMiss) {
             updateField("point", {});
             updateField("largeMiss", true);
             updateField("largeMissBy", [nextPutt.point.x, nextPutt.point.y])
@@ -230,12 +226,7 @@ export default function Simulation() {
 
         let distanceMissedFeet = 0;
 
-        if (largeMiss) {
-            // find the distance to center of the point in x and y
-            const distanceX = largeMissBy[0] * 8;
-            const distanceY = largeMissBy[1] * 8;
-            distanceMissedFeet = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-        } else {
+        if (!largeMiss) {
             // find the distance to center of the point in x and y
             const distanceX = width / 2 - point.x;
             const distanceY = height / 2 - point.y;
@@ -250,13 +241,14 @@ export default function Simulation() {
             distance: distance,
             break: puttBreak,
             missRead: missRead,
-            distanceMissed: distanceMissedFeet,
+            largeMiss: largeMiss,
+            distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
             point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
         };
         updateField("putts", puttsCopy);
 
         const lastPutt = puttsCopy[hole - 2];
-        if (lastPutt.distanceMissed > 7.15) {
+        if (lastPutt.largeMiss) {
             updateField("point", {});
             updateField("largeMiss", true);
             updateField("largeMissBy", [lastPutt.point.x, lastPutt.point.y])
@@ -307,21 +299,25 @@ export default function Simulation() {
         const puttsCopy = [...putts];
 
         if (point.x !== undefined) {
-            const distanceX = width / 2 - point.x;
-            const distanceY = height / 2 - point.y;
-            const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+            let distanceMissedFeet = 0;
 
-            const conversionFactor = 5 / width;
-            const distanceMissedFeet = distanceMissed * conversionFactor;
-
+            if (!largeMiss) {
+                // find the distance to center of the point in x and y
+                const distanceX = width / 2 - point.x;
+                const distanceY = height / 2 - point.y;
+                const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+    
+                const conversionFactor = 5 / width;
+                distanceMissedFeet = distanceMissed * conversionFactor;
+            }
             puttsCopy[hole - 1] = {
                 distance: distance,
                 break: puttBreak,
                 missRead: missRead,
-                distanceMissed: distanceMissedFeet,
-                point: point
+                largeMiss: largeMiss,
+                distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
+                point: largeMiss ? {x: 0, y: 0} : point
             };
-
             updateField("putts", puttsCopy);
         }
 
@@ -331,16 +327,24 @@ export default function Simulation() {
         let avgMiss = 0;
         let madePercent = 0;
 
-        puttsCopy.forEach((putt) => {
+        puttsCopy.forEach((putt, index) => {
             if (putt !== undefined) {
-                if (putt.distanceMissed === 0) {
+                if (putt.largeMiss) {
+                    totalPutts += 3; // TODO CAN WE MAKE THIS MORE ACCURATE?
+                } else if (putt.distanceMissed === 0) {
                     totalPutts++;
                     madePercent++;
                 } else {
                     totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
                 }
 
-                avgMiss += putt.distanceMissed;
+                // TODO this doesnt account for the large miss, update that
+                if (putt.distanceMissed !== 0) {
+                    avgMiss += putt.distanceMissed;
+                    if (index != 0) {
+                        avgMiss /= 2;
+                    }
+                }
 
                 trimmedPutts.push({
                     distance: putt.distance,
@@ -348,12 +352,11 @@ export default function Simulation() {
                     yDistance: roundTo((height / 2 - putt.point.y) * (5 / height), 2),
                     puttBreak: putt.break,
                     missRead: putt.missRead,
-                    distanceMissed: putt.distanceMissed
+                    distanceMissed: putt.distanceMissed,
+                    largeMiss: putt.largeMiss
                 });
             }
         });
-
-        avgMiss /= puttsCopy.length;
         avgMiss = roundTo(avgMiss, 1);
         madePercent /= puttsCopy.length;
 
@@ -381,6 +384,7 @@ export default function Simulation() {
                         mode: mode,
                         avgMiss: avgMiss,
                         serializedPutts: JSON.stringify(trimmedPutts),
+                        madePercent: madePercent,
                         date: new Date().toISOString()
                     }
                 });
