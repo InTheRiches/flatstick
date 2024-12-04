@@ -1,7 +1,7 @@
 import React from "react";
 import Svg, {G, Path, Text, Polyline} from "react-native-svg";
 import {useColorScheme} from "react-native";
-import useColors from "../../hooks/useColors";
+import useColors from "../../../hooks/useColors";
 
 export default function RadarChart({
                                        graphSize,
@@ -44,7 +44,7 @@ export default function RadarChart({
                 )}
                 stroke={`#928481`}
                 fill={`#222222`}
-                fillOpacity={colorScheme === "light" ? "0.1" : ".5"}
+                fillOpacity={colorScheme === "light" ? "0.05" : ".5"}
             />
         );
     };

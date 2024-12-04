@@ -1,6 +1,6 @@
 import {Animated as NotReanimated, Dimensions, FlatList, Pressable, ScrollView, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
-import RadarChart from "../../components/graphs/SpiderGraph";
+import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
 import {useRef, useState} from "react";
 import {BarChart} from "react-native-gifted-charts";

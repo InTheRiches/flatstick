@@ -1,9 +1,3 @@
-import {ThemedText} from '@/components/ThemedText';
-import {ThemedView} from '@/components/ThemedView';
-import {Pressable, View, Text, ScrollView, useColorScheme} from 'react-native';
-import {ThemedButton} from "@/components/ThemedButton";
-import {Image} from 'react-native';
-
 import React, {useEffect, useRef, useState} from 'react';
 import {getAuth} from "firebase/auth";
 import {getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
@@ -15,6 +9,8 @@ import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import PracticeMode from "@/components/container/PracticeMode";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import DrawerNewSession from "@/components/popups/DrawerNewSession";
+import NewRealRound from "@/components/popups/NewRealRound";
+import {ScrollView, Text, View, useColorScheme} from "react-native";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -29,6 +25,7 @@ export default function HomeScreen() {
     const [newSession, setNewSession] = useState(false);
 
     const newSessionRef = useRef(null);
+    const newRealRoundRef = useRef(null);
 
     return (
         <View style={{
@@ -106,6 +103,13 @@ export default function HomeScreen() {
                         focus={"Adaptability"}
                         onPress={() => newSessionRef.current?.present()}/>
                     <PracticeMode
+                        description={"Allows you to track your putts from a real round, and keep track of real putts."}
+                        name={"Real Round Tracking"}
+                        distance={"~ ft"}
+                        time={"~ min"}
+                        focus={"Realism"}
+                        onPress={() => newRealRoundRef.current.present()}/>
+                    <PracticeMode
                         description={"A mode designed to replicate the pressure of a championship-winning putt, where every stroke counts and the stakes feel real."}
                         name={"Pressure Putting"}
                         distance={"< 8ft"}
@@ -143,6 +147,7 @@ export default function HomeScreen() {
                 </View>
             </ScrollView>
             <DrawerNewSession newSessionRef={newSessionRef}></DrawerNewSession>
+            <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
         </View>
     );
 }
