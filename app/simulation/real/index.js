@@ -6,7 +6,7 @@ import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
 import {View} from 'react-native';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import {DangerButton} from "@/components/DangerButton";
 import ArrowComponent from "@/components/icons/ArrowComponent";
@@ -19,18 +19,9 @@ import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
-
-const greenMaps = {
-    "0,0": require("@/assets/images/greens/rightForward.png"),
-    "0,1": require("@/assets/images/greens/right.png"),
-    "0,2": require("@/assets/images/greens/backRight.png"),
-    "1,0": require("@/assets/images/greens/leftForward.png"),
-    "1,1": require("@/assets/images/greens/left.png"),
-    "1,2": require("@/assets/images/greens/backLeft.png"),
-    "2,0": require("@/assets/images/greens/forward.png"),
-    "2,1": require("@/assets/images/greens/neutral.png"),
-    "2,2": require("@/assets/images/greens/back.png"),
-}
+import GreenBreakSelector from '../../../components/utils/GreenBreakSelector';
+import TotalPutts from '../../../components/popups/TotalPutts';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const initialState = {
     confirmLeave: false,
@@ -43,16 +34,54 @@ const initialState = {
     center: false,
     point: {},
     hole: 1,
-    distance: 0,
-    puttBreak: generateBreak(),
+    distance: -1,
+    puttBreak: [0,0],
     missRead: false,
-    putts: []
+    theta: 0,
+    putts: [],
 }
 
-// TODO WHEN SWITCHING TO THE NEXT HOLE, ADD A POPUP ASKING HOW MANY PUTTS IT TOOK TO FINISH OUT THE HOLE
-// TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
-// ABOVE THAT, MAKE A GOAL MENU, THAT SHOWS THE GOAL THAT ALIGNS WITH THE PUTT, IF NONE, JUST SAY "make a goal if you need to work on this"
+const breaks = {
+    45: "Left to Right",
+    90: "Left to Right",
+    135: "Left to Right",
+    315: "Right to Left",
+    270: "Right to Left",
+    225: "Right to Left",
+    0: "Straight",
+    360: "Straight",
+    180: "Straight",
+}
 
+const slopes = {
+    45: "Downhill",
+    90: "Neutral",
+    135: "Uphill",
+    315: "Downhill",
+    270: "Neutral",
+    225: "Uphill",
+    0: "Downhill",
+    360: "Downhill",
+    180: "Uphill",
+}
+
+const breakConversion = [
+    "Left to Right",
+    "Right to Left",
+    "Straight",
+]
+
+const slopeConversion = [
+    "Downhill",
+    "Neutral",
+    "Uphill"
+]
+
+const convertThetaToBreak = (theta) => {
+    return [breakConversion.indexOf(breaks[theta]), slopeConversion.indexOf(slopes[theta])];
+}  
+
+// TODO WHEN SWITCHING TO THE NEXT HOLE, ADD A POPUP ASKING HOW MANY PUTTS IT TOOK TO FINISH OUT THE HOLE
 export default function Simulation() {
     const colors = useColors();
     const navigation = useNavigation();
@@ -64,6 +93,7 @@ export default function Simulation() {
 
     const {stringHoles} = useLocalSearchParams();
     const holes = parseInt(stringHoles);
+    const totalPuttsRef = useRef(null);
 
     const [{
         loading,
@@ -76,7 +106,7 @@ export default function Simulation() {
         center,
         point,
         hole,
-        puttBreak,
+        theta,
         distance,
         missRead,
         putts
@@ -99,10 +129,6 @@ export default function Simulation() {
     }, [confirmLeave])
 
     useEffect(() => {
-        updateField("distance", generateDistance(difficulty));
-    }, []);
-
-    useEffect(() => {
         const onBackPress = () => {
             updateField("confirmLeave", true);
 
@@ -117,8 +143,12 @@ export default function Simulation() {
         return () => backHandler.remove();
     }, []);
 
-    const nextHole = () => {
-        if (hole === holes || (!largeMiss && point.x === undefined))
+    const nextHole = (totalPutts) => {
+        if (hole === holes) {
+            updateField("confirmSubmit", true);
+            return;
+        }
+        if (!largeMiss && point.x === undefined)
             return;
 
         let distanceMissedFeet = 0;
@@ -136,9 +166,10 @@ export default function Simulation() {
         const puttsCopy = [...putts];
         puttsCopy[hole - 1] = {
             distance: distance,
-            break: puttBreak,
+            theta: theta,
             missRead: missRead,
             largeMiss: largeMiss,
+            totalPutts: totalPutts,
             distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
             point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
         };
@@ -150,15 +181,9 @@ export default function Simulation() {
             updateField("missRead", false);
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
-
-            let newBreak = generateBreak();
-
-            if (puttBreak === newBreak) {
-                newBreak = generateBreak(); // this makes sure that there aren't two in a row
-            }
-
-            updateField("puttBreak", newBreak);
-            updateField("distance", generateDistance(difficulty));
+            updateField("theta", 0);
+            updateField("puttBreak", convertThetaToBreak(0));
+            updateField("distance", -1);
             updateField("hole", hole + 1);
             updateField("largeMiss", false);
             return;
@@ -177,7 +202,7 @@ export default function Simulation() {
         updateField("missRead", nextPutt.missRead);
         updateField("center", nextPutt.distanceMissed === 0);
 
-        updateField("puttBreak", nextPutt.break);
+        updateField("theta", nextPutt.theta);
         updateField("hole", hole + 1);
         updateField("distance", nextPutt.distance);
         updateField("largeMiss", false);
@@ -203,9 +228,10 @@ export default function Simulation() {
         const puttsCopy = [...putts];
         puttsCopy[hole - 1] = {
             distance: distance,
-            break: puttBreak,
+            theta: theta,
             missRead: missRead,
             largeMiss: largeMiss,
+            totalPutts: -1, // since they moved backwards, we dont give a popup, and we just guess in the stats
             distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
             point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
         };
@@ -224,7 +250,7 @@ export default function Simulation() {
         updateField("missRead", lastPutt.missRead);
         updateField("center", lastPutt.distanceMissed === 0);
 
-        updateField("puttBreak", lastPutt.break);
+        updateField("theta", lastPutt.theta);
         updateField("hole", hole - 1);
         updateField("distance", lastPutt.distance);
     }
@@ -274,9 +300,10 @@ export default function Simulation() {
                 const conversionFactor = 5 / width;
                 distanceMissedFeet = distanceMissed * conversionFactor;
             }
+
             puttsCopy[hole - 1] = {
                 distance: distance,
-                break: puttBreak,
+                theta: theta,
                 missRead: missRead,
                 largeMiss: largeMiss,
                 distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
@@ -292,15 +319,17 @@ export default function Simulation() {
         let madePercent = 0;
 
         puttsCopy.forEach((putt, index) => {
-            if (putt !== undefined) {
-                if (putt.largeMiss) {
-                    totalPutts += 3; // TODO CAN WE MAKE THIS MORE ACCURATE?
-                } else if (putt.distanceMissed === 0) {
-                    totalPutts++;
-                    madePercent++;
-                } else {
-                    totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
-                }
+            if (putt !== undefined && distance !== -1) {
+                if (putt.totalPutts === -1) {
+                    if (putt.largeMiss) {
+                        totalPutts += 3; // TODO CAN WE MAKE THIS MORE ACCURATE?
+                    } else if (putt.distanceMissed === 0) {
+                        totalPutts++;
+                        madePercent++;
+                    } else {
+                        totalPutts += 2;
+                    }
+                } else totalPutts += putt.totalPutts;
 
                 // TODO this doesnt account for the large miss, update that
                 if (putt.distanceMissed !== 0) {
@@ -314,10 +343,11 @@ export default function Simulation() {
                     distance: putt.distance,
                     xDistance: roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2),
                     yDistance: roundTo((height / 2 - putt.point.y) * (5 / height), 2),
-                    puttBreak: putt.break,
+                    puttBreak: convertThetaToBreak(putt.theta),
                     missRead: putt.missRead,
                     distanceMissed: putt.distanceMissed,
-                    largeMiss: putt.largeMiss
+                    largeMiss: putt.largeMiss,
+                    totalPutts: putt.totalPutts
                 });
             }
         });
@@ -329,28 +359,16 @@ export default function Simulation() {
         setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), {
             date: new Date().toISOString(),
             timestamp: new Date().getTime(),
-            difficulty: difficulty,
             holes: partial ? puttsCopy.length : holes,
-            mode: mode,
             putts: trimmedPutts,
             totalPutts: totalPutts,
             avgMiss: avgMiss,
             madePercent: madePercent,
-            type: "round-simulation"
+            type: "real-simulation"
         }).then(() => {
             updateStats().then(() => {
                 router.push({
-                    pathname: `/simulation/round/recap`,
-                    params: {
-                        current: true,
-                        holes: partial ? puttsCopy.length : holes,
-                        difficulty: difficulty,
-                        mode: mode,
-                        avgMiss: avgMiss,
-                        serializedPutts: JSON.stringify(trimmedPutts),
-                        madePercent: madePercent,
-                        date: new Date().toISOString()
-                    }
+                    pathname: `/`,
                 });
             }).catch((error) => {
                 console.log("updateStats " + error);
@@ -361,6 +379,7 @@ export default function Simulation() {
     }
 
     return (loading ? <Loading/> :
+        <BottomSheetModalProvider>
             <ThemedView style={{flexGrow: 1}}>
                 <View style={{
                     width: "100%",
@@ -372,7 +391,7 @@ export default function Simulation() {
                 }}>
                     <View>
                         <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                            <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
+                            <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}<Text style={{ fontSize: 14}}>/{holes}</Text></ThemedText>
                             <Pressable onPress={() => updateField("confirmLeave", true)}>
                                 <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.5}
@@ -382,8 +401,7 @@ export default function Simulation() {
                                 </Svg>
                             </Pressable>
                         </View>
-                        <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
-                                     puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
+                        <GreenVisual slope={slopes[theta]} puttBreak={breaks[theta]} theta={theta} setTheta={(newTheta) => updateField("theta", newTheta)} distance={distance} updateField={updateField}/>
                     </View>
                     <View>
                         <Pressable onPress={() => updateField("missRead", !missRead)} style={{
@@ -487,16 +505,17 @@ export default function Simulation() {
                                        disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
                         <DangerButton onPress={() => updateField("largeMiss", true)}
                                       title={"Miss > 5ft?"}></DangerButton>
-                        {hole === holes ?
-                            <PrimaryButton title="Submit" disabled={point.x === undefined} onPress={() => {
-                                if (point.x !== undefined) updateField("confirmSubmit", true)
-                            }}></PrimaryButton>
-                            : <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
-                                             title="Next"
+                        {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                                             title={hole === holes ? "Submit" : "Next"}
                                              disabled={point.x === undefined}
-                                             onPress={() => nextHole()}></PrimaryButton>}
+                                             onPress={() => {
+                                                if (point.x === undefined) return;
+                                                else if (center) nextHole(1);
+                                                else totalPuttsRef.current.present()
+                                            }}></PrimaryButton>}
                     </View>
                 </View>
+                <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
                 {(confirmLeave || confirmSubmit || largeMiss) &&
                     <View style={{
                         position: 'absolute',
@@ -522,78 +541,8 @@ export default function Simulation() {
                             <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
                     </View>}
             </ThemedView>
+        </BottomSheetModalProvider>
     );
-}
-
-function GreenVisual({distance, puttBreak, slope, imageSource}) {
-    const colors = useColors();
-
-    return (
-        <View style={{
-            backgroundColor: colors.background.secondary,
-            flexDirection: "column",
-            borderRadius: 16,
-            elevation: 4,
-            overflow: "hidden"
-        }}>
-            <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
-                <Image source={imageSource} style={{
-                    width: Platform.OS === "ios" ? "90%" : "100%",
-                    height: "auto",
-                    aspectRatio: 2
-                }}></Image>
-            </View>
-            <View
-                style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: colors.border.default}}>
-                <View style={{flexDirection: "row"}}>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontWeight: "bold"
-                        }}>{puttBreak}</Text>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 0.7,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontWeight: "bold"
-                        }}>{slope}</Text>
-                    </View>
-                    <View
-                        style={{flexDirection: "column", flex: 0.7, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontWeight: "bold"
-                        }}>{distance}ft</Text>
-                    </View>
-                </View>
-            </View>
-        </View>
-    )
 }
 
 // TODO MAKE THIS UPLOAD A PARTIAL ROUND
@@ -613,20 +562,19 @@ function ConfirmExit({end, partial, cancel}) {
             paddingTop: 20,
             paddingBottom: 20,
             paddingHorizontal: 20,
-            flexDirection: "col"
+            flexDirection: "col",
         }}>
-            <View style={{justifyContent: "center", flexDirection: "row", width: "100%"}}>
-                <View style={{
-                    padding: 12,
-                    alignContent: "center",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    borderRadius: 50,
-                    backgroundColor: colors.button.danger.background
-                }}>
-                    <SvgWarning width={26} height={26}
-                                stroke={colors.button.danger.text}></SvgWarning>
-                </View>
+            <View style={{
+                alignSelf: "center",
+                padding: 12,
+                alignContent: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+                borderRadius: 50,
+                backgroundColor: colors.button.danger.background
+            }}>
+                <SvgWarning width={26} height={26}
+                            stroke={colors.button.danger.text}></SvgWarning>
             </View>
             <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>End
                 Session</ThemedText>
@@ -720,7 +668,7 @@ function ConfirmSubmit({submit, cancel}) {
         </ThemedView>
     )
 }
-
+// this doesnt bring up the total putts modal
 function BigMiss({largeMissBy, updateField, nextHole}) {
     const colors = useColors();
 
@@ -747,7 +695,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
             flexDirection: "col",
             alignItems: "center",
         }}>
-            <View style={{width: "100%", flexDirection: "row", justifyContent: "flex-end"}}>
+            <View style={{position: "absolute", right: 16, top: 16}}>
                 <SecondaryButton onPress={() => updateField("largeMiss", false)}
                                  style={{padding: 3, borderRadius: 8}}>
                     <SvgClose stroke={colors.button.secondary.text} width={24} height={24}></SvgClose>
@@ -762,13 +710,13 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
                 <View style={{
                     height: 48,
                     aspectRatio: 1,
-                    alignContent: "center",
+                    alignItems: "center",
                     flexDirection: "row",
                     justifyContent: "center",
                     borderRadius: 50,
                     backgroundColor: colors.button.danger.background
                 }}>
-                    <Text style={{color: "white", fontWeight: 600, fontSize: 24, marginTop: 6}}>!</Text>
+                    <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>!</Text>
                 </View>
                 <View style={{marginTop: 12}}>
                     <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center"}}>Miss &gt;3ft</ThemedText>
@@ -903,3 +851,86 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
         </View>
     )
 }
+
+function GreenVisual({theta, setTheta, updateField, distance, slope, puttBreak}) {
+    const colors = useColors();
+
+    return (
+        <View style={{
+            backgroundColor: colors.background.secondary,
+            flexDirection: "row",
+            borderRadius: 16,
+            elevation: 4,
+            overflow: "hidden",
+            gap: 8
+        }}>
+            <View style={{flex: 1, padding: 8, paddingRight: 0}}>
+                <GreenBreakSelector theta={theta} setTheta={setTheta}/>
+            </View>
+            <View style={{flex: 1, flexDirection: "column", borderLeftWidth: 1, borderColor: colors.border.default}}>
+                <View style={{
+                    flexDirection: "column",
+                    borderBottomWidth: 1,
+                    borderColor: colors.border.default,
+                    paddingLeft: 8,
+                    flex: 1,
+                    justifyContent: "center"
+                }}>
+                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</Text>
+                    <Text style={{
+                        fontSize: 20,
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontWeight: "bold"
+                    }}>{puttBreak}</Text>
+                </View>
+                <View style={{
+                    flexDirection: "column",
+                    borderBottomWidth: 1,
+                    borderColor: colors.border.default,
+                    paddingLeft: 8,
+                    flex: 1,
+                    justifyContent: "center"
+                }}>
+                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</Text>
+                    <Text style={{
+                        fontSize: 20,
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontWeight: "bold"
+                    }}>{slope}</Text>
+                </View>
+                <View style={{ flexDirection: "row", gap: 12, alignItems: "center", alignSelf: "center", flex: 1 }}>
+                    <SecondaryButton style={{aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16}} onPress={() => {
+                        if (distance === -1) updateField("distance", 99);
+                        else if (distance === 1) updateField("distance", 99);
+                        else updateField("distance", distance - 1)
+                    }}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke={colors.button.secondary.text} width={18} height={18}>
+                            <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+                        </Svg>
+                    </SecondaryButton>
+                    <View style={{flexDirection: "column"}}>
+                        <Text style={{fontSize: 14, textAlign: "center", color: colors.text.secondary}}>Distance</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            textAlign: "center",
+                            color: colors.text.primary,
+                            fontWeight: "bold"
+                        }}>{distance == -1 ? "~" : distance}ft</Text>
+                    </View>
+                    <SecondaryButton style={{aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16}} onPress={() => {
+                        if (distance === -1) updateField("distance", 1);
+                        else if (distance === 99) updateField("distance", 1);
+                        else updateField("distance", distance + 1)
+                    }}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke={colors.button.secondary.text} width={18} height={18}>
+                            <Path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </Svg>
+                    </SecondaryButton>
+                </View>
+            </View>
+        </View>
+    )
+}
+

@@ -6,7 +6,7 @@ import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
 import {View} from 'react-native';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import {DangerButton} from "@/components/DangerButton";
 import ArrowComponent from "@/components/icons/ArrowComponent";
@@ -19,6 +19,8 @@ import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import TotalPutts from '../../../components/popups/TotalPutts';
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -100,6 +102,7 @@ export default function Simulation() {
 
     const {localHoles, difficulty, mode} = useLocalSearchParams();
     const holes = parseInt(localHoles);
+    const totalPuttsRef = useRef(null);
 
     const [{
         loading,
@@ -153,8 +156,12 @@ export default function Simulation() {
         return () => backHandler.remove();
     }, []);
 
-    const nextHole = () => {
-        if (hole === holes || (!largeMiss && point.x === undefined))
+    const nextHole = (totalPutts) => {
+        if (hole === holes) {
+            updateField("confirmSubmit", true);
+            return;
+        }
+        if (!largeMiss && point.x === undefined)
             return;
 
         let distanceMissedFeet = 0;
@@ -175,6 +182,7 @@ export default function Simulation() {
             break: puttBreak,
             missRead: missRead,
             largeMiss: largeMiss,
+            totalPutts: totalPutts,
             distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
             point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
         };
@@ -241,6 +249,7 @@ export default function Simulation() {
             distance: distance,
             break: puttBreak,
             missRead: missRead,
+            totalPutts: -1, // since they havent moved on to the next hole, we dont know how many putts they took
             largeMiss: largeMiss,
             distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
             point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
@@ -315,6 +324,7 @@ export default function Simulation() {
                 break: puttBreak,
                 missRead: missRead,
                 largeMiss: largeMiss,
+                totalPutts: -1, // since this is a partial round, and they havent moved on to the next hole, we dont know how many putts they took
                 distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
                 point: largeMiss ? {x: 0, y: 0} : point
             };
@@ -329,14 +339,16 @@ export default function Simulation() {
 
         puttsCopy.forEach((putt, index) => {
             if (putt !== undefined) {
-                if (putt.largeMiss) {
-                    totalPutts += 3; // TODO CAN WE MAKE THIS MORE ACCURATE?
-                } else if (putt.distanceMissed === 0) {
-                    totalPutts++;
-                    madePercent++;
-                } else {
-                    totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
-                }
+                if (putt.totalPutts === -1) {
+                    if (putt.largeMiss) {
+                        totalPutts += 3; // TODO CAN WE MAKE THIS MORE ACCURATE?
+                    } else if (putt.distanceMissed === 0) {
+                        totalPutts++;
+                        madePercent++;
+                    } else {
+                        totalPutts += 2;
+                    }
+                } else totalPutts += putt.totalPutts;
 
                 // TODO this doesnt account for the large miss, update that
                 if (putt.distanceMissed !== 0) {
@@ -353,7 +365,8 @@ export default function Simulation() {
                     puttBreak: putt.break,
                     missRead: putt.missRead,
                     distanceMissed: putt.distanceMissed,
-                    largeMiss: putt.largeMiss
+                    largeMiss: putt.largeMiss,
+                    totalPutts: putt.totalPutts,
                 });
             }
         });
@@ -382,6 +395,7 @@ export default function Simulation() {
                         holes: partial ? puttsCopy.length : holes,
                         difficulty: difficulty,
                         mode: mode,
+                        totalPutts: totalPutts,
                         avgMiss: avgMiss,
                         serializedPutts: JSON.stringify(trimmedPutts),
                         madePercent: madePercent,
@@ -397,6 +411,7 @@ export default function Simulation() {
     }
 
     return (loading ? <Loading/> :
+        <BottomSheetModalProvider>
             <ThemedView style={{flexGrow: 1}}>
                 <View style={{
                     width: "100%",
@@ -523,16 +538,17 @@ export default function Simulation() {
                                        disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
                         <DangerButton onPress={() => updateField("largeMiss", true)}
                                       title={"Miss > 5ft?"}></DangerButton>
-                        {hole === holes ?
-                            <PrimaryButton title="Submit" disabled={point.x === undefined} onPress={() => {
-                                if (point.x !== undefined) updateField("confirmSubmit", true)
-                            }}></PrimaryButton>
-                            : <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
-                                             title="Next"
+                        {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                                             title={hole === holes ? "Submit" : "Next"}
                                              disabled={point.x === undefined}
-                                             onPress={() => nextHole()}></PrimaryButton>}
+                                             onPress={() => {
+                                                if (point.x === undefined) return;
+                                                else if (center) nextHole(1);
+                                                else totalPuttsRef.current.present()
+                                            }}></PrimaryButton>}
                     </View>
                 </View>
+                <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
                 {(confirmLeave || confirmSubmit || largeMiss) &&
                     <View style={{
                         position: 'absolute',
@@ -558,6 +574,7 @@ export default function Simulation() {
                             <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
                     </View>}
             </ThemedView>
+        </BottomSheetModalProvider>
     );
 }
 

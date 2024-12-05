@@ -88,7 +88,7 @@ export default function NewRealRound({newRealRoundRef}) {
                         router.push({
                             pathname: `/simulation/real`,
                             params: {
-                                stringHoles: 18
+                                stringHoles: holes
                             }
                         });
                     }}></PrimaryButton>

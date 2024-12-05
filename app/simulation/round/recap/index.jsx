@@ -25,12 +25,9 @@ export default function SimulationRecap() {
     const colors = useColors();
     const navigation = useNavigation();
 
-    const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
-    const [totalPutts, setTotalPutts] = useState(0);
+    const [{farLeft, left, center, right, totalPutts, farRight, long, short}, setMisses] = useState(initialMisses);
 
     useEffect(() => {
-        let totalPutts = 0;
-
         let farLeft = 0
         let left = 0;
         let center = 0;
@@ -40,12 +37,6 @@ export default function SimulationRecap() {
         let short = 0;
 
         putts.forEach((putt) => {
-            if (putt.largeMiss) {
-                totalPutts += 3; // TODO VERY VERY ROUGH ESTIMATE
-            }
-            else if (putt.distanceMissed === 0) totalPutts++;
-            else totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
-
             const angle = Math.atan2(putt.yDistance, putt.xDistance); // atan2 handles dx = 0 cases
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
@@ -66,8 +57,6 @@ export default function SimulationRecap() {
         });
 
         setMisses({farLeft, left, center, right, farRight, long: long, short});
-
-        setTotalPutts(totalPutts);
     }, []);
 
     return (

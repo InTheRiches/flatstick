@@ -17,10 +17,11 @@ const angleImages = {
 }
 
 // TODO MAKE THE ARROW GREEN IMAGE, MAKE THE ARROWS CENTERED, AS THEY RIGHT KNOW MOVE AROUND A LITTLE WHEN THEY ROTATE
-export default function GreenBreakSelector(theta, setTheta) {
+export default function GreenBreakSelector({theta, setTheta}) {
     const adjustTheta = (newTheta) => {
         setTheta(newTheta);
     }
+
     const [baseX, setBaseX] = useState(0);
     const [baseY, setBaseY] = useState(0);
     const [width, setWidth] = useState(0);
@@ -42,6 +43,7 @@ export default function GreenBreakSelector(theta, setTheta) {
             imageRef.current.measure((fx, fy, width, height, px, py) => {
                 setImageAbsoluteX(px);
                 setImageAbsoluteY(py);
+
                 setWidth(width);
                 setHeight(height);
             });
@@ -52,25 +54,23 @@ export default function GreenBreakSelector(theta, setTheta) {
         measurePosition();
     });
 
-    // Gesture definition for rotation
-    const gesture = Gesture.Pan()
-        .onUpdate((event) => {
-            let x = event.absoluteX - baseX;
-            let y = event.absoluteY - baseY;
+    const gesture = Gesture.Pan().onUpdate((event) => {
+        let x = event.absoluteX - baseX;
+        let y = event.absoluteY - baseY;
 
-            const newVal = normalizeRad(
-                canvas2Polar({x, y}, {x: imageAbsoluteX + (width / 2), y: imageAbsoluteY + (height / 2)}).theta
-            ) * 57.2958;
+        const newVal = normalizeRad(
+            canvas2Polar({x, y}, {x: imageAbsoluteX + (width / 2), y: imageAbsoluteY + (height / 2)}).theta
+        ) * 57.2958;
 
-            const finalRad = Math.round(newVal / 45) * 45;
+        const finalRad = Math.round(newVal / 45) * 45;
 
-            if (finalRad === 0 || finalRad === 180)
-                runOnJS(adjustTheta)(finalRad)
-            else
-                runOnJS(adjustTheta)(360 - finalRad);
-        });
+        if (finalRad === 0 || finalRad === 180)
+            runOnJS(adjustTheta)(finalRad)
+        else
+            runOnJS(adjustTheta)(360 - finalRad);
+    });
 
-    const [visibleImageSource, setVisibleImageSource] = useState();
+    const [visibleImageSource, setVisibleImageSource] = useState(null);
 
     return (
         <View style={{justifyContent: "center", alignItems: "center"}}>
