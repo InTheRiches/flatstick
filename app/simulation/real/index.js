@@ -22,6 +22,7 @@ import {useAppContext} from "@/contexts/AppCtx";
 import GreenBreakSelector from '../../../components/utils/GreenBreakSelector';
 import TotalPutts from '../../../components/popups/TotalPutts';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import BigMissModal from '../../../components/popups/BigMiss';
 
 const initialState = {
     confirmLeave: false,
@@ -94,6 +95,7 @@ export default function Simulation() {
     const {stringHoles} = useLocalSearchParams();
     const holes = parseInt(stringHoles);
     const totalPuttsRef = useRef(null);
+    const bigMissRef = useRef(null);
 
     const [{
         loading,
@@ -503,7 +505,10 @@ export default function Simulation() {
                     <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
                         <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
                                        disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                        <DangerButton onPress={() => updateField("largeMiss", true)}
+                        <DangerButton onPress={() => {
+                            updateField("largeMiss", true);
+                            bigMissRef.current.present();
+                        }}
                                       title={"Miss > 5ft?"}></DangerButton>
                         {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                              title={hole === holes ? "Submit" : "Next"}
@@ -516,7 +521,8 @@ export default function Simulation() {
                     </View>
                 </View>
                 <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-                {(confirmLeave || confirmSubmit || largeMiss) &&
+                <BigMissModal updateField={updateField} bigMissRef={bigMissRef} largeMissBy={largeMissBy} nextHole={nextHole}/>
+                {(confirmLeave || confirmSubmit) &&
                     <View style={{
                         position: 'absolute',
                         top: 0,
@@ -525,7 +531,7 @@ export default function Simulation() {
                         bottom: 0,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        zIndex: 50,
+                        zIndex: 20,
                         height: '100%',
                         width: '100%',
                         backgroundColor: colors.background.tinted
@@ -537,8 +543,6 @@ export default function Simulation() {
                         {confirmSubmit &&
                             <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
                                            submit={submit}></ConfirmSubmit>}
-                        {(largeMiss && !confirmLeave) &&
-                            <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
                     </View>}
             </ThemedView>
         </BottomSheetModalProvider>
@@ -668,8 +672,8 @@ function ConfirmSubmit({submit, cancel}) {
         </ThemedView>
     )
 }
-// this doesnt bring up the total putts modal
-function BigMiss({largeMissBy, updateField, nextHole}) {
+// TODO this doesnt bring up the total putts modal
+function BigMiss({largeMissBy, updateField, nextHole, totalPuttsRef}) {
     const colors = useColors();
 
     const isEqual = (arr, arr2) =>
@@ -831,7 +835,7 @@ function BigMiss({largeMissBy, updateField, nextHole}) {
             </View>
             <Pressable onPress={() => {
                 if (!isEqual(largeMissBy, [0, 0])) {
-                    nextHole();
+                    totalPuttsRef.current.present();
                 }
             }} style={{
                 backgroundColor: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.background : colors.button.danger.background,
@@ -867,7 +871,7 @@ function GreenVisual({theta, setTheta, updateField, distance, slope, puttBreak})
             <View style={{flex: 1, padding: 8, paddingRight: 0}}>
                 <GreenBreakSelector theta={theta} setTheta={setTheta}/>
             </View>
-            <View style={{flex: 1, flexDirection: "column", borderLeftWidth: 1, borderColor: colors.border.default}}>
+            <View style={{flex: 0.9, flexDirection: "column", borderLeftWidth: 1, borderColor: colors.border.default}}>
                 <View style={{
                     flexDirection: "column",
                     borderBottomWidth: 1,

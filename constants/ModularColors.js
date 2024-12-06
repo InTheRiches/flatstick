@@ -7,7 +7,7 @@ export const LightTheme = {
   background: {
     primary: '#EDEDED',
     secondary: '#fff',
-    tinted: 'rgba(0, 0, 0, 0.5)',
+    tinted: 'rgba(0, 0, 0, 0.3)',
   },
   border: {
     default: '#CFCFCF',
@@ -55,8 +55,8 @@ export const LightTheme = {
     },
   },
   input: {
-    background: 'white',
-    border: '#D1D1D1',
+    background: '#e6e6e6',
+    border: '#bababa',
     text: '#111827',
     invalid: {
       border: '#CE7070',
@@ -65,8 +65,8 @@ export const LightTheme = {
       background: '#F5D3D3',
     },
     focused: {
-      background: '#e6e6e6',
-      border: '#bababa',
+      background: 'white',
+      border: '#D1D1D1',
     },
   },
   putting: {
