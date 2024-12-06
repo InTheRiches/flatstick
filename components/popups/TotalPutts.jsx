@@ -41,6 +41,8 @@ export default function TotalPutts({ totalPuttsRef, nextHole }) {
     } else {
       setInvalid(false);
     }
+
+    setPutts(newPutts);
   };
 
   // renders
@@ -74,7 +76,7 @@ export default function TotalPutts({ totalPuttsRef, nextHole }) {
                 marginBottom: 10,
               }}
             >
-              Total putts for the hole:
+              Total putts to complete hole:
             </Text>
             <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
               <TextInput
@@ -90,7 +92,7 @@ export default function TotalPutts({ totalPuttsRef, nextHole }) {
                     ? colors.input.invalid.border
                     : colors.input.border,
                   borderRadius: 10,
-                  paddingVertical: 12,
+                  paddingVertical: 6,
                   fontSize: 16,
                   color: colors.input.text,
                   backgroundColor: invalid

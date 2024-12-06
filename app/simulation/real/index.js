@@ -111,7 +111,9 @@ export default function Simulation() {
         theta,
         distance,
         missRead,
-        putts
+        putts,
+        bigMissDistance,
+        bigMissPutts
     },
         setState
     ] = useState(initialState);
@@ -145,17 +147,24 @@ export default function Simulation() {
         return () => backHandler.remove();
     }, []);
 
-    const nextHole = (totalPutts) => {
-        if (hole === holes) {
-            updateField("confirmSubmit", true);
-            return;
-        }
-        if (!largeMiss && point.x === undefined)
-            return;
+    const normalizeVector = (vector) => {
+        const length = Math.sqrt(vector[0] ** 2 + vector[1] ** 2);
+        return [vector[0] / length, vector[1] / length];
+    };
+    
+    const getLargeMissPoint = (largeMissBy, largeMissDistance) => {
+        const [dirX, dirY] = normalizeVector(largeMissBy);
+        const missedX = dirX * largeMissDistance;
+        const missedY = dirY * largeMissDistance;
+        return { x: missedX, y: missedY };
+    };
 
+    const pushHole = (totalPutts, largeMissDistance) => {
         let distanceMissedFeet = 0;
 
-        if (!largeMiss) {
+        if (largeMiss) {
+            bigMissRef.current.dismiss();
+        } else {
             // find the distance to center of the point in x and y
             const distanceX = width / 2 - point.x;
             const distanceY = height / 2 - point.y;
@@ -172,10 +181,23 @@ export default function Simulation() {
             missRead: missRead,
             largeMiss: largeMiss,
             totalPutts: totalPutts,
-            distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
-            point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
+            distanceMissed: largeMiss ? largeMissDistance : distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
+            point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance)  : point
         };
+
         updateField("putts", puttsCopy);
+        return puttsCopy;
+    }
+
+    const nextHole = (totalPutts, largeMissDistance = -1) => {
+        if (hole === holes) {
+            updateField("confirmSubmit", true);
+            return;
+        }
+        if (!largeMiss && point.x === undefined)
+            return;
+
+        const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
         // generate new data
         if (putts[hole] === undefined) {
@@ -215,31 +237,10 @@ export default function Simulation() {
         if (hole === 1)
             return
 
-        let distanceMissedFeet = 0;
-
-        if (!largeMiss) {
-            // find the distance to center of the point in x and y
-            const distanceX = width / 2 - point.x;
-            const distanceY = height / 2 - point.y;
-            const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-
-            const conversionFactor = 5 / width;
-            distanceMissedFeet = distanceMissed * conversionFactor;
-        }
-
-        const puttsCopy = [...putts];
-        puttsCopy[hole - 1] = {
-            distance: distance,
-            theta: theta,
-            missRead: missRead,
-            largeMiss: largeMiss,
-            totalPutts: -1, // since they moved backwards, we dont give a popup, and we just guess in the stats
-            distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
-            point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
-        };
-        updateField("putts", puttsCopy);
+        const puttsCopy = pushHole(-1, 0);
 
         const lastPutt = puttsCopy[hole - 2];
+        console.log("last: " + lastPutt.largeMiss);
         if (lastPutt.largeMiss) {
             updateField("point", {});
             updateField("largeMiss", true);
@@ -506,22 +507,23 @@ export default function Simulation() {
                         <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
                                        disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
                         <DangerButton onPress={() => {
+                            if (distance === -1) return;
                             updateField("largeMiss", true);
                             bigMissRef.current.present();
                         }}
                                       title={"Miss > 5ft?"}></DangerButton>
                         {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                              title={hole === holes ? "Submit" : "Next"}
-                                             disabled={point.x === undefined}
+                                             disabled={point.x === undefined || distance === -1}
                                              onPress={() => {
-                                                if (point.x === undefined) return;
+                                                if (point.x === undefined || distance === -1) return;
                                                 else if (center) nextHole(1);
                                                 else totalPuttsRef.current.present()
                                             }}></PrimaryButton>}
                     </View>
                 </View>
                 <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-                <BigMissModal updateField={updateField} bigMissRef={bigMissRef} largeMissBy={largeMissBy} nextHole={nextHole}/>
+                <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts} rawLargeMissBy={largeMissBy} nextHole={nextHole}/>
                 {(confirmLeave || confirmSubmit) &&
                     <View style={{
                         position: 'absolute',
