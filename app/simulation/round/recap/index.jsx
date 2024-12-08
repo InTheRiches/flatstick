@@ -1,10 +1,10 @@
-import {ThemedView} from "../../../components/ThemedView";
-import {ThemedText} from "../../../components/ThemedText";
+import {ThemedView} from "@/components/ThemedView";
+import {ThemedText} from "@/components/ThemedText";
 import {View, Image, Text, Pressable} from "react-native";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
-import useColors from "../../../hooks/useColors";
-import {PrimaryButton} from "../../../components/buttons/PrimaryButton";
+import useColors from "@/hooks/useColors";
+import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 
 const initialMisses = {
     farLeft: 0,
@@ -17,7 +17,7 @@ const initialMisses = {
 }
 
 export default function SimulationRecap() {
-    const {current, holes, difficulty, mode, serializedPutts, date} = useLocalSearchParams();
+    const {current, holes, madePercent, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
     const putts = JSON.parse(serializedPutts);
 
     const parsedDate = new Date(date);
@@ -25,26 +25,9 @@ export default function SimulationRecap() {
     const colors = useColors();
     const navigation = useNavigation();
 
-    const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
-    const [totalPutts, setTotalPutts] = useState(0);
-    const [averageDistance, setAverageDistance] = useState(0);
-
-    const updateMisses = (field, value) => {
-        setMisses(prevState => ({
-            ...prevState,
-            [field]: value,
-        }));
-    };
-
-    const roundTo = (num, decimalPlaces) => {
-        const factor = Math.pow(10, decimalPlaces);
-        return Math.round(num * factor) / factor;
-    };
+    const [{farLeft, left, center, right, totalPutts, farRight, long, short}, setMisses] = useState(initialMisses);
 
     useEffect(() => {
-        let totalPutts = 0;
-        let averageDistance = 0;
-
         let farLeft = 0
         let left = 0;
         let center = 0;
@@ -54,45 +37,31 @@ export default function SimulationRecap() {
         let short = 0;
 
         putts.forEach((putt) => {
-            if (putt.distanceMissed === 0) totalPutts++;
-            else {
-                totalPutts += 2; // TODO THIS ASSUMES THEY MAKE THE SECOND PUTT, MAYBE WE TWEAK THAT LATER
-            }
-
-            if (averageDistance === 0) averageDistance = putt.distanceMissed;
-            else averageDistance = (averageDistance + putt.distanceMissed) / 2;
-
             const angle = Math.atan2(putt.yDistance, putt.xDistance); // atan2 handles dx = 0 cases
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
-            if (putt.distanceMissed <= 0.5) center++
-            else if (degrees > -45 && degrees <= 45) {
-                if (putt.distanceMissed <= 2)
-                    right++;
-                else
-                    farRight++;
+            if (putt.distanceMissed <= 1 && !putt.largeMiss) {
+                center++
+            } else if (degrees > -45 && degrees <= 45) {
+                if (putt.distanceMissed <= 2 && !putt.largeMiss) right++;
+                else farRight++;
             } else if (degrees > 45 && degrees <= 135) {
                 long++;
             } else if (degrees > -135 && degrees <= -45) {
                 short++;
             } else {
-                if (putt.distanceMissed <= 2)
-                    left++;
-                else
-                    farLeft++;
+                if (putt.distanceMissed <= 2 && !putt.largeMiss) left++;
+                else farLeft++;
             }
         });
 
         setMisses({farLeft, left, center, right, farRight, long: long, short});
-
-        setTotalPutts(totalPutts);
-        setAverageDistance(roundTo(averageDistance, 1))
     }, []);
 
     return (
         <ThemedView style={{flex: 1, alignItems: "center", flexDirection: "column", justifyContent: "space-between"}}>
-            <View>
+            <View style={{width: "100%"}}>
                 <View style={{
                     borderColor: colors.border.default,
                     justifyContent: "center",
@@ -100,7 +69,7 @@ export default function SimulationRecap() {
                     width: "100%",
                     borderBottomWidth: 1,
                     paddingTop: 6,
-                    paddingBottom: 10
+                    paddingBottom: 10,
                 }}>
                     <Text style={{
                         textAlign: "center",
@@ -116,7 +85,7 @@ export default function SimulationRecap() {
                     <ThemedText style={{textAlign: "center", marginBottom: 24}}
                                 type={"default"}>This {current === "true" ? "is" : "was"} your nth
                         session.</ThemedText>
-                    <RecapVisual holes={holes} totalPutts={totalPutts} avgDistance={averageDistance}
+                    <RecapVisual makePercent={madePercent} holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
                                  makeData={{farLeft, left, center, right, farRight, long, short}}
                                  date={parsedDate}></RecapVisual>
                 </View>
@@ -131,14 +100,14 @@ export default function SimulationRecap() {
 }
 
 // TODO ADD DATE + # OF HOLES
-function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
+function RecapVisual({holes, totalPutts, avgDistance, makeData, makePercent}) {
     const gridData = Array.from({length: 15}, (_, index) => index + 1);
 
     const colors = useColors();
 
     return (
         <View style={{
-            backgroundColor: colors.putting.visual.background,
+            backgroundColor: colors.background.secondary,
             flexDirection: "column",
             paddingTop: 12,
             borderRadius: 16,
@@ -148,12 +117,13 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                 width: "100%",
                 paddingBottom: 12,
                 borderBottomWidth: 1,
-                borderColor: colors.putting.visual.border
+                borderColor: colors.border.default
             }}>
-                <Text style={{fontSize: 16, textAlign: "center", color: "white"}}>Session Recap</Text>
+                <Text style={{fontSize: 16, textAlign: "center", color: colors.text.primary}}>Session Recap</Text>
                 <View style={{position: "absolute", left: 12, flexDirection: "row", gap: 8}}>
-                    <Image source={require('@/assets/images/PuttLabLogo.png')} style={{width: 25, height: 25}}/>
-                    <Text style={{fontSize: 16, fontWeight: "bold", color: "white"}}>PuttLab</Text>
+                    <Image source={require('@/assets/images/PuttLabLogo.png')}
+                           style={{width: 30, height: 30, top: -4}}/>
+                    <Text style={{fontSize: 16, fontWeight: "bold", color: colors.text.primary}}>PuttLab</Text>
                 </View>
             </View>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
@@ -226,14 +196,14 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                 width: "100%",
                 flexDirection: "column",
                 borderTopWidth: 1,
-                borderColor: colors.putting.visual.border
+                borderColor: colors.border.default
             }}>
                 <Text style={{
                     fontSize: 16,
                     textAlign: "center",
-                    color: "white",
+                    color: colors.text.primary,
                     borderBottomWidth: 1,
-                    borderColor: colors.putting.visual.border,
+                    borderColor: colors.border.default,
                     paddingVertical: 6
                 }}>Stats</Text>
                 <View style={{flexDirection: "row"}}>
@@ -241,7 +211,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         flexDirection: "column",
                         flex: 0.7,
                         borderRightWidth: 1,
-                        borderColor: colors.putting.visual.border,
+                        borderColor: colors.border.default,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
@@ -249,20 +219,20 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 14,
                             textAlign: "left",
-                            color: colors.putting.visual.secondaryText
+                            color: colors.text.secondary
                         }}>Make %</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
-                        }}>{Math.floor((makeData.center / holes) * 100)}%</Text>
+                        }}>{Math.floor((makePercent / holes) * 100)}%</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
                         flex: 1,
                         borderRightWidth: 1,
-                        borderColor: colors.putting.visual.border,
+                        borderColor: colors.border.default,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
@@ -270,12 +240,12 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 14,
                             textAlign: "left",
-                            color: colors.putting.visual.secondaryText
-                        }}>Avg.Miss Distance</Text>
+                            color: colors.text.secondary
+                        }}>Avg. Miss Distance</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{avgDistance}ft</Text>
                     </View>
@@ -289,12 +259,12 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData}) {
                         <Text style={{
                             fontSize: 14,
                             textAlign: "left",
-                            color: colors.putting.visual.secondaryText
+                            color: colors.text.secondary
                         }}>Putts</Text>
                         <Text style={{
                             fontSize: 20,
                             textAlign: "left",
-                            color: "white",
+                            color: colors.text.primary,
                             fontWeight: "bold"
                         }}>{totalPutts}</Text>
                     </View>

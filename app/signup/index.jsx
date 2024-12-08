@@ -61,11 +61,9 @@ export default function CreateAccount() {
     const createAccount = () => {
         if (state.invalid) return;
 
-        console.log("account creation attempted");
-
         const auth = getAuth();
 
-        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISNT AS HARSH OF A TRANSITION
+        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
         createUserWithEmailAndPassword(auth, state.email, state.password)
@@ -89,7 +87,6 @@ export default function CreateAccount() {
                     date: new Date().toISOString(),
                     totalPutts: 0,
                     sessions: 0,
-                    username: state.username,
                     stats: {},
                 }).then((data) => {
                     console.log("made document");
@@ -118,7 +115,6 @@ export default function CreateAccount() {
                 backgroundColor: colors.background.primary,
                 width: "100%",
                 height: "100%",
-                paddingTop: 50,
                 paddingHorizontal: 24,
                 justifyContent: "center",
                 alignContent: "center",
@@ -141,11 +137,11 @@ export default function CreateAccount() {
                     marginBottom: 48,
                 }}>
                     <PrimaryButton onPress={lastTab} style={{aspectRatio: 1, borderRadius: 50, padding: 16,}}>
-                        <SvgArrow width={16} height={16} stroke={"white"}
+                        <SvgArrow width={16} height={16} stroke={"black"}
                                   style={{transform: [{rotate: "-135deg"}]}}></SvgArrow>
                     </PrimaryButton>
                     <PrimaryButton onPress={nextTab} style={{aspectRatio: 1, borderRadius: 50, padding: 16,}}>
-                        <SvgArrow width={16} height={16} stroke={"white"}
+                        <SvgArrow width={16} height={16} stroke={"black"}
                                   style={{transform: [{rotate: "45deg"}]}}></SvgArrow>
                     </PrimaryButton>
                 </View>
@@ -154,7 +150,7 @@ export default function CreateAccount() {
                                                    marginTop: 24,
                                                    borderWidth: 1,
                                                    borderRadius: 12,
-                                                   backgroundColor: pressed ? colors.button.disabled.background : "transparent",
+                                                   backgroundColor: pressed ? colors.button.disabled.background : colors.background.secondary,
                                                    borderColor: colors.border.default,
                                                    paddingVertical: 10
                                                }]}>
@@ -309,6 +305,7 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
     const [emailFocused, setEmailFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [invalidPassword, setInvalidPassword] = useState(false);
+    const [invalidUsername, setInvalidUsername] = useState(false);
     const [nameFocused, setNameFocused] = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
 
@@ -361,6 +358,11 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
             ...prevState,
             username: id,
         }));
+
+        if (id.length < 6)
+            setInvalidUsername(true);
+        else if (invalidUsername === true)
+            setInvalidUsername(false)
     }
 
     const updatePassword = (password) => {
@@ -422,24 +424,41 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
                 }}></View>
             </View>
 
-            <ThemedText style={{fontSize: 16, marginTop: 12, marginBottom: 4}}>Username</ThemedText>
-            <TextInput
-                style={{
-                    flex: 0,
-                    borderWidth: 1,
-                    borderColor: nameFocused ? colors.input.focused.border : colors.input.border,
-                    borderRadius: 10,
-                    paddingVertical: 8,
-                    paddingHorizontal: 10,
-                    fontSize: 16,
-                    color: colors.input.text,
-                    backgroundColor: nameFocused ? colors.input.focused.background : colors.input.background
-                }}
-                onFocus={() => setNameFocused(true)}
-                onBlur={() => setNameFocused(false)}
-                value={state.username}
-                onChangeText={(text) => setName(text)}
-            />
+            <ThemedText style={{fontSize: 16, marginTop: 12, marginBottom: 4}}>Display Name</ThemedText>
+            <View style={{flexDirection: "row"}}>
+                <TextInput
+                    style={{
+                        flex: 1,
+                        borderWidth: 1,
+                        borderColor: nameFocused ? invalidUsername ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalidUsername ? colors.input.invalid.border : colors.input.border,
+                        borderRadius: 10,
+                        paddingVertical: 8,
+                        paddingHorizontal: 10,
+                        fontSize: 16,
+                        color: invalidUsername ? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: invalidUsername ? colors.input.invalid.background : nameFocused ? colors.input.focused.background : colors.input.background
+                    }}
+                    onFocus={() => setNameFocused(true)}
+                    onBlur={() => setNameFocused(false)}
+                    value={state.username}
+                    onChangeText={(text) => setName(text)}
+                />
+                {invalidUsername && <Text style={{
+                    position: "absolute",
+                    right: 12,
+                    top: 7.5,
+                    color: "white",
+                    backgroundColor: "#EF4444",
+                    borderRadius: 50,
+                    aspectRatio: 1,
+                    width: 22,
+                    textAlign: "center",
+                    fontSize: 16
+                }}>!</Text>}
+            </View>
+            {invalidUsername &&
+                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Your display name must be at least 6
+                    characters!</Text>}
             <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</ThemedText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
@@ -540,28 +559,16 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
                     a lowercase</Text>
             </View>
 
-            <PrimaryButton onPress={!invalidPassword && !invalidEmail && state.username.length !== 0 && create}
-                           disabled={invalidPassword || invalidEmail || state.username.length === 0 || state.email.length === 0 || state.email.password === 0}
-                           style={{
-                               paddingVertical: 10,
-                               borderRadius: 10,
-                               marginTop: 32
-                           }}
-                           title={"Create your account"}></PrimaryButton>
-
-            {/*<Pressable onPress={() => {*/}
-            {/*               if (invalidPassword || invalidEmail || state.username.length === 0) return;*/}
-            {/*               create();*/}
-            {/*           }} style={{*/}
-            {/*    paddingVertical: 10,*/}
-            {/*    borderRadius: 10,*/}
-            {/*    marginTop: 48,*/}
-            {/*    borderWidth: (invalidPassword || invalidEmail || state.username.length === 0) ? 1 : 0,*/}
-            {/*    borderColor: colors.button.disabled.border,*/}
-            {/*    backgroundColor: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.button.disabled.background : colors.button.primary.border*/}
-            {/*}}>*/}
-            {/*    <Text style={{textAlign: "center", color: (invalidPassword || invalidEmail || state.username.length === 0) ? colors.button.disabled.text : "white"}}>Create your account</Text>*/}
-            {/*</Pressable>*/}
+            <PrimaryButton
+                onPress={!invalidPassword && !invalidEmail && !invalidUsername && state.username.length !== 0 ? create : () => {
+                }}
+                disabled={invalidPassword || invalidEmail || invalidUsername || state.username.length === 0 || state.email.length === 0 || state.email.password === 0}
+                style={{
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                    marginTop: 32
+                }}
+                title={"Create your account"}></PrimaryButton>
         </View>
     )
 }

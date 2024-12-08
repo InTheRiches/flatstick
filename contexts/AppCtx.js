@@ -106,8 +106,10 @@ export function AppProvider({children}) {
     }, []);
 
     // Initialize user data and sessions
-    const initialize = useMemo(() => () => {
+    const initialize = () => {
         if (!auth.currentUser) return;
+
+        getAllStats();
 
         const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
         getDoc(docRef)
@@ -123,9 +125,7 @@ export function AppProvider({children}) {
                 setPuttSessions(sessions);
             })
             .catch((error) => console.error("Error initializing sessions:", error));
-
-
-    }, [auth.currentUser]);
+    };
 
     // Update user data
     const updateData = useMemo(() => async (newData) => {
@@ -142,7 +142,7 @@ export function AppProvider({children}) {
     }, []);
 
     // Refresh user data and sessions
-    const refreshData = useMemo(() => async () => {
+    const refreshData = async () => {
         const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
         try {
             const data = await getDoc(docRef);
@@ -156,16 +156,24 @@ export function AppProvider({children}) {
             const querySnapshot = await getDocs(sessionQuery);
             const sessions = querySnapshot.docs.map((doc) => doc.data());
             setPuttSessions(sessions);
+            return sessions;
         } catch (error) {
             console.error("Error refreshing sessions:", error);
         }
-    }, []);
+
+        return [];
+    };
 
     // Update statistics
-    const updateStats = useMemo(() => async () => {
+    // TODO When you calculate the percent of for example miss percent, it should not be taken out of the total putts, as you add 2 putts for the ones they dont make. It should
+    // be taken out of the total holes, as you dont care about the second putt that the app assumes you took.
+    const updateStats = async () => {
         const newStats = {
             lessThanSix: {
                 totalPutts: 0,
+                rawPutts: 0,
+
+                avgMiss: 0, // in feet
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -184,24 +192,27 @@ export function AppProvider({children}) {
                 // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 }
             },
             sixToTwelve: {
                 totalPutts: 0,
+                rawPutts: 0,
+
+                avgMiss: 0, // in feet
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -220,24 +231,27 @@ export function AppProvider({children}) {
                 // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 }
             },
             twelveToTwenty: {
                 totalPutts: 0,
+                rawPutts: 0,
+
+                avgMiss: 0, // in feet
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -256,24 +270,27 @@ export function AppProvider({children}) {
                 // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 }
             },
             twentyPlus: {
                 totalPutts: 0,
+                rawPutts: 0,
+
+                avgMiss: 0, // in feet
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -292,32 +309,31 @@ export function AppProvider({children}) {
                 // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, putts made, past, past right, right, short right, short, short left, left, past left
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 }
             },
         };
 
+        const newPuttSessions = await refreshData();
+
         let totalPutts = 0;
 
-        puttSessions.map((session, index) => {
+        newPuttSessions.map((session, index) => {
             session.putts.forEach((putt) => {
                 const {distance, distanceMissed, missRead, xDistance, yDistance, slope, puttBreak} = putt;
-
-                if (distanceMissed === 0) totalPutts++;
-                else totalPutts += 2;
 
                 // Categorize putt distance
                 let category;
@@ -329,20 +345,37 @@ export function AppProvider({children}) {
                 const statCategory = newStats[category];
 
                 // Increment total putts
-                statCategory.totalPutts++;
+                statCategory.rawPutts++;
+
+                if (distanceMissed === 0) {
+                    totalPutts++;
+                    statCategory.totalPutts++;
+                } else {
+                    totalPutts += 2;
+                    statCategory.totalPutts += 2;
+
+                    if (statCategory.avgMiss === 0)
+                        statCategory.avgMiss += distanceMissed;
+                    else {
+                        statCategory.avgMiss += distanceMissed;
+                        statCategory.avgMiss /= 2;
+                    }
+                }
 
                 if (missRead) {
                     statCategory.totalMissRead++;
                     statCategory.missReadDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]]++;
                 }
 
-                newStats[category].totalPutts += 1;
+                // Calculate slope and break distribution
+                const slopeBreakStats = statCategory.slopeAndBreakDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]];
 
                 // Determine angle/quadrant and increment missDistribution
                 const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
-                if (distanceMissed === 0)
+                if (distanceMissed === 0) {
                     statCategory.percentMade++;
-                else if (degrees > -22.5 && degrees <= 22.5) {
+                    slopeBreakStats[1]++;
+                } else if (degrees > -22.5 && degrees <= 22.5) {
                     statCategory.missDistribution[2]++; // right
                 } else if (degrees > 22.5 && degrees <= 67.5) {
                     statCategory.missDistribution[1]++; // past right
@@ -369,20 +402,17 @@ export function AppProvider({children}) {
                     statCategory.missDistribution[6]++; // left
                 }
 
-                // Calculate slope and break distribution
-                const slopeBreakStats = statCategory.slopeAndBreakDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]];
-
                 // Average miss distance and increment directional miss count
                 slopeBreakStats[0] += distanceMissed; // Avg miss distance (will divide later)
 
-                if (degrees > -22.5 && degrees <= 22.5) slopeBreakStats[3]++; // right
-                else if (degrees > 22.5 && degrees <= 67.5) slopeBreakStats[2]++; // past right
-                else if (degrees > 67.5 && degrees <= 112.5) slopeBreakStats[1]++; // past
-                else if (degrees > 112.5 && degrees <= 157.5) slopeBreakStats[0]++; // past left
-                else if (degrees > -67.5 && degrees <= -22.5) slopeBreakStats[4]++; // short right
-                else if (degrees > -112.5 && degrees <= -67.5) slopeBreakStats[5]++; // short
-                else if (degrees > -157.5 && degrees <= -112.5) slopeBreakStats[6]++; // short left
-                else slopeBreakStats[7]++; // left
+                if (degrees > -22.5 && degrees <= 22.5) slopeBreakStats[4]++; // right
+                else if (degrees > 22.5 && degrees <= 67.5) slopeBreakStats[3]++; // past right
+                else if (degrees > 67.5 && degrees <= 112.5) slopeBreakStats[2]++; // past
+                else if (degrees > 112.5 && degrees <= 157.5) slopeBreakStats[9]++; // past left
+                else if (degrees > -67.5 && degrees <= -22.5) slopeBreakStats[5]++; // short right
+                else if (degrees > -112.5 && degrees <= -67.5) slopeBreakStats[6]++; // short
+                else if (degrees > -157.5 && degrees <= -112.5) slopeBreakStats[7]++; // short left
+                else slopeBreakStats[8]++; // left
             });
         });
 
@@ -390,18 +420,16 @@ export function AppProvider({children}) {
         for (const category of Object.keys(newStats)) {
             const statCategory = newStats[category];
 
-            console.log(statCategory);
-            console.log(statCategory.totalPutts);
-
             // Finalize average miss distances
             for (const slope of ["uphill", "neutral", "downhill"]) {
                 for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
                     const slopeBreakStats = statCategory.slopeAndBreakDistribution[slope][breakType];
 
-                    let totalSlopeBreakPutts = slopeBreakStats[1] + slopeBreakStats[2] + slopeBreakStats[3] + slopeBreakStats[4] + slopeBreakStats[5] + slopeBreakStats[6] + slopeBreakStats[7] + slopeBreakStats[8];
+                    let totalSlopeBreakPutts = slopeBreakStats[2] + slopeBreakStats[3] + slopeBreakStats[4] + slopeBreakStats[5] + slopeBreakStats[6] + slopeBreakStats[7] + slopeBreakStats[8] + slopeBreakStats[9];
 
                     if (totalSlopeBreakPutts > 0) {
                         slopeBreakStats[0] /= totalSlopeBreakPutts; // Avg miss distance
+                        slopeBreakStats[1] /= totalSlopeBreakPutts; // Percent Made
                     }
 
                     statCategory.slopeAndBreakDistribution[slope][breakType] = slopeBreakStats;
@@ -409,31 +437,29 @@ export function AppProvider({children}) {
             }
 
             // Calculate percentages
-            if (statCategory.totalPutts > 0) {
-                statCategory.percentMade = (statCategory.percentMade / statCategory.totalPutts) * 100;
-                statCategory.percentShort = (statCategory.percentShort / statCategory.totalPutts) * 100;
-                statCategory.percentTooLong = (statCategory.missDistribution[1] / statCategory.totalPutts) * 100;
-                statCategory.percentJustLong = (statCategory.percentJustLong / statCategory.totalPutts) * 100;
+            if (statCategory.rawPutts > 0) {
+                statCategory.percentMade = (statCategory.percentMade / statCategory.rawPutts) * 100;
+                statCategory.percentShort = (statCategory.percentShort / statCategory.rawPutts) * 100;
+                statCategory.percentTooLong = (statCategory.missDistribution[1] / statCategory.rawPutts) * 100;
+                statCategory.percentJustLong = (statCategory.percentJustLong / statCategory.rawPutts) * 100;
             }
         }
 
         setCurrentStats(newStats);
         await updateData({totalPutts, stats: newStats});
-    }, [puttSessions, updateData]);
+    };
 
     // Get all statistics
-    const getAllStats = useMemo(() => async () => {
+    const getAllStats = async () => {
         if (Object.keys(currentStats).length === 0) {
-            const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
-            try {
-                const data = await getDoc(docRef);
-                setCurrentStats(data.data().stats || {});
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-            }
+            getDoc(doc(firestore, `users/${auth.currentUser.uid}`)).then((doc) => {
+                setCurrentStats(doc.data().stats || {});
+            }).catch((error) => {
+                console.log("couldnt find the documents: " + error)
+            });
         }
         return currentStats;
-    }, [currentStats]);
+    };
 
     // Set specific statistic
     const setStat = useMemo(() => (statName, statValue) => {
@@ -459,6 +485,7 @@ export function AppProvider({children}) {
         session,
         isLoading,
     }), [signIn, signOut, session, isLoading]);
+
 
     return (
         <AuthContext.Provider value={authContextValue}>
