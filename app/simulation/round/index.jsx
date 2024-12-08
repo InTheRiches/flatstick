@@ -21,6 +21,8 @@ import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import TotalPutts from '../../../components/popups/TotalPutts';
+import BigMissModal from '../../../components/popups/BigMiss';
+import { getLargeMissPoint } from '../../../utils/PuttUtils';
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -103,6 +105,7 @@ export default function Simulation() {
     const {localHoles, difficulty, mode} = useLocalSearchParams();
     const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
+    const bigMissRef = useRef(null);
 
     const [{
         loading,
@@ -156,14 +159,7 @@ export default function Simulation() {
         return () => backHandler.remove();
     }, []);
 
-    const nextHole = (totalPutts) => {
-        if (hole === holes) {
-            updateField("confirmSubmit", true);
-            return;
-        }
-        if (!largeMiss && point.x === undefined)
-            return;
-
+    const pushHole = (totalPutts, largeMissDistance) => {
         let distanceMissedFeet = 0;
 
         if (!largeMiss) {
@@ -176,6 +172,15 @@ export default function Simulation() {
             distanceMissedFeet = distanceMissed * conversionFactor;
         }
 
+        // if the hole exists already, and totalPutts is -1, then we are going to use the existing value, and not the -1
+        if (putts[hole - 1] !== undefined && totalPutts === -1) {
+            totalPutts = putts[hole - 1].totalPutts;
+        }
+
+        if (putts[hole - 1] !== undefined && largeMissDistance === 0) {
+            largeMissDistance = putts[hole - 1].distanceMissed;
+        }
+
         const puttsCopy = [...putts];
         puttsCopy[hole - 1] = {
             distance: distance,
@@ -183,10 +188,22 @@ export default function Simulation() {
             missRead: missRead,
             largeMiss: largeMiss,
             totalPutts: totalPutts,
-            distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
-            point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
+            distanceMissed: largeMiss ? largeMissDistance : distanceMissedFeet,
+            point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance) : point
         };
         updateField("putts", puttsCopy);
+        return puttsCopy;
+    }
+
+    const nextHole = (totalPutts, largeMissDistance = -1) => {
+        if (hole === holes) {
+            updateField("confirmSubmit", true);
+            return;
+        }
+        if (!largeMiss && point.x === undefined)
+            return;
+
+        const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
         // generate new data
         if (putts[hole] === undefined) {
@@ -217,6 +234,7 @@ export default function Simulation() {
         } else {
             updateField("point", nextPutt.point);
             updateField("largeMissBy", [0, 0]);
+            updateField("largeMiss", false);
         }
         updateField("missRead", nextPutt.missRead);
         updateField("center", nextPutt.distanceMissed === 0);
@@ -224,37 +242,13 @@ export default function Simulation() {
         updateField("puttBreak", nextPutt.break);
         updateField("hole", hole + 1);
         updateField("distance", nextPutt.distance);
-        updateField("largeMiss", false);
     }
 
-    // IF THE LAST HOLE HAD A BIG MISS, OPEN THE BIG MISS MENU
     const lastHole = () => {
         if (hole === 1)
             return
 
-        let distanceMissedFeet = 0;
-
-        if (!largeMiss) {
-            // find the distance to center of the point in x and y
-            const distanceX = width / 2 - point.x;
-            const distanceY = height / 2 - point.y;
-            const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-
-            const conversionFactor = 5 / width;
-            distanceMissedFeet = distanceMissed * conversionFactor;
-        }
-
-        const puttsCopy = [...putts];
-        puttsCopy[hole - 1] = {
-            distance: distance,
-            break: puttBreak,
-            missRead: missRead,
-            totalPutts: -1, // since they havent moved on to the next hole, we dont know how many putts they took
-            largeMiss: largeMiss,
-            distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
-            point: largeMiss ? {x: largeMissBy[0], y: largeMissBy[1]} : point
-        };
-        updateField("putts", puttsCopy);
+        const puttsCopy = pushHole(-1, 0);
 
         const lastPutt = puttsCopy[hole - 2];
         if (lastPutt.largeMiss) {
@@ -536,7 +530,10 @@ export default function Simulation() {
                     <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
                         <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
                                        disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                        <DangerButton onPress={() => updateField("largeMiss", true)}
+                        <DangerButton onPress={() => {
+                            updateField("largeMiss", true);
+                            bigMissRef.current.present();
+                        }}
                                       title={"Miss > 5ft?"}></DangerButton>
                         {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                              title={hole === holes ? "Submit" : "Next"}
@@ -549,7 +546,9 @@ export default function Simulation() {
                     </View>
                 </View>
                 <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-                {(confirmLeave || confirmSubmit || largeMiss) &&
+                <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
+                        rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
+                {(confirmLeave || confirmSubmit) &&
                     <View style={{
                         position: 'absolute',
                         top: 0,
@@ -570,8 +569,6 @@ export default function Simulation() {
                         {confirmSubmit &&
                             <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
                                            submit={submit}></ConfirmSubmit>}
-                        {(largeMiss && !confirmLeave) &&
-                            <BigMiss largeMissBy={largeMissBy} updateField={updateField} nextHole={nextHole}></BigMiss>}
                     </View>}
             </ThemedView>
         </BottomSheetModalProvider>

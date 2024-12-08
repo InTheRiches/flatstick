@@ -22,6 +22,7 @@ import GreenBreakSelector from '../../../components/utils/GreenBreakSelector';
 import TotalPutts from '../../../components/popups/TotalPutts';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import BigMissModal from '../../../components/popups/BigMiss';
+import { getLargeMissPoint } from '../../../utils/PuttUtils';
 
 const initialState = {
   confirmLeave: false,
@@ -145,18 +146,6 @@ export default function Simulation() {
 
     return () => backHandler.remove();
   }, []);
-
-  const normalizeVector = (vector) => {
-    const length = Math.sqrt(vector[0] ** 2 + vector[1] ** 2);
-    return [vector[0] / length, vector[1] / length];
-  };
-
-  const getLargeMissPoint = (largeMissBy, largeMissDistance) => {
-    const [dirX, dirY] = normalizeVector(largeMissBy);
-    const missedX = dirX * largeMissDistance;
-    const missedY = dirY * largeMissDistance;
-    return {x: missedX, y: missedY};
-  };
 
   const pushHole = (totalPutts, largeMissDistance) => {
     let distanceMissedFeet = 0;
@@ -796,7 +785,7 @@ function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, s
             overflow: "hidden"
           }}>
             <TextInput style={{ flex: 1, fontSize: 20, fontWeight: "bold"}} 
-                placeholder="?" 
+                placeholder="?"
                 textAlign='center' 
                 value={distance !== -1 ? "" + distance : ""}
                 onChangeText={validateDistance}

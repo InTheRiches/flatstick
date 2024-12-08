@@ -40,8 +40,6 @@ export default function BigMissModal({
 
       bigMissRef.current.present();
 
-      console.log("presenting");
-
       // rawLargeMissBy can be like [~,0], [0,-~] with ~ being any number, so we need to convert it to [0,0] or [1,1] etc
       let fixedLargeMissBy = [0, 0];
       if (rawLargeMissBy[0] > 0) {
@@ -60,12 +58,12 @@ export default function BigMissModal({
     }
     else if (allPutts[hole - 1] && !allPutts[hole - 1].largeMiss) {
       bigMissRef.current.dismiss();
-      console.log("dismissing");
       close();
     }
     else if (!allPutts[hole - 1]) {
       setPutts("");
       setDistance("");
+      bigMissRef.current.dismiss();
     }
   }, [hole]);
 
@@ -91,13 +89,10 @@ export default function BigMissModal({
     arr.every((val, index) => val === arr2[index]);
 
   const close = () => {
-    console.log("closing");
     if (transitioningBack) {
       setTransitioningBack(false);
       return;
     }
-
-    console.log("resetting");
 
     updateField("largeMissBy", [0, 0]);
     updateField("largeMiss", false);
