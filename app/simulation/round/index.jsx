@@ -8,7 +8,7 @@ import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
 import {View} from 'react-native';
 import {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
-import {DangerButton} from "@/components/DangerButton";
+import DangerButton from "@/components/buttons/DangerButton";
 import ArrowComponent from "@/components/icons/ArrowComponent";
 import React from "react";
 import {getFirestore, setDoc, doc} from "firebase/firestore";

@@ -8,8 +8,7 @@ import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
 import {View} from 'react-native';
 import {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
-import {DangerButton} from "@/components/DangerButton";
-import ArrowComponent from "@/components/icons/ArrowComponent";
+import DangerButton from '@/components/buttons/DangerButton';
 import React from "react";
 import {getFirestore, setDoc, doc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
@@ -36,6 +35,7 @@ const initialState = {
   point: {},
   hole: 1,
   distance: -1,
+  distanceInvalid: true,
   puttBreak: [0, 0],
   missRead: false,
   theta: 0,
@@ -110,10 +110,9 @@ export default function Simulation() {
     hole,
     theta,
     distance,
+    distanceInvalid,
     missRead,
     putts,
-    bigMissDistance,
-    bigMissPutts
   },
     setState
   ] = useState(initialState);
@@ -162,9 +161,7 @@ export default function Simulation() {
   const pushHole = (totalPutts, largeMissDistance) => {
     let distanceMissedFeet = 0;
 
-    if (largeMiss) {
-      bigMissRef.current.dismiss();
-    } else {
+    if (!largeMiss) {
       // find the distance to center of the point in x and y
       const distanceX = width / 2 - point.x;
       const distanceY = height / 2 - point.y;
@@ -172,6 +169,15 @@ export default function Simulation() {
 
       const conversionFactor = 5 / width;
       distanceMissedFeet = distanceMissed * conversionFactor;
+    }
+
+    // if the hole exists already, and totalPutts is -1, then we are going to use the existing value, and not the -1
+    if (putts[hole - 1] !== undefined && totalPutts === -1) {
+        totalPutts = putts[hole - 1].totalPutts;
+    }
+
+    if (putts[hole - 1] !== undefined && largeMissDistance === 0) {
+        largeMissDistance = putts[hole - 1].distanceMissed;
     }
 
     const puttsCopy = [...putts];
@@ -194,6 +200,7 @@ export default function Simulation() {
       updateField("confirmSubmit", true);
       return;
     }
+
     if (!largeMiss && point.x === undefined)
       return;
 
@@ -222,6 +229,7 @@ export default function Simulation() {
     } else {
       updateField("point", nextPutt.point);
       updateField("largeMissBy", [0, 0]);
+      updateField("largeMiss", false);
     }
     updateField("missRead", nextPutt.missRead);
     updateField("center", nextPutt.distanceMissed === 0);
@@ -229,10 +237,8 @@ export default function Simulation() {
     updateField("theta", nextPutt.theta);
     updateField("hole", hole + 1);
     updateField("distance", nextPutt.distance);
-    updateField("largeMiss", false);
   }
 
-  // IF THE LAST HOLE HAD A BIG MISS, OPEN THE BIG MISS MENU
   const lastHole = () => {
     if (hole === 1)
       return
@@ -240,7 +246,7 @@ export default function Simulation() {
     const puttsCopy = pushHole(-1, 0);
 
     const lastPutt = puttsCopy[hole - 2];
-    console.log("last: " + lastPutt.largeMiss);
+
     if (lastPutt.largeMiss) {
       updateField("point", {});
       updateField("largeMiss", true);
@@ -407,6 +413,7 @@ export default function Simulation() {
               </View>
               <GreenVisual slope={slopes[theta]} puttBreak={breaks[theta]} theta={theta}
                            setTheta={(newTheta) => updateField("theta", newTheta)} distance={distance}
+                           distanceInvalid={distanceInvalid}
                            updateField={updateField}/>
             </View>
             <View>
@@ -514,7 +521,8 @@ export default function Simulation() {
                 updateField("largeMiss", true);
                 bigMissRef.current.present();
               }}
-                            title={"Miss > 5ft?"}></DangerButton>
+                disabled={distance === -1}
+                title={"Miss > 5ft?"}></DangerButton>
               {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                               title={hole === holes ? "Submit" : "Next"}
                               disabled={point.x === undefined || distance === -1}
@@ -527,7 +535,7 @@ export default function Simulation() {
           </View>
           <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
           <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
-                        rawLargeMissBy={largeMissBy} nextHole={nextHole}/>
+                        rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
           {(confirmLeave || confirmSubmit) &&
             <View style={{
               position: 'absolute',
@@ -679,192 +687,27 @@ function ConfirmSubmit({submit, cancel}) {
   )
 }
 
-// TODO this doesnt bring up the total putts modal
-function BigMiss({largeMissBy, updateField, nextHole, totalPuttsRef}) {
+function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
   const colors = useColors();
 
-  const isEqual = (arr, arr2) =>
-    Array.isArray(arr) && arr.length === arr2.length && arr.every((val, index) => val === arr2[index]);
+  const [distanceFocused, setDistanceFocused] = useState(false);
 
-  const close = () => {
-    updateField("largeMissBy", [0, 0]);
-    updateField("largeMiss", false);
+  const validateDistance = (text) => {
+    // if its not a number, make it invalid
+    if (text === "") {
+        updateField("distance", -1);
+        updateField("distanceInvalid", true);
+        return;
+    }
+    if (text.match(/[^0-9]/g)) {
+        updateField("distanceInvalid", true);
+        return;
+    }
+
+    const num = parseInt(text);
+    updateField("distance", num);
+    updateField("distanceInvalid", num < 1 || num > 99);
   }
-
-  return (
-    <View style={{
-      borderColor: colors.border.popup,
-      backgroundColor: colors.background.primary,
-      borderWidth: 1,
-      width: "auto",
-      maxWidth: "70%",
-      maxHeight: "70%",
-      borderRadius: 16,
-      paddingTop: 18,
-      paddingBottom: 16,
-      paddingHorizontal: 16,
-      flexDirection: "col",
-      alignItems: "center",
-    }}>
-      <View style={{position: "absolute", right: 16, top: 16}}>
-        <SecondaryButton onPress={() => updateField("largeMiss", false)}
-                         style={{padding: 3, borderRadius: 8}}>
-          <SvgClose stroke={colors.button.secondary.text} width={24} height={24}></SvgClose>
-        </SecondaryButton>
-      </View>
-      <View style={{
-        flexDirection: "column",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 24
-      }}>
-        <View style={{
-          height: 48,
-          aspectRatio: 1,
-          alignItems: "center",
-          flexDirection: "row",
-          justifyContent: "center",
-          borderRadius: 50,
-          backgroundColor: colors.button.danger.background
-        }}>
-          <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>!</Text>
-        </View>
-        <View style={{marginTop: 12}}>
-          <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center"}}>Miss &gt;3ft</ThemedText>
-          <ThemedText type={"default"} secondary={true}
-                      style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Putting
-            for the rough, are we? You might need GPS for the next one.</ThemedText>
-        </View>
-      </View>
-      <View style={{flexDirection: "row", gap: 12, alignSelf: "center"}}>
-        <View style={{flexDirection: "column", gap: 12}}>
-          <Pressable onPress={() => updateField("largeMissBy", [1, 1])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={1} verticalSlope={0}
-                            selected={isEqual(largeMissBy, [1, 1])}></ArrowComponent>
-          </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [1, 0])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={1} verticalSlope={1}
-                            selected={isEqual(largeMissBy, [1, 0])}></ArrowComponent>
-          </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [1, -1])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={1} verticalSlope={2}
-                            selected={isEqual(largeMissBy, [1, -1])}></ArrowComponent>
-          </Pressable>
-        </View>
-        <View style={{flexDirection: "column", justifyContent: "space-between"}}>
-          <Pressable onPress={() => updateField("largeMissBy", [0, 1])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={2} verticalSlope={0}
-                            selected={isEqual(largeMissBy, [0, 1])}></ArrowComponent>
-          </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [0, -1])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={2} verticalSlope={2}
-                            selected={isEqual(largeMissBy, [0, -1])}></ArrowComponent>
-          </Pressable>
-        </View>
-        <View style={{flexDirection: "column", gap: 12}}>
-          <Pressable onPress={() => updateField("largeMissBy", [-1, 1])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={0} verticalSlope={0}
-                            selected={isEqual(largeMissBy, [-1, 1])}></ArrowComponent>
-          </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [-1, 0])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={0} verticalSlope={1}
-                            selected={isEqual(largeMissBy, [-1, 0])}></ArrowComponent>
-          </Pressable>
-          <Pressable onPress={() => updateField("largeMissBy", [-1, -1])} style={{
-            aspectRatio: 1,
-            padding: 20,
-            backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-            justifyContent: "center",
-            flexDirection: "row",
-            alignItems: "center",
-            borderRadius: 50
-          }}>
-            <ArrowComponent horizontalBreak={0} verticalSlope={2}
-                            selected={isEqual(largeMissBy, [-1, -1])}></ArrowComponent>
-          </Pressable>
-        </View>
-      </View>
-      <Pressable onPress={() => {
-        if (!isEqual(largeMissBy, [0, 0])) {
-          totalPuttsRef.current.present();
-        }
-      }} style={{
-        backgroundColor: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.background : colors.button.danger.background,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 28,
-        borderWidth: 1,
-        borderColor: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.border : "transparent",
-        paddingHorizontal: 64
-      }}>
-        <Text style={{
-          textAlign: "center",
-          color: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.text : colors.button.danger.text,
-          fontWeight: 500
-        }}>Submit</Text>
-      </Pressable>
-    </View>
-  )
-}
-
-function GreenVisual({theta, setTheta, updateField, distance, slope, puttBreak}) {
-  const colors = useColors();
 
   return (
     <View style={{
@@ -926,9 +769,9 @@ function GreenVisual({theta, setTheta, updateField, distance, slope, puttBreak})
             borderRadius: 16,
             flex: 0
           }} onPress={() => {
-            if (distance === -1) updateField("distance", 99);
-            else if (distance === 1) updateField("distance", 99);
-            else updateField("distance", distance - 1);
+            if (distance === -1) validateDistance((99).toString());
+            else if (distance === 1) validateDistance((99).toString());
+            else validateDistance((distance - 1).toString());
           }}>
             <Svg
               xmlns="http://www.w3.org/2000/svg"
@@ -946,13 +789,20 @@ function GreenVisual({theta, setTheta, updateField, distance, slope, puttBreak})
             alignSelf: "center",
             flexDirection: "row",
             justifyContent: "space-between",
-            borderWidth: 1,
-            borderColor: colors.border.default,
+            borderWidth: 1.5,
+            borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
             borderRadius: 8,
             flex: 1,
+            overflow: "hidden"
           }}>
-            <TextInput style={{ flex: 1, fontSize: 20, fontWeight: "bold"}} placeholder="?" textAlign='center' value={distance}/>
-            <View style={{backgroundColor: colors.background.primary, flex: 1}}>
+            <TextInput style={{ flex: 1, fontSize: 20, fontWeight: "bold"}} 
+                placeholder="?" 
+                textAlign='center' 
+                value={distance !== -1 ? "" + distance : ""}
+                onChangeText={validateDistance}
+                onFocus={() => setDistanceFocused(true)}
+                onBlur={() => setDistanceFocused(false)}/>
+            <View style={{backgroundColor: distanceInvalid ? "#FFBCBC" : colors.background.primary, flex: 1}}>
               <Text style={{
                 fontSize: 20,
                 paddingVertical: 2,
@@ -971,9 +821,9 @@ function GreenVisual({theta, setTheta, updateField, distance, slope, puttBreak})
               flex: 0
             }}
             onPress={() => {
-              if (distance === -1) updateField("distance", 1);
-              else if (distance === 99) updateField("distance", 1);
-              else updateField("distance", distance + 1);
+              if (distance === -1) validateDistance((1).toString());
+              else if (distance === 99) validateDistance((1).toString());
+              else validateDistance((distance + 1).toString());
             }}>
             <Svg
               xmlns="http://www.w3.org/2000/svg"

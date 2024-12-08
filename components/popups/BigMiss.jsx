@@ -14,12 +14,14 @@ export default function BigMissModal({
   rawLargeMissBy,
   bigMissRef,
   nextHole,
+  lastHole,
   allPutts,
   hole,
 }) {
   const colors = useColors();
 
   const [open, setOpen] = useState(false);
+  const [transitioningBack, setTransitioningBack] = useState(false);
 
   const [putts, setPutts] = useState("");
   const [puttsFocused, setPuttsFocused] = useState(false);
@@ -35,7 +37,10 @@ export default function BigMissModal({
     if (allPutts[hole - 1] && allPutts[hole - 1].largeMiss) {
       setPutts(allPutts[hole - 1].totalPutts.toString());
       setDistance(allPutts[hole - 1].distanceMissed.toString());
+
       bigMissRef.current.present();
+
+      console.log("presenting");
 
       // rawLargeMissBy can be like [~,0], [0,-~] with ~ being any number, so we need to convert it to [0,0] or [1,1] etc
       let fixedLargeMissBy = [0, 0];
@@ -52,18 +57,22 @@ export default function BigMissModal({
       }
 
       setLargeMissBy(fixedLargeMissBy);
-
-      console.log(rawLargeMissBy);
-      console.log(fixedLargeMissBy);
+    }
+    else if (allPutts[hole - 1] && !allPutts[hole - 1].largeMiss) {
+      bigMissRef.current.dismiss();
+      console.log("dismissing");
+      close();
+    }
+    else if (!allPutts[hole - 1]) {
+      setPutts("");
+      setDistance("");
     }
   }, [hole]);
 
-  // TODO THIS IS A HACKY FIX, FIX THIS LATER (THE BUTTONS SET RAW, NOT THE INTERNAL ONE IN THIS COMPONENT)
-  useEffect(() => {
-    if (largeMissBy != [0, 0]) return;
-
-    setLargeMissBy(rawLargeMissBy);
-  }, [rawLargeMissBy]);
+  const setMissDirection = (direction) => {
+    setLargeMissBy(direction);
+    updateField("largeMissBy", direction);
+  };
 
   const myBackdrop = useCallback(({ animatedIndex, style }) => {
     return (
@@ -82,8 +91,20 @@ export default function BigMissModal({
     arr.every((val, index) => val === arr2[index]);
 
   const close = () => {
+    console.log("closing");
+    if (transitioningBack) {
+      setTransitioningBack(false);
+      return;
+    }
+
+    console.log("resetting");
+
     updateField("largeMissBy", [0, 0]);
     updateField("largeMiss", false);
+
+    setPutts("");
+    setDistance("");
+    setLargeMissBy([0, 0]);
 
     setPuttsFocused(false);
     setInvalid(false);
@@ -207,7 +228,7 @@ export default function BigMissModal({
           >
             <View style={{ flexDirection: "column", gap: 12 }}>
               <Pressable
-                onPress={() => updateField("largeMissBy", [1, 1])}
+                onPress={() => setMissDirection([1, 1])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -227,7 +248,7 @@ export default function BigMissModal({
                 ></ArrowComponent>
               </Pressable>
               <Pressable
-                onPress={() => updateField("largeMissBy", [1, 0])}
+                onPress={() => setMissDirection([1, 0])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -247,7 +268,7 @@ export default function BigMissModal({
                 ></ArrowComponent>
               </Pressable>
               <Pressable
-                onPress={() => updateField("largeMissBy", [1, -1])}
+                onPress={() => setMissDirection([1, -1])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -274,7 +295,7 @@ export default function BigMissModal({
               }}
             >
               <Pressable
-                onPress={() => updateField("largeMissBy", [0, 1])}
+                onPress={() => setMissDirection([0, 1])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -294,7 +315,7 @@ export default function BigMissModal({
                 ></ArrowComponent>
               </Pressable>
               <Pressable
-                onPress={() => updateField("largeMissBy", [0, -1])}
+                onPress={() => setMissDirection([0, -1])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -316,7 +337,7 @@ export default function BigMissModal({
             </View>
             <View style={{ flexDirection: "column", gap: 12 }}>
               <Pressable
-                onPress={() => updateField("largeMissBy", [-1, 1])}
+                onPress={() => setMissDirection([-1, 1])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -336,7 +357,7 @@ export default function BigMissModal({
                 ></ArrowComponent>
               </Pressable>
               <Pressable
-                onPress={() => updateField("largeMissBy", [-1, 0])}
+                onPress={() => setMissDirection([-1, 0])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -356,7 +377,7 @@ export default function BigMissModal({
                 ></ArrowComponent>
               </Pressable>
               <Pressable
-                onPress={() => updateField("largeMissBy", [-1, -1])}
+                onPress={() => setMissDirection([-1, -1])}
                 style={{
                   aspectRatio: 1,
                   padding: 20,
@@ -471,28 +492,42 @@ export default function BigMissModal({
               />
             </View>
           </View>
-          <PrimaryButton
-            onPress={() => {
-              if (
-                !isEqual(largeMissBy, [0, 0]) &&
-                !invalid &&
-                putts.length !== 0 &&
-                distance.length !== 0 &&
-                !distanceInvalid
-              ) {
-                nextHole(parseInt(putts), parseInt(distance));
-                console.log("running")
+          <View style={{flexDirection: "row", gap: 12}}>
+            <PrimaryButton
+              onPress={() => {
+                if (hole !== 1) {
+                  setTransitioningBack(true);
+                  lastHole();
+                }
+              }}
+              disabled={
+                hole === 1
               }
-            }}
-            disabled={
-              isEqual(largeMissBy, [0, 0]) ||
-              invalid ||
-              putts.length === 0 ||
-              distance.length === 0 ||
-              distanceInvalid
-            }
-            title={"Submit"}
-          ></PrimaryButton>
+              title={"Back"}
+            ></PrimaryButton>
+            <PrimaryButton
+              onPress={() => {
+                if (
+                  !isEqual(largeMissBy, [0, 0]) &&
+                  !invalid &&
+                  putts.length !== 0 &&
+                  distance.length !== 0 &&
+                  !distanceInvalid
+                ) {
+                  nextHole(parseInt(putts), parseInt(distance));
+                  console.log("running")
+                }
+              }}
+              disabled={
+                isEqual(largeMissBy, [0, 0]) ||
+                invalid ||
+                putts.length === 0 ||
+                distance.length === 0 ||
+                distanceInvalid
+              }
+              title={"Submit"}
+            ></PrimaryButton>
+          </View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
