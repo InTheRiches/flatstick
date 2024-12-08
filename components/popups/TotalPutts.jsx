@@ -5,10 +5,10 @@ import useColors from "@/hooks/useColors";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
 
-export default function TotalPutts({ totalPuttsRef, nextHole }) {
+export default function TotalPutts({ totalPuttsRef, currentPutts, nextHole }) {
   const colors = useColors();
 
-  const [putts, setPutts] = useState(2);
+  const [putts, setPutts] = useState(currentPutts);
   const [puttsFocused, setPuttsFocused] = useState(false);
   const [invalid, setInvalid] = useState(false);
 
@@ -101,6 +101,7 @@ export default function TotalPutts({ totalPuttsRef, nextHole }) {
                     ? colors.input.focused.background
                     : colors.input.background,
                 }}
+                defaultValue={currentPutts.toString()}
                 onFocus={() => setPuttsFocused(true)}
                 onBlur={() => setPuttsFocused(false)}
                 onChangeText={(text) => updatePutts(text)}

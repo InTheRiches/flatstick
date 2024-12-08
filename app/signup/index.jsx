@@ -63,7 +63,7 @@ export default function CreateAccount() {
 
         const auth = getAuth();
 
-        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISNT AS HARSH OF A TRANSITION
+        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
         createUserWithEmailAndPassword(auth, state.email, state.password)

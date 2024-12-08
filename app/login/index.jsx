@@ -38,7 +38,7 @@ export default function Login() {
 
         const auth = getAuth();
 
-        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISNT AS HARSH OF A TRANSITION
+        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
         signIn(state.email, state.password).then(() => {

@@ -11,6 +11,8 @@ import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import DrawerNewSession from "@/components/popups/DrawerNewSession";
 import NewRealRound from "@/components/popups/NewRealRound";
 import {ScrollView, Text, View, useColorScheme} from "react-native";
+import {roundTo} from "@/utils/PuttUtils";
+import RecentSessionSummary from "@/utils/RecentSessionSummaries";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -41,7 +43,7 @@ export default function HomeScreen() {
         }}>
             <ScrollView>
                 <Header auth={auth}></Header>
-                <MostRecentSession unfinished={true}></MostRecentSession>
+                <RecentSessionSummary unfinished={true}></RecentSessionSummary>
                 <View
                     style={{
                         backgroundColor: colors.background.secondary,
@@ -186,159 +188,150 @@ function Header({signOut, auth}) {
         </View>
     )
 }
-
-// TODO Consider adding a see more button that brings up a dedication menu with a insights graphic for each session
-function MostRecentSession({unfinished}) {
-    const auth = getAuth();
-    const db = getFirestore();
-
-    const navigation = useNavigation();
-
-    const [recentSession, setRecentSession] = useState(null);
-    const [loading, setLoading] = useState(true)
-
-    const colors = useColors();
-    const colorScheme = useColorScheme();
-
-    useEffect(() => {
-        const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp", "desc"), limit(1));
-        getDocs(q).then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                setRecentSession(doc.data());
-            });
-        }).catch((error) => {
-            console.log("couldnt find the documents: " + error)
-        });
-    }, []);
-
-    let date;
-    if (recentSession !== null)
-        date = new Date(recentSession.date);
-    else
-        date = new Date();
-
-    const roundTo = (num, decimalPlaces) => {
-        const factor = Math.pow(10, decimalPlaces);
-        return Math.round(num * factor) / factor;
-    };
-
-    return recentSession === null ? (
-        <View
-            style={{
-                backgroundColor: colors.background.secondary,
-                paddingHorizontal: 16,
-                paddingTop: 12,
-                paddingBottom: 14,
-                borderTopLeftRadius: 16,
-                borderTopRightRadius: 16,
-                borderBottomLeftRadius: unfinished ? 8 : 16,
-                borderBottomRightRadius: unfinished ? 8 : 16,
-                marginBottom: unfinished ? 4 : 0
-            }}>
-            <Text style={{
-                textAlign: "left",
-                color: colors.text.primary,
-                fontSize: 20,
-            }}>No sessions</Text>
-            <Text style={{
-                textAlign: "left",
-                color: colors.text.secondary,
-                fontSize: 16,
-                marginTop: 4
-            }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</Text>
-        </View>
-    ) : (
-        <View
-            style={{
-                backgroundColor: colors.background.secondary,
-                paddingHorizontal: 16,
-                paddingTop: 8,
-                paddingBottom: 14,
-                borderTopLeftRadius: 16,
-                borderTopRightRadius: 16,
-                borderBottomLeftRadius: unfinished ? 8 : 16,
-                borderBottomRightRadius: unfinished ? 8 : 16,
-                marginBottom: unfinished ? 4 : 0
-            }}>
-            <View style={{
-                flexDirection: "row",
-                paddingBottom: 12,
-                borderBottomWidth: colorScheme === "light" ? 1 : 2,
-                borderColor: colors.border.default,
-                marginBottom: 14
-            }}>
-                <View style={{flex: 1}}>
-                    <Text style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
-                        "/" + date.getDate()}</Text>
-                    <Text style={{
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontSize: 24
-                    }}>Previous</Text>
-                    <Text style={{
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontSize: 24,
-                        marginTop: -8
-                    }}>Session</Text>
-                </View>
-                <View style={{flex: 1}}>
-                    <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
-                    <Text
-                        style={{
-                            textAlign: "right",
-                            color: colors.text.primary,
-                            fontSize: 24
-                        }}>Simulation</Text>
-                    <Text style={{
-                        textAlign: "right",
-                        color: colors.text.primary,
-                        fontSize: 24,
-                        marginTop: -8
-                    }}>Summary</Text>
-                </View>
-            </View>
-            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
-                    <Text style={{
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontSize: 18,
-                        fontWeight: "bold"
-                    }}>{recentSession.difficulty}</Text>
-                </View>
-                <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                    <Text
-                        style={{
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontSize: 18,
-                            fontWeight: "bold"
-                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
-                </View>
-                <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
-                    <Text
-                        style={{
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontSize: 18,
-                            fontWeight: "bold"
-                        }}>{recentSession.totalPutts}</Text>
-                </View>
-                <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                    <Text style={{
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontSize: 18,
-                        fontWeight: "bold"
-                    }}>{recentSession.avgMiss}ft</Text>
-                </View>
-            </View>
-        </View>
-    );
-}
+//
+// function MostRecentSession({unfinished}) {
+//     const auth = getAuth();
+//     const db = getFirestore();
+//
+//     const [recentSession, setRecentSession] = useState(null);
+//
+//     const colors = useColors();
+//     const colorScheme = useColorScheme();
+//
+//     useEffect(() => {
+//         const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp", "desc"), limit(1));
+//         getDocs(q).then((querySnapshot) => {
+//             querySnapshot.forEach((doc) => {
+//                 // doc.data() is never undefined for query doc snapshots
+//                 setRecentSession(doc.data());
+//             });
+//         }).catch((error) => {
+//             console.log("couldnt find the documents: " + error)
+//         });
+//     }, []);
+//
+//     let date;
+//     if (recentSession !== null)
+//         date = new Date(recentSession.date);
+//     else
+//         date = new Date();
+//
+//     return recentSession === null ? (
+//         <View
+//             style={{
+//                 backgroundColor: colors.background.secondary,
+//                 paddingHorizontal: 16,
+//                 paddingTop: 12,
+//                 paddingBottom: 14,
+//                 borderTopLeftRadius: 16,
+//                 borderTopRightRadius: 16,
+//                 borderBottomLeftRadius: unfinished ? 8 : 16,
+//                 borderBottomRightRadius: unfinished ? 8 : 16,
+//                 marginBottom: unfinished ? 4 : 0
+//             }}>
+//             <Text style={{
+//                 textAlign: "left",
+//                 color: colors.text.primary,
+//                 fontSize: 20,
+//             }}>No sessions</Text>
+//             <Text style={{
+//                 textAlign: "left",
+//                 color: colors.text.secondary,
+//                 fontSize: 16,
+//                 marginTop: 4
+//             }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</Text>
+//         </View>
+//     ) : (
+//         <View
+//             style={{
+//                 backgroundColor: colors.background.secondary,
+//                 paddingHorizontal: 16,
+//                 paddingTop: 8,
+//                 paddingBottom: 14,
+//                 borderTopLeftRadius: 16,
+//                 borderTopRightRadius: 16,
+//                 borderBottomLeftRadius: unfinished ? 8 : 16,
+//                 borderBottomRightRadius: unfinished ? 8 : 16,
+//                 marginBottom: unfinished ? 4 : 0
+//             }}>
+//             <View style={{
+//                 flexDirection: "row",
+//                 paddingBottom: 12,
+//                 borderBottomWidth: colorScheme === "light" ? 1 : 2,
+//                 borderColor: colors.border.default,
+//                 marginBottom: 14
+//             }}>
+//                 <View style={{flex: 1}}>
+//                     <Text style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
+//                         "/" + date.getDate()}</Text>
+//                     <Text style={{
+//                         textAlign: "left",
+//                         color: colors.text.primary,
+//                         fontSize: 24
+//                     }}>Previous</Text>
+//                     <Text style={{
+//                         textAlign: "left",
+//                         color: colors.text.primary,
+//                         fontSize: 24,
+//                         marginTop: -8
+//                     }}>Session</Text>
+//                 </View>
+//                 <View style={{flex: 1}}>
+//                     <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
+//                     <Text
+//                         style={{
+//                             textAlign: "right",
+//                             color: colors.text.primary,
+//                             fontSize: 24
+//                         }}>Simulation</Text>
+//                     <Text style={{
+//                         textAlign: "right",
+//                         color: colors.text.primary,
+//                         fontSize: 24,
+//                         marginTop: -8
+//                     }}>Summary</Text>
+//                 </View>
+//             </View>
+//             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+//                 <View>
+//                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
+//                     <Text style={{
+//                         textAlign: "left",
+//                         color: colors.text.primary,
+//                         fontSize: 18,
+//                         fontWeight: "bold"
+//                     }}>{recentSession.difficulty}</Text>
+//                 </View>
+//                 <View>
+//                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
+//                     <Text
+//                         style={{
+//                             textAlign: "left",
+//                             color: colors.text.primary,
+//                             fontSize: 18,
+//                             fontWeight: "bold"
+//                         }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
+//                 </View>
+//                 <View>
+//                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
+//                     <Text
+//                         style={{
+//                             textAlign: "left",
+//                             color: colors.text.primary,
+//                             fontSize: 18,
+//                             fontWeight: "bold"
+//                         }}>{recentSession.totalPutts}</Text>
+//                 </View>
+//                 <View>
+//                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
+//                     <Text style={{
+//                         textAlign: "left",
+//                         color: colors.text.primary,
+//                         fontSize: 18,
+//                         fontWeight: "bold"
+//                     }}>{recentSession.avgMiss}ft</Text>
+//                 </View>
+//             </View>
+//         </View>
+//     );
+// }

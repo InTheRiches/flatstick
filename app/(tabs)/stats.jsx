@@ -1,10 +1,9 @@
-import {Animated as NotReanimated, Dimensions, FlatList, Pressable, ScrollView, Text, View} from "react-native";
+import {Dimensions, FlatList, ScrollView, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
 import {useRef, useState} from "react";
 import {BarChart} from "react-native-gifted-charts";
-import Animated from "react-native-reanimated";
 import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
@@ -186,8 +185,7 @@ function MissesTab() {
             // Handle filtering
             if (slope !== -1 && brek !== -1) {
                 // Filter by both slope and break
-                const breakData = slopeBreakData[dataSlopes[slope]]?.[dataBreaks[brek]] || [];
-                combinedArray = breakData;
+                combinedArray = slopeBreakData[dataSlopes[slope]]?.[dataBreaks[brek]] || [];
             } else if (slope !== -1) {
                 // Filter only by slope (sum all breaks for the slope)
                 const slopeData = slopeBreakData[dataSlopes[slope]] || {};

@@ -19,10 +19,10 @@ import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import TotalPutts from '../../../components/popups/TotalPutts';
 import BigMissModal from '../../../components/popups/BigMiss';
-import { getLargeMissPoint } from '../../../utils/PuttUtils';
+import {calculateDistanceMissedFeet, calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -89,10 +89,8 @@ const initialState = {
     putts: []
 }
 
-// TODO WHEN SWITCHING TO THE NEXT HOLE, ADD A POPUP ASKING HOW MANY PUTTS IT TOOK TO FINISH OUT THE HOLE
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
 // ABOVE THAT, MAKE A GOAL MENU, THAT SHOWS THE GOAL THAT ALIGNS WITH THE PUTT, IF NONE, JUST SAY "make a goal if you need to work on this"
-
 export default function Simulation() {
     const colors = useColors();
     const navigation = useNavigation();
@@ -200,73 +198,35 @@ export default function Simulation() {
             updateField("confirmSubmit", true);
             return;
         }
-        if (!largeMiss && point.x === undefined)
-            return;
+
+        if (!largeMiss && point.x === undefined) return;
 
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
-        // generate new data
         if (putts[hole] === undefined) {
             updateField("point", {});
             updateField("missRead", false);
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
-
-            let newBreak = generateBreak();
-
-            if (puttBreak === newBreak) {
-                newBreak = generateBreak(); // this makes sure that there aren't two in a row
-            }
-
-            updateField("puttBreak", newBreak);
-            updateField("distance", generateDistance(difficulty));
+            updateField("theta", 0);
+            updateField("puttBreak", convertThetaToBreak(0));
+            updateField("distance", -1);
             updateField("hole", hole + 1);
             updateField("largeMiss", false);
             return;
         }
 
-        // load old data (as the person went back before now going forward)
-        const nextPutt = puttsCopy[hole];
-        if (nextPutt.largeMiss) {
-            updateField("point", {});
-            updateField("largeMiss", true);
-            updateField("largeMissBy", [nextPutt.point.x, nextPutt.point.y])
-        } else {
-            updateField("point", nextPutt.point);
-            updateField("largeMissBy", [0, 0]);
-            updateField("largeMiss", false);
-        }
-        updateField("missRead", nextPutt.missRead);
-        updateField("center", nextPutt.distanceMissed === 0);
-
-        updateField("puttBreak", nextPutt.break);
+        loadPuttData(puttsCopy[hole], updateField);
         updateField("hole", hole + 1);
-        updateField("distance", nextPutt.distance);
-    }
+    };
 
     const lastHole = () => {
-        if (hole === 1)
-            return
+        if (hole === 1) return;
 
         const puttsCopy = pushHole(-1, 0);
-
-        const lastPutt = puttsCopy[hole - 2];
-        if (lastPutt.largeMiss) {
-            updateField("point", {});
-            updateField("largeMiss", true);
-            updateField("largeMissBy", [lastPutt.point.x, lastPutt.point.y])
-        } else {
-            updateField("point", lastPutt.point);
-            updateField("largeMiss", false);
-            updateField("largeMissBy", [0, 0]);
-        }
-        updateField("missRead", lastPutt.missRead);
-        updateField("center", lastPutt.distanceMissed === 0);
-
-        updateField("puttBreak", lastPutt.break);
+        loadPuttData(puttsCopy[hole - 2], updateField);
         updateField("hole", hole - 1);
-        updateField("distance", lastPutt.distance);
-    }
+    };
 
     const onLayout = (event) => {
         const {width, height} = event.nativeEvent.layout;
@@ -293,82 +253,27 @@ export default function Simulation() {
         navigation.goBack();
     }
 
-    const roundTo = (num, decimalPlaces) => {
-        const factor = Math.pow(10, decimalPlaces);
-        return Math.round(num * factor) / factor;
-    };
-
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
         if (point.x !== undefined) {
-            let distanceMissedFeet = 0;
-
-            if (!largeMiss) {
-                // find the distance to center of the point in x and y
-                const distanceX = width / 2 - point.x;
-                const distanceY = height / 2 - point.y;
-                const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-    
-                const conversionFactor = 5 / width;
-                distanceMissedFeet = distanceMissed * conversionFactor;
-            }
+            const distanceMissedFeet = largeMiss ? 0 : calculateDistanceMissedFeet(center, point, width, height);
             puttsCopy[hole - 1] = {
                 distance: distance,
                 break: puttBreak,
                 missRead: missRead,
                 largeMiss: largeMiss,
-                totalPutts: -1, // since this is a partial round, and they havent moved on to the next hole, we dont know how many putts they took
-                distanceMissed: distanceMissedFeet, // TODO ADD A SLIDER FOR ESTIMATED LARGE MISS
+                totalPutts: -1,
+                distanceMissed: distanceMissedFeet,
                 point: largeMiss ? {x: 0, y: 0} : point
             };
             updateField("putts", puttsCopy);
         }
 
-        const trimmedPutts = [];
-
-        let totalPutts = 0;
-        let avgMiss = 0;
-        let madePercent = 0;
-
-        puttsCopy.forEach((putt, index) => {
-            if (putt !== undefined) {
-                if (putt.totalPutts === -1) {
-                    if (putt.largeMiss) {
-                        totalPutts += 3; // TODO CAN WE MAKE THIS MORE ACCURATE?
-                    } else if (putt.distanceMissed === 0) {
-                        totalPutts++;
-                        madePercent++;
-                    } else {
-                        totalPutts += 2;
-                    }
-                } else totalPutts += putt.totalPutts;
-
-                // TODO this doesnt account for the large miss, update that
-                if (putt.distanceMissed !== 0) {
-                    avgMiss += putt.distanceMissed;
-                    if (index != 0) {
-                        avgMiss /= 2;
-                    }
-                }
-
-                trimmedPutts.push({
-                    distance: putt.distance,
-                    xDistance: roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2),
-                    yDistance: roundTo((height / 2 - putt.point.y) * (5 / height), 2),
-                    puttBreak: putt.break,
-                    missRead: putt.missRead,
-                    distanceMissed: putt.distanceMissed,
-                    largeMiss: putt.largeMiss,
-                    totalPutts: putt.totalPutts,
-                });
-            }
-        });
-        avgMiss = roundTo(avgMiss, 1);
-        madePercent /= puttsCopy.length;
+        const {totalPutts, avgMiss, madePercent, trimmedPutts} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true)
-        // Add a new document in collection "cities"
+
         setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), {
             date: new Date().toISOString(),
             timestamp: new Date().getTime(),
@@ -405,173 +310,178 @@ export default function Simulation() {
     }
 
     return (loading ? <Loading/> :
-        <BottomSheetModalProvider>
-            <ThemedView style={{flexGrow: 1}}>
-                <View style={{
-                    width: "100%",
-                    flexGrow: 1,
-                    paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    marginBottom: 20
-                }}>
-                    <View>
-                        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                            <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
-                            <Pressable onPress={() => updateField("confirmLeave", true)}>
-                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth={1.5}
-                                     stroke={colors.text.primary} width={32} height={32}>
-                                    <Path strokeLinecap="round" strokeLinejoin="round"
-                                          d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
-                                </Svg>
-                            </Pressable>
-                        </View>
-                        <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
-                                     puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
-                    </View>
-                    <View>
-                        <Pressable onPress={() => updateField("missRead", !missRead)} style={{
-                            marginTop: 12,
-                            marginBottom: 4,
-                            paddingRight: 20,
-                            paddingLeft: 10,
-                            paddingVertical: 8,
-                            borderRadius: 8,
-                            backgroundColor: missRead ? colors.button.danger.background : colors.button.danger.disabled.background,
-                            alignSelf: "center",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: 'center',
-                        }}>
-                            {missRead ?
-                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2}
-                                     width={20}
-                                     height={20} stroke={colors.button.danger.text}>
-                                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                </Svg> :
-                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
-                            }
-                            <Text style={{color: 'white', marginLeft: 8}}>Misread</Text>
-                        </Pressable>
-                        <View style={{
-                            alignSelf: "center",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            width: "100%"
-                        }}>
-                            <ThemedText></ThemedText>
-                            <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
-                                ft</ThemedText>
-                            <ThemedText></ThemedText>
-                            <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
-                                ft</ThemedText>
-                            <ThemedText></ThemedText>
-                            <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>0
-                                ft</ThemedText>
-                            <ThemedText></ThemedText>
-                            <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
-                                ft</ThemedText>
-                            <ThemedText></ThemedText>
-                            <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
-                                ft</ThemedText>
-                            <ThemedText></ThemedText>
-                        </View>
-                        <GestureDetector gesture={singleTap}>
-                            <View onLayout={onLayout}
-                                  style={{
-                                      alignSelf: "center",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      width: "100%"
-                                  }}>
-                                <Image
-                                    source={require('@/assets/images/putting-grid.png')}
-                                    style={{
-                                        borderWidth: 1,
-                                        borderRadius: 12,
-                                        borderColor: colors.putting.grid.border,
-                                        width: "100%",
-                                        aspectRatio: "1",
-                                        height: undefined
-                                    }}/>
-                                <View style={{
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    position: "absolute",
-                                    left: width / 2 - (width / 20),
-                                    top: height / 2 - (width / 20),
-                                    width: width / 10 + 1,
-                                    height: width / 10 + 1,
-                                    borderRadius: 24,
-                                    backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
-                                }}>
-                                    <Svg width={24} height={24}
-                                         stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
-                                         xmlns="http://www.w3.org/2000/svg" fill="none"
-                                         viewBox="0 0 24 24" strokeWidth="3">
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+            <BottomSheetModalProvider>
+                <ThemedView style={{flexGrow: 1}}>
+                    <View style={{
+                        width: "100%",
+                        flexGrow: 1,
+                        paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        marginBottom: 20
+                    }}>
+                        <View>
+                            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                                <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
+                                <Pressable onPress={() => updateField("confirmLeave", true)}>
+                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         strokeWidth={1.5}
+                                         stroke={colors.text.primary} width={32} height={32}>
+                                        <Path strokeLinecap="round" strokeLinejoin="round"
+                                              d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
                                     </Svg>
-                                </View>
-                                {point.x !== undefined && center !== true ? (
-                                    <Image source={require('@/assets/images/golf-ball.png')} style={{
-                                        position: "absolute",
-                                        left: point.x - 12,
-                                        top: point.y - 12,
-                                        width: 24,
-                                        height: 24,
-                                        borderRadius: 12,
-                                        backgroundColor: "#fff"
-                                    }}></Image>
-                                ) : null}
+                                </Pressable>
                             </View>
-                        </GestureDetector>
-                    </View>
-                    <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
-                        <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}} title="Back"
-                                       disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                        <DangerButton onPress={() => {
-                            updateField("largeMiss", true);
-                            bigMissRef.current.present();
-                        }}
-                                      title={"Miss > 5ft?"}></DangerButton>
-                        {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
-                                             title={hole === holes ? "Submit" : "Next"}
-                                             disabled={point.x === undefined}
-                                             onPress={() => {
+                            <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
+                                         puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
+                        </View>
+                        <View>
+                            <Pressable onPress={() => updateField("missRead", !missRead)} style={{
+                                marginTop: 12,
+                                marginBottom: 4,
+                                paddingRight: 20,
+                                paddingLeft: 10,
+                                paddingVertical: 8,
+                                borderRadius: 8,
+                                backgroundColor: missRead ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                alignSelf: "center",
+                                flexDirection: "row",
+                                justifyContent: "center",
+                                alignItems: 'center',
+                            }}>
+                                {missRead ?
+                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         strokeWidth={2}
+                                         width={20}
+                                         height={20} stroke={colors.button.danger.text}>
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                    </Svg> :
+                                    <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                }
+                                <Text style={{color: 'white', marginLeft: 8}}>Misread</Text>
+                            </Pressable>
+                            <View style={{
+                                alignSelf: "center",
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                width: "100%"
+                            }}>
+                                <ThemedText></ThemedText>
+                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
+                                    ft</ThemedText>
+                                <ThemedText></ThemedText>
+                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
+                                    ft</ThemedText>
+                                <ThemedText></ThemedText>
+                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>0
+                                    ft</ThemedText>
+                                <ThemedText></ThemedText>
+                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
+                                    ft</ThemedText>
+                                <ThemedText></ThemedText>
+                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
+                                    ft</ThemedText>
+                                <ThemedText></ThemedText>
+                            </View>
+                            <GestureDetector gesture={singleTap}>
+                                <View onLayout={onLayout}
+                                      style={{
+                                          alignSelf: "center",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          width: "100%"
+                                      }}>
+                                    <Image
+                                        source={require('@/assets/images/putting-grid.png')}
+                                        style={{
+                                            borderWidth: 1,
+                                            borderRadius: 12,
+                                            borderColor: colors.putting.grid.border,
+                                            width: "100%",
+                                            aspectRatio: "1",
+                                            height: undefined
+                                        }}/>
+                                    <View style={{
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        position: "absolute",
+                                        left: width / 2 - (width / 20),
+                                        top: height / 2 - (width / 20),
+                                        width: width / 10 + 1,
+                                        height: width / 10 + 1,
+                                        borderRadius: 24,
+                                        backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
+                                    }}>
+                                        <Svg width={24} height={24}
+                                             stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
+                                             xmlns="http://www.w3.org/2000/svg" fill="none"
+                                             viewBox="0 0 24 24" strokeWidth="3">
+                                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                                  d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg>
+                                    </View>
+                                    {point.x !== undefined && center !== true ? (
+                                        <Image source={require('@/assets/images/golf-ball.png')} style={{
+                                            position: "absolute",
+                                            left: point.x - 12,
+                                            top: point.y - 12,
+                                            width: 24,
+                                            height: 24,
+                                            borderRadius: 12,
+                                            backgroundColor: "#fff"
+                                        }}></Image>
+                                    ) : null}
+                                </View>
+                            </GestureDetector>
+                        </View>
+                        <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
+                            <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                                           title="Back"
+                                           disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
+                            <DangerButton onPress={() => {
+                                updateField("largeMiss", true);
+                                bigMissRef.current.present();
+                            }}
+                                          title={"Miss > 5ft?"}></DangerButton>
+                            {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                                            title={hole === holes ? "Submit" : "Next"}
+                                            disabled={point.x === undefined}
+                                            onPress={() => {
                                                 if (point.x === undefined) return;
-                                                else if (center) nextHole(1);
+
+                                                if (center) nextHole(1);
                                                 else totalPuttsRef.current.present()
                                             }}></PrimaryButton>}
+                        </View>
                     </View>
-                </View>
-                <TotalPutts totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-                <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
-                        rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
-                {(confirmLeave || confirmSubmit) &&
-                    <View style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 50,
-                        height: '100%',
-                        width: '100%',
-                        backgroundColor: colors.background.tinted
-                    }}>
-                        {confirmLeave &&
-                            <ConfirmExit cancel={() => updateField("confirmLeave", false)}
-                                         partial={() => submit(true)}
-                                         end={fullReset}></ConfirmExit>}
-                        {confirmSubmit &&
-                            <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
-                                           submit={submit}></ConfirmSubmit>}
-                    </View>}
-            </ThemedView>
-        </BottomSheetModalProvider>
+                    <TotalPutts currentPutts={putts[hole - 1] ? putts[hole - 1].totalPutts : 2}
+                                totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
+                    <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
+                                  rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
+                    {(confirmLeave || confirmSubmit) &&
+                        <View style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 50,
+                            height: '100%',
+                            width: '100%',
+                            backgroundColor: colors.background.tinted
+                        }}>
+                            {confirmLeave &&
+                                <ConfirmExit cancel={() => updateField("confirmLeave", false)}
+                                             partial={() => submit(true)}
+                                             end={fullReset}></ConfirmExit>}
+                            {confirmSubmit &&
+                                <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
+                                               submit={submit}></ConfirmSubmit>}
+                        </View>}
+                </ThemedView>
+            </BottomSheetModalProvider>
     );
 }
 
@@ -646,7 +556,6 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
     )
 }
 
-// TODO MAKE THIS UPLOAD A PARTIAL ROUND
 function ConfirmExit({end, partial, cancel}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
