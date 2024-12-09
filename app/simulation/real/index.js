@@ -29,6 +29,7 @@ import {
     loadPuttData,
     updatePuttsCopy
 } from '../../../utils/PuttUtils';
+import SubmitModal from "../../../components/popups/SubmitModal";
 
 const initialState = {
     confirmLeave: false,
@@ -86,6 +87,7 @@ export default function Simulation() {
     const holes = parseInt(stringHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
+    const submitRef = useRef(null);
 
     const [{
         loading,
@@ -150,8 +152,6 @@ export default function Simulation() {
                 largeMissDistance = putts[hole - 1].distanceMissed
         }
 
-        console.log(point);
-
         const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, missRead, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy);
         updateField("putts", puttsCopy);
         return puttsCopy;
@@ -159,7 +159,9 @@ export default function Simulation() {
 
     const nextHole = (totalPutts, largeMissDistance = -1) => {
         if (hole === holes) {
-            updateField("confirmSubmit", true);
+            pushHole(totalPutts, largeMissDistance);
+
+            submitRef.current.present();
             return;
         }
 
@@ -220,19 +222,20 @@ export default function Simulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        if (point.x !== undefined) {
-            const distanceMissedFeet = largeMiss ? 0 : calculateDistanceMissedFeet(center, point, width, height);
-            puttsCopy[hole - 1] = {
-                distance: distance,
-                theta: theta,
-                missRead: missRead,
-                largeMiss: largeMiss,
-                totalPutts: -1,
-                distanceMissed: distanceMissedFeet,
-                point: largeMiss ? {x: 0, y: 0} : point // TODO fix this large miss point
-            };
-            updateField("putts", puttsCopy);
-        }
+        // this is not needed, as nextHole automatically pushes the last hole
+        // if (point.x !== undefined) {
+        //     const distanceMissedFeet = largeMiss ? 0 : calculateDistanceMissedFeet(center, point, width, height);
+        //     puttsCopy[hole - 1] = {
+        //         distance: distance,
+        //         theta: theta,
+        //         missRead: missRead,
+        //         largeMiss: largeMiss,
+        //         totalPutts: -1,
+        //         distanceMissed: distanceMissedFeet,
+        //         point: largeMiss ? {x: 0, y: 0} : point
+        //     };
+        //     updateField("putts", puttsCopy);
+        // }
 
         const {totalPutts, avgMiss, madePercent, trimmedPutts} = calculateStats(puttsCopy, width, height);
 
@@ -415,7 +418,8 @@ export default function Simulation() {
                                 totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
                     <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                                   rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
-                    {(confirmLeave || confirmSubmit) &&
+                    <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
+                    {(confirmLeave) &&
                         <View style={{
                             position: 'absolute',
                             top: 0,
@@ -433,15 +437,13 @@ export default function Simulation() {
                                 <ConfirmExit cancel={() => updateField("confirmLeave", false)}
                                              partial={() => submit(true)}
                                              end={fullReset}></ConfirmExit>}
-                            {confirmSubmit &&
-                                <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
-                                               submit={submit}></ConfirmSubmit>}
                         </View>}
                 </ThemedView>
             </BottomSheetModalProvider>
     );
 }
 
+// TODO make this a modal
 function ConfirmExit({end, partial, cancel}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
@@ -565,6 +567,7 @@ function ConfirmSubmit({submit, cancel}) {
     )
 }
 
+// TODO this needs to be able to support a neutral break, maybe a bottom in the top left corner? It should also start at neutral
 function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
 
