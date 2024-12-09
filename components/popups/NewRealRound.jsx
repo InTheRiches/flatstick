@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useCallback, useState} from "react";
 import { View, Text, Pressable } from "react-native";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
@@ -14,20 +14,27 @@ export default function NewRealRound({ newRealRoundRef }) {
 
   const router = useRouter();
 
-  const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(true);
+
+    const myBackdrop = useCallback(
+        ({ animatedIndex, style }) => {
+            return (
+                <CustomBackdrop
+                    open={open}
+                    reference={newRealRoundRef}
+                    animatedIndex={animatedIndex}
+                    style={style}
+                />
+            );
+        },
+        [open]
+    );
 
   // renders
   return (
     <BottomSheetModal
       ref={newRealRoundRef}
-      backdropComponent={({ animatedIndex, style }) => (
-        <CustomBackdrop
-          open={open}
-          reference={newRealRoundRef}
-          animatedIndex={animatedIndex}
-          style={style}
-        />
-      )}
+      backdropComponent={myBackdrop}
       backgroundStyle={{ backgroundColor: colors.background.secondary }}
     >
       <BottomSheetView
