@@ -61,6 +61,7 @@ const calculateDistanceMissedFeet = (center, point, width, height) => {
 
 const updatePuttsCopy = (putts, hole, distance, theta, missRead, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
     const puttsCopy = [...putts];
+
     puttsCopy[hole - 1] = {
         distance: distance,
         theta: theta,
@@ -90,7 +91,10 @@ const loadPuttData = (putt, updateField) => {
     }
     updateField("missRead", putt.missRead);
     updateField("center", putt.distanceMissed === 0);
-    updateField("theta", putt.theta);
+    if (putt.theta)
+        updateField("theta", putt.theta);
+    else
+        updateField("puttBreak", putt.break);
     updateField("distance", putt.distance);
 };
 
@@ -130,11 +134,18 @@ const calculateStats = (puttsCopy, width, height) => {
                 yDistance = roundTo(putt.point.y, 2);
             }
 
+            let puttBreak = [];
+            if (putt.theta) {
+                puttBreak = convertThetaToBreak(putt.theta);
+            } else {
+                puttBreak = putt.break;
+            }
+
             trimmedPutts.push({
                 distance: putt.distance,
                 xDistance: xDistance,
                 yDistance: yDistance,
-                puttBreak: convertThetaToBreak(putt.theta),
+                puttBreak: puttBreak,
                 missRead: putt.missRead,
                 distanceMissed: putt.distanceMissed,
                 largeMiss: putt.largeMiss,
