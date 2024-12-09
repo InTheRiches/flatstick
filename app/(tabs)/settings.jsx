@@ -2,11 +2,11 @@ import {ThemedText} from '@/components/ThemedText';
 import {Pressable, View, Text, ScrollView, TextInput} from 'react-native';
 
 import React, {useEffect, useRef, useState} from 'react';
-import {getAuth} from "firebase/auth";
+import {getAuth, updateProfile, updateEmail} from "firebase/auth";
 import {getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
 import useColors from "@/hooks/useColors";
 import {useAppContext, useSession} from "@/contexts/AppCtx";
-import DrawerSaveChanges from "../../components/popups/DrawerSaveChanges";
+import SaveChangesModal from "../../components/popups/SaveChangesModal";
 import useKeyboardVisible from "../../hooks/useKeyboardVisible";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
@@ -34,7 +34,10 @@ export default function HomeScreen() {
     const [state, setState] = useState(initialState);
 
     useEffect(() => {
-        setChanges(state.displayName !== initialState.displayName || state.email !== auth.currentUser.email)
+        if (!isKeyboardVisible && (state.displayName !== initialState.displayName || state.email !== auth.currentUser.email))
+            drawerSaveChanges.current.expand();
+        else
+            drawerSaveChanges.current.close();
     }, [state]);
 
     const updateField = (field, value) => {
@@ -43,6 +46,35 @@ export default function HomeScreen() {
             [field]: value,
         }));
     };
+
+    const saveChanges = () => {
+        if (state.invalidEmail || state.invalidDisplayName) return;
+
+        // Save changes to the database
+        updateProfile(auth.currentUser, {
+            displayName: state.displayName
+        }).then(() => {
+            drawerSaveChanges.current.close();
+            initialState.displayName = state.displayName;
+        }).catch((error) => {
+            // An error occurred
+            // ...
+            console.log("Error updating profile: ", error);
+        });
+
+        console.log(state.email);
+        // TODO this doesnt work, unless the user has recently authenticated, which means we need
+        // to prompt the user for their password before updating their email (by modal)
+        updateEmail(auth.currentUser, state.email).then(() => {
+            // Email updated!
+            // ...
+            console.log("Email updated!");
+        }).catch((error) => {
+            // An error occurred
+            // ...
+            console.log("Error updating email: ", error);
+        });
+    }
 
     return (
         <View style={{
@@ -71,9 +103,9 @@ export default function HomeScreen() {
                 </View>
                 <Profile state={state} updateField={updateField}></Profile>
             </ScrollView>
-            <DrawerSaveChanges saveChangesRef={drawerSaveChanges}
-                               show={!isKeyboardVisible && changes}
-                               disabled={state.invalidDisplayName || state.invalidEmail}></DrawerSaveChanges>
+            <SaveChangesModal saveChangesRef={drawerSaveChanges}
+                              save={saveChanges}
+                              disabled={state.invalidDisplayName || state.invalidEmail}></SaveChangesModal>
         </View>
     );
 }
@@ -83,6 +115,8 @@ function Profile({state, updateField}) {
     const [emailFocused, setEmailFocused] = useState(false);
     const colors = useColors();
 
+    const auth = getAuth();
+
     let errorCode = "";
 
     const setName = (name) => {
@@ -90,7 +124,7 @@ function Profile({state, updateField}) {
         updateField("invalidDisplayName", name.length < 6)
     }
 
-    const updateEmail = (email) => {
+    const setEmail = (email) => {
         updateField("email", email);
         const re = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
         updateField("invalidEmail", !re.test(email));
@@ -172,7 +206,7 @@ function Profile({state, updateField}) {
                     onFocus={() => setEmailFocused(true)}
                     value={state.email}
                     onBlur={() => setEmailFocused(false)}
-                    onChangeText={(text) => updateEmail(text)}
+                    onChangeText={(text) => setEmail(text)}
                 />
                 {state.invalidEmail && <Text style={{
                     position: "absolute",
@@ -191,11 +225,6 @@ function Profile({state, updateField}) {
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
             {/*{errorCode === "auth/email-already-in-use" &&*/}
             {/*    <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}*/}
-
-            <Text
-                style={{fontSize: 20, fontWeight: 500, color: colors.text.primary, marginTop: 24}}>Notifications</Text>
-            <Text style={{fontSize: 16, fontWeight: 400, color: colors.text.secondary}}>We'll always let you know about
-                important changes, but you pick what else you want to hear about.</Text>
             <Text style={{fontSize: 20, marginTop: 16, color: colors.text.primary}}>Push
                 Notifications</Text>
             <Text style={{fontSize: 16, fontWeight: 400, color: colors.text.secondary, marginBottom: 12}}>These are
@@ -207,7 +236,7 @@ function Profile({state, updateField}) {
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.reminders ? colors.toggleable.toggled.background : "transparent",
+                backgroundColor: state.reminders ? colors.toggleable.toggled.background : "white",
                 flexDirection: "row",
                 alignSelf: "flex-start",
                 marginBottom: 12
@@ -237,7 +266,7 @@ function Profile({state, updateField}) {
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.goals ? colors.toggleable.toggled.background : "transparent",
+                backgroundColor: state.goals ? colors.toggleable.toggled.background : "white",
                 flexDirection: "row",
                 alignSelf: "flex-start",
                 marginBottom: 12
@@ -267,7 +296,7 @@ function Profile({state, updateField}) {
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.progress ? colors.toggleable.toggled.background : "transparent",
+                backgroundColor: state.progress ? colors.toggleable.toggled.background : "white",
                 flexDirection: "row",
                 alignSelf: "flex-start"
             }}>
