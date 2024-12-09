@@ -90,7 +90,7 @@ const initialState = {
     center: false,
     point: {},
     hole: 1,
-    distance: 0,
+    distance: -1,
     puttBreak: generateBreak(),
     missRead: false,
     putts: []

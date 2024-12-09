@@ -509,64 +509,6 @@ function ConfirmExit({end, partial, cancel}) {
     )
 }
 
-function ConfirmSubmit({submit, cancel}) {
-    const colors = useColors();
-
-    const colorScheme = useColorScheme();
-
-    return (
-        <ThemedView style={{
-            borderColor: colors.border.popup,
-            borderWidth: 1,
-            width: "auto",
-            maxWidth: "70%",
-            maxHeight: "70%",
-            borderRadius: 16,
-            paddingTop: 20,
-            paddingBottom: 20,
-            paddingHorizontal: 20,
-            flexDirection: "col"
-        }}>
-            <View style={{justifyContent: "center", flexDirection: "row", width: "100%"}}>
-                <View style={{
-                    padding: 12,
-                    alignContent: "center",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    borderRadius: 50,
-                    backgroundColor: colors.checkmark.background
-                }}>
-                    <Svg width={24} height={24} stroke={colors.checkmark.color} xmlns="http://www.w3.org/2000/svg"
-                         fill="none"
-                         viewBox="0 0 24 24" strokeWidth="3">
-                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                    </Svg>
-                </View>
-            </View>
-            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Submit
-                Session</ThemedText>
-            <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 8}}>Done
-                putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your
-                shoes.</ThemedText>
-            {colorScheme === "light" ?
-                [
-                    <SecondaryButton key={"primary"} onPress={submit} title={"Submit"}
-                                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></SecondaryButton>,
-                    <PrimaryButton key={"secondary"} onPress={cancel} title={"Cancel"}
-                                   style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></PrimaryButton>
-                ]
-                :
-                [
-                    <PrimaryButton key={"secondary"} onPress={submit} title={"Submit"}
-                                   style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></PrimaryButton>,
-                    <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
-                                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></SecondaryButton>
-                ]
-            }
-        </ThemedView>
-    )
-}
-
 // TODO this needs to be able to support a neutral break, maybe a bottom in the top left corner? It should also start at neutral
 function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();

@@ -1,23 +1,14 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {View, Text, Pressable, TextInput} from "react-native";
+import React, {useCallback, useEffect, useState} from "react";
+import {Pressable, Text, TextInput, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
-import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
-import {ThemedText} from "@/components/ThemedText";
 import ArrowComponent from "@/components/icons/ArrowComponent";
-import {SvgClose, SvgWarning} from "@/assets/svg/SvgComponents";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 
 export default function BigMissModal({
-                                         updateField,
-                                         rawLargeMissBy,
-                                         bigMissRef,
-                                         nextHole,
-                                         lastHole,
-                                         allPutts,
-                                         hole,
+                                         updateField, rawLargeMissBy, bigMissRef, nextHole, lastHole, allPutts, hole,
                                      }) {
     const colors = useColors();
 
@@ -33,6 +24,48 @@ export default function BigMissModal({
     const [distanceInvalid, setDistanceInvalid] = useState(false);
 
     const [largeMissBy, setLargeMissBy] = useState([0, 0]);
+
+    const [intervalId, setIntervalId] = useState(null);
+
+    // TODO this doesnt work for distance, make it a gesturehandler instead
+    function handlePressIn(putts, add) {
+        clearInterval(intervalId);
+
+        let setIntervalFunction = setInterval(() => {
+            if (putts) {
+                if (add) {
+                    setPutts(prev => {
+                        if (prev === -1) return 2;
+                        if (prev === 9) return 2;
+                        return prev + 1;
+                    })
+                } else {
+                    setPutts(prev => {
+                        if (prev <= 2) return 9;
+                        return prev - 1;
+                    });
+                }
+                return;
+            }
+            if (add) {
+                setDistance(prev => {
+                    if (prev <= -1) return 3;
+                    if (prev >= 99) return 3;
+                    return prev + 1;
+                })
+            } else {
+                setDistance(prev => {
+                    if (prev <= 3) return 99;
+                    return prev - 1;
+                });
+            }
+        }, putts ? 200 : 100);
+        setIntervalId(setIntervalFunction);
+    }
+
+    function handlePressOut() {
+        clearInterval(intervalId);
+    }
 
     useEffect(() => {
         if (allPutts[hole - 1] && allPutts[hole - 1].largeMiss) {
@@ -72,20 +105,15 @@ export default function BigMissModal({
     };
 
     const myBackdrop = useCallback(({animatedIndex, style}) => {
-        return (
-            <CustomBackdrop
-                open={true}
-                reference={largeMissBy}
-                animatedIndex={animatedIndex}
-                style={style}
-            />
-        );
+        return (<CustomBackdrop
+            open={true}
+            reference={bigMissRef}
+            animatedIndex={animatedIndex}
+            style={style}
+        />);
     }, []);
 
-    const isEqual = (arr, arr2) =>
-        Array.isArray(arr) &&
-        arr.length === arr2.length &&
-        arr.every((val, index) => val === arr2[index]);
+    const isEqual = (arr, arr2) => Array.isArray(arr) && arr.length === arr2.length && arr.every((val, index) => val === arr2[index]);
 
     const close = () => {
         if (transitioningBack) {
@@ -96,8 +124,8 @@ export default function BigMissModal({
         updateField("largeMissBy", [0, 0]);
         updateField("largeMiss", false);
 
-        setPutts("");
-        setDistance("");
+        setPutts(-1);
+        setDistance(-1);
         setLargeMissBy([0, 0]);
 
         setPuttsFocused(false);
@@ -116,7 +144,6 @@ export default function BigMissModal({
             setInvalid(true);
             return;
         }
-
 
         let fixedPutts = parseInt(newPutts.replace(/[^0-9]/g, ""));
         setInvalid(fixedPutts < 2 || fixedPutts > 9)
@@ -141,492 +168,403 @@ export default function BigMissModal({
     }
 
     // renders
-    return (
-        <BottomSheetModal
-            ref={bigMissRef}
-            backdropComponent={myBackdrop}
-            onChange={() => {
-                if (open) {
-                    close();
-                }
-                setOpen(!open);
+    return (<BottomSheetModal
+        ref={bigMissRef}
+        backdropComponent={myBackdrop}
+        onChange={() => {
+            if (open) {
+                close();
+            }
+            setOpen(!open);
+        }}
+        backgroundStyle={{backgroundColor: colors.background.secondary}}
+    >
+        <BottomSheetView
+            style={{
+                paddingBottom: 12, backgroundColor: colors.background.secondary,
             }}
-            backgroundStyle={{backgroundColor: colors.background.secondary}}
         >
-            <BottomSheetView
+            <View
                 style={{
-                    paddingBottom: 12,
-                    backgroundColor: colors.background.secondary,
+                    paddingHorizontal: 24, flexDirection: "column", alignItems: "center",
                 }}
             >
                 <View
                     style={{
-                        paddingHorizontal: 24,
-                        flexDirection: "column",
-                        alignItems: "center",
+                        flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,
                     }}
                 >
                     <View
                         style={{
-                            flexDirection: "row",
-                            gap: 12,
+                            height: 32,
+                            aspectRatio: 1,
                             alignItems: "center",
-                            marginBottom: 8,
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            borderRadius: 50,
+                            backgroundColor: colors.button.danger.background,
                         }}
                     >
-                        <View
-                            style={{
-                                height: 32,
-                                aspectRatio: 1,
-                                alignItems: "center",
-                                flexDirection: "row",
-                                justifyContent: "center",
-                                borderRadius: 50,
-                                backgroundColor: colors.button.danger.background,
-                            }}
-                        >
-                            <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>
-                                !
-                            </Text>
-                        </View>
-                        <Text
-                            style={{
-                                fontSize: 26,
-                                fontWeight: 600,
-                                color: colors.text.primary,
-                                textAlign: "left",
-                            }}
-                        >
-                            Miss &gt;3ft
+                        <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>
+                            !
                         </Text>
                     </View>
                     <Text
                         style={{
-                            fontSize: 16,
-                            fontWeight: 400,
-                            color: colors.text.secondary,
-                            textAlign: "center",
-                            width: "70%",
-                            marginBottom: 16,
+                            fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left",
                         }}
                     >
-                        Putting for the rough, are we? You might need GPS for the next one.
-                        Mark where you missed below.
+                        Miss &gt;3ft
+                    </Text>
+                </View>
+                <Text
+                    style={{
+                        fontSize: 16,
+                        fontWeight: 400,
+                        color: colors.text.secondary,
+                        textAlign: "center",
+                        width: "70%",
+                        marginBottom: 16,
+                    }}
+                >
+                    Putting for the rough, are we? You might need GPS for the next one.
+                    Mark where you missed below.
+                </Text>
+                <View
+                    style={{
+                        flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",
+                    }}
+                >
+                    <View style={{flexDirection: "column", gap: 12}}>
+                        <Pressable
+                            onPress={() => setMissDirection([1, 1])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={1}
+                                verticalSlope={0}
+                                selected={isEqual(largeMissBy, [1, 1])}
+                            ></ArrowComponent>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setMissDirection([1, 0])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={1}
+                                verticalSlope={1}
+                                selected={isEqual(largeMissBy, [1, 0])}
+                            ></ArrowComponent>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setMissDirection([1, -1])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={1}
+                                verticalSlope={2}
+                                selected={isEqual(largeMissBy, [1, -1])}
+                            ></ArrowComponent>
+                        </Pressable>
+                    </View>
+                    <View
+                        style={{
+                            flexDirection: "column", justifyContent: "space-between",
+                        }}
+                    >
+                        <Pressable
+                            onPress={() => setMissDirection([0, 1])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={2}
+                                verticalSlope={0}
+                                selected={isEqual(largeMissBy, [0, 1])}
+                            ></ArrowComponent>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setMissDirection([0, -1])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={2}
+                                verticalSlope={2}
+                                selected={isEqual(largeMissBy, [0, -1])}
+                            ></ArrowComponent>
+                        </Pressable>
+                    </View>
+                    <View style={{flexDirection: "column", gap: 12}}>
+                        <Pressable
+                            onPress={() => setMissDirection([-1, 1])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={0}
+                                verticalSlope={0}
+                                selected={isEqual(largeMissBy, [-1, 1])}
+                            ></ArrowComponent>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setMissDirection([-1, 0])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={0}
+                                verticalSlope={1}
+                                selected={isEqual(largeMissBy, [-1, 0])}
+                            ></ArrowComponent>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setMissDirection([-1, -1])}
+                            style={{
+                                aspectRatio: 1,
+                                padding: 20,
+                                backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                borderRadius: 50,
+                            }}
+                        >
+                            <ArrowComponent
+                                horizontalBreak={0}
+                                verticalSlope={2}
+                                selected={isEqual(largeMissBy, [-1, -1])}
+                            ></ArrowComponent>
+                        </Pressable>
+                    </View>
+                </View>
+                <View style={{
+                    flexDirection: "row", gap: 12, width: "100%", alignItems: "center", justifyContent: "flex-end"
+                }}>
+                    <Text
+                        style={{
+                            fontSize: 18, color: colors.text.primary, marginBottom: 10,
+                        }}
+                    >
+                        Total putts to complete the hole:
                     </Text>
                     <View
                         style={{
-                            flexDirection: "row",
-                            gap: 12,
-                            marginBottom: 20,
-                            alignSelf: "center",
+                            flexDirection: "row", gap: 12, marginBottom: 8, alignItems: "center",
                         }}
                     >
-                        <View style={{flexDirection: "column", gap: 12}}>
-                            <Pressable
-                                onPress={() => setMissDirection([1, 1])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [1, 1])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
+                        <PrimaryButton style={{
+                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
+                        }} onPress={() => {
+                            if (putts === -1) setPutts(9);
+                            else if (putts === 2) setPutts(9);
+                            else setPutts(putts - 1);
+                        }} onPressIn={() => handlePressIn(true, false)}
+                                       onPressOut={handlePressOut}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
                             >
-                                <ArrowComponent
-                                    horizontalBreak={1}
-                                    verticalSlope={0}
-                                    selected={isEqual(largeMissBy, [1, 1])}
-                                ></ArrowComponent>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => setMissDirection([1, 0])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [1, 0])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
-                            >
-                                <ArrowComponent
-                                    horizontalBreak={1}
-                                    verticalSlope={1}
-                                    selected={isEqual(largeMissBy, [1, 0])}
-                                ></ArrowComponent>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => setMissDirection([1, -1])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [1, -1])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
-                            >
-                                <ArrowComponent
-                                    horizontalBreak={1}
-                                    verticalSlope={2}
-                                    selected={isEqual(largeMissBy, [1, -1])}
-                                ></ArrowComponent>
-                            </Pressable>
-                        </View>
-                        <View
+                                <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
+                            </Svg>
+                        </PrimaryButton>
+                        <TextInput
                             style={{
-                                flexDirection: "column",
-                                justifyContent: "space-between",
+                                width: 36,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: puttsFocused ? invalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalid ? colors.input.invalid.border : colors.input.border,
+                                borderRadius: 10,
+                                paddingVertical: 6,
+                                fontSize: 16,
+                                color: colors.input.text,
+                                backgroundColor: invalid ? colors.input.invalid.background : puttsFocused ? colors.input.focused.background : colors.input.background,
                             }}
-                        >
-                            <Pressable
-                                onPress={() => setMissDirection([0, 1])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [0, 1])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
+                            onFocus={() => setPuttsFocused(true)}
+                            onBlur={() => setPuttsFocused(false)}
+                            onChangeText={(text) => updatePutts(text)}
+                            value={putts !== -1 ? putts.toString() : ""}
+                            defaultValue={putts !== -1 ? putts.toString() : ""}
+                        />
+                        <PrimaryButton style={{
+                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
+                        }} onPress={() => {
+                            if (putts === -1) setPutts(2); else if (putts === 9) setPutts(2); else setPutts(putts + 1);
+                        }} onPressIn={() => handlePressIn(true, true)}
+                                       onPressOut={handlePressOut}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
                             >
-                                <ArrowComponent
-                                    horizontalBreak={2}
-                                    verticalSlope={0}
-                                    selected={isEqual(largeMissBy, [0, 1])}
-                                ></ArrowComponent>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => setMissDirection([0, -1])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [0, -1])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
-                            >
-                                <ArrowComponent
-                                    horizontalBreak={2}
-                                    verticalSlope={2}
-                                    selected={isEqual(largeMissBy, [0, -1])}
-                                ></ArrowComponent>
-                            </Pressable>
-                        </View>
-                        <View style={{flexDirection: "column", gap: 12}}>
-                            <Pressable
-                                onPress={() => setMissDirection([-1, 1])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [-1, 1])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
-                            >
-                                <ArrowComponent
-                                    horizontalBreak={0}
-                                    verticalSlope={0}
-                                    selected={isEqual(largeMissBy, [-1, 1])}
-                                ></ArrowComponent>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => setMissDirection([-1, 0])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [-1, 0])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
-                            >
-                                <ArrowComponent
-                                    horizontalBreak={0}
-                                    verticalSlope={1}
-                                    selected={isEqual(largeMissBy, [-1, 0])}
-                                ></ArrowComponent>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => setMissDirection([-1, -1])}
-                                style={{
-                                    aspectRatio: 1,
-                                    padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [-1, -1])
-                                        ? colors.button.danger.background
-                                        : colors.button.danger.disabled.background,
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    borderRadius: 50,
-                                }}
-                            >
-                                <ArrowComponent
-                                    horizontalBreak={0}
-                                    verticalSlope={2}
-                                    selected={isEqual(largeMissBy, [-1, -1])}
-                                ></ArrowComponent>
-                            </Pressable>
-                        </View>
-                    </View>
-                    <View style={{flexDirection: "row", gap: 12, alignItems: "center"}}>
-                        <Text
-                            style={{
-                                fontSize: 18,
-                                color: colors.text.primary,
-                                marginBottom: 10,
-                            }}
-                        >
-                            Total putts to complete the hole:
-                        </Text>
-                        <View
-                            style={{
-                                flexDirection: "row",
-                                gap: 12,
-                                marginBottom: 8,
-                                alignItems: "center",
-                            }}
-                        >
-                            <PrimaryButton style={{
-                                aspectRatio: 1,
-                                paddingHorizontal: 4,
-                                paddingVertical: 4,
-                                borderRadius: 16,
-                                flex: 0
-                            }} onPress={() => {
-                                if (putts === -1) setPutts(9);
-                                else if (putts === 2) setPutts(9);
-                                else setPutts(putts - 1);
-                            }}>
-                                <Svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={3}
-                                    stroke={colors.button.primary.text}
-                                    width={18}
-                                    height={18}
-                                >
-                                    <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
-                                </Svg>
-                            </PrimaryButton>
-                            <TextInput
-                                style={{
-                                    width: 36,
-                                    textAlign: "center",
-                                    borderWidth: 1,
-                                    borderColor: puttsFocused
-                                        ? invalid
-                                            ? colors.input.invalid.focusedBorder
-                                            : colors.input.focused.border
-                                        : invalid
-                                            ? colors.input.invalid.border
-                                            : colors.input.border,
-                                    borderRadius: 10,
-                                    paddingVertical: 6,
-                                    fontSize: 16,
-                                    color: colors.input.text,
-                                    backgroundColor: invalid
-                                        ? colors.input.invalid.background
-                                        : puttsFocused
-                                            ? colors.input.focused.background
-                                            : colors.input.background,
-                                }}
-                                onFocus={() => setPuttsFocused(true)}
-                                onBlur={() => setPuttsFocused(false)}
-                                onChangeText={(text) => updatePutts(text)}
-                                value={putts !== -1 ? putts.toString() : ""}
-                                defaultValue={putts !== -1 ? putts.toString() : ""}
-                            />
-                            <PrimaryButton style={{
-                                aspectRatio: 1,
-                                paddingHorizontal: 4,
-                                paddingVertical: 4,
-                                borderRadius: 16,
-                                flex: 0
-                            }} onPress={() => {
-                                if (putts === -1) setPutts(2);
-                                else if (putts === 9) setPutts(2);
-                                else setPutts(putts + 1);
-                            }}>
-                                <Svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={3}
-                                    stroke={colors.button.primary.text}
-                                    width={18}
-                                    height={18}
-                                >
-                                    <Path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 4.5v15m7.5-7.5h-15"
-                                    />
-                                </Svg>
-                            </PrimaryButton>
-                        </View>
-                    </View>
-                    <View style={{flexDirection: "row", gap: 12, alignItems: "center"}}>
-                        <Text
-                            style={{
-                                fontSize: 18,
-                                color: colors.text.primary,
-                                marginBottom: 10,
-                            }}
-                        >
-                            Estimated distance missed (ft):
-                        </Text>
-                        <View
-                            style={{
-                                flexDirection: "row",
-                                gap: 12,
-                                marginBottom: 12,
-                                alignItems: "center",
-                            }}
-                        >
-                            <PrimaryButton style={{
-                                aspectRatio: 1,
-                                paddingHorizontal: 4,
-                                paddingVertical: 4,
-                                borderRadius: 16,
-                                flex: 0
-                            }} onPress={() => {
-                                if (distance === -1) setDistance(99);
-                                else if (distance === 2) setDistance(99);
-                                else setDistance(distance - 1);
-                            }}>
-                                <Svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={3}
-                                    stroke={colors.button.primary.text}
-                                    width={18}
-                                    height={18}
-                                >
-                                    <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
-                                </Svg>
-                            </PrimaryButton>
-                            <TextInput
-                                style={{
-                                    width: 36,
-                                    textAlign: "center",
-                                    borderWidth: 1,
-                                    borderColor: distanceFocused
-                                        ? distanceInvalid
-                                            ? colors.input.invalid.focusedBorder
-                                            : colors.input.focused.border
-                                        : distanceInvalid
-                                            ? colors.input.invalid.border
-                                            : colors.input.border,
-                                    borderRadius: 10,
-                                    paddingVertical: 6,
-                                    fontSize: 16,
-                                    color: colors.input.text,
-                                    backgroundColor: distanceInvalid
-                                        ? colors.input.invalid.background
-                                        : distanceFocused
-                                            ? colors.input.focused.background
-                                            : colors.input.background,
-                                }}
-                                onFocus={() => setDistanceFocused(true)}
-                                onBlur={() => setDistanceFocused(false)}
-                                onChangeText={(text) => updateDistance(text)}
-                                value={distance !== -1 ? distance.toString() : ""}
-                                defaultValue={distance !== -1 ? distance.toString() : ""}
-                            />
-                            <PrimaryButton style={{
-                                aspectRatio: 1,
-                                paddingHorizontal: 4,
-                                paddingVertical: 4,
-                                borderRadius: 16,
-                                flex: 0
-                            }} onPress={() => {
-                                if (distance === -1) setDistance(2);
-                                else if (distance === 99) setDistance(2);
-                                else setDistance(distance + 1);
-                            }}>
-                                <Svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={3}
-                                    stroke={colors.button.primary.text}
-                                    width={18}
-                                    height={18}
-                                >
-                                    <Path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 4.5v15m7.5-7.5h-15"
-                                    />
-                                </Svg>
-                            </PrimaryButton>
-                        </View>
-                    </View>
-                    <View style={{flexDirection: "row", gap: 12}}>
-                        <PrimaryButton
-                            onPress={() => {
-                                if (hole !== 1) {
-                                    setTransitioningBack(true);
-                                    lastHole();
-                                }
-                            }}
-                            disabled={
-                                hole === 1
-                            }
-                            title={"Back"}
-                        ></PrimaryButton>
-                        <PrimaryButton
-                            onPress={() => {
-                                if (
-                                    !isEqual(largeMissBy, [0, 0]) &&
-                                    !invalid &&
-                                    putts.length !== 0 &&
-                                    distance.length !== 0 &&
-                                    !distanceInvalid
-                                ) {
-                                    nextHole(parseInt(putts), parseInt(distance));
-                                    console.log("running")
-                                }
-                            }}
-                            disabled={
-                                isEqual(largeMissBy, [0, 0]) ||
-                                invalid ||
-                                putts.length === 0 ||
-                                distance.length === 0 ||
-                                distanceInvalid
-                            }
-                            title={"Submit"}
-                        ></PrimaryButton>
+                                <Path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4.5v15m7.5-7.5h-15"
+                                />
+                            </Svg>
+                        </PrimaryButton>
                     </View>
                 </View>
-            </BottomSheetView>
-        </BottomSheetModal>
-    );
+                <View style={{
+                    flexDirection: "row", gap: 12, width: "100%", alignItems: "center", justifyContent: "flex-end"
+                }}>
+                    <Text
+                        style={{
+                            fontSize: 18, color: colors.text.primary, marginBottom: 10,
+                        }}
+                    >
+                        Estimated distance missed (ft):
+                    </Text>
+                    <View
+                        style={{
+                            flexDirection: "row", gap: 12, marginBottom: 12, alignItems: "center",
+                        }}
+                    >
+                        <PrimaryButton style={{
+                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
+                        }} onPress={() => {
+                            if (distance === -1) updateDistance("99"); else if (distance === 2) updateDistance("99"); else updateDistance((distance - 1).toString());
+                        }} onPressIn={() => handlePressIn(false, false)}
+                                       onPressOut={handlePressOut}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
+                            >
+                                <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
+                            </Svg>
+                        </PrimaryButton>
+                        <TextInput
+                            style={{
+                                width: 36,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: distanceFocused ? distanceInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : distanceInvalid ? colors.input.invalid.border : colors.input.border,
+                                borderRadius: 10,
+                                paddingVertical: 6,
+                                fontSize: 16,
+                                color: colors.input.text,
+                                backgroundColor: distanceInvalid ? colors.input.invalid.background : distanceFocused ? colors.input.focused.background : colors.input.background,
+                            }}
+                            onFocus={() => setDistanceFocused(true)}
+                            onBlur={() => setDistanceFocused(false)}
+                            onChangeText={(text) => updateDistance(text)}
+                            value={distance !== -1 ? distance.toString() : ""}
+                            defaultValue={distance !== -1 ? distance.toString() : ""}
+                        />
+                        <PrimaryButton style={{
+                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
+                        }} onPress={() => {
+                            if (distance === -1) updateDistance("2"); else if (distance === 99) updateDistance("2"); else updateDistance((distance + 1).toString());
+                        }} onPressIn={() => handlePressIn(false, true)}
+                                       onPressOut={handlePressOut}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
+                            >
+                                <Path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4.5v15m7.5-7.5h-15"
+                                />
+                            </Svg>
+                        </PrimaryButton>
+                    </View>
+                </View>
+                <View style={{flexDirection: "row", gap: 12}}>
+                    <PrimaryButton
+                        onPress={() => {
+                            if (hole !== 1) {
+                                setTransitioningBack(true);
+                                lastHole();
+                            }
+                        }}
+                        disabled={hole === 1}
+                        title={"Back"}
+                    ></PrimaryButton>
+                    <PrimaryButton
+                        onPress={() => {
+                            if (!isEqual(largeMissBy, [0, 0]) && !invalid && putts.length !== 0 && distance.length !== 0 && !distanceInvalid) {
+                                nextHole(parseInt(putts), parseInt(distance));
+                                console.log("running")
+                            }
+                        }}
+                        disabled={isEqual(largeMissBy, [0, 0]) || invalid || putts === -1 || distance === -1 || distanceInvalid}
+                        title={"Submit"}
+                    ></PrimaryButton>
+                </View>
+            </View>
+        </BottomSheetView>
+    </BottomSheetModal>);
 }
