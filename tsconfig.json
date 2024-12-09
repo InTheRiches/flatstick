@@ -12,6 +12,24 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
+    "expo-env.d.js",
+    "app/+not-found.jsx",
+    "app/+html.jsx",
+    "app/_layout.jsx",
+    "components/ParallaxScrollView.jsx",
+    "components/HelloWave.jsx",
+    "components/ExternalLink.jsx",
+    "components/Collapsible.jsx",
+    "components/navigation/TabBarIcon.jsx",
+    "components/ThemedText.jsx",
+    "hooks/useThemeColor.js",
+    "hooks/useColorScheme.web.js",
+    "hooks/useColorScheme.js",
+    "constants/Colors.js",
+    "components/ThemedView.jsx",
+    "app/(tabs)/index.jsx",
+    "app/(tabs)/explore.jsx",
+    "app/(tabs)/_layout.jsx",
     "expo-env.d.ts"
-, "app/+not-found.jsx", "app/+html.jsx", "app/_layout.jsx", "components/ParallaxScrollView.jsx", "components/HelloWave.jsx", "components/ExternalLink.jsx", "components/Collapsible.jsx", "components/navigation/TabBarIcon.jsx", "components/ThemedText.jsx", "hooks/useThemeColor.js", "hooks/useColorScheme.web.js", "hooks/useColorScheme.js", "constants/Colors.js", "components/ThemedView.jsx", "app/(tabs)/index.jsx", "app/(tabs)/explore.jsx", "app/(tabs)/_layout.jsx"  ]
+  ]
 }

@@ -5,6 +5,7 @@ import useColors from "@/hooks/useColors";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
 
+// TODO add the same increment/decrement functionality as the distance input
 export default function TotalPutts({ totalPuttsRef, currentPutts, nextHole }) {
   const colors = useColors();
 
