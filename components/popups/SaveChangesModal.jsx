@@ -10,18 +10,8 @@ import Svg, { Path } from "react-native-svg";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { SecondaryButton } from "../buttons/SecondaryButton";
 
-const DrawerSaveChanges = ({ saveChangesRef, show, disabled }) => {
+const SaveChangesModal = ({ saveChangesRef, save, disabled }) => {
   const colors = useColors();
-
-  const [difficulty, setDifficulty] = useState("easy");
-  const [mode, setMode] = useState("random");
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (show) saveChangesRef.current.expand();
-    else saveChangesRef.current.close();
-  }, [show]);
 
   // renders
   return (
@@ -85,7 +75,7 @@ const DrawerSaveChanges = ({ saveChangesRef, show, disabled }) => {
             <PrimaryButton
               disabled={disabled}
               title={"Save"}
-              onPress={() => {}}
+              onPress={save}
             ></PrimaryButton>
           </View>
         </View>
@@ -94,4 +84,4 @@ const DrawerSaveChanges = ({ saveChangesRef, show, disabled }) => {
   );
 };
 
-export default DrawerSaveChanges;
+export default SaveChangesModal;
