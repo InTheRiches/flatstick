@@ -9,7 +9,6 @@ import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 
-// TODO WHEN A USER OPENS ONE, CLOSE THE OTHER
 export default function BreakPopup({breakRef, brek, setBrek}) {
     const colors = useColors();
 

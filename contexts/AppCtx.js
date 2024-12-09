@@ -165,8 +165,6 @@ export function AppProvider({children}) {
     };
 
     // Update statistics
-    // TODO When you calculate the percent of for example miss percent, it should not be taken out of the total putts, as you add 2 putts for the ones they dont make. It should
-    // be taken out of the total holes, as you dont care about the second putt that the app assumes you took.
     const updateStats = async () => {
         const newStats = {
             lessThanSix: {
