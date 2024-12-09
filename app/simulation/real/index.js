@@ -74,7 +74,7 @@ const slopes = {
     180: "Uphill",
 }
 
-export default function Simulation() {
+export default function RealSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
     const {updateStats} = useAppContext();
