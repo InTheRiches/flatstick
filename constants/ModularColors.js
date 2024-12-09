@@ -55,7 +55,7 @@ export const LightTheme = {
     },
   },
   input: {
-    background: 'transparent',
+    background: 'white',
     border: '#bababa',
     text: '#111827',
     invalid: {
@@ -65,7 +65,7 @@ export const LightTheme = {
       background: '#F5D3D3',
     },
     focused: {
-      background: 'transparent',
+      background: 'white',
       border: '#63B6FF',
     },
   },
