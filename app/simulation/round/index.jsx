@@ -22,7 +22,14 @@ import {useAppContext} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import TotalPutts from '../../../components/popups/TotalPutts';
 import BigMissModal from '../../../components/popups/BigMiss';
-import {calculateDistanceMissedFeet, calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
+import {
+    calculateDistanceMissedFeet,
+    calculateStats,
+    convertThetaToBreak,
+    getLargeMissPoint,
+    loadPuttData
+} from '../../../utils/PuttUtils';
+import SubmitModal from "../../../components/popups/SubmitModal";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -91,7 +98,7 @@ const initialState = {
 
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
 // ABOVE THAT, MAKE A GOAL MENU, THAT SHOWS THE GOAL THAT ALIGNS WITH THE PUTT, IF NONE, JUST SAY "make a goal if you need to work on this"
-export default function Simulation() {
+export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
     const {updateStats} = useAppContext();
@@ -104,6 +111,7 @@ export default function Simulation() {
     const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
+    const submitRef = useRef(null);
 
     const [{
         loading,
@@ -171,8 +179,10 @@ export default function Simulation() {
         }
 
         // if the hole exists already, and totalPutts is -1, then we are going to use the existing value, and not the -1
-        if (putts[hole - 1] !== undefined && totalPutts === -1) {
-            totalPutts = putts[hole - 1].totalPutts;
+        if (totalPutts === -1) {
+            if (putts[hole - 1] !== undefined)
+                totalPutts = putts[hole - 1].totalPutts;
+            else totalPutts = 2;
         }
 
         if (putts[hole - 1] !== undefined && largeMissDistance === 0) {
@@ -195,7 +205,9 @@ export default function Simulation() {
 
     const nextHole = (totalPutts, largeMissDistance = -1) => {
         if (hole === holes) {
-            updateField("confirmSubmit", true);
+            pushHole(totalPutts, largeMissDistance);
+
+            submitRef.current.present();
             return;
         }
 
@@ -208,9 +220,8 @@ export default function Simulation() {
             updateField("missRead", false);
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
-            updateField("theta", 0);
-            updateField("puttBreak", convertThetaToBreak(0));
-            updateField("distance", -1);
+            updateField("puttBreak", generateBreak());
+            updateField("distance", generateDistance(difficulty));
             updateField("hole", hole + 1);
             updateField("largeMiss", false);
             return;
@@ -253,22 +264,9 @@ export default function Simulation() {
         navigation.goBack();
     }
 
+    // TODO investigate error where setDoc is being set with invalid data (undefined?)
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
-
-        if (point.x !== undefined) {
-            const distanceMissedFeet = largeMiss ? 0 : calculateDistanceMissedFeet(center, point, width, height);
-            puttsCopy[hole - 1] = {
-                distance: distance,
-                break: puttBreak,
-                missRead: missRead,
-                largeMiss: largeMiss,
-                totalPutts: -1,
-                distanceMissed: distanceMissedFeet,
-                point: largeMiss ? {x: 0, y: 0} : point
-            };
-            updateField("putts", puttsCopy);
-        }
 
         const {totalPutts, avgMiss, madePercent, trimmedPutts} = calculateStats(puttsCopy, width, height);
 
@@ -458,7 +456,8 @@ export default function Simulation() {
                                 totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
                     <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                                   rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
-                    {(confirmLeave || confirmSubmit) &&
+                    <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
+                    {(confirmLeave) &&
                         <View style={{
                             position: 'absolute',
                             top: 0,
@@ -476,9 +475,6 @@ export default function Simulation() {
                                 <ConfirmExit cancel={() => updateField("confirmLeave", false)}
                                              partial={() => submit(true)}
                                              end={fullReset}></ConfirmExit>}
-                            {confirmSubmit &&
-                                <ConfirmSubmit cancel={() => updateField("confirmSubmit", false)}
-                                               submit={submit}></ConfirmSubmit>}
                         </View>}
                 </ThemedView>
             </BottomSheetModalProvider>
