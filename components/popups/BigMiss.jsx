@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Pressable, Text, TextInput, View} from "react-native";
-import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import {Keyboard, Platform, Pressable, Text, TextInput, View} from "react-native";
+import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
 import ArrowComponent from "@/components/icons/ArrowComponent";
@@ -26,46 +26,6 @@ export default function BigMissModal({
     const [largeMissBy, setLargeMissBy] = useState([0, 0]);
 
     const [intervalId, setIntervalId] = useState(null);
-
-    // TODO this doesnt work for distance, make it a gesturehandler instead
-    function handlePressIn(putts, add) {
-        clearInterval(intervalId);
-
-        let setIntervalFunction = setInterval(() => {
-            if (putts) {
-                if (add) {
-                    setPutts(prev => {
-                        if (prev === -1) return 2;
-                        if (prev === 9) return 2;
-                        return prev + 1;
-                    })
-                } else {
-                    setPutts(prev => {
-                        if (prev <= 2) return 9;
-                        return prev - 1;
-                    });
-                }
-                return;
-            }
-            if (add) {
-                setDistance(prev => {
-                    if (prev <= -1) return 3;
-                    if (prev >= 99) return 3;
-                    return prev + 1;
-                })
-            } else {
-                setDistance(prev => {
-                    if (prev <= 3) return 99;
-                    return prev - 1;
-                });
-            }
-        }, putts ? 200 : 100);
-        setIntervalId(setIntervalFunction);
-    }
-
-    function handlePressOut() {
-        clearInterval(intervalId);
-    }
 
     useEffect(() => {
         if (allPutts[hole - 1] && allPutts[hole - 1].largeMiss) {
@@ -121,6 +81,8 @@ export default function BigMissModal({
             return;
         }
 
+        Keyboard.dismiss();
+
         updateField("largeMissBy", [0, 0]);
         updateField("largeMiss", false);
 
@@ -160,7 +122,6 @@ export default function BigMissModal({
             setInvalid(true);
             return;
         }
-
 
         let fixedDistance = parseInt(newDistance.replace(/[^0-9]/g, ""));
         setDistanceInvalid(fixedDistance < 3 || fixedDistance > 99)
@@ -391,7 +352,7 @@ export default function BigMissModal({
                     </View>
                 </View>
                 <View style={{
-                    flexDirection: "row", gap: 12, width: "100%", alignItems: "center", justifyContent: "flex-end"
+                    flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end"
                 }}>
                     <Text
                         style={{
@@ -411,8 +372,7 @@ export default function BigMissModal({
                             if (putts === -1) setPutts(9);
                             else if (putts === 2) setPutts(9);
                             else setPutts(putts - 1);
-                        }} onPressIn={() => handlePressIn(true, false)}
-                                       onPressOut={handlePressOut}>
+                        }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -425,7 +385,7 @@ export default function BigMissModal({
                                 <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
                             </Svg>
                         </PrimaryButton>
-                        <TextInput
+                        <BottomSheetTextInput
                             style={{
                                 width: 36,
                                 textAlign: "center",
@@ -442,13 +402,13 @@ export default function BigMissModal({
                             onChangeText={(text) => updatePutts(text)}
                             value={putts !== -1 ? putts.toString() : ""}
                             defaultValue={putts !== -1 ? putts.toString() : ""}
+                            keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
                         />
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
                             if (putts === -1) setPutts(2); else if (putts === 9) setPutts(2); else setPutts(putts + 1);
-                        }} onPressIn={() => handlePressIn(true, true)}
-                                       onPressOut={handlePressOut}>
+                        }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -468,7 +428,8 @@ export default function BigMissModal({
                     </View>
                 </View>
                 <View style={{
-                    flexDirection: "row", gap: 12, width: "100%", alignItems: "center", justifyContent: "flex-end"
+                    flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end",
+                    marginBottom: 8
                 }}>
                     <Text
                         style={{
@@ -486,8 +447,7 @@ export default function BigMissModal({
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
                             if (distance === -1) updateDistance("99"); else if (distance === 2) updateDistance("99"); else updateDistance((distance - 1).toString());
-                        }} onPressIn={() => handlePressIn(false, false)}
-                                       onPressOut={handlePressOut}>
+                        }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -517,13 +477,13 @@ export default function BigMissModal({
                             onChangeText={(text) => updateDistance(text)}
                             value={distance !== -1 ? distance.toString() : ""}
                             defaultValue={distance !== -1 ? distance.toString() : ""}
+                            keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
                         />
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
                             if (distance === -1) updateDistance("2"); else if (distance === 99) updateDistance("2"); else updateDistance((distance + 1).toString());
-                        }} onPressIn={() => handlePressIn(false, true)}
-                                       onPressOut={handlePressOut}>
+                        }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"

@@ -25,14 +25,15 @@ export default function RootLayout() {
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}} edges={['top', 'bottom']}>
+    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
       <AppProvider>
         <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
         <GestureHandlerRootView>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack
               screenOptions={{
-                headerShown: false
+                headerShown: false,
+                backgroundColor: colors.background.primary
               }}>
               <Stack.Screen name="(tabs)"/>
               <Stack.Screen name={"simulation/pressure/index"}/>

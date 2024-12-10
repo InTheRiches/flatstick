@@ -148,7 +148,7 @@ export default function RealSimulation() {
         if (putts[hole - 1] !== undefined) {
             if (totalPutts === -1)
                 totalPutts = putts[hole - 1].totalPutts
-            if (largeMissDistance === 0)
+            if (largeMissDistance === -1)
                 largeMissDistance = putts[hole - 1].distanceMissed
         }
 
@@ -189,7 +189,7 @@ export default function RealSimulation() {
     const lastHole = () => {
         if (hole === 1) return;
 
-        const puttsCopy = pushHole(-1, 0);
+        const puttsCopy = pushHole(-1, -1);
         loadPuttData(puttsCopy[hole - 2], updateField);
         updateField("hole", hole - 1);
     };
@@ -512,6 +512,7 @@ function ConfirmExit({end, partial, cancel}) {
 // TODO this needs to be able to support a neutral break, maybe a bottom in the top left corner? It should also start at neutral
 function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
+    const colorScheme = useColorScheme();
 
     const [distanceFocused, setDistanceFocused] = useState(false);
 
@@ -618,15 +619,33 @@ function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, s
                         flex: 1,
                         overflow: "hidden"
                     }}>
-                        <TextInput style={{flex: 1, fontSize: 20, fontWeight: "bold"}}
+                        <TextInput style={{
+                            flex: 1,
+                            fontSize: 20,
+                            fontWeight: "bold",
+                            color: colors.text.primary,
+                            backgroundColor: colorScheme === "light" ? "transparent" : distanceInvalid ? "#6D3232" : colors.background.primary,
+                        }}
                                    placeholder="?"
+                                   placeholderTextColor={colors.text.secondary}
                                    textAlign='center'
                                    value={distance !== -1 ? "" + distance : ""}
                                    onChangeText={validateDistance}
                                    onFocus={() => setDistanceFocused(true)}
-                                   onBlur={() => setDistanceFocused(false)}/>
+                                   onBlur={() => setDistanceFocused(false)}
+                                   keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
                         <View
-                            style={{backgroundColor: distanceInvalid ? "#FFBCBC" : colors.background.primary, flex: 1}}>
+                            style={{
+                                borderLeftWidth: 1.5,
+                                borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
+                                backgroundColor:
+                                    distanceInvalid ?
+                                        colors.input.invalid.text :
+                                        colorScheme === "light" ?
+                                            colors.background.primary :
+                                            colors.border.default,
+                                flex: 1
+                        }}>
                             <Text style={{
                                 fontSize: 20,
                                 paddingVertical: 2,

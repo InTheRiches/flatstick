@@ -43,7 +43,7 @@ export default function NewRealRound({ newRealRoundRef }) {
           backgroundColor: colors.background.secondary,
         }}
       >
-        <View style={{ marginHorizontal: 24 }}>
+        <View style={{ marginHorizontal: 24, marginBottom: 4 }}>
           <Text
             style={{
               fontSize: 20,
@@ -59,11 +59,10 @@ export default function NewRealRound({ newRealRoundRef }) {
               fontSize: 18,
               color: colors.text.primary,
               marginBottom: 10,
-            }}
-          >
+            }}>
             Holes
           </Text>
-          <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
+          <View style={{ flexDirection: "row", gap: 12, marginBottom: 24 }}>
             <Pressable
               onPress={() => setHoles(9)}
               style={{
@@ -80,8 +79,7 @@ export default function NewRealRound({ newRealRoundRef }) {
                   holes === 9
                     ? colors.toggleable.toggled.background
                     : "transparent",
-              }}
-            >
+              }}>
               {holes === 9 && (
                 <View
                   style={{
@@ -91,8 +89,7 @@ export default function NewRealRound({ newRealRoundRef }) {
                     backgroundColor: "#40C2FF",
                     padding: 3,
                     borderRadius: 50,
-                  }}
-                >
+                  }}>
                   <Svg
                     width={18}
                     height={18}
@@ -100,8 +97,7 @@ export default function NewRealRound({ newRealRoundRef }) {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
-                    strokeWidth="3"
-                  >
+                    strokeWidth="3">
                     <Path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -115,8 +111,7 @@ export default function NewRealRound({ newRealRoundRef }) {
                   textAlign: "center",
                   color: colors.text.primary,
                   fontSize: 16,
-                }}
-              >
+                }}>
                 9 Holes
               </Text>
             </Pressable>
