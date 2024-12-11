@@ -1,16 +1,14 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {useRouter, useLocalSearchParams, useNavigation} from 'expo-router';
-import {Image, Pressable, Text, BackHandler, Platform, useColorScheme, TextInput} from 'react-native';
-import {GestureDetector, Gesture} from 'react-native-gesture-handler';
+import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {BackHandler, Image, Platform, Pressable, Text, TextInput, useColorScheme, View} from 'react-native';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
-import {View} from 'react-native';
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from '@/components/buttons/DangerButton';
-import React from "react";
-import {getFirestore, setDoc, doc} from "firebase/firestore";
+import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
@@ -24,7 +22,8 @@ import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import BigMissModal from '../../../components/popups/BigMiss';
 import {
     calculateDistanceMissedFeet,
-    calculateStats, convertThetaToBreak,
+    calculateStats,
+    convertThetaToBreak,
     getLargeMissPoint,
     loadPuttData,
     updatePuttsCopy
@@ -60,6 +59,7 @@ const breaks = {
     0: "Straight",
     360: "Straight",
     180: "Straight",
+    999: "Straight",
 }
 
 const slopes = {
@@ -72,6 +72,7 @@ const slopes = {
     0: "Downhill",
     360: "Downhill",
     180: "Uphill",
+    999: "Neutral",
 }
 
 export default function RealSimulation() {

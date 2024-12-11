@@ -8,6 +8,7 @@ const breaks = {
     0: "Straight",
     360: "Straight",
     180: "Straight",
+    999: "Straight",
 }
 
 const slopes = {
@@ -20,6 +21,7 @@ const slopes = {
     0: "Downhill",
     360: "Downhill",
     180: "Uphill",
+    999: "Neutral",
 }
 
 const breakConversion = [

@@ -139,6 +139,7 @@ export default function BigMissModal({
             setOpen(!open);
         }}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
+        keyboardBlurBehavior={"restore"}
     >
         <BottomSheetView
             style={{

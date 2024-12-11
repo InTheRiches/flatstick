@@ -14,6 +14,7 @@ const angleImages = {
     0: require("@/assets/images/breakSelector/forward.png"),
     360: require("@/assets/images/breakSelector/forward.png"),
     180: require("@/assets/images/breakSelector/back.png"),
+    999: require("@/assets/images/breakSelector/neutral.png"),
 }
 
 // TODO MAKE THE ARROW GREEN IMAGE, MAKE THE ARROWS CENTERED, AS THEY RIGHT KNOW MOVE AROUND A LITTLE WHEN THEY ROTATE
@@ -52,9 +53,9 @@ export default function GreenBreakSelector({theta, setTheta}) {
 
     useEffect(() => {
         measurePosition();
-    });
+    }, []);
 
-    const gesture = Gesture.Pan().onUpdate((event) => {
+    const pan = Gesture.Pan().onUpdate((event) => {
         let x = event.absoluteX - baseX;
         let y = event.absoluteY - baseY;
 
@@ -69,6 +70,12 @@ export default function GreenBreakSelector({theta, setTheta}) {
         else
             runOnJS(adjustTheta)(360 - finalRad);
     });
+
+    const tap = Gesture.Tap().onEnd(() => {
+        runOnJS(adjustTheta)(999);
+    });
+
+    const gesture = Gesture.Race(pan, tap);
 
     const [visibleImageSource, setVisibleImageSource] = useState(null);
 

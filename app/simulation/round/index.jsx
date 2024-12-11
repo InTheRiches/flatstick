@@ -1,17 +1,15 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
-import {useRouter, useLocalSearchParams, useNavigation} from 'expo-router';
-import {Image, Pressable, Text, BackHandler, Platform, useColorScheme} from 'react-native';
-import {GestureDetector, Gesture} from 'react-native-gesture-handler';
+import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {BackHandler, Image, Platform, Pressable, Text, useColorScheme, View} from 'react-native';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
-import {View} from 'react-native';
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from "@/components/buttons/DangerButton";
 import ArrowComponent from "@/components/icons/ArrowComponent";
-import React from "react";
-import {getFirestore, setDoc, doc} from "firebase/firestore";
+import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
@@ -22,13 +20,7 @@ import {useAppContext} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import TotalPutts from '../../../components/popups/TotalPutts';
 import BigMissModal from '../../../components/popups/BigMiss';
-import {
-    calculateDistanceMissedFeet,
-    calculateStats,
-    convertThetaToBreak,
-    getLargeMissPoint,
-    loadPuttData
-} from '../../../utils/PuttUtils';
+import {calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
 import SubmitModal from "../../../components/popups/SubmitModal";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
@@ -118,7 +110,6 @@ export default function RoundSimulation() {
         confirmLeave,
         largeMiss,
         largeMissBy,
-        confirmSubmit,
         width,
         height,
         center,
