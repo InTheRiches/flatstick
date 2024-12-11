@@ -29,6 +29,7 @@ import {
     updatePuttsCopy
 } from '../../../utils/PuttUtils';
 import SubmitModal from "../../../components/popups/SubmitModal";
+import ConfirmExit from "../../../components/popups/ConfirmExit";
 
 const initialState = {
     confirmLeave: false,
@@ -89,13 +90,12 @@ export default function RealSimulation() {
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
+    const confirmExitRef = useRef(null);
 
     const [{
         loading,
-        confirmLeave,
         largeMiss,
         largeMissBy,
-        confirmSubmit,
         width,
         height,
         center,
@@ -118,15 +118,8 @@ export default function RealSimulation() {
     };
 
     useEffect(() => {
-        if (confirmLeave === true && largeMiss) {
-            updateField("largeMissBy", [0, 0]);
-            updateField("largeMiss", false);
-        }
-    }, [confirmLeave])
-
-    useEffect(() => {
         const onBackPress = () => {
-            updateField("confirmLeave", true);
+            confirmExitRef.current.present();
 
             return true;
         };
@@ -280,7 +273,7 @@ export default function RealSimulation() {
                             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                                 <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}<Text
                                     style={{fontSize: 14}}>/{holes}</Text></ThemedText>
-                                <Pressable onPress={() => updateField("confirmLeave", true)}>
+                                <Pressable onPress={() => confirmExitRef.current.present()}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          strokeWidth={1.5}
                                          stroke={colors.text.primary} width={32} height={32}>
@@ -420,97 +413,13 @@ export default function RealSimulation() {
                     <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                                   rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
                     <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
-                    {(confirmLeave) &&
-                        <View style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            zIndex: 20,
-                            height: '100%',
-                            width: '100%',
-                            backgroundColor: colors.background.tinted
-                        }}>
-                            {confirmLeave &&
-                                <ConfirmExit cancel={() => updateField("confirmLeave", false)}
-                                             partial={() => submit(true)}
-                                             end={fullReset}></ConfirmExit>}
-                        </View>}
+                    <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
                 </ThemedView>
             </BottomSheetModalProvider>
     );
 }
 
-// TODO make this a modal
-function ConfirmExit({end, partial, cancel}) {
-    const colors = useColors();
-    const colorScheme = useColorScheme();
-
-    return (
-        <View style={{
-            borderColor: colors.border.popup,
-            backgroundColor: colors.background.primary,
-            borderWidth: 1,
-            width: "auto",
-            maxWidth: "70%",
-            maxHeight: "70%",
-            borderRadius: 16,
-            paddingTop: 20,
-            paddingBottom: 20,
-            paddingHorizontal: 20,
-            flexDirection: "col",
-        }}>
-            <View style={{
-                alignSelf: "center",
-                padding: 12,
-                alignContent: "center",
-                flexDirection: "row",
-                justifyContent: "center",
-                borderRadius: 50,
-                backgroundColor: colors.button.danger.background
-            }}>
-                <SvgWarning width={26} height={26}
-                            stroke={colors.button.danger.text}></SvgWarning>
-            </View>
-            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>End
-                Session</ThemedText>
-            <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Are
-                you
-                sure you want to end this session? You can always upload the partial round, otherwise all data will be
-                lost.
-                This action cannot be undone.</ThemedText>
-            <Pressable onPress={end} style={({pressed}) => [{
-                backgroundColor: pressed ? colors.button.danger.depressed : colors.button.danger.background,
-                paddingVertical: 10,
-                borderRadius: 10,
-                marginTop: 16
-            }]}>
-                <Text style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>End
-                    Session</Text>
-            </Pressable>
-            {colorScheme === "light" ?
-                [
-                    <PrimaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
-                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></PrimaryButton>,
-                    <PrimaryButton key={"primary"} onPress={cancel} title={"Cancel"}
-                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></PrimaryButton>
-                ]
-                :
-                [
-                    <SecondaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
-                                     style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>,
-                    <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
-                                     style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
-                ]
-            }
-        </View>
-    )
-}
-
-// TODO this needs to be able to support a neutral break, maybe a bottom in the top left corner? It should also start at neutral
+// TODO make the break start at neutral
 function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
@@ -641,6 +550,8 @@ function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, s
                                 borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
                                 backgroundColor:
                                     distanceInvalid ?
+                                        colorScheme === "light" ?
+                                        "#FFBCBC" :
                                         colors.input.invalid.text :
                                         colorScheme === "light" ?
                                             colors.background.primary :

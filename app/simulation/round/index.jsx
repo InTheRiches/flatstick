@@ -22,6 +22,7 @@ import TotalPutts from '../../../components/popups/TotalPutts';
 import BigMissModal from '../../../components/popups/BigMiss';
 import {calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
 import SubmitModal from "../../../components/popups/SubmitModal";
+import ConfirmExit from "../../../components/popups/ConfirmExit";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -72,8 +73,6 @@ function generateDistance(difficulty) {
 }
 
 const initialState = {
-    confirmLeave: false,
-    confirmSubmit: false,
     loading: false,
     largeMiss: false,
     largeMissBy: [0, 0],
@@ -104,10 +103,10 @@ export default function RoundSimulation() {
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
+    const confirmExitRef = useRef(null);
 
     const [{
         loading,
-        confirmLeave,
         largeMiss,
         largeMissBy,
         width,
@@ -131,19 +130,12 @@ export default function RoundSimulation() {
     };
 
     useEffect(() => {
-        if (confirmLeave === true && largeMiss) {
-            updateField("largeMissBy", [0, 0]);
-            updateField("largeMiss", false);
-        }
-    }, [confirmLeave])
-
-    useEffect(() => {
         updateField("distance", generateDistance(difficulty));
     }, []);
 
     useEffect(() => {
         const onBackPress = () => {
-            updateField("confirmLeave", true);
+            confirmExitRef.current.present();
 
             return true;
         };
@@ -312,7 +304,7 @@ export default function RoundSimulation() {
                         <View>
                             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                                 <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
-                                <Pressable onPress={() => updateField("confirmLeave", true)}>
+                                <Pressable onPress={() => confirmExitRef.current.present()}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          strokeWidth={1.5}
                                          stroke={colors.text.primary} width={32} height={32}>
@@ -448,25 +440,7 @@ export default function RoundSimulation() {
                     <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                                   rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
                     <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
-                    {(confirmLeave) &&
-                        <View style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            zIndex: 50,
-                            height: '100%',
-                            width: '100%',
-                            backgroundColor: colors.background.tinted
-                        }}>
-                            {confirmLeave &&
-                                <ConfirmExit cancel={() => updateField("confirmLeave", false)}
-                                             partial={() => submit(true)}
-                                             end={fullReset}></ConfirmExit>}
-                        </View>}
+                    <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
                 </ThemedView>
             </BottomSheetModalProvider>
     );
@@ -539,313 +513,6 @@ function GreenVisual({distance, puttBreak, slope, imageSource}) {
                     </View>
                 </View>
             </View>
-        </View>
-    )
-}
-
-function ConfirmExit({end, partial, cancel}) {
-    const colors = useColors();
-    const colorScheme = useColorScheme();
-
-    return (
-        <View style={{
-            borderColor: colors.border.popup,
-            backgroundColor: colors.background.primary,
-            borderWidth: 1,
-            width: "auto",
-            maxWidth: "70%",
-            maxHeight: "70%",
-            borderRadius: 16,
-            paddingTop: 20,
-            paddingBottom: 20,
-            paddingHorizontal: 20,
-            flexDirection: "col"
-        }}>
-            <View style={{justifyContent: "center", flexDirection: "row", width: "100%"}}>
-                <View style={{
-                    padding: 12,
-                    alignContent: "center",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    borderRadius: 50,
-                    backgroundColor: colors.button.danger.background
-                }}>
-                    <SvgWarning width={26} height={26}
-                                stroke={colors.button.danger.text}></SvgWarning>
-                </View>
-            </View>
-            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>End
-                Session</ThemedText>
-            <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Are
-                you
-                sure you want to end this session? You can always upload the partial round, otherwise all data will be
-                lost.
-                This action cannot be undone.</ThemedText>
-            <Pressable onPress={end} style={({pressed}) => [{
-                backgroundColor: pressed ? colors.button.danger.depressed : colors.button.danger.background,
-                paddingVertical: 10,
-                borderRadius: 10,
-                marginTop: 16
-            }]}>
-                <Text style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>End
-                    Session</Text>
-            </Pressable>
-            {colorScheme === "light" ?
-                [
-                    <PrimaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
-                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></PrimaryButton>,
-                    <PrimaryButton key={"primary"} onPress={cancel} title={"Cancel"}
-                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></PrimaryButton>
-                ]
-                :
-                [
-                    <SecondaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
-                                     style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>,
-                    <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
-                                     style={{marginTop: 10, paddingVertical: 10, borderRadius: 10}}></SecondaryButton>
-                ]
-            }
-        </View>
-    )
-}
-
-function ConfirmSubmit({submit, cancel}) {
-    const colors = useColors();
-
-    const colorScheme = useColorScheme();
-
-    return (
-        <ThemedView style={{
-            borderColor: colors.border.popup,
-            borderWidth: 1,
-            width: "auto",
-            maxWidth: "70%",
-            maxHeight: "70%",
-            borderRadius: 16,
-            paddingTop: 20,
-            paddingBottom: 20,
-            paddingHorizontal: 20,
-            flexDirection: "col"
-        }}>
-            <View style={{justifyContent: "center", flexDirection: "row", width: "100%"}}>
-                <View style={{
-                    padding: 12,
-                    alignContent: "center",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    borderRadius: 50,
-                    backgroundColor: colors.checkmark.background
-                }}>
-                    <Svg width={24} height={24} stroke={colors.checkmark.color} xmlns="http://www.w3.org/2000/svg"
-                         fill="none"
-                         viewBox="0 0 24 24" strokeWidth="3">
-                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                    </Svg>
-                </View>
-            </View>
-            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Submit
-                Session</ThemedText>
-            <ThemedText type={"default"} secondary={true} style={{textAlign: "center", lineHeight: 18, marginTop: 8}}>Done
-                putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your
-                shoes.</ThemedText>
-            {colorScheme === "light" ?
-                [
-                    <SecondaryButton key={"primary"} onPress={submit} title={"Submit"}
-                                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></SecondaryButton>,
-                    <PrimaryButton key={"secondary"} onPress={cancel} title={"Cancel"}
-                                   style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></PrimaryButton>
-                ]
-                :
-                [
-                    <PrimaryButton key={"secondary"} onPress={submit} title={"Submit"}
-                                   style={{paddingVertical: 10, borderRadius: 10, marginTop: 32}}></PrimaryButton>,
-                    <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
-                                     style={{paddingVertical: 10, borderRadius: 10, marginTop: 10}}></SecondaryButton>
-                ]
-            }
-        </ThemedView>
-    )
-}
-
-function BigMiss({largeMissBy, updateField, nextHole}) {
-    const colors = useColors();
-
-    const isEqual = (arr, arr2) =>
-        Array.isArray(arr) && arr.length === arr2.length && arr.every((val, index) => val === arr2[index]);
-
-    const close = () => {
-        updateField("largeMissBy", [0, 0]);
-        updateField("largeMiss", false);
-    }
-
-    return (
-        <View style={{
-            borderColor: colors.border.popup,
-            backgroundColor: colors.background.primary,
-            borderWidth: 1,
-            width: "auto",
-            maxWidth: "70%",
-            maxHeight: "70%",
-            borderRadius: 16,
-            paddingTop: 18,
-            paddingBottom: 16,
-            paddingHorizontal: 16,
-            flexDirection: "col",
-            alignItems: "center",
-        }}>
-            <View style={{width: "100%", flexDirection: "row", justifyContent: "flex-end"}}>
-                <SecondaryButton onPress={() => updateField("largeMiss", false)}
-                                 style={{padding: 3, borderRadius: 8}}>
-                    <SvgClose stroke={colors.button.secondary.text} width={24} height={24}></SvgClose>
-                </SecondaryButton>
-            </View>
-            <View style={{
-                flexDirection: "column",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 24
-            }}>
-                <View style={{
-                    height: 48,
-                    aspectRatio: 1,
-                    alignContent: "center",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    borderRadius: 50,
-                    backgroundColor: colors.button.danger.background
-                }}>
-                    <Text style={{color: "white", fontWeight: 600, fontSize: 24, marginTop: 6}}>!</Text>
-                </View>
-                <View style={{marginTop: 12}}>
-                    <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center"}}>Miss &gt;3ft</ThemedText>
-                    <ThemedText type={"default"} secondary={true}
-                                style={{textAlign: "center", lineHeight: 18, marginTop: 10}}>Putting
-                        for the rough, are we? You might need GPS for the next one.</ThemedText>
-                </View>
-            </View>
-            <View style={{flexDirection: "row", gap: 12, alignSelf: "center"}}>
-                <View style={{flexDirection: "column", gap: 12}}>
-                    <Pressable onPress={() => updateField("largeMissBy", [1, 1])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={1} verticalSlope={0}
-                                        selected={isEqual(largeMissBy, [1, 1])}></ArrowComponent>
-                    </Pressable>
-                    <Pressable onPress={() => updateField("largeMissBy", [1, 0])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={1} verticalSlope={1}
-                                        selected={isEqual(largeMissBy, [1, 0])}></ArrowComponent>
-                    </Pressable>
-                    <Pressable onPress={() => updateField("largeMissBy", [1, -1])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={1} verticalSlope={2}
-                                        selected={isEqual(largeMissBy, [1, -1])}></ArrowComponent>
-                    </Pressable>
-                </View>
-                <View style={{flexDirection: "column", justifyContent: "space-between"}}>
-                    <Pressable onPress={() => updateField("largeMissBy", [0, 1])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={2} verticalSlope={0}
-                                        selected={isEqual(largeMissBy, [0, 1])}></ArrowComponent>
-                    </Pressable>
-                    <Pressable onPress={() => updateField("largeMissBy", [0, -1])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={2} verticalSlope={2}
-                                        selected={isEqual(largeMissBy, [0, -1])}></ArrowComponent>
-                    </Pressable>
-                </View>
-                <View style={{flexDirection: "column", gap: 12}}>
-                    <Pressable onPress={() => updateField("largeMissBy", [-1, 1])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={0} verticalSlope={0}
-                                        selected={isEqual(largeMissBy, [-1, 1])}></ArrowComponent>
-                    </Pressable>
-                    <Pressable onPress={() => updateField("largeMissBy", [-1, 0])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={0} verticalSlope={1}
-                                        selected={isEqual(largeMissBy, [-1, 0])}></ArrowComponent>
-                    </Pressable>
-                    <Pressable onPress={() => updateField("largeMissBy", [-1, -1])} style={{
-                        aspectRatio: 1,
-                        padding: 20,
-                        backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 50
-                    }}>
-                        <ArrowComponent horizontalBreak={0} verticalSlope={2}
-                                        selected={isEqual(largeMissBy, [-1, -1])}></ArrowComponent>
-                    </Pressable>
-                </View>
-            </View>
-            <Pressable onPress={() => {
-                if (!isEqual(largeMissBy, [0, 0])) {
-                    nextHole();
-                }
-            }} style={{
-                backgroundColor: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.background : colors.button.danger.background,
-                paddingVertical: 10,
-                borderRadius: 10,
-                marginTop: 28,
-                borderWidth: 1,
-                borderColor: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.border : "transparent",
-                paddingHorizontal: 64
-            }}>
-                <Text style={{
-                    textAlign: "center",
-                    color: isEqual(largeMissBy, [0, 0]) ? colors.button.disabled.text : colors.button.danger.text,
-                    fontWeight: 500
-                }}>Submit</Text>
-            </Pressable>
         </View>
     )
 }
