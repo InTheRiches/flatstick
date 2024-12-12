@@ -518,7 +518,6 @@ export default function BigMissModal({
                         onPress={() => {
                             if (!isEqual(largeMissBy, [0, 0]) && !invalid && putts.length !== 0 && distance.length !== 0 && !distanceInvalid) {
                                 nextHole(parseInt(putts), parseInt(distance));
-                                console.log("running")
                             }
                         }}
                         disabled={isEqual(largeMissBy, [0, 0]) || invalid || putts === -1 || distance === -1 || distanceInvalid}

@@ -4,7 +4,7 @@ import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {BackHandler, Image, Platform, Pressable, Text, TextInput, useColorScheme, View} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
-import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
+import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from '@/components/buttons/DangerButton';
@@ -14,7 +14,6 @@ import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
-import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
 import GreenBreakSelector from '../../../components/utils/GreenBreakSelector';
 import TotalPutts from '../../../components/popups/TotalPutts';
@@ -235,8 +234,7 @@ export default function RealSimulation() {
 
         updateField("loading", true)
 
-        // Add a new document in collection "cities"
-        setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), {
+        const data = {
             date: new Date().toISOString(),
             timestamp: new Date().getTime(),
             holes: partial ? puttsCopy.length : holes,
@@ -245,7 +243,10 @@ export default function RealSimulation() {
             avgMiss: avgMiss,
             madePercent: madePercent,
             type: "real-simulation"
-        }).then(() => {
+        }
+
+        // Add a new document in collection "cities"
+        setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), data).then(() => {
             updateStats().then(() => {
                 router.push({
                     pathname: `/`,

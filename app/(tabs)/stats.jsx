@@ -211,8 +211,6 @@ function MissesTab() {
 
         const maxPercentage = Math.max(...missDistribution) + 0.01;
 
-        console.log(missDistribution);
-
         // if missDistribution is empty (which means full of NaN), return an empty object
         if (missDistribution.every(isNaN)) {
             return {
@@ -317,15 +315,15 @@ function MissesTab() {
             <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Miss
                 Distribution</Text>
             <View style={{flexDirection: "row", width: "100%", gap: 15, marginTop: 18}}>
-                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 10}}
+                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 8}}
                                title={slope === -1 ? "Filter Slopes" : "Slope: " + slopes[slope]}
                                onPress={() => slopeRef.current.present()}/>
-                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 10}}
+                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 8}}
                                title={brek === -1 ? "Filter Breaks" : "Break: " + breaks[brek]}
                                onPress={() => breakRef.current.present()}/>
             </View>
             <View style={{flexDirection: "row", width: "100%", marginTop: 6}}>
-                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 10}}
+                <PrimaryButton style={{flex: 1, borderRadius: 8, paddingVertical: 8}}
                                title={distance === -1 ? "Filter Distances" : "Distances: " + distances[distance]}
                                onPress={() => {
                                    distanceRef.current.present();

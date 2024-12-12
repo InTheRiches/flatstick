@@ -1,9 +1,9 @@
 import {ThemedText} from '@/components/ThemedText';
-import {Pressable, View, Text, ScrollView, TextInput} from 'react-native';
+import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
 
 import React, {useEffect, useRef, useState} from 'react';
-import {getAuth, updateProfile, updateEmail} from "firebase/auth";
-import {getFirestore, query, limit, orderBy, collection, getDocs} from "firebase/firestore";
+import {getAuth, updateEmail, updateProfile} from "firebase/auth";
+import {getFirestore} from "firebase/firestore";
 import useColors from "@/hooks/useColors";
 import {useAppContext, useSession} from "@/contexts/AppCtx";
 import SaveChangesModal from "../../components/popups/SaveChangesModal";
@@ -236,7 +236,7 @@ function Profile({state, updateField}) {
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.reminders ? colors.toggleable.toggled.background : "white",
+                backgroundColor: state.reminders ? colors.toggleable.toggled.background : colors.toggleable.background,
                 flexDirection: "row",
                 alignSelf: "flex-start",
                 marginBottom: 12
@@ -266,7 +266,7 @@ function Profile({state, updateField}) {
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.goals ? colors.toggleable.toggled.background : "white",
+                backgroundColor: state.goals ? colors.toggleable.toggled.background : colors.toggleable.background,
                 flexDirection: "row",
                 alignSelf: "flex-start",
                 marginBottom: 12
@@ -296,7 +296,7 @@ function Profile({state, updateField}) {
                 borderRadius: 12,
                 paddingHorizontal: 24,
                 paddingVertical: 8,
-                backgroundColor: state.progress ? colors.toggleable.toggled.background : "white",
+                backgroundColor: state.progress ? colors.toggleable.toggled.background : colors.toggleable.background,
                 flexDirection: "row",
                 alignSelf: "flex-start"
             }}>

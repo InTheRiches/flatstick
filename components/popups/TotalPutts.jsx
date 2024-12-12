@@ -1,5 +1,5 @@
-import React, {useCallback, useMemo, useState} from "react";
-import {View, Text, Pressable, TextInput} from "react-native";
+import React, {useCallback, useState} from "react";
+import {Text, TextInput, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
@@ -29,8 +29,6 @@ export default function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
         },
         [open]
     );
-
-    console.log(putts);
 
     const updatePutts = (newPutts) => {
         if (newPutts === "") {
