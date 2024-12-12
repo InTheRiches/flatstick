@@ -124,7 +124,7 @@ function MissesTab() {
 
     const calculateMisses = () => {
         if (brek === -1 && slope === -1) {
-            let arrays = [];
+            let arrays;
 
             if (distance !== -1) {
                 arrays = [currentStats[dataDistances[distance]].missDistribution];
@@ -169,7 +169,7 @@ function MissesTab() {
             };
         }
 
-        let distances = [];
+        let distances;
 
         if (distance !== -1) {
             distances = [dataDistances[distance]];

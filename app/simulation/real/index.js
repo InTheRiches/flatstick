@@ -425,8 +425,6 @@ function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, s
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    const [distanceFocused, setDistanceFocused] = useState(false);
-
     const validateDistance = (text) => {
         // if it's not a number, make it invalid
         if (text === "") {
@@ -542,8 +540,6 @@ function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, s
                                    textAlign='center'
                                    value={distance !== -1 ? "" + distance : ""}
                                    onChangeText={validateDistance}
-                                   onFocus={() => setDistanceFocused(true)}
-                                   onBlur={() => setDistanceFocused(false)}
                                    keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
                         <View
                             style={{

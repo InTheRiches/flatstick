@@ -25,8 +25,6 @@ export default function BigMissModal({
 
     const [largeMissBy, setLargeMissBy] = useState([0, 0]);
 
-    const [intervalId, setIntervalId] = useState(null);
-
     useEffect(() => {
         if (allPutts[hole - 1] && allPutts[hole - 1].largeMiss) {
             setPutts(allPutts[hole - 1].totalPutts);

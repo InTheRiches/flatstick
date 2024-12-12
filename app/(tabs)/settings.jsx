@@ -17,7 +17,6 @@ export default function HomeScreen() {
     const {signOut, isLoading} = useSession();
     const {userData} = useAppContext();
     const drawerSaveChanges = useRef(null);
-    const [changes, setChanges] = useState(false);
 
     const auth = getAuth();
     const db = getFirestore();
@@ -115,8 +114,6 @@ function Profile({state, updateField}) {
     const [emailFocused, setEmailFocused] = useState(false);
     const colors = useColors();
 
-    const auth = getAuth();
-
     let errorCode = "";
 
     const setName = (name) => {
@@ -126,7 +123,7 @@ function Profile({state, updateField}) {
 
     const setEmail = (email) => {
         updateField("email", email);
-        const re = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+        const re = /^[\w\-.]+@([\w-]+\.)+[\w-]{2,}$/;
         updateField("invalidEmail", !re.test(email));
     }
 
