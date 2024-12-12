@@ -9,6 +9,7 @@ import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
 import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
+import {filterMissDistribution} from "../../utils/PuttUtils";
 
 const tabs = [
     {
@@ -103,140 +104,6 @@ function MissesTab() {
 
     const {width} = Dimensions.get("screen")
 
-    const dataSlopes = [
-        "downhill",
-        "neutral",
-        "uphill"
-    ]
-
-    const dataBreaks = [
-        "rightToLeft",
-        "straight",
-        "leftToRight"
-    ]
-
-    const dataDistances = [
-        "lessThanSix",
-        "sixToTwelve",
-        "twelveToTwenty",
-        "twentyPlus"
-    ]
-
-    const calculateMisses = () => {
-        if (brek === -1 && slope === -1) {
-            let arrays;
-
-            if (distance !== -1) {
-                arrays = [currentStats[dataDistances[distance]].missDistribution];
-            } else {
-                arrays = [
-                    currentStats.lessThanSix.missDistribution,
-                    currentStats.sixToTwelve.missDistribution,
-                    currentStats.twelveToTwenty.missDistribution,
-                    currentStats.twentyPlus.missDistribution
-                ];
-            }
-
-            // Initialize an array of zeros with the same length as the arrays
-            const combinedMissDistribution = Array(arrays[0].length).fill(0);
-
-            // Iterate through each array and sum up their corresponding indices
-            arrays.forEach(array => {
-                array.forEach((value, index) => {
-                    combinedMissDistribution[index] += value;
-                });
-            });
-
-            let totalPutts = 0;
-            combinedMissDistribution.forEach(value => totalPutts += value);
-
-            if (totalPutts === 0) totalPutts = 1
-
-            // Calculate missDistribution
-            const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
-
-            const maxPercentage = Math.max(...missDistribution) + 0.01;
-
-            return {
-                "Long": missDistribution[0] / maxPercentage,
-                "Long Right": missDistribution[1] / maxPercentage,
-                "Right": missDistribution[2] / maxPercentage,
-                "Short Right": missDistribution[3] / maxPercentage,
-                "Short": missDistribution[4] / maxPercentage,
-                "Short Left": missDistribution[5] / maxPercentage,
-                "Left": missDistribution[6] / maxPercentage,
-                "Long Left": missDistribution[7] / maxPercentage,
-            };
-        }
-
-        let distances;
-
-        if (distance !== -1) {
-            distances = [dataDistances[distance]];
-        } else {
-            distances = ['lessThanSix', 'sixToTwelve', 'twelveToTwenty', 'twentyPlus'];
-        }
-
-        const merged = distances.reduce((acc, distance) => {
-            const slopeBreakData = currentStats[distance]?.slopeAndBreakDistribution || {};
-
-            let combinedArray = Array(10).fill(0);
-
-            // Handle filtering
-            if (slope !== -1 && brek !== -1) {
-                // Filter by both slope and break
-                combinedArray = slopeBreakData[dataSlopes[slope]]?.[dataBreaks[brek]] || [];
-            } else if (slope !== -1) {
-                // Filter only by slope (sum all breaks for the slope)
-                const slopeData = slopeBreakData[dataSlopes[slope]] || {};
-                for (const breakKey in slopeData) {
-                    combinedArray = combinedArray.map((val, idx) => val + (slopeData[breakKey][idx] || 0));
-                }
-            } else if (brek !== -1) {
-                // Filter only by break (sum all slopes for the break)
-                for (const slopeKey in slopeBreakData) {
-                    const breakData = slopeBreakData[slopeKey]?.[dataBreaks[brek]] || [];
-                    combinedArray = combinedArray.map((val, idx) => val + (breakData[idx] || 0));
-                }
-            }
-
-            // Add combinedArray to accumulator
-            return acc.map((val, idx) => val + combinedArray[idx]);
-        }, Array(10).fill(0)); // Adjust the size to match the array in JSON
-
-        const totalPutts = merged.slice(1).reduce((sum, num) => sum + num, 0);
-
-        // Calculate missDistribution
-        const missDistribution = merged.slice(2).map((value) => value / totalPutts);
-
-        const maxPercentage = Math.max(...missDistribution) + 0.01;
-
-        // if missDistribution is empty (which means full of NaN), return an empty object
-        if (missDistribution.every(isNaN)) {
-            return {
-                "Long": 0,
-                "Long Right": 0,
-                "Right": 0,
-                "Short Right": 0,
-                "Short": 0,
-                "Short Left": 0,
-                "Left": 0,
-                "Long Left": 0,
-            };
-        }    
-
-        return {
-            "Long": missDistribution[0] / maxPercentage,
-            "Long Right": missDistribution[1] / maxPercentage,
-            "Right": missDistribution[2] / maxPercentage,
-            "Short Right": missDistribution[3] / maxPercentage,
-            "Short": missDistribution[4] / maxPercentage,
-            "Short Left": missDistribution[5] / maxPercentage,
-            "Left": missDistribution[6] / maxPercentage,
-            "Long Left": missDistribution[7] / maxPercentage,
-        };
-    }
-
     const MissDistribution = () => {
         if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
@@ -247,7 +114,7 @@ function MissesTab() {
                         scaleCount={4}
                         numberInterval={0}
                         data={[
-                            calculateMisses(),
+                            filterMissDistribution(currentStats, distance, slope, brek),
                         ]}
                         options={{
                             graphShape: 1,

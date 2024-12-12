@@ -145,6 +145,8 @@ export default function RealSimulation() {
                 largeMissDistance = putts[hole - 1].distanceMissed
         }
 
+        console.log(theta);
+
         const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, missRead, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy);
         updateField("putts", puttsCopy);
         return puttsCopy;
@@ -166,6 +168,7 @@ export default function RealSimulation() {
             updateField("point", {});
             updateField("missRead", false);
             updateField("center", false);
+            updateField("distanceInvalid", true);
             updateField("largeMissBy", [0, 0]);
             updateField("theta", 0);
             updateField("puttBreak", convertThetaToBreak(0));
@@ -214,21 +217,6 @@ export default function RealSimulation() {
 
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
-
-        // this is not needed, as nextHole automatically pushes the last hole
-        // if (point.x !== undefined) {
-        //     const distanceMissedFeet = largeMiss ? 0 : calculateDistanceMissedFeet(center, point, width, height);
-        //     puttsCopy[hole - 1] = {
-        //         distance: distance,
-        //         theta: theta,
-        //         missRead: missRead,
-        //         largeMiss: largeMiss,
-        //         totalPutts: -1,
-        //         distanceMissed: distanceMissedFeet,
-        //         point: largeMiss ? {x: 0, y: 0} : point
-        //     };
-        //     updateField("putts", puttsCopy);
-        // }
 
         const {totalPutts, avgMiss, madePercent, trimmedPutts} = calculateStats(puttsCopy, width, height);
 

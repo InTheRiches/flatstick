@@ -136,12 +136,7 @@ const calculateStats = (puttsCopy, width, height) => {
                 yDistance = roundTo(putt.point.y, 2);
             }
 
-            let puttBreak = [];
-            if (putt.theta) {
-                puttBreak = convertThetaToBreak(putt.theta);
-            } else {
-                puttBreak = putt.break;
-            }
+            let puttBreak= putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
 
             trimmedPutts.push({
                 distance: putt.distance,
@@ -163,4 +158,155 @@ const calculateStats = (puttsCopy, width, height) => {
     return { totalPutts, avgMiss, madePercent, trimmedPutts };
 };
 
-export { normalizeVector, convertThetaToBreak, calculateStats, roundTo, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+const dataSlopes = [
+    "downhill",
+    "neutral",
+    "uphill"
+]
+
+const dataBreaks = [
+    "rightToLeft",
+    "straight",
+    "leftToRight"
+]
+
+const dataDistances = [
+    "lessThanSix",
+    "sixToTwelve",
+    "twelveToTwenty",
+    "twentyPlus"
+]
+
+function sumMisses(data, distance, slope, breakType) {
+    let totalMisses = [0, 0, 0, 0, 0, 0, 0, 0];
+    let totalPutts = 0;
+
+    // Get all distances if 'all' is specified, otherwise just the specific one
+    const distances = distance === -1 ? Object.keys(data) : [dataDistances[distance]];
+
+    console.log("Distance: " + distances)
+
+    distances.forEach(distanceKey => {
+        // Check if the distance exists
+        if (data[distanceKey]) {
+            const slopeData = data[distanceKey].slopeAndBreakDistribution;
+
+            // Get all slopes if 'all' is specified, otherwise just the specific one
+            const slopes = slope === -1 ? Object.keys(slopeData) : [dataSlopes[slope]];
+
+            console.log("slopes: " + slopes)
+
+            slopes.forEach(slopeKey => {
+                // Check if the slope exists
+                if (slopeData[slopeKey]) {
+                    const breakData = slopeData[slopeKey];
+
+                    // Get all break types if 'all' is specified, otherwise just the specific one
+                    const breakTypes = breakType === -1 ? Object.keys(breakData) : [dataBreaks[breakType]];
+
+                    console.log("breakTypes: " + breakTypes)
+
+                    breakTypes.forEach(breakKey => {
+                        // Check if the break type exists
+                        if (breakData[breakKey]) {
+                            const misses = breakData[breakKey].misses;
+
+                            // Add the misses to the totalMisses array
+                            totalMisses = totalMisses.map((val, idx) => val + misses[idx]);
+                            totalPutts += breakData[breakKey].putts;
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    return [totalPutts, totalMisses];
+}
+
+function filterMissDistribution(currentStats, distance, slope, brek) {
+    // if (brek === -1 && slope === -1) {
+    //     console.log("sup dude")
+    //     let arrays;
+    //
+    //     if (distance !== -1) {
+    //         arrays = [currentStats[dataDistances[distance]].missDistribution];
+    //     } else {
+    //         arrays = [
+    //             currentStats.lessThanSix.missDistribution,
+    //             currentStats.sixToTwelve.missDistribution,
+    //             currentStats.twelveToTwenty.missDistribution,
+    //             currentStats.twentyPlus.missDistribution
+    //         ];
+    //     }
+    //
+    //     // Initialize an array of zeros with the same length as the arrays
+    //     const combinedMissDistribution = Array(arrays[0].length).fill(0);
+    //
+    //     // Iterate through each array and sum up their corresponding indices
+    //     arrays.forEach(array => {
+    //         array.forEach((value, index) => {
+    //             combinedMissDistribution[index] += value;
+    //         });
+    //     });
+    //
+    //     console.log("sup dude 2")
+    //
+    //     let totalPutts = 0;
+    //     combinedMissDistribution.forEach(value => totalPutts += value);
+    //
+    //     if (totalPutts === 0) totalPutts = 1
+    //
+    //     // Calculate missDistribution
+    //     const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
+    //
+    //     const maxPercentage = Math.max(...missDistribution) + 0.01;
+    //
+    //     console.log("sup dude 3")
+    //
+    //     return {
+    //         "Long": missDistribution[0] / maxPercentage,
+    //         "Long Right": missDistribution[1] / maxPercentage,
+    //         "Right": missDistribution[2] / maxPercentage,
+    //         "Short Right": missDistribution[3] / maxPercentage,
+    //         "Short": missDistribution[4] / maxPercentage,
+    //         "Short Left": missDistribution[5] / maxPercentage,
+    //         "Left": missDistribution[6] / maxPercentage,
+    //         "Long Left": missDistribution[7] / maxPercentage,
+    //     };
+    // }
+
+    const [totalPutts, merged] = sumMisses(currentStats, distance, slope, brek);
+
+    // Calculate missDistribution
+    const missDistribution = merged.map((value) => value / totalPutts);
+
+    const maxPercentage = Math.max(...missDistribution) + 0.01;
+
+    // if missDistribution is empty (which means full of NaN), return an empty object
+    if (missDistribution.every(isNaN)) {
+        return {
+            "Long": 0,
+            "Long Right": 0,
+            "Right": 0,
+            "Short Right": 0,
+            "Short": 0,
+            "Short Left": 0,
+            "Left": 0,
+            "Long Left": 0,
+        };
+    }
+
+    return {
+        "Long": missDistribution[0] / maxPercentage,
+        "Long Right": missDistribution[1] / maxPercentage,
+        "Right": missDistribution[2] / maxPercentage,
+        "Short Right": missDistribution[3] / maxPercentage,
+        "Short": missDistribution[4] / maxPercentage,
+        "Short Left": missDistribution[5] / maxPercentage,
+        "Left": missDistribution[6] / maxPercentage,
+        "Long Left": missDistribution[7] / maxPercentage,
+    };
+}
+
+export { filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, roundTo, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

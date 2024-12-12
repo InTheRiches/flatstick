@@ -167,163 +167,107 @@ export function AppProvider({children}) {
 
     // Update statistics
     const updateStats = async () => {
+        const createCategory = () => {
+            return {
+                totalPutts: 0,
+                rawPutts: 0,
+
+                avgMiss: 0, // in feet
+
+                percentShort: 0,
+                percentTooLong: 0,
+                percentJustLong: 0, // within 2ft long, which is the right distance to be long by
+                percentMade: 0,
+
+                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                missReadDistribution: {
+                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
+                    neutral: [0, 0, 0], // neutral
+                    downhill: [0, 0, 0] // downhill
+                },
+
+                missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+
+                // TODO ADD MISSREAD DATA
+                slopeAndBreakDistribution: {
+                    uphill: {
+                        straight: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        },
+                        leftToRight: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        },
+                        rightToLeft: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        }
+                    },
+                    neutral: {
+                        straight: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        },
+                        leftToRight: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        },
+                        rightToLeft: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        }
+                    },
+                    downhill: {
+                        straight: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        },
+                        leftToRight: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        },
+                        rightToLeft: {
+                            putts: 0,
+                            avgMiss: 0,
+                            misses: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
+                            missDistances: [0, 0, 0, 0, 0, 0, 0, 0],
+                            made: 0
+                        }
+                    }
+                }
+            }
+        };
+
         const newStats = {
-            lessThanSix: {
-                totalPutts: 0,
-                rawPutts: 0,
-
-                avgMiss: 0, // in feet
-
-                percentShort: 0,
-                percentTooLong: 0,
-                percentJustLong: 0, // within 2ft long, which is the right distance to be long by
-                percentMade: 0,
-
-                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
-                missReadDistribution: {
-                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
-                    neutral: [0, 0, 0], // neutral
-                    downhill: [0, 0, 0] // downhill
-                },
-
-                missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
-
-                // TODO ADD MISSREAD DATA BY SLOPE AND BREAK
-                slopeAndBreakDistribution: {
-                    uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    }
-                }
-            },
-            sixToTwelve: {
-                totalPutts: 0,
-                rawPutts: 0,
-
-                avgMiss: 0, // in feet
-
-                percentShort: 0,
-                percentTooLong: 0,
-                percentJustLong: 0, // within 2ft long, which is the right distance to be long by
-                percentMade: 0,
-
-                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
-                missReadDistribution: {
-                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
-                    neutral: [0, 0, 0], // neutral
-                    downhill: [0, 0, 0] // downhill
-                },
-
-                missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
-
-                // TODO ADD MISSREAD DATA
-                slopeAndBreakDistribution: {
-                    uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    }
-                }
-            },
-            twelveToTwenty: {
-                totalPutts: 0,
-                rawPutts: 0,
-
-                avgMiss: 0, // in feet
-
-                percentShort: 0,
-                percentTooLong: 0,
-                percentJustLong: 0, // within 2ft long, which is the right distance to be long by
-                percentMade: 0,
-
-                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
-                missReadDistribution: {
-                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
-                    neutral: [0, 0, 0], // neutral
-                    downhill: [0, 0, 0] // downhill
-                },
-
-                missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
-
-                // TODO ADD MISSREAD DATA
-                slopeAndBreakDistribution: {
-                    uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    }
-                }
-            },
-            twentyPlus: {
-                totalPutts: 0,
-                rawPutts: 0,
-
-                avgMiss: 0, // in feet
-
-                percentShort: 0,
-                percentTooLong: 0,
-                percentJustLong: 0, // within 2ft long, which is the right distance to be long by
-                percentMade: 0,
-
-                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
-                missReadDistribution: {
-                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
-                    neutral: [0, 0, 0], // neutral
-                    downhill: [0, 0, 0] // downhill
-                },
-
-                missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
-
-                // TODO ADD MISSREAD DATA
-                slopeAndBreakDistribution: {
-                    uphill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, putts made, past, past right, right, short right, short, short left, left, past left
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    },
-                    downhill: {
-                        straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        leftToRight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        rightToLeft: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                    }
-                }
-            },
+            lessThanSix: createCategory(),
+            sixToTwelve: createCategory(),
+            twelveToTwenty: createCategory(),
+            twentyPlus: createCategory()
         };
 
         const newPuttSessions = await refreshData();
@@ -332,7 +276,7 @@ export function AppProvider({children}) {
 
         newPuttSessions.map((session, index) => {
             session.putts.forEach((putt) => {
-                const {distance, distanceMissed, missRead, xDistance, yDistance, slope, puttBreak} = putt;
+                const {distance, distanceMissed, missRead, xDistance, yDistance, puttBreak} = putt;
 
                 // Categorize putt distance
                 let category;
@@ -373,45 +317,60 @@ export function AppProvider({children}) {
                 const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
                 if (distanceMissed === 0) {
                     statCategory.percentMade++;
-                    slopeBreakStats[1]++;
+                    slopeBreakStats.made++;
                 } else if (degrees > -22.5 && degrees <= 22.5) {
                     statCategory.missDistribution[2]++; // right
+                    slopeBreakStats.misses[2]++; // right
+                    slopeBreakStats.missDistances[2] += distanceMissed;
+
                 } else if (degrees > 22.5 && degrees <= 67.5) {
                     statCategory.missDistribution[1]++; // past right
+                    slopeBreakStats.misses[1]++; // past right
+                    slopeBreakStats.missDistances[1] += distanceMissed;
 
                     if (distanceMissed <= 2) statCategory.percentJustLong++;
                     else statCategory.percentTooLong++;
                 } else if (degrees > 67.5 && degrees <= 112.5) {
                     statCategory.missDistribution[0]++; // past
+                    slopeBreakStats.misses[0]++; // past
+                    slopeBreakStats.missDistances[0] += distanceMissed;
 
                     if (distanceMissed <= distance + 2) statCategory.percentJustLong++;
                     else statCategory.percentTooLong++;
                 } else if (degrees > 112.5 && degrees <= 157.5) {
                     statCategory.missDistribution[7]++; // past left
+                    slopeBreakStats.misses[7]++; // past left
+                    slopeBreakStats.missDistances[7] += distanceMissed;
 
                     if (distanceMissed <= 2) statCategory.percentJustLong++;
                     else statCategory.percentTooLong++;
                 } else if (degrees > -67.5 && degrees <= -22.5) {
                     statCategory.missDistribution[3]++; // short right
+                    slopeBreakStats.misses[3]++; // short right
+                    slopeBreakStats.missDistances[3] += distanceMissed;
+
+                    statCategory.percentShort++;
                 } else if (degrees > -112.5 && degrees <= -67.5) {
                     statCategory.missDistribution[4]++; // short
+                    slopeBreakStats.misses[4]++; // short
+                    slopeBreakStats.missDistances[4] += distanceMissed;
+
+                    statCategory.percentShort++;
                 } else if (degrees > -157.5 && degrees <= -112.5) {
                     statCategory.missDistribution[5]++; // short left
+                    slopeBreakStats.misses[5]++; // short left
+                    slopeBreakStats.missDistances[5] += distanceMissed;
+
+                    statCategory.percentShort++;
                 } else {
                     statCategory.missDistribution[6]++; // left
+                    slopeBreakStats.misses[6]++; // left
+                    slopeBreakStats.missDistances[6] += distanceMissed;
                 }
 
                 // Average miss distance and increment directional miss count
-                slopeBreakStats[0] += distanceMissed; // Avg miss distance (will divide later)
-
-                if (degrees > -22.5 && degrees <= 22.5) slopeBreakStats[4]++; // right
-                else if (degrees > 22.5 && degrees <= 67.5) slopeBreakStats[3]++; // past right
-                else if (degrees > 67.5 && degrees <= 112.5) slopeBreakStats[2]++; // past
-                else if (degrees > 112.5 && degrees <= 157.5) slopeBreakStats[9]++; // past left
-                else if (degrees > -67.5 && degrees <= -22.5) slopeBreakStats[5]++; // short right
-                else if (degrees > -112.5 && degrees <= -67.5) slopeBreakStats[6]++; // short
-                else if (degrees > -157.5 && degrees <= -112.5) slopeBreakStats[7]++; // short left
-                else slopeBreakStats[8]++; // left
+                slopeBreakStats.avgMiss += distanceMissed; // Avg miss distance (will divide later)
+                slopeBreakStats.putts++;
             });
         });
 
@@ -424,12 +383,14 @@ export function AppProvider({children}) {
                 for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
                     const slopeBreakStats = statCategory.slopeAndBreakDistribution[slope][breakType];
 
-                    let totalSlopeBreakPutts = slopeBreakStats[2] + slopeBreakStats[3] + slopeBreakStats[4] + slopeBreakStats[5] + slopeBreakStats[6] + slopeBreakStats[7] + slopeBreakStats[8] + slopeBreakStats[9];
+                    if (slopeBreakStats.putts <= 0)
+                        continue;
 
-                    if (totalSlopeBreakPutts > 0) {
-                        slopeBreakStats[0] /= totalSlopeBreakPutts; // Avg miss distance
-                        slopeBreakStats[1] /= totalSlopeBreakPutts; // Percent Made
-                    }
+                    slopeBreakStats.avgMiss /= slopeBreakStats.putts; // Avg miss distance
+                    slopeBreakStats.made += slopeBreakStats.putts;
+                    // Calculate percentages of missDistances
+                    for (let i = 0; i < 8; i++)
+                        slopeBreakStats.missDistances[i] /= slopeBreakStats.putts;
 
                     statCategory.slopeAndBreakDistribution[slope][breakType] = slopeBreakStats;
                 }

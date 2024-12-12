@@ -1,11 +1,9 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {Keyboard, Platform, Pressable, Text, TextInput, useColorScheme, View} from "react-native";
-import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
+import React, {useCallback, useState} from "react";
+import {Pressable, Text, useColorScheme, View} from "react-native";
+import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
-import ArrowComponent from "@/components/icons/ArrowComponent";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
-import Svg, {Path} from "react-native-svg";
 import {SecondaryButton} from "../buttons/SecondaryButton";
 
 export default function ConfirmExit({ confirmExitRef, end, cancel, partial}) {
@@ -35,7 +33,7 @@ export default function ConfirmExit({ confirmExitRef, end, cancel, partial}) {
     >
         <BottomSheetView
             style={{
-                paddingBottom: 12, backgroundColor: colors.background.secondary,
+                paddingBottom: 20, backgroundColor: colors.background.secondary,
             }}
         >
             <View
