@@ -9,6 +9,7 @@ import useColors from "@/hooks/useColors";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
+import * as SystemUI from "expo-system-ui";
 
 export default function RootLayout() {
   const colors = useColors();
@@ -24,8 +25,10 @@ export default function RootLayout() {
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
+  SystemUI.setBackgroundColorAsync(colors.background.primary);
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}} edges={['top', 'bottom']}>
+    <SafeAreaView style={{flex: 1, }} edges={['top', 'bottom']}>
       <AppProvider>
         <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
         <GestureHandlerRootView>

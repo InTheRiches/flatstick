@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Keyboard, Platform, Pressable, Text, TextInput, View} from "react-native";
+import {Keyboard, Platform, Pressable, Text, View} from "react-native";
 import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
@@ -459,7 +459,7 @@ export default function BigMissModal({
                                 <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
                             </Svg>
                         </PrimaryButton>
-                        <TextInput
+                        <BottomSheetTextInput
                             style={{
                                 width: 36,
                                 textAlign: "center",
