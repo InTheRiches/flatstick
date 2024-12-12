@@ -1,4 +1,4 @@
-import React, {useContext, createContext, useEffect, useState, useMemo} from 'react';
+import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import {getReactNativePersistence, initializeAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {initializeApp} from "firebase/app";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -30,6 +30,7 @@ export const app = initializeApp(firebaseConfig);
 export const firestore = initializeFirestore(app, {
     experimentalForceLongPolling: true,
     useFetchStreams: false,
+    ignoreUndefinedProperties: true,
 });
 export const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
@@ -187,7 +188,7 @@ export function AppProvider({children}) {
 
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
-                // TODO ADD MISSREAD DATA
+                // TODO ADD MISSREAD DATA BY SLOPE AND BREAK
                 slopeAndBreakDistribution: {
                     uphill: {
                         straight: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // avg miss distance, past, past right, right, short right, short, short left, left, past left
