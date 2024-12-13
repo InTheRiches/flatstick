@@ -1,18 +1,12 @@
-import {Pressable, ScrollView, Text, View} from "react-native";
+import {Pressable, Text, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../buttons/PrimaryButton";
 import {CollapsableContainer} from "./CollapsableContainer";
 import {useState} from "react";
 import useColors from "@/hooks/useColors";
-import Animated, {
-    Easing,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from "react-native-reanimated";
-import {SecondaryButton} from "@/components/buttons/SecondaryButton";
+import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "react-native-reanimated";
 
-export default function PracticeMode({name, link, description, onPress, time, distance, focus}) {
+export default function PracticeMode({name, link, description, onPress, onInfo, time, distance, focus}) {
     const [expanded, setExpanded] = useState(false);
     const colors = useColors();
 
@@ -57,15 +51,26 @@ export default function PracticeMode({name, link, description, onPress, time, di
                     </Animated.View>
                     <Text style={{fontSize: 18, color: colors.text.primary}}>{name}</Text>
                 </View>
-                <PrimaryButton onPress={onPress} style={{
-                    borderRadius: 30,
-                    paddingHorizontal: 10,
-                    aspectRatio: 1,
-                    justifyContent: "center",
-                    alignItems: "center"
-                }}>
-                    <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
-                </PrimaryButton>
+                <View style={{ flexDirection: "row", gap: 8}}>
+                    {onInfo && <PrimaryButton onPress={onInfo} style={{
+                        borderRadius: 30,
+                        width: 32,
+                        aspectRatio: 1,
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>?</Text>
+                    </PrimaryButton>}
+                    <PrimaryButton onPress={onPress} style={{
+                        borderRadius: 30,
+                        width: 32,
+                        aspectRatio: 1,
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
+                    </PrimaryButton>
+                </View>
             </Pressable>
             <CollapsableContainer expanded={expanded}>
                 <View style={{
