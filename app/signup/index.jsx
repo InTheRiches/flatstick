@@ -1,14 +1,15 @@
 import {ThemedText} from "@/components/ThemedText";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
-import {View, Text, Pressable, TextInput, useColorScheme} from "react-native";
+import {Pressable, Text, TextInput, useColorScheme, View} from "react-native";
 import {useEffect, useState} from "react";
 import Svg, {Path} from "react-native-svg";
 import {SvgArrow, SvgGoogle} from "@/assets/svg/SvgComponents";
 import {createUserWithEmailAndPassword, getAuth, updateProfile} from "firebase/auth";
-import {getFirestore, setDoc, doc} from "firebase/firestore";
+import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {useRouter} from "expo-router";
 import Loading from "../../components/popups/Loading";
 import useColors from "../../hooks/useColors";
+import {SecondaryButton} from "../../components/buttons/SecondaryButton";
 
 const initialState = {
     skill: -1,
@@ -298,7 +299,7 @@ function Done({nextTab}) {
     );
 }
 
-// TODO ADD USERNAME VALIDATION, AND PREVENT DUPLICATES, ALSO, DO YOU NEED DISPLAY NAME AND USERNAME, OR JUST ONE?
+// TODO ADD USERNAME VALIDATION, AND PREVENT DUPLICATES
 function Signup({errorCode, setErrorCode, setState, state, create}) {
     const colors = useColors();
 
@@ -379,34 +380,14 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
             <ThemedText type={"title"} style={{marginBottom: 30}}>Create Your Account</ThemedText>
             <ThemedText secondary={true} style={{fontSize: 16, marginBottom: 4}}>Create with:</ThemedText>
             <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
-                <Pressable style={({pressed}) => [{
-                    flex: 1,
-                    paddingVertical: 12,
-                    borderRadius: 10,
-                    flexDirection: "row",
-                    alignContent: "center",
-                    justifyContent: "center",
-                    borderWidth: 1,
-                    borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                    backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                }]}>
-                    <SvgGoogle fill={colors.input.border}
+                <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
+                    <SvgGoogle fill={colors.button.secondary.text}
                                style={{width: 24, height: 24}}></SvgGoogle>
-                </Pressable>
-                <Pressable style={({pressed}) => [{
-                    flex: 1,
-                    paddingVertical: 12,
-                    borderRadius: 10,
-                    flexDirection: "row",
-                    alignContent: "center",
-                    justifyContent: "center",
-                    borderWidth: 1,
-                    borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                    backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                }]}>
-                    <SvgGoogle fill={colors.input.border}
+                </SecondaryButton>
+                <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
+                    <SvgGoogle fill={colors.button.secondary.text}
                                style={{width: 24, height: 24}}></SvgGoogle>
-                </Pressable>
+                </SecondaryButton>
             </View>
             <View style={{width: "100%", flexDirection: "row", gap: 10}}>
                 <View style={{

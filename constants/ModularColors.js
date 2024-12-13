@@ -154,8 +154,8 @@ export const DarkTheme = {
       background: '#1E1F20',
       text: 'white',
       selected: {
-        border: 'white',
-        background: '#333334',
+        border: "#40C2FF",
+        background: "#194064",
         radio: '#CAC4AA',
         text: 'black',
       },
@@ -189,7 +189,7 @@ export const DarkTheme = {
     },
   },
   checkmark: {
-    background: '#333D20',
+    background: '#40C2FF', // TODO FIND A DIFFERENT COLOR FOR THIS, ESPECIALLY FOR THE PUTTING GREEN AS IT DOESNT CONTRAST WELL
     color: 'white',
     bare: {
       color: '#D9D9D9',

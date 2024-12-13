@@ -1,5 +1,5 @@
 import {ThemedText} from "@/components/ThemedText";
-import {View, Text, Pressable, TextInput} from "react-native";
+import {Pressable, Text, TextInput, View} from "react-native";
 import {useState} from "react";
 import {SvgGoogle} from "@/assets/svg/SvgComponents";
 import {getAuth} from "firebase/auth";
@@ -7,6 +7,8 @@ import {useRouter} from "expo-router";
 import Loading from "../../components/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {useSession} from "../../contexts/AppCtx";
+import {SecondaryButton} from "../../components/buttons/SecondaryButton";
+import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 
 const initialState = {
     password: "",
@@ -17,6 +19,7 @@ const initialState = {
     invalidEmail: false
 }
 
+// TODO add username validation (like length and stuff)
 export default function Login() {
     const colors = useColors();
     const router = useRouter();
@@ -77,34 +80,14 @@ export default function Login() {
                 <ThemedText type={"title"} style={{marginBottom: 30}}>Sign in to your account</ThemedText>
                 <ThemedText style={{fontSize: 16, marginBottom: 8}} secondary={true}>Login with:</ThemedText>
                 <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
-                    <Pressable style={({pressed}) => [{
-                        flex: 1,
-                        paddingVertical: 12,
-                        borderRadius: 10,
-                        flexDirection: "row",
-                        alignContent: "center",
-                        justifyContent: "center",
-                        borderWidth: 1,
-                        borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                        backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                    }]}>
-                        <SvgGoogle fill={colors.input.border}
+                    <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
+                        <SvgGoogle fill={colors.button.secondary.text}
                                    style={{width: 24, height: 24}}></SvgGoogle>
-                    </Pressable>
-                    <Pressable style={({pressed}) => [{
-                        flex: 1,
-                        paddingVertical: 12,
-                        borderRadius: 10,
-                        flexDirection: "row",
-                        alignContent: "center",
-                        justifyContent: "center",
-                        borderWidth: 1,
-                        borderColor: pressed ? colors.input.focused.border : colors.input.border,
-                        backgroundColor: pressed ? colors.input.focused.background : colors.input.background
-                    }]}>
-                        <SvgGoogle fill={colors.input.border}
+                    </SecondaryButton>
+                    <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
+                        <SvgGoogle fill={colors.button.secondary.text}
                                    style={{width: 24, height: 24}}></SvgGoogle>
-                    </Pressable>
+                    </SecondaryButton>
                 </View>
                 <View style={{width: "100%", flexDirection: "row", gap: 10}}>
                     <View style={{
@@ -195,22 +178,14 @@ export default function Login() {
                 {errorCode === "auth/invalid-credential" &&
                     <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                         and try again.</Text>}
-                <Pressable onPress={() => {
+                <PrimaryButton onPress={() => {
                     if (state.invalidEmail) return;
                     login();
                 }} style={{
                     paddingVertical: 10,
                     borderRadius: 10,
                     marginTop: 48,
-                    borderWidth: state.invalidEmail ? 1 : 0,
-                    borderColor: colors.button.disabled.border,
-                    backgroundColor: state.invalidEmail ? colors.button.disabled.background : colors.button.primary.border
-                }}>
-                    <Text style={{
-                        textAlign: "center",
-                        color: state.invalidEmail ? colors.button.disabled.text : colors.button.primary.text
-                    }}>Login</Text>
-                </Pressable>
+                }} disabled={state.invalidEmail || state.email.length === 0 || state.password.length === 0}></PrimaryButton>
 
                 <Pressable onPress={() => router.push({pathname: `/signup`})} style={({pressed}) => [{
                     marginTop: 32,
