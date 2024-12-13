@@ -12,6 +12,7 @@ import DrawerNewSession from "@/components/popups/DrawerNewSession";
 import NewRealRound from "@/components/popups/NewRealRound";
 import {ScrollView, Text, View} from "react-native";
 import RecentSessionSummary from "@/utils/RecentSessionSummaries";
+import PressureInfo from "@/components/popups/info/PressureInfo";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -27,6 +28,7 @@ export default function HomeScreen() {
 
     const newSessionRef = useRef(null);
     const newRealRoundRef = useRef(null);
+    const pressureInfoRef = useRef(null);
 
     return (
         <View style={{
@@ -40,7 +42,7 @@ export default function HomeScreen() {
             paddingHorizontal: 20,
             backgroundColor: colors.background.primary
         }}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <Header auth={auth}></Header>
                 <RecentSessionSummary unfinished={true}></RecentSessionSummary>
                 <View
@@ -116,15 +118,14 @@ export default function HomeScreen() {
                         distance={"< 8ft"}
                         time={"10min"}
                         focus={"Consistency"}
+                        onInfo={() => pressureInfoRef.current.present()}
                         onPress={() => router.push({pathname: `/simulation/pressure/setup`})}/>
                     <PracticeMode
                         description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                         name={"Ladder Challenge"}
                         distance={"< 8ft"}/>
                     <SecondaryButton onPress={() => {
-                        updateStats().catch(error => {
-                            console.error(error.stack);
-                        });
+
                     }} style={{
                         borderRadius: 50,
                         flexDirection: "row",
@@ -152,6 +153,7 @@ export default function HomeScreen() {
             </ScrollView>
             <DrawerNewSession newSessionRef={newSessionRef}></DrawerNewSession>
             <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
+            <PressureInfo pressureInfoRef={pressureInfoRef}></PressureInfo>
         </View>
     );
 }
