@@ -91,6 +91,7 @@ export default function Stats({}) {
     )
 }
 
+// TODO allow filtering by time as well
 function MissesTab() {
     const colors = useColors();
     const {currentStats} = useAppContext();
@@ -113,9 +114,7 @@ function MissesTab() {
             <RadarChart graphSize={400}
                         scaleCount={4}
                         numberInterval={0}
-                        data={[
-                            filterMissDistribution(currentStats, distance, slope, brek),
-                        ]}
+                        data={[filterMissDistribution(currentStats, distance, slope, brek)]}
                         options={{
                             graphShape: 1,
                             showAxis: true,
@@ -129,19 +128,19 @@ function MissesTab() {
     const MissDistanceChart = () => {
         const data = [{
             value: currentStats.lessThanSix.avgMiss*12,
-            label: "<6",
+            label: "<6 ft",
             labelTextStyle: {color: colors.text.primary},
         }, {
             value: currentStats.sixToTwelve.avgMiss*12,
-            label: "6-12",
+            label: "6-12 ft",
             labelTextStyle: {color: colors.text.primary},
         }, {
             value: currentStats.twelveToTwenty.avgMiss*12,
-            label: "12-20",
+            label: "12-20 ft",
             labelTextStyle: {color: colors.text.primary},
         }, {
             value: currentStats.twentyPlus.avgMiss*12,
-            label: ">20",
+            label: ">20 ft",
             labelTextStyle: {color: colors.text.primary},
         }]
 
@@ -199,7 +198,7 @@ function MissesTab() {
             <MissDistribution currentStats={currentStats}/>
 
             <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center", marginBottom: 12}}>Miss
-                Distance by Putt Distance</Text>
+                by Distance</Text>
             <MissDistanceChart></MissDistanceChart>
 
             <SlopePopup slopeRef={slopeRef} slope={slope} setSlope={setSlope}></SlopePopup>
@@ -260,7 +259,7 @@ function OverviewTab() {
                                     "Left": missDistribution[6] / maxPercentage,
                                     "Long Left": missDistribution[7] / maxPercentage,
                                 };
-                            })(),
+                            })()
                         ]}
                         options={{
                             graphShape: 1,

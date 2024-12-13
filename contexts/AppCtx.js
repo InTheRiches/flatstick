@@ -388,9 +388,9 @@ export function AppProvider({children}) {
 
                     slopeBreakStats.avgMiss /= slopeBreakStats.putts; // Avg miss distance
                     slopeBreakStats.made += slopeBreakStats.putts;
-                    // Calculate percentages of missDistances
-                    for (let i = 0; i < 8; i++)
-                        slopeBreakStats.missDistances[i] /= slopeBreakStats.putts;
+
+                    // Calculate average of missDistances
+                    slopeBreakStats.missDistances = slopeBreakStats.missDistances.map((val, idx) => val === 0 || slopeBreakStats.misses[idx] === 0 ? val : val / slopeBreakStats.misses[idx]);
 
                     statCategory.slopeAndBreakDistribution[slope][breakType] = slopeBreakStats;
                 }
@@ -400,7 +400,7 @@ export function AppProvider({children}) {
             if (statCategory.rawPutts > 0) {
                 statCategory.percentMade = (statCategory.percentMade / statCategory.rawPutts) * 100;
                 statCategory.percentShort = (statCategory.percentShort / statCategory.rawPutts) * 100;
-                statCategory.percentTooLong = (statCategory.missDistribution[1] / statCategory.rawPutts) * 100;
+                statCategory.percentTooLong = (statCategory.percentTooLong / statCategory.rawPutts) * 100;
                 statCategory.percentJustLong = (statCategory.percentJustLong / statCategory.rawPutts) * 100;
             }
         }

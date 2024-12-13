@@ -1,6 +1,6 @@
 import React from "react";
-import Svg, {G, Path, Text, Polyline} from "react-native-svg";
-import {useColorScheme} from "react-native";
+import Svg, {G, Path, Polyline, Text} from "react-native-svg";
+import {useColorScheme, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 
 export default function RadarChart({
@@ -58,6 +58,14 @@ export default function RadarChart({
                 key={`shape-${i}`}
                 d={initPath(
                     columns.map((column) => {
+                        // check where the data is an array or a single value
+                        if (Array.isArray(data[column.key])) {
+                            return [
+                                posX(column.angle, data[column.key][0]),
+                                posY(column.angle, data[column.key][0]),
+                            ];
+                        }
+
                         return [
                             posX(column.angle, data[column.key]),
                             posY(column.angle, data[column.key]),
@@ -94,19 +102,51 @@ export default function RadarChart({
     };
 
     const label = () => (column) => {
+        const isArray = Array.isArray(data[0][column.key]);
+
+        console.log(isArray)
+
         return (
-            <Text
-                key={`label-of-${column.key}`}
-                x={posX(column.angle, 1.2)}
-                y={posY(column.angle, 1.2)}
-                dy={10 / 2}
-                fill={colors.text.primary}
-                fontWeight="500"
-                fontSize="48"
-                textAnchor="middle"
-            >
-                {column.key}
-            </Text>
+            <View key={"label-view-of-" + column.key}>
+                <Text
+                    key={`label2-of-${column.key}`}
+                    x={posX(column.angle, 1.2)}
+                    y={posY(column.angle, 1.2)- (isArray ? 50 : 0)}
+                    dy={10 / 2}
+                    fill={colors.text.primary}
+                    fontWeight="500"
+                    fontSize="48"
+                    textAnchor="middle"
+                >
+                    {column.key}
+                </Text>
+                {isArray && [
+                    <Text
+                        key={`label1-of-${data[0][column.key][1]}`}
+                        x={posX(column.angle, 1.2)}
+                        y={posY(column.angle, 1.2)}
+                        dy={10 / 2}
+                        fill={"#24b2ff"}
+                        fontWeight="500"
+                        fontSize="40"
+                        textAnchor="middle"
+                    >
+                        {data[0][column.key][1]}
+                    </Text>,
+                    <Text
+                        key={`label1-of-${data[0][column.key][2]}`}
+                        x={posX(column.angle, 1.2)}
+                        y={posY(column.angle, 1.2) + (isArray ? 50 : 0)}
+                        dy={10 / 2}
+                        fill={"#24b2ff"}
+                        fontWeight="500"
+                        fontSize="40"
+                        textAnchor="middle"
+                    >
+                        {data[0][column.key][2]}
+                    </Text>
+                ]}
+            </View>
         );
     };
 
@@ -139,7 +179,7 @@ export default function RadarChart({
         groups.push(<G key={"groupShape-" + i}>{scaleShape(columns, i)}</G>);
     }
 
-    groups.push(<G key={`groups}`}>{data.map(shape(columns))}</G>);
+    groups.push(<G key={`groups`}>{data.map(shape(columns))}</G>);
     groups.push(<G key={`group-captions`}>{columns.map(label())}</G>);
 
     if (options.showAxis)
