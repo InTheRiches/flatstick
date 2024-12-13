@@ -179,12 +179,11 @@ const dataDistances = [
 
 function sumMisses(data, distance, slope, breakType) {
     let totalMisses = [0, 0, 0, 0, 0, 0, 0, 0];
+    let missDistances = [0, 0, 0, 0, 0, 0, 0, 0];
     let totalPutts = 0;
 
     // Get all distances if 'all' is specified, otherwise just the specific one
     const distances = distance === -1 ? Object.keys(data) : [dataDistances[distance]];
-
-    console.log("Distance: " + distances)
 
     distances.forEach(distanceKey => {
         // Check if the distance exists
@@ -194,8 +193,6 @@ function sumMisses(data, distance, slope, breakType) {
             // Get all slopes if 'all' is specified, otherwise just the specific one
             const slopes = slope === -1 ? Object.keys(slopeData) : [dataSlopes[slope]];
 
-            console.log("slopes: " + slopes)
-
             slopes.forEach(slopeKey => {
                 // Check if the slope exists
                 if (slopeData[slopeKey]) {
@@ -204,15 +201,22 @@ function sumMisses(data, distance, slope, breakType) {
                     // Get all break types if 'all' is specified, otherwise just the specific one
                     const breakTypes = breakType === -1 ? Object.keys(breakData) : [dataBreaks[breakType]];
 
-                    console.log("breakTypes: " + breakTypes)
-
                     breakTypes.forEach(breakKey => {
                         // Check if the break type exists
                         if (breakData[breakKey]) {
                             const misses = breakData[breakKey].misses;
+                            const distances = breakData[breakKey].missDistances;
 
                             // Add the misses to the totalMisses array
                             totalMisses = totalMisses.map((val, idx) => val + misses[idx]);
+
+                            // calculate the average miss distance of each miss location
+                            missDistances = missDistances.map((val, idx) => {
+                                let newVal = val + distances[idx];
+                                // if the miss location is 0 or the total misses is 0, return the new value, as nothing changed, so you dont want to divide in half
+                                return val === 0 || distances[idx] === 0 ? newVal : newVal / 2;
+                            });
+
                             totalPutts += breakData[breakKey].putts;
                         }
                     });
@@ -221,62 +225,29 @@ function sumMisses(data, distance, slope, breakType) {
         }
     });
 
-    return [totalPutts, totalMisses];
+    return [totalPutts, totalMisses, missDistances];
+}
+
+function formatFeetAndInches(feet) {
+    // Round to nearest whole number of inches
+    const totalInches = roundTo(feet * 12, 0);
+
+    const feetPart = Math.floor(totalInches / 12); // Extract the whole feet
+    const inchesPart = totalInches % 12; // Extract the remaining inches
+
+    let result = "";
+    // Build the formatted string
+    if (feetPart !== 0) {
+        result += `${feetPart} ft`;
+    }
+    if (inchesPart !== 0) {
+        result += ` ${inchesPart} in`;
+    }
+    return result;
 }
 
 function filterMissDistribution(currentStats, distance, slope, brek) {
-    // if (brek === -1 && slope === -1) {
-    //     console.log("sup dude")
-    //     let arrays;
-    //
-    //     if (distance !== -1) {
-    //         arrays = [currentStats[dataDistances[distance]].missDistribution];
-    //     } else {
-    //         arrays = [
-    //             currentStats.lessThanSix.missDistribution,
-    //             currentStats.sixToTwelve.missDistribution,
-    //             currentStats.twelveToTwenty.missDistribution,
-    //             currentStats.twentyPlus.missDistribution
-    //         ];
-    //     }
-    //
-    //     // Initialize an array of zeros with the same length as the arrays
-    //     const combinedMissDistribution = Array(arrays[0].length).fill(0);
-    //
-    //     // Iterate through each array and sum up their corresponding indices
-    //     arrays.forEach(array => {
-    //         array.forEach((value, index) => {
-    //             combinedMissDistribution[index] += value;
-    //         });
-    //     });
-    //
-    //     console.log("sup dude 2")
-    //
-    //     let totalPutts = 0;
-    //     combinedMissDistribution.forEach(value => totalPutts += value);
-    //
-    //     if (totalPutts === 0) totalPutts = 1
-    //
-    //     // Calculate missDistribution
-    //     const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
-    //
-    //     const maxPercentage = Math.max(...missDistribution) + 0.01;
-    //
-    //     console.log("sup dude 3")
-    //
-    //     return {
-    //         "Long": missDistribution[0] / maxPercentage,
-    //         "Long Right": missDistribution[1] / maxPercentage,
-    //         "Right": missDistribution[2] / maxPercentage,
-    //         "Short Right": missDistribution[3] / maxPercentage,
-    //         "Short": missDistribution[4] / maxPercentage,
-    //         "Short Left": missDistribution[5] / maxPercentage,
-    //         "Left": missDistribution[6] / maxPercentage,
-    //         "Long Left": missDistribution[7] / maxPercentage,
-    //     };
-    // }
-
-    const [totalPutts, merged] = sumMisses(currentStats, distance, slope, brek);
+    const [totalPutts, merged, missDistances] = sumMisses(currentStats, distance, slope, brek);
 
     // Calculate missDistribution
     const missDistribution = merged.map((value) => value / totalPutts);
@@ -298,15 +269,15 @@ function filterMissDistribution(currentStats, distance, slope, brek) {
     }
 
     return {
-        "Long": missDistribution[0] / maxPercentage,
-        "Long Right": missDistribution[1] / maxPercentage,
-        "Right": missDistribution[2] / maxPercentage,
-        "Short Right": missDistribution[3] / maxPercentage,
-        "Short": missDistribution[4] / maxPercentage,
-        "Short Left": missDistribution[5] / maxPercentage,
-        "Left": missDistribution[6] / maxPercentage,
-        "Long Left": missDistribution[7] / maxPercentage,
+        "Long": [missDistribution[0] / maxPercentage,  roundTo(missDistribution[0]*100, 0) + "%", formatFeetAndInches(missDistances[0])],
+        "Long Right": [missDistribution[1] / maxPercentage, roundTo(missDistribution[1]*100, 0) + "%", formatFeetAndInches(missDistances[1])],
+        "Right": [missDistribution[2] / maxPercentage, roundTo(missDistribution[2]*100, 0) + "%", formatFeetAndInches(missDistances[2])],
+        "Short Right": [missDistribution[3] / maxPercentage, roundTo(missDistribution[3]*100, 0) + "%", formatFeetAndInches(missDistances[3])],
+        "Short": [missDistribution[4] / maxPercentage, roundTo(missDistribution[4]*100, 0) + "%", formatFeetAndInches(missDistances[4])],
+        "Short Left": [missDistribution[5] / maxPercentage, roundTo(missDistribution[5]*100, 0) + "%", formatFeetAndInches(missDistances[5])],
+        "Left": [missDistribution[6] / maxPercentage, roundTo(missDistribution[6]*100, 0) + "%", formatFeetAndInches(missDistances[6])],
+        "Long Left": [missDistribution[7] / maxPercentage, roundTo(missDistribution[7]*100, 0) + "%", formatFeetAndInches(missDistances[7])],
     };
 }
 
-export { filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, roundTo, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, roundTo, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
