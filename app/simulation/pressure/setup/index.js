@@ -15,6 +15,7 @@ const initialState = {
     loading: false,
 }
 
+// TODO add a back button somewhere, kind of like the modal
 export default function PressurePuttingSetup() {
     const colors = useColors();
     const router = useRouter();

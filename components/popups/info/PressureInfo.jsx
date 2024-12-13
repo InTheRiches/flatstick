@@ -1,5 +1,5 @@
 import {BottomSheetModal, BottomSheetView, useBottomSheetTimingConfigs} from "@gorhom/bottom-sheet";
-import {Text, View} from "react-native";
+import {Image, Text, useColorScheme, View} from "react-native";
 import {useMemo} from "react";
 import useColors from "@/hooks/useColors";
 import Svg, {Path} from "react-native-svg";
@@ -8,10 +8,10 @@ import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {useRouter} from "expo-router";
 
-// TODO add graphic to this page to make it more "lively"
 export default function PressureInfo({pressureInfoRef}) {
     const colors = useColors();
     const router = useRouter();
+    const colorScheme = useColorScheme();
 
     const snapPoints = useMemo(() => ["100%"], []);
 
@@ -41,10 +41,11 @@ export default function PressureInfo({pressureInfoRef}) {
                         <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500, marginLeft: 8}}>Back</Text>
                     </View>
                 </GestureDetector>
+                <Image source={colorScheme === "light" ? require("../../../assets/images/info-pages/pressureLight.png") : require("../../../assets/images/info-pages/pressureDark.png")} style={{height: 200, aspectRatio: 1, marginTop: 64, borderRadius: 16}}></Image>
                 <Text style={{color: colors.text.primary, fontSize: 40, fontWeight: 600, marginTop: 16, textAlign: "center"}}>Pressure Putting</Text>
                 <Text style={{ textAlign: "center", marginTop: 12, color: colors.text.secondary, fontSize: 20}}>Learn to putt under pressure and sink them every time, no matter the stakes.</Text>
 
-                <PrimaryButton onPress={() => router.push({pathname: `/simulation/pressure/setup`})} style={{ borderRadius: 10, paddingVertical: 12, width: "70%", marginTop: 24}} title={"Start a Session"}></PrimaryButton>
+                <PrimaryButton onPress={() => router.push({pathname: `/simulation/pressure/setup`})} style={{ borderRadius: 10, paddingVertical: 12, width: "70%", marginTop: 32}} title={"Start a Session"}></PrimaryButton>
             </BottomSheetView>
         </BottomSheetModal>
     )
