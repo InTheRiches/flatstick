@@ -2,7 +2,18 @@ import React, {createContext, useContext, useEffect, useMemo, useState} from 're
 import {getReactNativePersistence, initializeAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {initializeApp} from "firebase/app";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import {collection, doc, getDoc, getDocs, initializeFirestore, query, runTransaction} from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    initializeFirestore,
+    orderBy,
+    query,
+    runTransaction
+} from "firebase/firestore";
+import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
+import {roundTo} from "@/utils/PuttUtils";
 
 const breaks = [
     "leftToRight",
@@ -36,7 +47,7 @@ export const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
-// Create contexts
+// TODO seperate the practices from the sessions, and make two separate folders for them in Firestore
 const AppContext = createContext({
     userData: {},
     puttSessions: [],
@@ -152,7 +163,7 @@ export function AppProvider({children}) {
             console.error("Error refreshing user data:", error);
         }
 
-        const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`));
+        const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`), orderBy("timestamp", "desc"));
         try {
             const querySnapshot = await getDocs(sessionQuery);
             const sessions = querySnapshot.docs.map((doc) => doc.data());
@@ -173,6 +184,8 @@ export function AppProvider({children}) {
                 rawPutts: 0,
 
                 avgMiss: 0, // in feet
+
+                strokesGained: 0,
 
                 percentShort: 0,
                 percentTooLong: 0,
@@ -274,7 +287,23 @@ export function AppProvider({children}) {
 
         let totalPutts = 0;
 
+        const strokesGained = calculateTotalStrokesGained(newPuttSessions);
+
+        const averagePerformance = {
+            "onePutts": 0,
+            "twoPutts": 0,
+            "threePutts": 0,
+            "avgMiss": 0,
+            "totalDistance": 0,
+            "puttsMisread": 0,
+            rounds: 0,
+        }
+
         newPuttSessions.map((session, index) => {
+            // TODO do we want to include the fake rounds too? (this is prompted by total distance, as it is relative to difficulty in the fake rounds)
+            const averaging = averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
+            if (averaging) averagePerformance["rounds"]++;
+
             session.putts.forEach((putt) => {
                 const {distance, distanceMissed, missRead, xDistance, yDistance, puttBreak} = putt;
 
@@ -290,12 +319,22 @@ export function AppProvider({children}) {
                 // Increment total putts
                 statCategory.rawPutts++;
 
+                if (averaging) {
+                    if (putt.totalPutts === 1) averagePerformance["onePutts"]++;
+                    else if (putt.totalPutts === 2) averagePerformance["twoPutts"]++;
+                    else averagePerformance["threePutts"]++;
+
+                    averagePerformance["totalDistance"] += distance;
+                    averagePerformance["puttsMisread"] += missRead ? 1 : 0;
+                    averagePerformance["avgMiss"] += distanceMissed;
+                }
+
                 if (distanceMissed === 0) {
                     totalPutts++;
                     statCategory.totalPutts++;
                 } else {
-                    totalPutts += 2;
-                    statCategory.totalPutts += 2;
+                    totalPutts += putt.totalPutts;
+                    statCategory.totalPutts += putt.totalPutts;
 
                     if (statCategory.avgMiss === 0)
                         statCategory.avgMiss += distanceMissed;
@@ -374,9 +413,18 @@ export function AppProvider({children}) {
             });
         });
 
+        averagePerformance["avgMiss"] = roundTo(averagePerformance["avgMiss"] / (averagePerformance["rounds"] * 18), 1);
+        averagePerformance["totalDistance"] = roundTo(averagePerformance["totalDistance"] / averagePerformance["rounds"], 1);
+        averagePerformance["puttsMisread"] = roundTo(averagePerformance["puttsMisread"] / averagePerformance["rounds"], 1);
+        averagePerformance["onePutts"] = roundTo(averagePerformance["onePutts"] / averagePerformance["rounds"], 1);
+        averagePerformance["twoPutts"] = roundTo(averagePerformance["twoPutts"] / averagePerformance["rounds"], 1);
+        averagePerformance["threePutts"] = roundTo(averagePerformance["threePutts"] / averagePerformance["rounds"], 1);
+
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {
             const statCategory = newStats[category];
+
+            statCategory.strokesGained = strokesGained[category];
 
             // Finalize average miss distances
             for (const slope of ["uphill", "neutral", "downhill"]) {
@@ -406,7 +454,9 @@ export function AppProvider({children}) {
         }
 
         setCurrentStats(newStats);
-        await updateData({totalPutts, stats: newStats});
+        // TODO maybe move this to updateData?
+        setUserData({...userData, totalPutts: totalPutts, strokesGained: strokesGained["overall"], averagePerformance: averagePerformance, stats: newStats});
+        await updateData({totalPutts: totalPutts, strokesGained: strokesGained["overall"], averagePerformance: averagePerformance, stats: newStats});
     };
 
     // Get all statistics
