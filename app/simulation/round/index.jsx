@@ -1,21 +1,19 @@
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Image, Platform, Pressable, Text, useColorScheme, View} from 'react-native';
+import {BackHandler, Image, Platform, Pressable, Text, View} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
-import {SvgClose, SvgWarning} from '@/assets/svg/SvgComponents';
+import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from "@/components/buttons/DangerButton";
-import ArrowComponent from "@/components/icons/ArrowComponent";
 import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
-import {SecondaryButton} from "@/components/buttons/SecondaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import TotalPutts from '../../../components/popups/TotalPutts';
@@ -253,7 +251,7 @@ export default function RoundSimulation() {
 
         const {totalPutts, avgMiss, madePercent, trimmedPutts} = calculateStats(puttsCopy, width, height);
 
-        updateField("loading", true)
+        updateField("loading", true);
 
         setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), {
             date: new Date().toISOString(),
@@ -423,7 +421,7 @@ export default function RoundSimulation() {
                                 updateField("largeMiss", true);
                                 bigMissRef.current.present();
                             }}
-                                          title={"Miss > 5ft?"}></DangerButton>
+                                          title={"Miss > 3ft?"}></DangerButton>
                             {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                             title={hole === holes ? "Submit" : "Next"}
                                             disabled={point.x === undefined}
