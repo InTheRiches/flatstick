@@ -22,7 +22,7 @@ export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
         <Pressable
             style={styles.button}
             onPress={onToggle} {...rest}>
-           <View style={{paddingTop: 10, paddingBottom: 12, overflow: "visible"}}>
+           <View style={{paddingTop: 8, paddingBottom: 12, overflow: "visible"}}>
                <Text style={{
                    color: toggled ? colors.toggleable.toggled.color : colors.toggleable.color,
                    fontWeight: 500,
