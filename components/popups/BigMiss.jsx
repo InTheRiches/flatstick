@@ -105,14 +105,14 @@ export default function BigMissModal({
             return;
         }
 
-        let fixedPutts = parseInt(newPutts.replace(/[^0-9]/g, ""));
-        setInvalid(fixedPutts < 2 || fixedPutts > 9)
+        let fixedPutts = parseInt(newPutts);
         setPutts(fixedPutts);
+        setInvalid(fixedPutts < 2 || fixedPutts > 9)
     };
 
     const updateDistance = (newDistance) => {
         if (newDistance === "") {
-            setPutts(-1);
+            setDistance(-1);
             setInvalid(true);
             return;
         }
@@ -121,9 +121,9 @@ export default function BigMissModal({
             return;
         }
 
-        let fixedDistance = parseInt(newDistance.replace(/[^0-9]/g, ""));
-        setDistanceInvalid(fixedDistance < 3 || fixedDistance > 99)
+        let fixedDistance = parseInt(newDistance);
         setDistance(fixedDistance);
+        setDistanceInvalid(fixedDistance < 3 || fixedDistance > 99)
     }
 
     // renders
@@ -190,11 +190,9 @@ export default function BigMissModal({
                     Putting for the rough, are we? You might need GPS for the next one.
                     Mark where you missed below.
                 </Text>
-                <View
-                    style={{
+                <View style={{
                         flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",
-                    }}
-                >
+                    }}>
                     <View style={{flexDirection: "column", gap: 12}}>
                         <Pressable
                             onPress={() => setMissDirection([1, 1])}
@@ -251,11 +249,7 @@ export default function BigMissModal({
                             ></ArrowComponent>
                         </Pressable>
                     </View>
-                    <View
-                        style={{
-                            flexDirection: "column", justifyContent: "space-between",
-                        }}
-                    >
+                    <View style={{ flexDirection: "column", justifyContent: "space-between",}}>
                         <Pressable
                             onPress={() => setMissDirection([0, 1])}
                             style={{
@@ -353,18 +347,10 @@ export default function BigMissModal({
                 <View style={{
                     flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end"
                 }}>
-                    <Text
-                        style={{
-                            fontSize: 18, color: colors.text.primary, marginBottom: 10,
-                        }}
-                    >
+                    <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 10}}>
                         Total putts to complete the hole:
                     </Text>
-                    <View
-                        style={{
-                            flexDirection: "row", gap: 12, marginBottom: 8, alignItems: "center",
-                        }}
-                    >
+                    <View style={{flexDirection: "row", gap: 12, marginBottom: 8, alignItems: "center",}}>
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
@@ -398,15 +384,14 @@ export default function BigMissModal({
                             }}
                             onFocus={() => setPuttsFocused(true)}
                             onBlur={() => setPuttsFocused(false)}
-                            onChangeText={(text) => updatePutts(text)}
-                            value={putts !== -1 ? putts.toString() : ""}
-                            defaultValue={putts !== -1 ? putts.toString() : ""}
+                            onChangeText={updatePutts}
+                            defaultValue={putts !== -1 ? putts + "" : ""}
                             keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
                         />
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
-                            if (putts === -1) setPutts(2); else if (putts === 9) setPutts(2); else setPutts(putts + 1);
+                            if (putts === -1) updatePutts("2"); else if (putts === 9) updatePutts("2"); else updatePutts((putts + 1).toString());
                         }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -430,18 +415,12 @@ export default function BigMissModal({
                     flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end",
                     marginBottom: 8
                 }}>
-                    <Text
-                        style={{
-                            fontSize: 18, color: colors.text.primary, marginBottom: 10,
-                        }}
-                    >
+                    <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>
                         Estimated distance missed (ft):
                     </Text>
-                    <View
-                        style={{
+                    <View style={{
                             flexDirection: "row", gap: 12, marginBottom: 12, alignItems: "center",
-                        }}
-                    >
+                        }}>
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
@@ -474,7 +453,6 @@ export default function BigMissModal({
                             onFocus={() => setDistanceFocused(true)}
                             onBlur={() => setDistanceFocused(false)}
                             onChangeText={(text) => updateDistance(text)}
-                            value={distance !== -1 ? distance.toString() : ""}
                             defaultValue={distance !== -1 ? distance.toString() : ""}
                             keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
                         />
