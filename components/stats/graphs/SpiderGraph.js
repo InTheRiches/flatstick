@@ -104,8 +104,6 @@ export default function RadarChart({
     const label = () => (column) => {
         const isArray = Array.isArray(data[0][column.key]);
 
-        console.log(isArray)
-
         return (
             <View key={"label-view-of-" + column.key}>
                 <Text
