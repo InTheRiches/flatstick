@@ -11,7 +11,6 @@ function createPuttsByBreak(userData) {
     // find the highest value, and take all of those out of that (as a percent)
     for (let slope of ["downhill", "neutral", "uphill"]) {
         for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
-            console.log(slope, brek);
             if (mySlopes[slope][brek] > max) {
                 max = mySlopes[slope][brek];
             }

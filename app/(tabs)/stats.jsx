@@ -3,7 +3,6 @@ import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
 import React, {useRef, useState} from "react";
-import {BarChart} from "react-native-gifted-charts";
 import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
@@ -11,6 +10,7 @@ import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
 import {filterMissDistribution, roundTo} from "../../utils/PuttUtils";
 import {createPuttsByBreak} from "../../utils/GraphUtils";
+import {StackedBarChart} from "react-native-chart-kit";
 
 const tabs = [
     {
@@ -77,8 +77,8 @@ export default function Stats({}) {
             borderBottomColor: colors.border.default,
             flex: 1
         }}>
-            <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600}}>Stats</Text>
-            <ScrollView horizontal bounces={false} contentContainerStyle={{gap: 4}} style={{marginBottom: 24, marginTop: 12, paddingHorizontal: 24}}>
+            <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12}}>Stats</Text>
+            <ScrollView showsHorizontalScrollIndicator={false} horizontal bounces={false} contentContainerStyle={{gap: 4, paddingHorizontal: 24}}>
                 { // todo fix the tabs flickering when toggled
                     tabs.map((item, i) => {
                         return <Toggleable key={item.id} title={item.title} toggled={tab === i} onPress={() => scrollTo(i)}/>
@@ -88,6 +88,7 @@ export default function Stats({}) {
             <FlatList
                 contentContainerStyle={{
                     flexGrow: 1,
+                    marginTop: 24
                 }}
                 ref={listRef}
                 data={tabs}
@@ -159,26 +160,7 @@ function MissesTab() {
         const max = Math.max(...data.map((item) => item.value)) * 1.1;
 
         return (
-            <BarChart barWidth={22}
-                      maxValue={max}
-                      noOfSections={3}
-                      stepValue={max/3}
-                      barBorderRadius={4}
-                      barBorderBottomLeftRadius={0}
-                      barBorderBottomRightRadius={0}
-                      frontColor="#24b2ff"
-                      roundedBottom={false}
-                      xAxisThickness={1}
-                      xAxisColor={"#928481"}
-                      formatYLabel={(label) => label + " in"}
-                      yAxisTextStyle={{color: colors.text.primary}}
-                      yAxisColor={"#928481"}
-                      yAxisThickness={1}
-                      width={264}
-                      disablePress={true}
-                      initialSpacing={24}
-                      spacing={48}
-                      data={data}/>
+            <View/>
         )
     }
 
@@ -475,7 +457,7 @@ function PuttsAHoleTab() {
         }
 
         return (
-            <RadarChart graphSize={380}
+            <RadarChart graphSize={Dimensions.get("screen").width}
                         scaleCount={4}
                         numberInterval={0}
                         data={[createPuttsByBreak(userData)]}
@@ -489,9 +471,75 @@ function PuttsAHoleTab() {
         )
     }
 
+    const PuttsByDistanceChart = () => {
+        const data = [{
+            value: userData.averagePerformance.puttsAHole.distance[0],
+            label: "<6 ft",
+            i: 0
+        }, {
+            value: userData.averagePerformance.puttsAHole.distance[1],
+            label: "6-12 ft",
+            i: 1
+        }, {
+            value: userData.averagePerformance.puttsAHole.distance[2],
+            label: "12-20 ft",
+            i: 2
+        }, {
+            value: 2.4,
+            label: ">20 ft",
+            i: 3
+        }]
+
+        return (
+            <StackedBarChart
+                data={{
+                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                    legend: [],
+                    data: [
+                        [userData.averagePerformance.puttsAHole.distance[0], userData.averagePerformance.puttsAHole.distance[0]-1],
+                        [userData.averagePerformance.puttsAHole.distance[1], userData.averagePerformance.puttsAHole.distance[1]-1],
+                        [userData.averagePerformance.puttsAHole.distance[2], userData.averagePerformance.puttsAHole.distance[2]-1],
+                        [2.4, 2.4-1]
+                    ],
+                    barColors: ["transparent", colors.checkmark.background]
+                }}
+                width={Dimensions.get('window').width - 16}
+                height={220}
+                fromZero={true}
+                yAxisInterval={1}
+                segments={3}
+                fromNumber={3}
+                chartConfig={{
+                    backgroundColor: colors.background.primary,
+                    backgroundGradientFrom: colors.background.primary,
+                    backgroundGradientTo: colors.background.primary,
+                    decimalPlaces: 0,
+
+                    fillShadowGradientFromOpacity: 0.5,
+                    fillShadowGradientToOpacity: 0.3,
+
+                    color: (opacity = 1) => {
+                        if (opacity === 1) return colors.checkmark.background
+                        if (opacity === 0.6) return colors.checkmark.background
+                        return `rgba(255, 255, 255, ${opacity})`
+                    },
+                    style: {
+                        borderRadius: 16,
+                    },
+                }}
+                style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                }}
+                yAxisSuffix={" putts"}
+                hideLegend={true}
+            />
+        )
+    }
+
     return (
-        <View style={{width: width, paddingHorizontal: 24}}>
-            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8}}>
+        <ScrollView contentContainerStyle={{alignItems: "center"}} style={{width: width, paddingHorizontal: 24}}>
+            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, width: "100%"}}>
                 <View style={{
                     paddingHorizontal: 12,
                     borderBottomWidth: 1,
@@ -565,8 +613,12 @@ function PuttsAHoleTab() {
                     </View>
                 </View>
             </View>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Putts a Hole by Break/Slope</Text>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Putts a Hole by Break/Slope</Text>
             <PuttsByBreakSlope></PuttsByBreakSlope>
-        </View>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Putts a Hole by Distance</Text>
+            <View style={{overflow: "hidden", marginRight: 32, paddingLeft: 24}}>
+                <PuttsByDistanceChart/>
+            </View>
+        </ScrollView>
     )
 }

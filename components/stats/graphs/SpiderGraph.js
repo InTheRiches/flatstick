@@ -13,14 +13,18 @@ export default function RadarChart({
     const colorScheme = useColorScheme();
     const colors = useColors();
 
-    const boxSize = graphSize * 3;
+    const boxSize = graphSize * 3.2;
     const centerPos = boxSize / 2;
 
     // Top start pos -90 degree
     const posX = (angle, distance) =>
         Math.cos(angle - Math.PI / 2) * distance * graphSize;
+    const shapePosX = (angle, distance) =>
+        Math.cos(angle - Math.PI / 2) * distance * (graphSize/1);
     const posY = (angle, distance) =>
         Math.sin(angle - Math.PI / 2) * distance * graphSize;
+    const shapePosY = (angle, distance) =>
+        Math.sin(angle - Math.PI / 2) * distance * (graphSize/1);
 
     const initPath = (points) => {
         let d = "M" + points[0][0].toFixed(4) + "," + points[0][1].toFixed(4);
@@ -37,8 +41,8 @@ export default function RadarChart({
                 d={initPath(
                     columns.map((column) => {
                         return [
-                            posX(column.angle, i / scaleCount),
-                            posY(column.angle, i / scaleCount),
+                            shapePosX(column.angle, i / scaleCount),
+                            shapePosY(column.angle, i / scaleCount),
                         ];
                     })
                 )}
@@ -61,14 +65,14 @@ export default function RadarChart({
                         // check where the data is an array or a single value
                         if (Array.isArray(data[column.key])) {
                             return [
-                                posX(column.angle, data[column.key][0]),
-                                posY(column.angle, data[column.key][0]),
+                                shapePosX(column.angle, data[column.key][0]),
+                                shapePosY(column.angle, data[column.key][0]),
                             ];
                         }
 
                         return [
-                            posX(column.angle, data[column.key]),
-                            posY(column.angle, data[column.key]),
+                            shapePosX(column.angle, data[column.key]),
+                            shapePosY(column.angle, data[column.key]),
                         ];
                     })
                 )}
