@@ -11,6 +11,7 @@ const sgBaselinePutts = [
     { distance: 8, strokesGained: 1.50 },
     { distance: 9, strokesGained: 1.56 },
     { distance: 10, strokesGained: 1.61 },
+    { distance: 20, strokesGained: 1.795},
     { distance: 30, strokesGained: 1.98 },
     { distance: 50, strokesGained: 2.14 },
     { distance: 90, strokesGained: 2.40 }
