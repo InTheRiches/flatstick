@@ -44,57 +44,32 @@ export default function HomeScreen() {
         }}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Header auth={auth}></Header>
-                <RecentSessionSummary unfinished={true}></RecentSessionSummary>
-                <View
-                    style={{
-                        backgroundColor: colors.background.secondary,
-                        paddingHorizontal: 12,
-                        paddingTop: 8,
-                        paddingBottom: 14,
-                        borderTopLeftRadius: 8,
-                        borderTopRightRadius: 8,
-                        borderBottomLeftRadius: 16,
-                        borderBottomRightRadius: 16,
-                        marginBottom: 32
-                    }}>
+                <RecentSessionSummary unfinished={false}></RecentSessionSummary>
+                <SecondaryButton onPress={() => {}} style={{
+                    borderRadius: 50,
+                    flexDirection: "row",
+                    alignSelf: "center",
+                    paddingLeft: 12,
+                    gap: 12,
+                    paddingRight: 8,
+                    paddingVertical: 6,
+                    marginTop: 12,
+                    marginBottom: 24
+                }}>
+                    <Text style={{color: colors.button.secondary.text, fontSize: 18}}>See All Sessions</Text>
                     <View style={{
-                        flexDirection: "row",
-                        paddingBottom: 4,
+                        borderRadius: 30,
+                        padding: 6,
+                        backgroundColor: colors.button.secondary.text
                     }}>
-                        <View style={{flex: 1}}>
-                            <Text style={{textAlign: "left", color: colors.text.secondary}}>Unfinished
-                                Round</Text>
-                            <Text style={{
-                                textAlign: "left",
-                                color: colors.text.primary,
-                                fontSize: 20,
-                            }}>Simulation</Text>
-                        </View>
-                        <View style={{flex: 1}}>
-                            <Text style={{textAlign: "right", color: colors.text.secondary}}>Started at
-                                1:32</Text>
-                            <Text style={{
-                                textAlign: "right",
-                                color: colors.text.primary,
-                                fontSize: 20,
-                            }}>Resume
-                                -></Text>
-                        </View>
+                        <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24" strokeWidth={1.5}
+                             stroke={colors.button.secondary.background} className="size-6">
+                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                  d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                        </Svg>
                     </View>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <View
-                            style={{
-                                height: 6,
-                                marginTop: 1,
-                                backgroundColor: colors.text.primary,
-                                borderRadius: 24,
-                                flex: 1,
-                            }}></View>
-                        <View style={{alignSelf: 'center', paddingLeft: 10}}>
-                            <Text style={{color: colors.text.primary}}>Hole 12</Text>
-                        </View>
-                    </View>
-                </View>
+                </SecondaryButton>
                 <View style={{gap: 12, marginBottom: 18}}>
                     <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New
                         Practice</Text>
@@ -125,7 +100,7 @@ export default function HomeScreen() {
                         name={"Ladder Challenge"}
                         distance={"< 8ft"}/>
                     <SecondaryButton onPress={() => {
-
+                        updateStats();
                     }} style={{
                         borderRadius: 50,
                         flexDirection: "row",

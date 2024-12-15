@@ -2,14 +2,14 @@ import {Dimensions, FlatList, ScrollView, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
-import {useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {BarChart} from "react-native-gifted-charts";
 import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
 import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
-import {filterMissDistribution} from "../../utils/PuttUtils";
+import {filterMissDistribution, roundTo} from "../../utils/PuttUtils";
 
 const tabs = [
     {
@@ -210,72 +210,244 @@ function MissesTab() {
 
 function OverviewTab() {
     const colors = useColors();
-    const {currentStats} = useAppContext();
+    const {currentStats, userData} = useAppContext();
 
     const {width} = Dimensions.get("screen")
 
-    const MissDistribution = () => {
-        if (currentStats === undefined || Object.keys(currentStats).length === 0)
+    // only 18 hole simulations and real simulations, no other practices
+    const RecentSession = () => {
+        if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
+        }
 
         return (
-            <RadarChart graphSize={400}
-                        scaleCount={4}
-                        numberInterval={0}
-                        data={[
-                            (() => {
-                                const arrays = [
-                                    currentStats.lessThanSix.missDistribution,
-                                    currentStats.sixToTwelve.missDistribution,
-                                    currentStats.twelveToTwenty.missDistribution,
-                                    currentStats.twentyPlus.missDistribution
-                                ];
-
-                                // Initialize an array of zeros with the same length as the arrays
-                                const combinedMissDistribution = Array(arrays[0].length).fill(0);
-
-                                // Iterate through each array and sum up their corresponding indices
-                                arrays.forEach(array => {
-                                    array.forEach((value, index) => {
-                                        combinedMissDistribution[index] += value;
-                                    });
-                                });
-
-                                let totalPutts = 0;
-                                combinedMissDistribution.forEach(value => totalPutts += value);
-
-                                // Calculate missDistribution
-                                const missDistribution = combinedMissDistribution.map((value) => value / totalPutts);
-
-                                const maxPercentage = Math.max(...missDistribution) + 0.01;
-
-                                return {
-                                    "Long": missDistribution[0] / maxPercentage,
-                                    "Long Right": missDistribution[1] / maxPercentage,
-                                    "Right": missDistribution[2] / maxPercentage,
-                                    "Short Right": missDistribution[3] / maxPercentage,
-                                    "Short": missDistribution[4] / maxPercentage,
-                                    "Short Left": missDistribution[5] / maxPercentage,
-                                    "Left": missDistribution[6] / maxPercentage,
-                                    "Long Left": missDistribution[7] / maxPercentage,
-                                };
-                            })()
-                        ]}
-                        options={{
-                            graphShape: 1,
-                            showAxis: true,
-                            showIndicator: true,
-                            colorList: ["#24b2ff", "red"],
-                            dotList: [false, true],
-                        }}></RadarChart>
+            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8}}>
+                <View style={{
+                    paddingHorizontal: 12,
+                    borderBottomWidth: 1,
+                    borderColor: colors.border.default,
+                    paddingBottom: 6,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
+                    <Text style={{
+                        fontSize: 16,
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontWeight: "bold",
+                        flex: 1
+                    }}>18 Hole Simulation</Text>
+                    <Text style={{
+                        fontSize: 14,
+                        textAlign: "right",
+                        color: colors.text.secondary,
+                        fontWeight: "normal",
+                        flex: 1
+                    }}>11/29/24</Text>
+                </View>
+                <View style={{flexDirection: "row"}}>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12,
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>3.2</Text>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>Hard</Text>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>33</Text>
+                    </View>
+                </View>
+            </View>
         )
     }
 
     return (
-        <View style={{width: width}}>
-            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Avg.
-                Miss</Text>
-            <MissDistribution/>
+        <View style={{width: width, paddingHorizontal: 24}}>
+            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
+            <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{userData.strokesGained}</Text>
+                <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
+                    <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
+                </View>
+            </View>
+            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(last 5 sessions)</Text>
+            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, marginTop: 20}}>
+                <View style={{
+                    paddingHorizontal: 12,
+                    borderBottomWidth: 1,
+                    borderColor: colors.border.default,
+                    paddingBottom: 6,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
+                    <Text style={{
+                        fontSize: 16,
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontWeight: "bold",
+                        flex: 1
+                    }}>Average Performance</Text>
+                    <Text style={{
+                        fontSize: 14,
+                        textAlign: "right",
+                        color: colors.text.secondary,
+                        fontWeight: "normal",
+                        flex: 1
+                    }}>(last 5 sessions)</Text>
+                </View>
+                <View style={{flexDirection: "row"}}>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12,
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</Text>
+                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
+                            <Text style={{
+                                fontSize: 20,
+                                color: colors.text.primary,
+                                fontWeight: "bold",
+                            }}>{userData.averagePerformance.onePutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.onePutts/18)*100, 0)}%)</Text>
+                        </View>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</Text>
+                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
+                            <Text style={{
+                                fontSize: 20,
+                                color: colors.text.primary,
+                                fontWeight: "bold",
+                            }}>{userData.averagePerformance.twoPutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.twoPutts/18)*100,0)}%)</Text>
+                        </View>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</Text>
+                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
+                            <Text style={{
+                                fontSize: 20,
+                                color: colors.text.primary,
+                                fontWeight: "bold",
+                            }}>{userData.averagePerformance.threePutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.threePutts/18)*100,0)}%)</Text>
+                        </View>
+                    </View>
+                </View>
+                <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12,
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                            textAlign: "left"
+                        }}>{userData.averagePerformance.avgMiss}ft</Text>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Distance</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                            textAlign: "left"
+                        }}>{userData.averagePerformance.totalDistance}ft</Text>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts Misread</Text>
+                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
+                            <Text style={{
+                                fontSize: 20,
+                                color: colors.text.primary,
+                                fontWeight: "bold",
+                            }}>{userData.averagePerformance.puttsMisread}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.puttsMisread/18)*100,0)}%)</Text>
+                        </View>
+                    </View>
+                </View>
+            </View>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Recent Sessions</Text>
+            <View>
+                <RecentSession/>
+            </View>
         </View>
     )
 }

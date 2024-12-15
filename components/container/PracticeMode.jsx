@@ -6,6 +6,7 @@ import {useState} from "react";
 import useColors from "@/hooks/useColors";
 import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "react-native-reanimated";
 
+// TODO make the arrow face right, but when expanded face forward right
 export default function PracticeMode({name, link, description, onPress, onInfo, time, distance, focus}) {
     const [expanded, setExpanded] = useState(false);
     const colors = useColors();
