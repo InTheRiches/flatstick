@@ -100,7 +100,7 @@ export default function HomeScreen() {
                         name={"Ladder Challenge"}
                         distance={"< 8ft"}/>
                     <SecondaryButton onPress={() => {
-                        updateStats();
+                        updateStats().catch(console.error);
                     }} style={{
                         borderRadius: 50,
                         flexDirection: "row",

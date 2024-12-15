@@ -106,44 +106,50 @@ export default function RadarChart({
 
         return (
             <View key={"label-view-of-" + column.key}>
-                <Text
-                    key={`label2-of-${column.key}`}
-                    x={posX(column.angle, 1.2)}
-                    y={posY(column.angle, 1.2)- (isArray ? 50 : 0)}
-                    dy={10 / 2}
-                    fill={colors.text.primary}
-                    fontWeight="500"
-                    fontSize="48"
-                    textAnchor="middle"
-                >
-                    {column.key}
-                </Text>
-                {isArray && [
+                {
+                    // split the text by "\n" and make a new one for each line
+                    column.key.split("\n").map((text, i) => (
+                        <Text
+                            key={`label2-of-${text}`}
+                            x={posX(column.angle, 1.17)}
+                            y={posY(column.angle, 1.2) - (i*50) - ((data[0][column.key].length-2) * 25)}
+                            dy={10 / 2}
+                            fill={colors.text.primary}
+                            fontWeight="500"
+                            fontSize="48"
+                            textAnchor="middle"
+                        >
+                            {text}
+                        </Text>
+                    ))
+                }
+                {isArray &&
                     <Text
                         key={`label1-of-${data[0][column.key][1]}`}
-                        x={posX(column.angle, 1.2)}
-                        y={posY(column.angle, 1.2)}
+                        x={posX(column.angle, 1.17)}
+                        y={posY(column.angle, 1.2) + 50 - ((data[0][column.key].length-2) * 25)}
                         dy={10 / 2}
                         fill={"#24b2ff"}
                         fontWeight="500"
-                        fontSize="40"
+                        fontSize="44"
                         textAnchor="middle"
                     >
                         {data[0][column.key][1]}
-                    </Text>,
+                    </Text>}
+                {isArray && data[0][column.key].length > 2 &&
                     <Text
                         key={`label1-of-${data[0][column.key][2]}`}
-                        x={posX(column.angle, 1.2)}
-                        y={posY(column.angle, 1.2) + (isArray ? 50 : 0)}
+                        x={posX(column.angle, 1.17)}
+                        y={posY(column.angle, 1.2) + 100 - ((data[0][column.key].length-2) * 25)}
                         dy={10 / 2}
                         fill={"#24b2ff"}
                         fontWeight="500"
-                        fontSize="40"
+                        fontSize="44"
                         textAnchor="middle"
                     >
                         {data[0][column.key][2]}
                     </Text>
-                ]}
+                }
             </View>
         );
     };

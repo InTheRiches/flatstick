@@ -95,12 +95,14 @@ function calculateTotalStrokesGained(sessions) {
     for (const category in categories) {
         const {totalBaselines, totalActualPutts, totalHoles} = categories[category];
         const strokesGained = totalBaselines - totalActualPutts;
+
+        if (totalHoles === 0) {
+            strokesGainedByDistance[category] = 0;
+            continue;
+        }
+
         strokesGainedByDistance[category] = roundTo(strokesGained / totalHoles, 2);
-
-        console.log(category, strokesGainedByDistance[category]);
     }
-
-    console.log("overall: " + strokesGainedByDistance["overall"]);
     return strokesGainedByDistance;
 }
 

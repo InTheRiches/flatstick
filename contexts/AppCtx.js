@@ -296,10 +296,34 @@ export function AppProvider({children}) {
             "avgMiss": 0,
             "totalDistance": 0,
             "puttsMisread": 0,
+            puttsAHole: {
+                distance: [0, 0, 0, 0],
+                puttsAtThatDistance: [0, 0, 0, 0],
+                puttsAHole: 0,
+                misreadPuttsAHole: 0,
+                misreadHoles: 0,
+                slopes: {
+                    downhill: {
+                        straight: [0, 0], // putts a hole, holes
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    },
+                    neutral: {
+                        straight: [0, 0],
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    },
+                    uphill: {
+                        straight: [0, 0],
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    }
+                }
+            },
             rounds: 0,
         }
 
-        newPuttSessions.map((session, index) => {
+        newPuttSessions.forEach((session, index) => {
             // TODO do we want to include the fake rounds too? (this is prompted by total distance, as it is relative to difficulty in the fake rounds)
             const averaging = averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
             if (averaging) averagePerformance["rounds"]++;
@@ -323,6 +347,18 @@ export function AppProvider({children}) {
                     if (putt.totalPutts === 1) averagePerformance["onePutts"]++;
                     else if (putt.totalPutts === 2) averagePerformance["twoPutts"]++;
                     else averagePerformance["threePutts"]++;
+
+                    averagePerformance.puttsAHole.puttsAHole += putt.totalPutts;
+
+                    if (missRead) {
+                        averagePerformance.puttsAHole.misreadPuttsAHole += putt.totalPutts;
+                        averagePerformance.puttsAHole.misreadHoles++;
+                    }
+
+                    averagePerformance.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += putt.totalPutts;
+                    averagePerformance.puttsAHole.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+                    averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0] += putt.totalPutts;
+                    averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
 
                     averagePerformance["totalDistance"] += distance;
                     averagePerformance["puttsMisread"] += missRead ? 1 : 0;
@@ -419,6 +455,47 @@ export function AppProvider({children}) {
         averagePerformance["onePutts"] = roundTo(averagePerformance["onePutts"] / averagePerformance["rounds"], 1);
         averagePerformance["twoPutts"] = roundTo(averagePerformance["twoPutts"] / averagePerformance["rounds"], 1);
         averagePerformance["threePutts"] = roundTo(averagePerformance["threePutts"] / averagePerformance["rounds"], 1);
+
+        const refinedPuttsAHole = {
+            distance: [0, 0, 0, 0],
+            puttsAHole: 0,
+            misreadPuttsAHole: 0,
+            slopes: {
+                downhill: {
+                    straight: 0, // putts a hole
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            }
+        };
+
+        refinedPuttsAHole.puttsAHole = roundTo(averagePerformance.puttsAHole.puttsAHole / (averagePerformance["rounds"] * 18), 1);
+        if (averagePerformance.puttsAHole.misreadHoles > 0)
+            refinedPuttsAHole.misreadPuttsAHole = roundTo(averagePerformance.puttsAHole.misreadPuttsAHole / (averagePerformance.puttsAHole.misreadHoles), 1);
+        refinedPuttsAHole.distance = averagePerformance.puttsAHole.distance.map((val, idx) => {
+            if (averagePerformance.puttsAHole.puttsAtThatDistance[idx] === 0) return 0;
+            return roundTo(val / averagePerformance.puttsAHole.puttsAtThatDistance[idx], 1);
+        });
+
+        // handle the slopes
+        for (const slope of ["uphill", "neutral", "downhill"]) {
+            for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
+                if (averagePerformance.puttsAHole.slopes[slope][breakType][1] === 0) continue;
+                refinedPuttsAHole.slopes[slope][breakType] = roundTo(averagePerformance.puttsAHole.slopes[slope][breakType][0] / averagePerformance.puttsAHole.slopes[slope][breakType][1], 1);
+            }
+        }
+
+        averagePerformance.puttsAHole = refinedPuttsAHole;
 
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {

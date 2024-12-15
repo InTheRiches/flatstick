@@ -10,6 +10,7 @@ import BreakPopup from "../../components/stats/popups/BreakPopup";
 import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
 import {filterMissDistribution, roundTo} from "../../utils/PuttUtils";
+import {createPuttsByBreak} from "../../utils/GraphUtils";
 
 const tabs = [
     {
@@ -21,6 +22,13 @@ const tabs = [
     },
     {
         id: 2,
+        title: "Putts / Hole",
+        content: (
+            <PuttsAHoleTab/>
+        )
+    },
+    {
+        id: 3,
         title: "Misses",
         content: (
             <MissesTab/>
@@ -70,10 +78,13 @@ export default function Stats({}) {
             flex: 1
         }}>
             <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600}}>Stats</Text>
-            <View style={{flexDirection: "row", gap: 18, marginBottom: 24, marginTop: 12, paddingHorizontal: 24}}>
-                <Toggleable toggled={tab === 0} onToggle={() => scrollTo(0)} title={"Overview"}></Toggleable>
-                <Toggleable toggled={tab === 1} onToggle={() => scrollTo(1)} title={"Misses"}></Toggleable>
-            </View>
+            <ScrollView horizontal bounces={false} contentContainerStyle={{gap: 4}} style={{marginBottom: 24, marginTop: 12, paddingHorizontal: 24}}>
+                { // todo fix the tabs flickering when toggled
+                    tabs.map((item, i) => {
+                        return <Toggleable key={item.id} title={item.title} toggled={tab === i} onPress={() => scrollTo(i)}/>
+                    })
+                }
+            </ScrollView>
             <FlatList
                 contentContainerStyle={{
                     flexGrow: 1,
@@ -448,6 +459,114 @@ function OverviewTab() {
             <View>
                 <RecentSession/>
             </View>
+        </View>
+    )
+}
+
+function PuttsAHoleTab() {
+    const colors = useColors();
+    const {currentStats, userData} = useAppContext();
+
+    const {width} = Dimensions.get("screen")
+
+    const PuttsByBreakSlope = () => {
+        if (userData === undefined || Object.keys(userData).length === 0) {
+            return <View></View>
+        }
+
+        return (
+            <RadarChart graphSize={380}
+                        scaleCount={4}
+                        numberInterval={0}
+                        data={[createPuttsByBreak(userData)]}
+                        options={{
+                            graphShape: 1,
+                            showAxis: true,
+                            showIndicator: true,
+                            colorList: ["#24b2ff", "red"],
+                            dotList: [false, true],
+                        }}></RadarChart>
+        )
+    }
+
+    return (
+        <View style={{width: width, paddingHorizontal: 24}}>
+            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8}}>
+                <View style={{
+                    paddingHorizontal: 12,
+                    borderBottomWidth: 1,
+                    borderColor: colors.border.default,
+                    paddingBottom: 6,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
+                    <Text style={{
+                        fontSize: 16,
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontWeight: "bold",
+                        flex: 1
+                    }}>Average Performance</Text>
+                    <Text style={{
+                        fontSize: 14,
+                        textAlign: "right",
+                        color: colors.text.secondary,
+                        fontWeight: "normal",
+                        flex: 1
+                    }}>(last 5 sessions)</Text>
+                </View>
+                <View style={{flexDirection: "row"}}>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12,
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts per Hole</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>{userData.averagePerformance.puttsAHole.puttsAHole}</Text>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderRightWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misread</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>{userData.averagePerformance.puttsAHole.misreadPuttsAHole}</Text>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misshit</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>?</Text>
+                    </View>
+                </View>
+            </View>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Putts a Hole by Break/Slope</Text>
+            <PuttsByBreakSlope></PuttsByBreakSlope>
         </View>
     )
 }
