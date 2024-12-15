@@ -354,8 +354,7 @@ export default function BigMissModal({
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
-                            if (putts === -1) setPutts(9);
-                            else if (putts === 2) setPutts(9);
+                            if (putts === -1 || putts <= 2) setPutts(9);
                             else setPutts(putts - 1);
                         }}>
                             <Svg
@@ -391,7 +390,7 @@ export default function BigMissModal({
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
-                            if (putts === -1) updatePutts("2"); else if (putts === 9) updatePutts("2"); else updatePutts((putts + 1).toString());
+                            if (putts === -1) updatePutts("2"); else if (putts >= 9) updatePutts("2"); else updatePutts((putts + 1).toString());
                         }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -424,7 +423,7 @@ export default function BigMissModal({
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
-                            if (distance === -1) updateDistance("99"); else if (distance === 2) updateDistance("99"); else updateDistance((distance - 1).toString());
+                            if (distance === -1) updateDistance("99"); else if (distance <= 3) updateDistance("99"); else updateDistance((distance - 1).toString());
                         }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -459,7 +458,7 @@ export default function BigMissModal({
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
-                            if (distance === -1) updateDistance("2"); else if (distance === 99) updateDistance("2"); else updateDistance((distance + 1).toString());
+                            if (distance === -1) updateDistance("3"); else if (distance >= 99) updateDistance("3"); else updateDistance((distance + 1).toString());
                         }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"
