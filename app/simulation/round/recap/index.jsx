@@ -1,6 +1,6 @@
 import {ThemedView} from "@/components/ThemedView";
 import {ThemedText} from "@/components/ThemedText";
-import {View, Image, Text, Pressable} from "react-native";
+import {Image, Text, View} from "react-native";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
 import useColors from "@/hooks/useColors";
@@ -17,7 +17,7 @@ const initialMisses = {
 }
 
 export default function SimulationRecap() {
-    const {current, holes, madePercent, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
+    const {current, holes, madePercent, totalPutts, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
     const putts = JSON.parse(serializedPutts);
 
     const parsedDate = new Date(date);
@@ -25,7 +25,7 @@ export default function SimulationRecap() {
     const colors = useColors();
     const navigation = useNavigation();
 
-    const [{farLeft, left, center, right, totalPutts, farRight, long, short}, setMisses] = useState(initialMisses);
+    const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
 
     useEffect(() => {
         let farLeft = 0
@@ -41,7 +41,7 @@ export default function SimulationRecap() {
             const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
             // Check the quadrant based on the rotated ranges
-            if (putt.distanceMissed <= 1 && !putt.largeMiss) {
+            if (putt.distanceMissed <= 0.5 && !putt.largeMiss) {
                 center++
             } else if (degrees > -45 && degrees <= 45) {
                 if (putt.distanceMissed <= 2 && !putt.largeMiss) right++;

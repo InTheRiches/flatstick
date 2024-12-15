@@ -45,7 +45,7 @@ const initialState = {
     distanceInvalid: true,
     puttBreak: [0, 0],
     missRead: false,
-    theta: 0,
+    theta: 999,
     putts: [],
 }
 
@@ -170,7 +170,7 @@ export default function RealSimulation() {
             updateField("center", false);
             updateField("distanceInvalid", true);
             updateField("largeMissBy", [0, 0]);
-            updateField("theta", 0);
+            updateField("theta", 999);
             updateField("puttBreak", convertThetaToBreak(0));
             updateField("distance", -1);
             updateField("hole", hole + 1);
@@ -385,7 +385,7 @@ export default function RealSimulation() {
                                 bigMissRef.current.present();
                             }}
                                           disabled={distance === -1}
-                                          title={"Miss > 5ft?"}></DangerButton>
+                                          title={"Miss > 3ft?"}></DangerButton>
                             {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                             title={hole === holes ? "Submit" : "Next"}
                                             disabled={point.x === undefined || distance === -1}
@@ -408,7 +408,6 @@ export default function RealSimulation() {
     );
 }
 
-// TODO make the break start at neutral
 function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
@@ -475,114 +474,116 @@ function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, s
                         fontWeight: "bold"
                     }}>{slope}</Text>
                 </View>
-                <View style={{
-                    flexDirection: "row",
-                    gap: 12,
-                    alignItems: "center",
-                    alignSelf: "center",
-                    flex: 1,
-                    paddingHorizontal: 12
-                }}>
-                    <PrimaryButton style={{
-                        aspectRatio: 1,
-                        paddingHorizontal: 4,
-                        paddingVertical: 4,
-                        borderRadius: 16,
-                        flex: 0
-                    }} onPress={() => {
-                        if (distance === -1) validateDistance((99).toString());
-                        else if (distance === 1) validateDistance((99).toString());
-                        else validateDistance((distance - 1).toString());
-                    }}>
-                        <Svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={3}
-                            stroke={colors.button.primary.text}
-                            width={18}
-                            height={18}
-                        >
-                            <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
-                        </Svg>
-                    </PrimaryButton>
+                <View style={{ flex: 1, flexDirection: "column"}}>
+                    <Text style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</Text>
                     <View style={{
-                        alignSelf: "center",
                         flexDirection: "row",
-                        justifyContent: "space-between",
-                        borderWidth: 1.5,
-                        borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
-                        borderRadius: 8,
-                        flex: 1,
-                        overflow: "hidden"
+                        gap: 12,
+                        alignItems: "center",
+                        alignSelf: "center",
+                        paddingHorizontal: 12
                     }}>
-                        <TextInput style={{
-                            flex: 1,
-                            fontSize: 20,
-                            fontWeight: "bold",
-                            color: colors.text.primary,
-                            backgroundColor: colorScheme === "light" ? "transparent" : distanceInvalid ? "#6D3232" : colors.background.primary,
-                        }}
-                                   placeholder="?"
-                                   placeholderTextColor={colors.text.secondary}
-                                   textAlign='center'
-                                   value={distance !== -1 ? "" + distance : ""}
-                                   onChangeText={validateDistance}
-                                   keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
-                        <View
-                            style={{
-                                borderLeftWidth: 1.5,
-                                borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
-                                backgroundColor:
-                                    distanceInvalid ?
-                                        colorScheme === "light" ?
-                                        "#FFBCBC" :
-                                        colors.input.invalid.text :
-                                        colorScheme === "light" ?
-                                            colors.background.primary :
-                                            colors.border.default,
-                                flex: 1
-                        }}>
-                            <Text style={{
-                                fontSize: 20,
-                                paddingVertical: 2,
-                                fontWeight: "bold",
-                                textAlign: "center",
-                                color: colors.text.primary,
-                            }}>ft</Text>
-                        </View>
-                    </View>
-                    <PrimaryButton
-                        style={{
+                        <PrimaryButton style={{
                             aspectRatio: 1,
                             paddingHorizontal: 4,
                             paddingVertical: 4,
                             borderRadius: 16,
                             flex: 0
-                        }}
-                        onPress={() => {
-                            if (distance === -1) validateDistance((1).toString());
-                            else if (distance === 99) validateDistance((1).toString());
-                            else validateDistance((distance + 1).toString());
+                        }} onPress={() => {
+                            if (distance === -1) validateDistance((99).toString());
+                            else if (distance === 1) validateDistance((99).toString());
+                            else validateDistance((distance - 1).toString());
                         }}>
-                        <Svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={3}
-                            stroke={colors.button.primary.text}
-                            width={18}
-                            height={18}
-                        >
-                            <Path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 4.5v15m7.5-7.5h-15"
-                            />
-                        </Svg>
-                    </PrimaryButton>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
+                            >
+                                <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
+                            </Svg>
+                        </PrimaryButton>
+                        <View style={{
+                            alignSelf: "center",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            borderWidth: 1.5,
+                            borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
+                            borderRadius: 8,
+                            flex: 1,
+                            overflow: "hidden"
+                        }}>
+                            <TextInput style={{
+                                flex: 1,
+                                fontSize: 20,
+                                fontWeight: "bold",
+                                color: colors.text.primary,
+                                backgroundColor: colorScheme === "light" ? "transparent" : distanceInvalid ? "#6D3232" : colors.background.primary,
+                            }}
+                                       placeholder="?"
+                                       placeholderTextColor={colors.text.secondary}
+                                       textAlign='center'
+                                       value={distance !== -1 ? "" + distance : ""}
+                                       onChangeText={validateDistance}
+                                       keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
+                            <View
+                                style={{
+                                    borderLeftWidth: 1.5,
+                                    borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
+                                    backgroundColor:
+                                        distanceInvalid ?
+                                            colorScheme === "light" ?
+                                                "#FFBCBC" :
+                                                colors.input.invalid.text :
+                                            colorScheme === "light" ?
+                                                colors.background.primary :
+                                                colors.border.default,
+                                    flex: 1
+                                }}>
+                                <Text style={{
+                                    fontSize: 20,
+                                    paddingVertical: 2,
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    color: colors.text.primary,
+                                }}>ft</Text>
+                            </View>
+                        </View>
+                        <PrimaryButton
+                            style={{
+                                aspectRatio: 1,
+                                paddingHorizontal: 4,
+                                paddingVertical: 4,
+                                borderRadius: 16,
+                                flex: 0
+                            }}
+                            onPress={() => {
+                                if (distance === -1) validateDistance((1).toString());
+                                else if (distance === 99) validateDistance((1).toString());
+                                else validateDistance((distance + 1).toString());
+                            }}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
+                            >
+                                <Path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4.5v15m7.5-7.5h-15"
+                                />
+                            </Svg>
+                        </PrimaryButton>
+                    </View>
                 </View>
-            </View>
+                </View>
         </View>
     )
 }
