@@ -114,22 +114,22 @@ const calculateStats = (puttsCopy, width, height) => {
             return;
         console.log(putt);
         if (putt.totalPutts === -1) {
-            if (putt.largeMiss) {
+            if (putt.largeMiss)
                 totalPutts += 3;
-            } else if (putt.distanceMissed === 0) {
+            else if (putt.distanceMissed === 0) {
                 totalPutts++;
                 madePercent++;
-            } else {
+            } else
                 totalPutts += 2;
-            }
         } else {
+            if (putt.totalPutts === 1)
+                madePercent++;
             totalPutts += putt.totalPutts;
         }
         if (putt.distanceMissed !== 0) {
             avgMiss += putt.distanceMissed;
-            if (index !== 0) {
+            if (index !== 0)
                 avgMiss /= 2;
-            }
         }
         let xDistance = roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2);
         let yDistance = roundTo((height / 2 - putt.point.y) * (5 / height), 2);

@@ -1,4 +1,4 @@
-import {Dimensions, FlatList, ScrollView, Text, View} from "react-native";
+import {Dimensions, FlatList, ScrollView, Text, useColorScheme, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
@@ -10,7 +10,7 @@ import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
 import {filterMissDistribution, roundTo} from "../../utils/PuttUtils";
 import {createPuttsByBreak} from "../../utils/GraphUtils";
-import {StackedBarChart} from "react-native-chart-kit";
+import {BarChart, StackedBarChart} from "react-native-chart-kit";
 
 const tabs = [
     {
@@ -447,6 +447,8 @@ function OverviewTab() {
 
 function PuttsAHoleTab() {
     const colors = useColors();
+    const colorScheme = useColorScheme();
+
     const {currentStats, userData} = useAppContext();
 
     const {width} = Dimensions.get("screen")
@@ -471,6 +473,7 @@ function PuttsAHoleTab() {
         )
     }
 
+    // TODO mayeb make this a graph that shows the difference, where it starts in the middle and goes up /down
     const PuttsByDistanceChart = () => {
         const data = [{
             value: userData.averagePerformance.puttsAHole.distance[0],
@@ -491,54 +494,92 @@ function PuttsAHoleTab() {
         }]
 
         return (
-            <StackedBarChart
-                data={{
-                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
-                    legend: [],
-                    data: [
-                        [userData.averagePerformance.puttsAHole.distance[0], userData.averagePerformance.puttsAHole.distance[0]-1],
-                        [userData.averagePerformance.puttsAHole.distance[1], userData.averagePerformance.puttsAHole.distance[1]-1],
-                        [userData.averagePerformance.puttsAHole.distance[2], userData.averagePerformance.puttsAHole.distance[2]-1],
-                        [2.4, 2.4-1]
-                    ],
-                    barColors: ["transparent", colors.checkmark.background]
-                }}
-                width={Dimensions.get('window').width - 16}
-                height={220}
-                fromZero={true}
-                yAxisInterval={1}
-                segments={3}
-                fromNumber={3}
-                chartConfig={{
-                    backgroundColor: colors.background.primary,
-                    backgroundGradientFrom: colors.background.primary,
-                    backgroundGradientTo: colors.background.primary,
-                    decimalPlaces: 0,
+            <>
+                <BarChart
+                    data={{
+                        labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                        datasets: [
+                            {
+                                data: [
+                                    userData.averagePerformance.puttsAHole.distance[0], userData.averagePerformance.puttsAHole.distance[1], userData.averagePerformance.puttsAHole.distance[2], userData.averagePerformance.puttsAHole.distance[3]
+                                ]
+                            }],
+                    }}
+                    width={Dimensions.get('window').width - 16}
+                    height={220}
+                    fromZero={true}
+                    yAxisInterval={1}
+                    segments={3}
+                    fromNumber={3}
+                    chartConfig={{
+                        backgroundColor: colors.background.primary,
+                        backgroundGradientFrom: colors.background.primary,
+                        backgroundGradientTo: colors.background.primary,
+                        decimalPlaces: 0,
 
-                    fillShadowGradientFromOpacity: 0.5,
-                    fillShadowGradientToOpacity: 0.3,
+                        fillShadowGradientFromOpacity: 0.5,
+                        fillShadowGradientToOpacity: 0.3,
 
-                    color: (opacity = 1) => {
-                        if (opacity === 1) return colors.checkmark.background
-                        if (opacity === 0.6) return colors.checkmark.background
-                        return `rgba(255, 255, 255, ${opacity})`
-                    },
-                    style: {
+                        color: (opacity = 1) => {
+                            if (opacity === 1) return colors.checkmark.background
+                            if (opacity === 0.6) return colors.checkmark.background
+                            return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
+                        },
+                        style: {
+                            borderRadius: 16,
+                        },
+                    }}
+                    style={{
+                        marginVertical: 8,
                         borderRadius: 16,
-                    },
-                }}
-                style={{
-                    marginVertical: 8,
-                    borderRadius: 16,
-                }}
-                yAxisSuffix={" putts"}
-                hideLegend={true}
-            />
+                    }}
+                    yAxisSuffix={" putts"}
+                    hideLegend={true}
+                />
+                <View style={{position: "absolute", top: 0, right:0}}>
+                    <BarChart
+                        data={{
+                            labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                            datasets: [
+                                {
+                                    data: [
+                                        1.34, 1.50, 1.70, 2
+                                    ]
+                                }],
+                        }}
+                        width={Dimensions.get('window').width - 16}
+                        height={220}
+                        fromZero={true}
+                        yAxisInterval={1}
+                        segments={3}
+                        fromNumber={3}
+                        chartConfig={{
+                            backgroundColor: "rgba(0, 0, 0, 0)",
+                            backgroundGradientFromOpacity: 0,
+                            backgroundGradientToOpacity: 0,
+                            decimalPlaces: 0,
+
+                            fillShadowGradientFromOpacity: 0,
+                            fillShadowGradientToOpacity: 0,
+
+                            color: (opacity = 1) => {
+                                if (opacity === 0.6) return "#0e4e75"
+                                return `rgba(0, 0, 0, 0)`
+                            },
+                        }}
+                        style={{
+                            marginVertical: 8,
+                        }}
+                        yAxisSuffix={" putts"}
+                        hideLegend={true}
+                    />
+                </View>
+            </>
         )
     }
 
     return (
-        <ScrollView contentContainerStyle={{alignItems: "center"}} style={{width: width, paddingHorizontal: 24}}>
+        <ScrollView contentContainerStyle={{alignItems: "center", paddingBottom: 12}} style={{width: width, paddingHorizontal: 24}}>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, width: "100%"}}>
                 <View style={{
                     paddingHorizontal: 12,
@@ -618,6 +659,16 @@ function PuttsAHoleTab() {
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Putts a Hole by Distance</Text>
             <View style={{overflow: "hidden", marginRight: 32, paddingLeft: 24}}>
                 <PuttsByDistanceChart/>
+            </View>
+            <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 12}}>
+                <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>
+                    <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                    <Text>Your Averages</Text>
+                </View>
+                <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>
+                    <View style={{backgroundColor: "#0e4e75", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                    <Text>Tour Pro</Text>
+                </View>
             </View>
         </ScrollView>
     )

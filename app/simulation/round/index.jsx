@@ -245,7 +245,6 @@ export default function RoundSimulation() {
         navigation.goBack();
     }
 
-    // TODO investigate error where setDoc is being set with invalid data (undefined?)
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 

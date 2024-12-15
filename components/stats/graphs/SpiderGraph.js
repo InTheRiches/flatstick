@@ -115,7 +115,7 @@ export default function RadarChart({
                     column.key.split("\n").map((text, i) => (
                         <Text
                             key={`label2-of-${text}`}
-                            x={posX(column.angle, 1.17)}
+                            x={posX(column.angle, 1.25)}
                             y={posY(column.angle, 1.2) - (i*50) - ((data[0][column.key].length-2) * 25)}
                             dy={10 / 2}
                             fill={colors.text.primary}
@@ -130,7 +130,7 @@ export default function RadarChart({
                 {isArray &&
                     <Text
                         key={`label1-of-${data[0][column.key][1]}`}
-                        x={posX(column.angle, 1.17)}
+                        x={posX(column.angle, 1.25)}
                         y={posY(column.angle, 1.2) + 50 - ((data[0][column.key].length-2) * 25)}
                         dy={10 / 2}
                         fill={"#24b2ff"}
@@ -143,7 +143,7 @@ export default function RadarChart({
                 {isArray && data[0][column.key].length > 2 &&
                     <Text
                         key={`label1-of-${data[0][column.key][2]}`}
-                        x={posX(column.angle, 1.17)}
+                        x={posX(column.angle, 1.25)}
                         y={posY(column.angle, 1.2) + 100 - ((data[0][column.key].length-2) * 25)}
                         dy={10 / 2}
                         fill={"#24b2ff"}
