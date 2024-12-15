@@ -98,6 +98,8 @@ const loadPuttData = (putt, updateField) => {
     else
         updateField("puttBreak", putt.break);
     updateField("distance", putt.distance);
+
+    updateField("distanceInvalid", putt.distance < 1 || putt.distance > 99);
 };
 
 const calculateStats = (puttsCopy, width, height) => {
@@ -107,49 +109,46 @@ const calculateStats = (puttsCopy, width, height) => {
     const trimmedPutts = [];
 
     puttsCopy.forEach((putt, index) => {
-        if (putt !== undefined) {
-            if (putt.totalPutts === -1) {
-                if (putt.largeMiss) {
-                    totalPutts += 3;
-                } else if (putt.distanceMissed === 0) {
-                    totalPutts++;
-                    madePercent++;
-                } else {
-                    totalPutts += 2;
-                }
-            } else {
-                totalPutts += putt.totalPutts;
-            }
 
-            if (putt.distanceMissed !== 0) {
-                avgMiss += putt.distanceMissed;
-                if (index !== 0) {
-                    avgMiss /= 2;
-                }
-            }
-
-            let xDistance = roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2);
-            let yDistance = roundTo((height / 2 - putt.point.y) * (5 / height), 2);
-
+        if (putt === undefined || putt.distance === -1 || putt.point.x === undefined)
+            return;
+        console.log(putt);
+        if (putt.totalPutts === -1) {
             if (putt.largeMiss) {
-                xDistance = roundTo(putt.point.x, 2);
-                yDistance = roundTo(putt.point.y, 2);
+                totalPutts += 3;
+            } else if (putt.distanceMissed === 0) {
+                totalPutts++;
+                madePercent++;
+            } else {
+                totalPutts += 2;
             }
-
-            let puttBreak= putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
-
-            trimmedPutts.push({
-                distance: putt.distance,
-                xDistance: xDistance,
-                yDistance: yDistance,
-                puttBreak: puttBreak,
-                missRead: putt.missRead,
-                distanceMissed: putt.distanceMissed,
-                largeMiss: putt.largeMiss,
-                totalPutts: putt.totalPutts,
-                point: putt.point
-            });
+        } else {
+            totalPutts += putt.totalPutts;
         }
+        if (putt.distanceMissed !== 0) {
+            avgMiss += putt.distanceMissed;
+            if (index !== 0) {
+                avgMiss /= 2;
+            }
+        }
+        let xDistance = roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2);
+        let yDistance = roundTo((height / 2 - putt.point.y) * (5 / height), 2);
+        if (putt.largeMiss) {
+            xDistance = roundTo(putt.point.x, 2);
+            yDistance = roundTo(putt.point.y, 2);
+        }
+        let puttBreak = putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
+        trimmedPutts.push({
+            distance: putt.distance,
+            xDistance: xDistance,
+            yDistance: yDistance,
+            puttBreak: puttBreak,
+            missRead: putt.missRead,
+            distanceMissed: roundTo(putt.distanceMissed, 2),
+            largeMiss: putt.largeMiss,
+            totalPutts: putt.totalPutts,
+            point: putt.point
+        });
     });
 
     avgMiss = roundTo(avgMiss, 1);
