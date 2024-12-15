@@ -7,17 +7,12 @@ export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
 
     const styles = StyleSheet.create({
         button: {
-            flex: 1,
             alignItems: 'center',
             justifyContent: 'center',
-            paddingVertical: 8,
             paddingHorizontal: 32,
             borderRadius: 32,
-            borderStyle: "solid",
             borderWidth: 1,
             borderColor: toggled ? colors.toggleable.toggled.border : colors.toggleable.border,
-            overflow: "hidden",
-            alignSelf: "center",
             backgroundColor: toggled ? colors.toggleable.toggled.background : colors.toggleable.background
         }
     });
@@ -28,7 +23,9 @@ export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
             onPress={onToggle} {...rest}>
             <Text style={{
                 color: toggled ? colors.toggleable.toggled.color : colors.toggleable.color,
-                fontWeight: 500
+                fontWeight: 500,
+                paddingTop: 10,
+                paddingBottom: 13
             }}>{title}</Text>
         </Pressable>
     );
