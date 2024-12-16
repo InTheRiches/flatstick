@@ -11,7 +11,7 @@ import DistancePopup from "../../components/stats/popups/DistancePopup";
 import {filterMissDistribution} from "../../utils/PuttUtils";
 import {roundTo} from "../../utils/roundTo";
 import {createPuttsByBreak} from "../../utils/GraphUtils";
-import {BarChart} from "react-native-chart-kit";
+import {BarChart} from "../../charts";
 
 const tabs = [
     {
@@ -204,6 +204,8 @@ function MissesTab() {
 
 function OverviewTab() {
     const colors = useColors();
+    const colorScheme = useColorScheme();
+
     const {currentStats, userData, puttSessions} = useAppContext();
 
     const {width} = Dimensions.get("screen")
@@ -247,7 +249,13 @@ function OverviewTab() {
                         color: colors.text.secondary,
                         fontWeight: "normal",
                         flex: 1
-                    }}>11/29/24</Text>
+                    }}>
+                        {new Date(recentSession.timestamp).toLocaleDateString('en-US', {
+                            year: '2-digit',
+                            month: '2-digit',
+                            day: '2-digit'
+                        })}
+                    </Text>
                 </View>
                 <View style={{flexDirection: "row"}}>
                     <View style={{
@@ -301,16 +309,68 @@ function OverviewTab() {
         )
     }
 
+    const PuttsByDistanceChart = () => {
+        return (
+            <BarChart
+                minNumber={-2}
+                maxNumber={2}
+                segments={4}
+                data={{
+                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                    datasets: [
+                        {
+                            data: [
+                                userData.averagePerformance.strokesGained.distance[0], userData.averagePerformance.strokesGained.distance[1], userData.averagePerformance.strokesGained.distance[2], userData.averagePerformance.strokesGained.distance[3]
+                            ]
+                        }
+                    ],
+                }}
+                width={Dimensions.get('window').width - 16}
+                height={220}
+                autoShiftLabels
+                showValuesOnTopOfBars={true}
+                chartConfig={{
+                    backgroundColor: colors.background.primary,
+                    backgroundGradientFrom: colors.background.primary,
+                    backgroundGradientTo: colors.background.primary,
+                    decimalPlaces: 0,
+
+                    fillShadowGradientFromOpacity: 0.5,
+                    fillShadowGradientToOpacity: 0.3,
+
+                    textColor: colors.text.primary,
+
+                    capColor: colors.checkmark.background,
+
+                    color: (opacity = 1) => {
+                        if (opacity === 1) return colors.checkmark.background
+                        if (opacity === 0.6) return colors.checkmark.background
+                        return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
+                    },
+                    style: {
+                        borderRadius: 16,
+                    },
+                }}
+                style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                }}
+                yAxisSuffix={" putts"}
+                hideLegend={true}
+            />
+        )
+    }
+
     return (
-        <View style={{width: width, paddingHorizontal: 24}}>
+        <ScrollView contentContainerStyle={{paddingBottom: 32}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{userData.strokesGained}</Text>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{userData.averagePerformance.strokesGained.overall}</Text>
                 <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                     <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
                 </View>
             </View>
-            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(last 5 sessions)</Text>
+            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</Text>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, marginTop: 20}}>
                 <View style={{
                     paddingHorizontal: 12,
@@ -447,6 +507,14 @@ function OverviewTab() {
                     </View>
                 </View>
             </View>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Distance</Text>
+            <View style={{alignItems: "center"}}>
+                <PuttsByDistanceChart/>
+            </View>
+            <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6}}>
+                <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                <Text style={{color: colors.text.primary}}>Your Averages</Text>
+            </View>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Recent Sessions</Text>
             <View style={{gap: 12}}>
                 {
@@ -456,7 +524,7 @@ function OverviewTab() {
                     })
                 }
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -490,108 +558,57 @@ function PuttsAHoleTab() {
 
     // TODO mayeb make this a graph that shows the difference, where it starts in the middle and goes up /down
     const PuttsByDistanceChart = () => {
-        const data = [{
-            value: userData.averagePerformance.puttsAHole.distance[0],
-            label: "<6 ft",
-            i: 0
-        }, {
-            value: userData.averagePerformance.puttsAHole.distance[1],
-            label: "6-12 ft",
-            i: 1
-        }, {
-            value: userData.averagePerformance.puttsAHole.distance[2],
-            label: "12-20 ft",
-            i: 2
-        }, {
-            value: 2.4,
-            label: ">20 ft",
-            i: 3
-        }]
-
         return (
-            <>
-                <BarChart
-                    data={{
-                        labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
-                        datasets: [
-                            {
-                                data: [
-                                    userData.averagePerformance.puttsAHole.distance[0], userData.averagePerformance.puttsAHole.distance[1], userData.averagePerformance.puttsAHole.distance[2], userData.averagePerformance.puttsAHole.distance[3]
-                                ]
-                            }],
-                    }}
-                    width={Dimensions.get('window').width - 16}
-                    height={220}
-                    fromZero={true}
-                    yAxisInterval={1}
-                    segments={3}
-                    showValuesOnTopOfBars={true}
-
-                    fromNumber={3}
-                    chartConfig={{
-                        backgroundColor: colors.background.primary,
-                        backgroundGradientFrom: colors.background.primary,
-                        backgroundGradientTo: colors.background.primary,
-                        decimalPlaces: 0,
-
-                        fillShadowGradientFromOpacity: 0.5,
-                        fillShadowGradientToOpacity: 0.3,
-
-                        color: (opacity = 1) => {
-                            if (opacity === 1) return colors.checkmark.background
-                            if (opacity === 0.6) return colors.checkmark.background
-                            return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
+            <BarChart
+                data={{
+                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                    datasets: [
+                        {
+                            data: [
+                                userData.averagePerformance.puttsAHole.distance[0], userData.averagePerformance.puttsAHole.distance[1], userData.averagePerformance.puttsAHole.distance[2], userData.averagePerformance.puttsAHole.distance[3]
+                            ]
                         },
-                        style: {
-                            borderRadius: 16,
-                        },
-                    }}
-                    style={{
-                        marginVertical: 8,
+                        {
+                            data: [
+                                1.34, 1.50, 1.70, 2
+                            ]
+                        }
+                    ],
+                }}
+                width={Dimensions.get('window').width - 16}
+                height={220}
+                fromZero={true}
+                yAxisInterval={1}
+                segments={3}
+                showValuesOnTopOfBars={true}
+
+                fromNumber={3}
+                chartConfig={{
+                    backgroundColor: colors.background.primary,
+                    backgroundGradientFrom: colors.background.primary,
+                    backgroundGradientTo: colors.background.primary,
+                    decimalPlaces: 0,
+
+                    fillShadowGradientFromOpacity: 0.5,
+                    fillShadowGradientToOpacity: 0.3,
+                    textColor: colors.text.primary,
+                    secondaryCapColor: colorScheme === "light" ? "#0e4e75" : "white",
+                    capColor: colors.checkmark.background,
+                    color: (opacity = 1) => {
+                        if (opacity === 1) return colors.checkmark.background
+                        return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
+                    },
+                    style: {
                         borderRadius: 16,
-                    }}
-                    yAxisSuffix={" putts"}
-                    hideLegend={true}
-                />
-                <View style={{position: "absolute", top: 0, right:0}}>
-                    <BarChart
-                        data={{
-                            labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
-                            datasets: [
-                                {
-                                    data: [
-                                        1.34, 1.50, 1.70, 2
-                                    ]
-                                }],
-                        }}
-                        width={Dimensions.get('window').width - 16}
-                        height={220}
-                        fromZero={true}
-                        yAxisInterval={1}
-                        segments={3}
-                        fromNumber={3}
-                        chartConfig={{
-                            backgroundColor: "rgba(0, 0, 0, 0)",
-                            backgroundGradientFromOpacity: 0,
-                            backgroundGradientToOpacity: 0,
-                            decimalPlaces: 0,
-
-                            fillShadowGradientFromOpacity: 0,
-                            fillShadowGradientToOpacity: 0,
-
-                            color: (opacity = 1) => {
-                                if (opacity === 0.6) return colorScheme === "light" ? "#0e4e75" : "white"
-                                return `rgba(0, 0, 0, 0)`
-                            },
-                        }}
-                        style={{
-                            marginVertical: 8,
-                        }}
-                        yAxisSuffix={" putts"}
-                        hideLegend={true}
-                    />
-                </View>
-            </>
+                    },
+                }}
+                style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                }}
+                yAxisSuffix={" putts"}
+                hideLegend={true}
+            />
         )
     }
 

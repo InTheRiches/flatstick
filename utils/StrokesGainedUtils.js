@@ -17,6 +17,45 @@ const sgBaselinePutts = [
     { distance: 90, strokesGained: 2.40 }
 ];
 
+function cleanAverageStrokesGained(averagePerformance, strokesGained) {
+    const refinedStrokesGained = {
+        distance: [0, 0, 0, 0],
+        overall: 0,
+        slopes: {
+            downhill: {
+                straight: 0, // strokes gained
+                leftToRight: 0,
+                rightToLeft: 0
+            },
+            neutral: {
+                straight: 0,
+                leftToRight: 0,
+                rightToLeft: 0
+            },
+            uphill: {
+                straight: 0,
+                leftToRight: 0,
+                rightToLeft: 0
+            }
+        }
+    }
+
+    refinedStrokesGained.overall = strokesGained;
+    refinedStrokesGained.distance = averagePerformance.strokesGained.distance.map((val, idx) => {
+        if (averagePerformance.strokesGained.puttsAtThatDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.strokesGained.puttsAtThatDistance[idx], 1);
+    });
+    // handle the slopes
+    for (const slope of ["uphill", "neutral", "downhill"]) {
+        for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
+            if (averagePerformance.strokesGained.slopes[slope][breakType][1] === 0) continue;
+            refinedStrokesGained.slopes[slope][breakType] = roundTo(averagePerformance.strokesGained.slopes[slope][breakType][0] / averagePerformance.strokesGained.slopes[slope][breakType][1], 1);
+        }
+    }
+
+    return refinedStrokesGained;
+}
+
 function calculateBaselineStrokesGained(distance) {
     // Ensure the data points are sorted by distance
     sgBaselinePutts.sort((a, b) => a.distance - b.distance);
@@ -112,4 +151,4 @@ function calculateTotalStrokesGained(sessions) {
     return strokesGainedByDistance;
 }
 
-export { calculateSingleStrokesGained, calculateBaselineStrokesGained, calculateTotalStrokesGained };
+export { cleanAverageStrokesGained, calculateSingleStrokesGained, calculateBaselineStrokesGained, calculateTotalStrokesGained };

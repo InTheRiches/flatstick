@@ -12,8 +12,13 @@ import {
     query,
     runTransaction
 } from "firebase/firestore";
-import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
+import {
+    calculateBaselineStrokesGained,
+    calculateTotalStrokesGained,
+    cleanAverageStrokesGained
+} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
+import {cleanPuttsAHole} from "@/utils/PuttUtils";
 
 const breaks = [
     "leftToRight",
@@ -305,6 +310,28 @@ export function AppProvider({children}) {
             "totalDistance": 0,
             "puttsMisread": 0,
             "puttsMishits": 0,
+            strokesGained: {
+                overall: 0,
+                distance: [0, 0, 0, 0],
+                puttsAtThatDistance: [0, 0, 0, 0],
+                slopes: {
+                    downhill: {
+                        straight: [0, 0], // strokesGained, putts
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    },
+                    neutral: {
+                        straight: [0, 0],
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    },
+                    uphill: {
+                        straight: [0, 0],
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    }
+                }
+            },
             puttsAHole: {
                 distance: [0, 0, 0, 0],
                 puttsAtThatDistance: [0, 0, 0, 0],
@@ -373,10 +400,17 @@ export function AppProvider({children}) {
                         averagePerformance.puttsAHole.normalHoles++;
                     }
 
+                    const strokesGained = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
+
                     averagePerformance.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += putt.totalPutts;
                     averagePerformance.puttsAHole.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
                     averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0] += putt.totalPutts;
                     averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
+
+                    averagePerformance.strokesGained.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += strokesGained;
+                    averagePerformance.strokesGained.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+                    averagePerformance.strokesGained.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0] += strokesGained;
+                    averagePerformance.strokesGained.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
 
                     averagePerformance["totalDistance"] += distance;
                     averagePerformance["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
@@ -478,49 +512,8 @@ export function AppProvider({children}) {
         averagePerformance["twoPutts"] = roundTo(averagePerformance["twoPutts"] / averagePerformance["rounds"], 1);
         averagePerformance["threePutts"] = roundTo(averagePerformance["threePutts"] / averagePerformance["rounds"], 1);
 
-        const refinedPuttsAHole = {
-            distance: [0, 0, 0, 0],
-            puttsAHole: 0,
-            puttsAHoleWhenMisread: 0,
-            puttsAHoleWhenMishit: 0,
-            slopes: {
-                downhill: {
-                    straight: 0, // putts a hole
-                    leftToRight: 0,
-                    rightToLeft: 0
-                },
-                neutral: {
-                    straight: 0,
-                    leftToRight: 0,
-                    rightToLeft: 0
-                },
-                uphill: {
-                    straight: 0,
-                    leftToRight: 0,
-                    rightToLeft: 0
-                }
-            }
-        };
-
-        refinedPuttsAHole.puttsAHole = roundTo(averagePerformance.puttsAHole.puttsAHole / averagePerformance.puttsAHole.normalHoles, 1);
-        if (averagePerformance.puttsAHole.mishitHoles > 0)
-            refinedPuttsAHole.puttsAHoleWhenMishit = roundTo(averagePerformance.puttsAHole.puttsAHoleWhenMishit / averagePerformance.puttsAHole.mishitHoles, 1);
-        if (averagePerformance.puttsAHole.misreadHoles > 0)
-            refinedPuttsAHole.puttsAHoleWhenMisread = roundTo(averagePerformance.puttsAHole.misreadPuttsAHole / averagePerformance.puttsAHole.misreadHoles, 1);
-        refinedPuttsAHole.distance = averagePerformance.puttsAHole.distance.map((val, idx) => {
-            if (averagePerformance.puttsAHole.puttsAtThatDistance[idx] === 0) return 0;
-            return roundTo(val / averagePerformance.puttsAHole.puttsAtThatDistance[idx], 1);
-        });
-
-        // handle the slopes
-        for (const slope of ["uphill", "neutral", "downhill"]) {
-            for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
-                if (averagePerformance.puttsAHole.slopes[slope][breakType][1] === 0) continue;
-                refinedPuttsAHole.slopes[slope][breakType] = roundTo(averagePerformance.puttsAHole.slopes[slope][breakType][0] / averagePerformance.puttsAHole.slopes[slope][breakType][1], 1);
-            }
-        }
-
-        averagePerformance.puttsAHole = refinedPuttsAHole;
+        averagePerformance.strokesGained = cleanAverageStrokesGained(averagePerformance, strokesGained["overall"]);
+        averagePerformance.puttsAHole = cleanPuttsAHole(averagePerformance);
 
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {
@@ -557,8 +550,8 @@ export function AppProvider({children}) {
 
         setCurrentStats(newStats);
         // TODO maybe move this to updateData?
-        setUserData({...userData, totalPutts: totalPutts, strokesGained: strokesGained["overall"], averagePerformance: averagePerformance, stats: newStats});
-        await updateData({totalPutts: totalPutts, strokesGained: strokesGained["overall"], averagePerformance: averagePerformance, stats: newStats});
+        setUserData({...userData, totalPutts: totalPutts, averagePerformance: averagePerformance, stats: newStats});
+        await updateData({totalPutts: totalPutts, averagePerformance: averagePerformance, stats: newStats});
     };
 
     // Get all statistics
@@ -567,7 +560,7 @@ export function AppProvider({children}) {
             getDoc(doc(firestore, `users/${auth.currentUser.uid}`)).then((doc) => {
                 setCurrentStats(doc.data().stats || {});
             }).catch((error) => {
-                console.log("couldnt find the documents: " + error)
+                console.log("couldn't find the documents: " + error)
             });
         }
         return currentStats;

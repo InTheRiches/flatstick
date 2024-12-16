@@ -289,4 +289,50 @@ function filterMissDistribution(currentStats, distance, slope, brek) {
     };
 }
 
-export { formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+function cleanPuttsAHole(averagePerformance) {
+    const refinedPuttsAHole = {
+        distance: [0, 0, 0, 0],
+        puttsAHole: 0,
+        puttsAHoleWhenMisread: 0,
+        puttsAHoleWhenMishit: 0,
+        slopes: {
+            downhill: {
+                straight: 0, // putts a hole
+                leftToRight: 0,
+                rightToLeft: 0
+            },
+            neutral: {
+                straight: 0,
+                leftToRight: 0,
+                rightToLeft: 0
+            },
+            uphill: {
+                straight: 0,
+                leftToRight: 0,
+                rightToLeft: 0
+            }
+        }
+    };
+
+    refinedPuttsAHole.puttsAHole = roundTo(averagePerformance.puttsAHole.puttsAHole / averagePerformance.puttsAHole.normalHoles, 1);
+    if (averagePerformance.puttsAHole.mishitHoles > 0)
+        refinedPuttsAHole.puttsAHoleWhenMishit = roundTo(averagePerformance.puttsAHole.puttsAHoleWhenMishit / averagePerformance.puttsAHole.mishitHoles, 1);
+    if (averagePerformance.puttsAHole.misreadHoles > 0)
+        refinedPuttsAHole.puttsAHoleWhenMisread = roundTo(averagePerformance.puttsAHole.misreadPuttsAHole / averagePerformance.puttsAHole.misreadHoles, 1);
+    refinedPuttsAHole.distance = averagePerformance.puttsAHole.distance.map((val, idx) => {
+        if (averagePerformance.puttsAHole.puttsAtThatDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.puttsAHole.puttsAtThatDistance[idx], 1);
+    });
+
+    // handle the slopes
+    for (const slope of ["uphill", "neutral", "downhill"]) {
+        for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
+            if (averagePerformance.puttsAHole.slopes[slope][breakType][1] === 0) continue;
+            refinedPuttsAHole.slopes[slope][breakType] = roundTo(averagePerformance.puttsAHole.slopes[slope][breakType][0] / averagePerformance.puttsAHole.slopes[slope][breakType][1], 1);
+        }
+    }
+
+    return refinedPuttsAHole;
+}
+
+export { cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

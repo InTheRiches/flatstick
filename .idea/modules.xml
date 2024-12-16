@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/puttlab.iml" filepath="$PROJECT_DIR$/.idea/puttlab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../GitHub/react-native-chart-kit/.idea/react-native-chart-kit.iml" filepath="$PROJECT_DIR$/../../GitHub/react-native-chart-kit/.idea/react-native-chart-kit.iml" />
     </modules>
   </component>
 </project>
