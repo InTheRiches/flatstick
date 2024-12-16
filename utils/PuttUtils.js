@@ -64,13 +64,15 @@ const calculateDistanceMissedFeet = (center, point, width, height) => {
     return distanceMissed * conversionFactor;
 };
 
-const updatePuttsCopy = (putts, hole, distance, theta, missRead, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
+const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
     const puttsCopy = [...putts];
 
     puttsCopy[hole - 1] = {
         distance: distance,
         theta: theta,
-        missRead: missRead,
+        misReadLine: misReadLine,
+        misReadSlope: misReadSlope,
+        misHit: misHit,
         largeMiss: largeMiss,
         totalPutts: totalPutts,
         distanceMissed: largeMiss ? largeMissDistance : distanceMissedFeet,
@@ -89,7 +91,9 @@ const loadPuttData = (putt, updateField) => {
         updateField("largeMiss", false);
         updateField("largeMissBy", [0, 0]);
     }
-    updateField("missRead", putt.missRead);
+    updateField("misReadLine", putt.misReadLine);
+    updateField("misReadSlope", putt.misReadSlope);
+    updateField("misHit", putt.misHit);
     updateField("center", putt.distanceMissed === 0);
     if (putt.theta)
         updateField("theta", putt.theta);
@@ -113,7 +117,7 @@ const calculateStats = (puttsCopy, width, height) => {
 
         // calculate strokes gained
         if (putt.totalPutts !== -1) {
-            const strokesGainedForPutt = putt.totalPutts - calculateBaselineStrokesGained(putt.distance);
+            const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
             strokesGained += strokesGainedForPutt;
         }
 
@@ -147,7 +151,9 @@ const calculateStats = (puttsCopy, width, height) => {
             xDistance: xDistance,
             yDistance: yDistance,
             puttBreak: puttBreak,
-            missRead: putt.missRead,
+            misReadLine: putt.misReadLine,
+            misReadSlope: putt.misReadSlope,
+            misHit: putt.misHit,
             distanceMissed: roundTo(putt.distanceMissed, 2),
             largeMiss: putt.largeMiss,
             totalPutts: putt.totalPutts,

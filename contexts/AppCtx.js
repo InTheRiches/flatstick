@@ -192,12 +192,20 @@ export function AppProvider({children}) {
                 percentJustLong: 0, // within 2ft long, which is the right distance to be long by
                 percentMade: 0,
 
-                totalMissRead: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
-                missReadDistribution: {
+                totalMisreadSlopes: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                totalMisreadLines: 0, // this is a total not a percent as it is used to determine the percent of the missReadDistribution
+                misreadSlopesDistribution: {
                     uphill: [0, 0, 0], // uphill, straight, left to right, right to left
                     neutral: [0, 0, 0], // neutral
                     downhill: [0, 0, 0] // downhill
                 },
+                misreadLinesDistribution: {
+                    uphill: [0, 0, 0], // uphill, straight, left to right, right to left
+                    neutral: [0, 0, 0], // neutral
+                    downhill: [0, 0, 0] // downhill
+                },
+
+                totalMishits: 0,
 
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
@@ -296,10 +304,14 @@ export function AppProvider({children}) {
             "avgMiss": 0,
             "totalDistance": 0,
             "puttsMisread": 0,
+            "puttsMishits": 0,
             puttsAHole: {
                 distance: [0, 0, 0, 0],
                 puttsAtThatDistance: [0, 0, 0, 0],
                 puttsAHole: 0,
+                normalHoles: 0,
+                puttsAHoleWhenMishit: 0,
+                mishitHoles: 0,
                 misreadPuttsAHole: 0,
                 misreadHoles: 0,
                 slopes: {
@@ -329,7 +341,7 @@ export function AppProvider({children}) {
             if (averaging) averagePerformance["rounds"]++;
 
             session.putts.forEach((putt) => {
-                const {distance, distanceMissed, missRead, xDistance, yDistance, puttBreak} = putt;
+                const {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
 
                 // Categorize putt distance
                 let category;
@@ -348,11 +360,17 @@ export function AppProvider({children}) {
                     else if (putt.totalPutts === 2) averagePerformance["twoPutts"]++;
                     else averagePerformance["threePutts"]++;
 
-                    averagePerformance.puttsAHole.puttsAHole += putt.totalPutts;
-
-                    if (missRead) {
+                    if (misReadLine || misReadSlope) {
                         averagePerformance.puttsAHole.misreadPuttsAHole += putt.totalPutts;
                         averagePerformance.puttsAHole.misreadHoles++;
+                    }
+
+                    if (misHit) {
+                        averagePerformance.puttsAHole.puttsAHoleWhenMishit += putt.totalPutts;
+                        averagePerformance.puttsAHole.mishitHoles++;
+                    } else {
+                        averagePerformance.puttsAHole.puttsAHole += putt.totalPutts;
+                        averagePerformance.puttsAHole.normalHoles++;
                     }
 
                     averagePerformance.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += putt.totalPutts;
@@ -361,7 +379,7 @@ export function AppProvider({children}) {
                     averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
 
                     averagePerformance["totalDistance"] += distance;
-                    averagePerformance["puttsMisread"] += missRead ? 1 : 0;
+                    averagePerformance["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
                     averagePerformance["avgMiss"] += distanceMissed;
                 }
 
@@ -380,9 +398,13 @@ export function AppProvider({children}) {
                     }
                 }
 
-                if (missRead) {
-                    statCategory.totalMissRead++;
-                    statCategory.missReadDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]]++;
+                if (misReadLine) {
+                    statCategory.totalMisreadLines++;
+                    statCategory.misreadLinesDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]]++;
+                }
+                if (misReadSlope) {
+                    statCategory.totalMisreadSlopes++;
+                    statCategory.misreadSlopesDistribution[slopes[puttBreak[1]]][breaks[puttBreak[0]]]++;
                 }
 
                 // Calculate slope and break distribution
@@ -459,7 +481,8 @@ export function AppProvider({children}) {
         const refinedPuttsAHole = {
             distance: [0, 0, 0, 0],
             puttsAHole: 0,
-            misreadPuttsAHole: 0,
+            puttsAHoleWhenMisread: 0,
+            puttsAHoleWhenMishit: 0,
             slopes: {
                 downhill: {
                     straight: 0, // putts a hole
@@ -479,9 +502,11 @@ export function AppProvider({children}) {
             }
         };
 
-        refinedPuttsAHole.puttsAHole = roundTo(averagePerformance.puttsAHole.puttsAHole / (averagePerformance["rounds"] * 18), 1);
+        refinedPuttsAHole.puttsAHole = roundTo(averagePerformance.puttsAHole.puttsAHole / averagePerformance.puttsAHole.normalHoles, 1);
+        if (averagePerformance.puttsAHole.mishitHoles > 0)
+            refinedPuttsAHole.puttsAHoleWhenMishit = roundTo(averagePerformance.puttsAHole.puttsAHoleWhenMishit / averagePerformance.puttsAHole.mishitHoles, 1);
         if (averagePerformance.puttsAHole.misreadHoles > 0)
-            refinedPuttsAHole.misreadPuttsAHole = roundTo(averagePerformance.puttsAHole.misreadPuttsAHole / (averagePerformance.puttsAHole.misreadHoles), 1);
+            refinedPuttsAHole.puttsAHoleWhenMisread = roundTo(averagePerformance.puttsAHole.misreadPuttsAHole / averagePerformance.puttsAHole.misreadHoles, 1);
         refinedPuttsAHole.distance = averagePerformance.puttsAHole.distance.map((val, idx) => {
             if (averagePerformance.puttsAHole.puttsAtThatDistance[idx] === 0) return 0;
             return roundTo(val / averagePerformance.puttsAHole.puttsAtThatDistance[idx], 1);

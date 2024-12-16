@@ -29,6 +29,7 @@ import {
 } from '../../../utils/PuttUtils';
 import SubmitModal from "../../../components/popups/SubmitModal";
 import ConfirmExit from "../../../components/popups/ConfirmExit";
+import {roundTo} from "../../../utils/roundTo";
 
 const initialState = {
     confirmLeave: false,
@@ -44,7 +45,9 @@ const initialState = {
     distance: -1,
     distanceInvalid: true,
     puttBreak: [0, 0],
-    missRead: false,
+    misReadLine: false,
+    misReadSlope: false,
+    misHit: false,
     theta: 999,
     putts: [],
 }
@@ -103,7 +106,9 @@ export default function RealSimulation() {
         theta,
         distance,
         distanceInvalid,
-        missRead,
+        misReadLine,
+        misReadSlope,
+        misHit,
         putts,
     },
         setState
@@ -147,7 +152,7 @@ export default function RealSimulation() {
 
         console.log(theta);
 
-        const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, missRead, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy);
+        const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy);
         updateField("putts", puttsCopy);
         return puttsCopy;
     };
@@ -166,7 +171,9 @@ export default function RealSimulation() {
 
         if (putts[hole] === undefined) {
             updateField("point", {});
-            updateField("missRead", false);
+            updateField("misReadLine", false);
+            updateField("misReadSlope", false);
+            updateField("misHit", false);
             updateField("center", false);
             updateField("distanceInvalid", true);
             updateField("largeMissBy", [0, 0]);
@@ -218,7 +225,7 @@ export default function RealSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true)
 
@@ -228,6 +235,7 @@ export default function RealSimulation() {
             holes: partial ? puttsCopy.length : holes,
             putts: trimmedPutts,
             totalPutts: totalPutts,
+            strokesGained: roundTo(strokesGained, 1),
             avgMiss: avgMiss,
             madePercent: madePercent,
             type: "real-simulation"
@@ -276,21 +284,21 @@ export default function RealSimulation() {
                                          distanceInvalid={distanceInvalid}
                                          updateField={updateField}/>
                         </View>
-                        <View>
-                            <Pressable onPress={() => updateField("missRead", !missRead)} style={{
+                        <View style={{flexDirection: "column", gap: 4}}>
+                            <Pressable onPress={() => updateField("misHit", !misHit)} style={{
                                 marginTop: 12,
                                 marginBottom: 4,
                                 paddingRight: 20,
                                 paddingLeft: 10,
                                 paddingVertical: 8,
                                 borderRadius: 8,
-                                backgroundColor: missRead ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
                                 alignSelf: "center",
                                 flexDirection: "row",
                                 justifyContent: "center",
                                 alignItems: 'center',
                             }}>
-                                {missRead ?
+                                {misHit ?
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          strokeWidth={2}
                                          width={20}
@@ -299,8 +307,58 @@ export default function RealSimulation() {
                                     </Svg> :
                                     <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
                                 }
-                                <Text style={{color: 'white', marginLeft: 8}}>Misread</Text>
+                                <Text style={{color: 'white', marginLeft: 8}}>Mishit</Text>
                             </Pressable>
+                            <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
+                                <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
+                                    marginBottom: 4,
+                                    paddingRight: 20,
+                                    paddingLeft: 10,
+                                    paddingVertical: 8,
+                                    borderRadius: 8,
+                                    backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                    alignSelf: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "center",
+                                    alignItems: 'center',
+                                }}>
+                                    {misReadSlope ?
+                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             strokeWidth={2}
+                                             width={20}
+                                             height={20} stroke={colors.button.danger.text}>
+                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg> :
+                                        <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                    }
+                                    <Text style={{color: 'white', marginLeft: 8}}>Misread Slope</Text>
+                                </Pressable>
+                                <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
+                                    marginBottom: 4,
+                                    paddingRight: 20,
+                                    paddingLeft: 10,
+                                    paddingVertical: 8,
+                                    borderRadius: 8,
+                                    backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                    alignSelf: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "center",
+                                    alignItems: 'center',
+                                }}>
+                                    {misReadLine ?
+                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             strokeWidth={2}
+                                             width={20}
+                                             height={20} stroke={colors.button.danger.text}>
+                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg> :
+                                        <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                    }
+                                    <Text style={{color: 'white', marginLeft: 8}}>Misread Line</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                        <View>
                             <View style={{
                                 alignSelf: "center",
                                 flexDirection: "row",

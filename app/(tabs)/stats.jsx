@@ -11,7 +11,7 @@ import DistancePopup from "../../components/stats/popups/DistancePopup";
 import {filterMissDistribution} from "../../utils/PuttUtils";
 import {roundTo} from "../../utils/roundTo";
 import {createPuttsByBreak} from "../../utils/GraphUtils";
-import {BarChart, StackedBarChart} from "react-native-chart-kit";
+import {BarChart} from "react-native-chart-kit";
 
 const tabs = [
     {
@@ -653,7 +653,7 @@ function PuttsAHoleTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>{userData.averagePerformance.puttsAHole.misreadPuttsAHole}</Text>
+                        }}>{userData.averagePerformance.puttsAHole.puttsAHoleWhenMisread}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -667,7 +667,7 @@ function PuttsAHoleTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>?</Text>
+                        }}>{userData.averagePerformance.puttsAHole.puttsAHoleWhenMishit}</Text>
                     </View>
                 </View>
             </View>

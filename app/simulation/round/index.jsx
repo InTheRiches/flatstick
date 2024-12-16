@@ -21,6 +21,7 @@ import BigMissModal from '../../../components/popups/BigMiss';
 import {calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
 import SubmitModal from "../../../components/popups/SubmitModal";
 import ConfirmExit from "../../../components/popups/ConfirmExit";
+import {roundTo} from "../../../utils/roundTo";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -81,7 +82,9 @@ const initialState = {
     hole: 1,
     distance: -1,
     puttBreak: generateBreak(),
-    missRead: false,
+    misReadLine: false,
+    misReadSlope: false,
+    misHit: false,
     putts: []
 }
 
@@ -114,7 +117,9 @@ export default function RoundSimulation() {
         hole,
         puttBreak,
         distance,
-        missRead,
+        misReadLine,
+        misReadSlope,
+        misHit,
         putts
     },
         setState
@@ -174,7 +179,9 @@ export default function RoundSimulation() {
         puttsCopy[hole - 1] = {
             distance: distance,
             break: puttBreak,
-            missRead: missRead,
+            misReadLine: misReadLine,
+            misReadSlope: misReadSlope,
+            misHit: misHit,
             largeMiss: largeMiss,
             totalPutts: totalPutts,
             distanceMissed: largeMiss ? largeMissDistance : distanceMissedFeet,
@@ -198,7 +205,9 @@ export default function RoundSimulation() {
 
         if (putts[hole] === undefined) {
             updateField("point", {});
-            updateField("missRead", false);
+            updateField("misReadLine", false);
+            updateField("misReadSlope", false);
+            updateField("misHit", false);
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
             updateField("puttBreak", generateBreak());
@@ -261,7 +270,7 @@ export default function RoundSimulation() {
             putts: trimmedPutts,
             totalPutts: totalPutts,
             avgMiss: avgMiss,
-            strokesGained: strokesGained,
+            strokesGained: roundTo(strokesGained, 1),
             madePercent: madePercent,
             type: "round-simulation"
         }).then(() => {
@@ -314,21 +323,21 @@ export default function RoundSimulation() {
                             <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
                                          puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
                         </View>
-                        <View>
-                            <Pressable onPress={() => updateField("missRead", !missRead)} style={{
+                        <View style={{flexDirection: "column", gap: 4}}>
+                            <Pressable onPress={() => updateField("misHit", !misHit)} style={{
                                 marginTop: 12,
                                 marginBottom: 4,
                                 paddingRight: 20,
                                 paddingLeft: 10,
                                 paddingVertical: 8,
                                 borderRadius: 8,
-                                backgroundColor: missRead ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
                                 alignSelf: "center",
                                 flexDirection: "row",
                                 justifyContent: "center",
                                 alignItems: 'center',
                             }}>
-                                {missRead ?
+                                {misHit ?
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          strokeWidth={2}
                                          width={20}
@@ -337,30 +346,80 @@ export default function RoundSimulation() {
                                     </Svg> :
                                     <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
                                 }
-                                <Text style={{color: 'white', marginLeft: 8}}>Misread</Text>
+                                <Text style={{color: 'white', marginLeft: 8}}>Mishit</Text>
                             </Pressable>
+                            <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
+                                <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
+                                    marginBottom: 4,
+                                    paddingRight: 20,
+                                    paddingLeft: 10,
+                                    paddingVertical: 8,
+                                    borderRadius: 8,
+                                    backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                    alignSelf: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "center",
+                                    alignItems: 'center',
+                                }}>
+                                    {misReadSlope ?
+                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             strokeWidth={2}
+                                             width={20}
+                                             height={20} stroke={colors.button.danger.text}>
+                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg> :
+                                        <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                    }
+                                    <Text style={{color: 'white', marginLeft: 8}}>Misread Slope</Text>
+                                </Pressable>
+                                <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
+                                    marginBottom: 4,
+                                    paddingRight: 20,
+                                    paddingLeft: 10,
+                                    paddingVertical: 8,
+                                    borderRadius: 8,
+                                    backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                    alignSelf: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "center",
+                                    alignItems: 'center',
+                                }}>
+                                    {misReadLine ?
+                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             strokeWidth={2}
+                                             width={20}
+                                             height={20} stroke={colors.button.danger.text}>
+                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg> :
+                                        <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                    }
+                                    <Text style={{color: 'white', marginLeft: 8}}>Misread Line</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                        <View>
                             <View style={{
                                 alignSelf: "center",
                                 flexDirection: "row",
                                 justifyContent: "space-between",
                                 width: "100%"
                             }}>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>0
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
+                                <Text></Text>
+                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>2
+                                    ft</Text>
+                                <Text></Text>
+                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>1
+                                    ft</Text>
+                                <Text></Text>
+                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>0
+                                    ft</Text>
+                                <Text></Text>
+                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>1
+                                    ft</Text>
+                                <Text></Text>
+                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>2
+                                    ft</Text>
+                                <Text></Text>
                             </View>
                             <GestureDetector gesture={singleTap}>
                                 <View onLayout={onLayout}
