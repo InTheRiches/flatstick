@@ -8,7 +8,8 @@ import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
 import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
-import {filterMissDistribution, roundTo} from "../../utils/PuttUtils";
+import {filterMissDistribution} from "../../utils/PuttUtils";
+import {roundTo} from "../../utils/roundTo";
 import {createPuttsByBreak} from "../../utils/GraphUtils";
 import {BarChart, StackedBarChart} from "react-native-chart-kit";
 
@@ -203,14 +204,23 @@ function MissesTab() {
 
 function OverviewTab() {
     const colors = useColors();
-    const {currentStats, userData} = useAppContext();
+    const {currentStats, userData, puttSessions} = useAppContext();
 
     const {width} = Dimensions.get("screen")
 
     // only 18 hole simulations and real simulations, no other practices
-    const RecentSession = () => {
+    const RecentSession = ({recentSession}) => {
         if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
+        }
+
+        const formattedName = () => {
+            if (recentSession.type === "real-simulation") {
+                return recentSession.holes + " Hole Round";
+            } else if (recentSession.type === "round-simulation") {
+                return recentSession.holes + " Hole Simulation";
+            }
+            return "huggidy buggidy"
         }
 
         return (
@@ -230,7 +240,7 @@ function OverviewTab() {
                         color: colors.text.primary,
                         fontWeight: "bold",
                         flex: 1
-                    }}>18 Hole Simulation</Text>
+                    }}>{formattedName()}</Text>
                     <Text style={{
                         fontSize: 14,
                         textAlign: "right",
@@ -254,7 +264,7 @@ function OverviewTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>3.2</Text>
+                        }}>{recentSession.strokesGained}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -270,7 +280,7 @@ function OverviewTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>Hard</Text>
+                        }}>{recentSession.type === "round-simulation" ? recentSession.difficulty : "your mom"}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -284,7 +294,7 @@ function OverviewTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>33</Text>
+                        }}>{recentSession.totalPutts}</Text>
                     </View>
                 </View>
             </View>
@@ -438,8 +448,13 @@ function OverviewTab() {
                 </View>
             </View>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Recent Sessions</Text>
-            <View>
-                <RecentSession/>
+            <View style={{gap: 12}}>
+                {
+                    // sort it by the timestamp which is in milliseconds
+                    puttSessions.sort((a, b) => b.timestamp - a.timestamp).slice(0, 3).map((session, index) => {
+                        return <RecentSession key={"recent-" + index} recentSession={session}></RecentSession>
+                    })
+                }
             </View>
         </View>
     )
@@ -510,6 +525,8 @@ function PuttsAHoleTab() {
                     fromZero={true}
                     yAxisInterval={1}
                     segments={3}
+                    showValuesOnTopOfBars={true}
+
                     fromNumber={3}
                     chartConfig={{
                         backgroundColor: colors.background.primary,
@@ -563,7 +580,7 @@ function PuttsAHoleTab() {
                             fillShadowGradientToOpacity: 0,
 
                             color: (opacity = 1) => {
-                                if (opacity === 0.6) return "#0e4e75"
+                                if (opacity === 0.6) return colorScheme === "light" ? "#0e4e75" : "white"
                                 return `rgba(0, 0, 0, 0)`
                             },
                         }}
@@ -663,11 +680,11 @@ function PuttsAHoleTab() {
             <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 12}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>
                     <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
-                    <Text>Your Averages</Text>
+                    <Text style={{color: colors.text.primary}}>Your Averages</Text>
                 </View>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>
-                    <View style={{backgroundColor: "#0e4e75", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
-                    <Text>Tour Pro</Text>
+                    <View style={{backgroundColor: colorScheme === "light" ? "#0e4e75" : "white", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                    <Text style={{color: colors.text.primary}}>Tour Pro</Text>
                 </View>
             </View>
         </ScrollView>

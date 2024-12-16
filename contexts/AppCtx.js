@@ -13,7 +13,7 @@ import {
     runTransaction
 } from "firebase/firestore";
 import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
-import {roundTo} from "@/utils/PuttUtils";
+import {roundTo} from "@/utils/roundTo";
 
 const breaks = [
     "leftToRight",

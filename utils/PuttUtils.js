@@ -1,3 +1,6 @@
+import {calculateBaselineStrokesGained} from "@/utils/StrokesGainedUtils";
+import {roundTo} from "./roundTo";
+
 const breaks = {
     45: "Left to Right",
     90: "Left to Right",
@@ -76,11 +79,6 @@ const updatePuttsCopy = (putts, hole, distance, theta, missRead, largeMiss, tota
     return puttsCopy;
 };
 
-const roundTo = (num, decimalPlaces) => {
-    const factor = Math.pow(10, decimalPlaces);
-    return Math.round(num * factor) / factor;
-};
-
 const loadPuttData = (putt, updateField) => {
     if (putt.largeMiss) {
         updateField("point", {});
@@ -107,12 +105,18 @@ const calculateStats = (puttsCopy, width, height) => {
     let avgMiss = 0;
     let madePercent = 0;
     const trimmedPutts = [];
+    let strokesGained = 0;
 
     puttsCopy.forEach((putt, index) => {
-
         if (putt === undefined || putt.distance === -1 || putt.point.x === undefined)
             return;
-        console.log(putt);
+
+        // calculate strokes gained
+        if (putt.totalPutts !== -1) {
+            const strokesGainedForPutt = putt.totalPutts - calculateBaselineStrokesGained(putt.distance);
+            strokesGained += strokesGainedForPutt;
+        }
+
         if (putt.totalPutts === -1) {
             if (putt.largeMiss)
                 totalPutts += 3;
@@ -122,7 +126,7 @@ const calculateStats = (puttsCopy, width, height) => {
             } else
                 totalPutts += 2;
         } else {
-            if (putt.totalPutts === 1)
+            if (putt.totalPutts === 1 || putt.distanceMissed === 0)
                 madePercent++;
             totalPutts += putt.totalPutts;
         }
@@ -154,7 +158,7 @@ const calculateStats = (puttsCopy, width, height) => {
     avgMiss = roundTo(avgMiss, 1);
     madePercent /= puttsCopy.length;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts };
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained };
 };
 
 const dataSlopes = [
@@ -279,4 +283,4 @@ function filterMissDistribution(currentStats, distance, slope, brek) {
     };
 }
 
-export { formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, roundTo, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

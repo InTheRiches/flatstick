@@ -1,4 +1,4 @@
-import {roundTo} from "./PuttUtils";
+import {roundTo} from "./roundTo";
 
 function createPuttsByBreak(userData) {
     // copy the object

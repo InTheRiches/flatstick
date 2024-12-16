@@ -3,7 +3,7 @@ import {collection, getDocs, getFirestore, limit, orderBy, query} from "firebase
 import React, {useEffect, useState} from "react";
 import useColors from "../hooks/useColors";
 import {Text, useColorScheme, View} from "react-native";
-import {roundTo} from "./PuttUtils";
+import {roundTo} from "./roundTo";
 
 export default function RecentSessionSummary({unfinished}) {
     const auth = getAuth();

@@ -5,6 +5,7 @@ import {useLocalSearchParams, useNavigation} from "expo-router";
 import {useEffect, useState} from "react";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
+import {roundTo} from "../../../../utils/roundTo";
 
 const initialMisses = {
     farLeft: 0,
@@ -226,7 +227,7 @@ function RecapVisual({holes, totalPutts, avgDistance, makeData, makePercent}) {
                             textAlign: "left",
                             color: colors.text.primary,
                             fontWeight: "bold"
-                        }}>{Math.floor((makePercent / holes) * 100)}%</Text>
+                        }}>{roundTo(makePercent*100, 0)}%</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",

@@ -1,5 +1,5 @@
 // Example usage:
-import {roundTo} from "@/utils/PuttUtils";
+import {roundTo} from "./roundTo";
 
 const sgBaselinePutts = [
     { distance: 1, strokesGained: 1.00 },
@@ -47,6 +47,11 @@ function calculateBaselineStrokesGained(distance) {
     const weightBelow = 1 - weightAbove;
 
     return below.strokesGained * weightBelow + above.strokesGained * weightAbove;
+}
+
+function calculateSingleStrokesGained(totalPutts, distance) {
+    const baselineStrokesGained = calculateBaselineStrokesGained(distance);
+    return baselineStrokesGained - totalPutts;
 }
 
 function calculateTotalStrokesGained(sessions) {
@@ -107,4 +112,4 @@ function calculateTotalStrokesGained(sessions) {
     return strokesGainedByDistance;
 }
 
-export { calculateTotalStrokesGained };
+export { calculateSingleStrokesGained, calculateBaselineStrokesGained, calculateTotalStrokesGained };
