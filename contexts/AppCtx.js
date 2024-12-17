@@ -18,7 +18,7 @@ import {
     cleanAverageStrokesGained
 } from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
-import {cleanPuttsAHole} from "@/utils/PuttUtils";
+import {cleanMadePutts, cleanPuttsAHole} from "@/utils/PuttUtils";
 
 const breaks = [
     "leftToRight",
@@ -359,6 +359,27 @@ export function AppProvider({children}) {
                     }
                 }
             },
+            madePutts: {
+                distance: [0, 0, 0, 0],
+                puttsAtThatDistance: [0, 0, 0, 0],
+                slopes: {
+                    downhill: {
+                        straight: [0, 0], // made putts, putts
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    },
+                    neutral: {
+                        straight: [0, 0],
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    },
+                    uphill: {
+                        straight: [0, 0],
+                        leftToRight: [0, 0],
+                        rightToLeft: [0, 0]
+                    }
+                }
+            },
             rounds: 0,
         }
 
@@ -383,9 +404,16 @@ export function AppProvider({children}) {
                 statCategory.rawPutts++;
 
                 if (averaging) {
-                    if (putt.totalPutts === 1) averagePerformance["onePutts"]++;
+                    if (putt.totalPutts === 1) {
+                        averagePerformance["onePutts"]++;
+                        averagePerformance.madePutts.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+                        averagePerformance.madePutts.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0]++;
+                    }
                     else if (putt.totalPutts === 2) averagePerformance["twoPutts"]++;
                     else averagePerformance["threePutts"]++;
+
+                    averagePerformance.madePutts.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+                    averagePerformance.madePutts.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
 
                     if (misReadLine || misReadSlope) {
                         averagePerformance.puttsAHole.misreadPuttsAHole += putt.totalPutts;
@@ -514,6 +542,7 @@ export function AppProvider({children}) {
 
         averagePerformance.strokesGained = cleanAverageStrokesGained(averagePerformance, strokesGained["overall"]);
         averagePerformance.puttsAHole = cleanPuttsAHole(averagePerformance);
+        averagePerformance.madePutts = cleanMadePutts(averagePerformance);
 
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {

@@ -2,7 +2,7 @@ import {Dimensions, FlatList, ScrollView, Text, useColorScheme, View} from "reac
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
@@ -10,7 +10,7 @@ import {Toggleable} from "../../components/buttons/Toggleable";
 import DistancePopup from "../../components/stats/popups/DistancePopup";
 import {filterMissDistribution} from "../../utils/PuttUtils";
 import {roundTo} from "../../utils/roundTo";
-import {createPuttsByBreak} from "../../utils/GraphUtils";
+import {createPuttsByBreak, createPuttsMadeByBreak, createStrokesGainedByBreak} from "../../utils/GraphUtils";
 import {BarChart} from "../../charts";
 
 const tabs = [
@@ -23,13 +23,27 @@ const tabs = [
     },
     {
         id: 2,
+        title:"Strokes Gained",
+        content: (
+            <StrokesGainedTab></StrokesGainedTab>
+        )
+    },
+    {
+        id: 3,
         title: "Putts / Hole",
         content: (
             <PuttsAHoleTab/>
         )
     },
     {
-        id: 3,
+        id: 4,
+        title: "Made Putts",
+        content: (
+            <MadePuttsTab/>
+        )
+    },
+    {
+        id: 5,
         title: "Misses",
         content: (
             <MissesTab/>
@@ -60,9 +74,9 @@ export default function Stats({}) {
     const colors = useColors();
     const [tab, setTab] = useState(0);
     const listRef = useRef(null);
+    const scrollViewRef = useRef(null);
 
     const scrollTo = (i) => {
-        setTab(i);
         listRef.current.scrollToIndex({index: i});
     }
 
@@ -70,6 +84,15 @@ export default function Stats({}) {
     const handleScroll = (event) => {
         setTab(Math.round(event.nativeEvent.contentOffset.x / width))
     }
+
+    useEffect(() => {
+        console.log(tab)
+        if (scrollViewRef.current !== null && tab !== undefined)
+            scrollViewRef.current.scrollToIndex({
+                index: tab,
+                viewPosition: 0.5,
+            });
+    }, [tab]);
 
     return (
         <View style={{
@@ -79,13 +102,16 @@ export default function Stats({}) {
             flex: 1
         }}>
             <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12}}>Stats</Text>
-            <ScrollView showsHorizontalScrollIndicator={false} horizontal bounces={false} contentContainerStyle={{gap: 4, paddingHorizontal: 24}}>
-                { // todo fix the tabs flickering when toggled
-                    tabs.map((item, i) => {
-                        return <Toggleable key={item.id} title={item.title} toggled={tab === i} onPress={() => scrollTo(i)}/>
-                    })
-                }
-            </ScrollView>
+            <FlatList
+                ref={scrollViewRef}
+                contentContainerStyle={{gap: 4, paddingHorizontal: 24}}
+                data={tabs}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={tab === index} onPress={() => {
+                    scrollTo(index);
+                }}/>}
+            />
             <FlatList
                 contentContainerStyle={{
                     flexGrow: 1,
@@ -202,9 +228,112 @@ function MissesTab() {
     )
 }
 
-function OverviewTab() {
+function StrokesGainedTab() {
     const colors = useColors();
     const colorScheme = useColorScheme();
+
+    const {currentStats, userData, puttSessions} = useAppContext();
+
+    const {width} = Dimensions.get("screen")
+
+    const SGByDistanceChart = () => {
+        return (
+            <BarChart
+                minNumber={-2}
+                maxNumber={2}
+                segments={4}
+                data={{
+                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                    datasets: [
+                        {
+                            data: [
+                                userData.averagePerformance.strokesGained.distance[0], userData.averagePerformance.strokesGained.distance[1], userData.averagePerformance.strokesGained.distance[2], userData.averagePerformance.strokesGained.distance[3]
+                            ]
+                        }
+                    ],
+                }}
+                width={Dimensions.get('window').width - 16}
+                height={220}
+                autoShiftLabels
+                showValuesOnTopOfBars={true}
+                chartConfig={{
+                    backgroundColor: colors.background.primary,
+                    backgroundGradientFrom: colors.background.primary,
+                    backgroundGradientTo: colors.background.primary,
+                    decimalPlaces: 0,
+
+                    fillShadowGradientFromOpacity: colorScheme === "light" ? 0.4 : 0.5,
+                    fillShadowGradientToOpacity: colorScheme === "light" ? 0.1 : 0.2,
+
+                    textColor: colors.text.primary,
+
+                    capColor: colors.checkmark.background,
+
+                    color: (opacity = 1) => {
+                        if (opacity === 1) return colors.checkmark.background
+                        return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
+                    },
+                    style: {
+                        borderRadius: 16,
+                    },
+                }}
+                style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                }}
+                yAxisSuffix={" strokes"}
+                hideLegend={true}
+            />
+        )
+    }
+
+    // TODO make the text red when negative
+    const SGByBreakSlope = () => {
+        if (userData === undefined || Object.keys(userData).length === 0) {
+            return <View></View>
+        }
+
+        return (
+            <RadarChart graphSize={Dimensions.get("screen").width-36}
+                        scaleCount={4}
+                        numberInterval={0}
+                        data={[createStrokesGainedByBreak(userData)]}
+                        options={{
+                            graphShape: 1,
+                            showAxis: true,
+                            showIndicator: true,
+                            colorList: ["#24b2ff", "red"],
+                            dotList: [false, true],
+                        }}></RadarChart>
+        )
+    }
+
+    return (
+        <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
+            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
+            <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{userData.averagePerformance.strokesGained.overall}</Text>
+                <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
+                    <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
+                </View>
+            </View>
+            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</Text>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Distance</Text>
+            <View style={{alignItems: "center"}}>
+                <SGByDistanceChart/>
+            </View>
+            <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6}}>
+                <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                <Text style={{color: colors.text.primary}}>Your Averages</Text>
+            </View>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Break/Slope</Text>
+            <SGByBreakSlope></SGByBreakSlope>
+        </ScrollView>
+    )
+}
+
+function OverviewTab() {
+    const colors = useColors();
 
     const {currentStats, userData, puttSessions} = useAppContext();
 
@@ -306,58 +435,6 @@ function OverviewTab() {
                     </View>
                 </View>
             </View>
-        )
-    }
-
-    const PuttsByDistanceChart = () => {
-        return (
-            <BarChart
-                minNumber={-2}
-                maxNumber={2}
-                segments={4}
-                data={{
-                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
-                    datasets: [
-                        {
-                            data: [
-                                userData.averagePerformance.strokesGained.distance[0], userData.averagePerformance.strokesGained.distance[1], userData.averagePerformance.strokesGained.distance[2], userData.averagePerformance.strokesGained.distance[3]
-                            ]
-                        }
-                    ],
-                }}
-                width={Dimensions.get('window').width - 16}
-                height={220}
-                autoShiftLabels
-                showValuesOnTopOfBars={true}
-                chartConfig={{
-                    backgroundColor: colors.background.primary,
-                    backgroundGradientFrom: colors.background.primary,
-                    backgroundGradientTo: colors.background.primary,
-                    decimalPlaces: 0,
-
-                    fillShadowGradientFromOpacity: 0.5,
-                    fillShadowGradientToOpacity: 0.3,
-
-                    textColor: colors.text.primary,
-
-                    capColor: colors.checkmark.background,
-
-                    color: (opacity = 1) => {
-                        if (opacity === 1) return colors.checkmark.background
-                        if (opacity === 0.6) return colors.checkmark.background
-                        return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
-                    },
-                    style: {
-                        borderRadius: 16,
-                    },
-                }}
-                style={{
-                    marginVertical: 8,
-                    borderRadius: 16,
-                }}
-                yAxisSuffix={" putts"}
-                hideLegend={true}
-            />
         )
     }
 
@@ -507,14 +584,6 @@ function OverviewTab() {
                     </View>
                 </View>
             </View>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Distance</Text>
-            <View style={{alignItems: "center"}}>
-                <PuttsByDistanceChart/>
-            </View>
-            <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6}}>
-                <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
-                <Text style={{color: colors.text.primary}}>Your Averages</Text>
-            </View>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Recent Sessions</Text>
             <View style={{gap: 12}}>
                 {
@@ -542,7 +611,7 @@ function PuttsAHoleTab() {
         }
 
         return (
-            <RadarChart graphSize={Dimensions.get("screen").width}
+            <RadarChart graphSize={Dimensions.get("screen").width - 36}
                         scaleCount={4}
                         numberInterval={0}
                         data={[createPuttsByBreak(userData)]}
@@ -704,6 +773,113 @@ function PuttsAHoleTab() {
                     <Text style={{color: colors.text.primary}}>Tour Pro</Text>
                 </View>
             </View>
+        </ScrollView>
+    )
+}
+
+function MadePuttsTab() {
+    const colors = useColors();
+    const colorScheme = useColorScheme();
+
+    const {currentStats, userData, puttSessions} = useAppContext();
+
+    const {width} = Dimensions.get("screen")
+
+    const MakeByDistanceChart = () => {
+        return (
+            <BarChart
+                minNumber={0}
+                maxNumber={100}
+                data={{
+                    labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                    datasets: [
+                        {
+                            data: [
+                                userData.averagePerformance.madePutts.distance[0]*100, userData.averagePerformance.madePutts.distance[1]*100, userData.averagePerformance.madePutts.distance[2]*100, userData.averagePerformance.madePutts.distance[3]*100
+                            ]
+                        },
+                        {
+                            data: [
+                                75, 50, 20, 10
+                            ]
+                        },
+                    ],
+                }}
+                width={Dimensions.get('window').width - 16}
+                height={220}
+                autoShiftLabels
+                showValuesOnTopOfBars={true}
+                chartConfig={{
+                    backgroundColor: colors.background.primary,
+                    backgroundGradientFrom: colors.background.primary,
+                    backgroundGradientTo: colors.background.primary,
+                    decimalPlaces: 0,
+
+                    fillShadowGradientFromOpacity: colorScheme === "light" ? 0.4 : 0.5,
+                    fillShadowGradientToOpacity: colorScheme === "light" ? 0.1 : 0.2,
+
+                    formatTopBarValue: (value) => value + "%",
+
+                    textColor: colors.text.primary,
+                    capColor: colors.checkmark.background,
+                    secondaryCapColor: colorScheme === "light" ? "#0e4e75" : "white",
+
+                    color: (opacity = 1) => {
+                        if (opacity === 1) return colors.checkmark.background
+                        return colorScheme === "light" ? `rgba(0, 0, 0, ${opacity})` : `rgba(255, 255, 255, ${opacity})`
+                    },
+                    style: {
+                        borderRadius: 16,
+                    },
+                }}
+                style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                }}
+                yAxisSuffix={"%"}
+                hideLegend={true}
+            />
+        )
+    }
+
+    const MakeByBreakSlope = () => {
+        if (userData === undefined || Object.keys(userData).length === 0) {
+            return <View></View>
+        }
+
+        return (
+            <RadarChart graphSize={Dimensions.get("screen").width-36}
+                        scaleCount={4}
+                        numberInterval={0}
+                        data={[createPuttsMadeByBreak(userData)]}
+                        options={{
+                            graphShape: 1,
+                            showAxis: true,
+                            showIndicator: true,
+                            colorList: ["#24b2ff", "red"],
+                            dotList: [false, true],
+                        }}></RadarChart>
+        )
+    }
+
+    return (
+        <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Make Percent by Distance</Text>
+            <View style={{alignItems: "center"}}>
+                <MakeByDistanceChart/>
+            </View>
+            <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 12}}>
+                <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>
+                    <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                    <Text style={{color: colors.text.primary}}>Your Averages</Text>
+                </View>
+                <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>
+                    <View style={{backgroundColor: colorScheme === "light" ? "#0e4e75" : "white", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                    <Text style={{color: colors.text.primary}}>Tour Pro</Text>
+                </View>
+            </View>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Make Percent by Break/Slope</Text>
+            <MakeByBreakSlope></MakeByBreakSlope>
         </ScrollView>
     )
 }

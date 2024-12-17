@@ -55,7 +55,7 @@ class AbstractChart<
           Math.min(...data, this.props.fromNumber) || 1
       );
     } else {
-      if (this.props.minNumber && this.props.maxNumber)
+      if (this.props.minNumber !== undefined && this.props.maxNumber !== undefined)
         return this.props.maxNumber - this.props.minNumber || 1;
 
       return Math.max(...data) - Math.min(...data) || 1;

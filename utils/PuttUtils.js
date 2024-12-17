@@ -335,4 +335,42 @@ function cleanPuttsAHole(averagePerformance) {
     return refinedPuttsAHole;
 }
 
-export { cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+function cleanMadePutts(averagePerformance) {
+    const refinedMadePutts = {
+        distance: [0, 0, 0, 0],
+        slopes: {
+            downhill: {
+                straight: 0, // made putt percentage
+                leftToRight: 0,
+                rightToLeft: 0
+            },
+            neutral: {
+                straight: 0,
+                leftToRight: 0,
+                rightToLeft: 0
+            },
+            uphill: {
+                straight: 0,
+                leftToRight: 0,
+                rightToLeft: 0
+            }
+        }
+    };
+
+    refinedMadePutts.distance = averagePerformance.madePutts.distance.map((val, idx) => {
+        if (averagePerformance.madePutts.puttsAtThatDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.madePutts.puttsAtThatDistance[idx], 1);
+    });
+
+    // handle the slopes
+    for (const slope of ["uphill", "neutral", "downhill"]) {
+        for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
+            if (averagePerformance.madePutts.slopes[slope][breakType][1] === 0) continue;
+            refinedMadePutts.slopes[slope][breakType] = roundTo(averagePerformance.madePutts.slopes[slope][breakType][0] / averagePerformance.madePutts.slopes[slope][breakType][1], 1);
+        }
+    }
+
+    return refinedMadePutts;
+}
+
+export { cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
