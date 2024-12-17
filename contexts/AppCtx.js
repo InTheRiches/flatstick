@@ -146,7 +146,7 @@ export function AppProvider({children}) {
 
     // Update user data
     const updateData = useMemo(() => async (newData) => {
-        const userDocRef = doc(firestore, `users/${auth.currentUser.uid}`);
+        const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         try {
             await runTransaction(firestore, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);

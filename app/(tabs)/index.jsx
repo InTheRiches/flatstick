@@ -13,6 +13,7 @@ import NewRealRound from "@/components/popups/NewRealRound";
 import {ScrollView, Text, View} from "react-native";
 import RecentSessionSummary from "@/utils/RecentSessionSummaries";
 import PressureInfo from "@/components/popups/info/PressureInfo";
+import SelectPutterModal from "@/components/popups/SelectPutterModal";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -24,11 +25,12 @@ export default function HomeScreen() {
     const {signOut, isLoading} = useSession();
     const {userData, updateStats} = useAppContext();
 
-    const [newSession, setNewSession] = useState(false);
+    const [selectedPutter, setSelectedPutter] = useState(0);
 
     const newSessionRef = useRef(null);
     const newRealRoundRef = useRef(null);
     const pressureInfoRef = useRef(null);
+    const selectPutterRef = useRef(null);
 
     return (
         <View style={{
@@ -127,8 +129,9 @@ export default function HomeScreen() {
                 </View>
             </ScrollView>
             <DrawerNewSession newSessionRef={newSessionRef}></DrawerNewSession>
-            <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
+            <NewRealRound selectedPutter={selectedPutter} selectPutterRef={selectPutterRef} newRealRoundRef={newRealRoundRef}></NewRealRound>
             <PressureInfo pressureInfoRef={pressureInfoRef}></PressureInfo>
+            <SelectPutterModal selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter} selectPutterRef={selectPutterRef}></SelectPutterModal>
         </View>
     );
 }

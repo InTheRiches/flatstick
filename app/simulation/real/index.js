@@ -87,7 +87,7 @@ export default function RealSimulation() {
     const auth = getAuth();
     const router = useRouter();
 
-    const {stringHoles} = useLocalSearchParams();
+    const {stringHoles, selectedPutterId} = useLocalSearchParams();
     const holes = parseInt(stringHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
@@ -238,7 +238,8 @@ export default function RealSimulation() {
             strokesGained: roundTo(strokesGained, 1),
             avgMiss: avgMiss,
             madePercent: madePercent,
-            type: "real-simulation"
+            type: "real-simulation",
+            putter: selectedPutterId
         }
 
         // Add a new document in collection "cities"
