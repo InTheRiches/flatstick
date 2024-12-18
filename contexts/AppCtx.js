@@ -12,13 +12,9 @@ import {
     query,
     runTransaction
 } from "firebase/firestore";
-import {
-    calculateBaselineStrokesGained,
-    calculateTotalStrokesGained,
-    cleanAverageStrokesGained
-} from "@/utils/StrokesGainedUtils";
+import {calculateTotalStrokesGained, cleanAverageStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
-import {cleanMadePutts, cleanPuttsAHole} from "@/utils/PuttUtils";
+import {cleanMadePutts, cleanPuttsAHole, updateSimpleStats} from "@/utils/PuttUtils";
 
 const breaks = [
     "leftToRight",
@@ -146,6 +142,19 @@ export function AppProvider({children}) {
 
     // Update user data
     const updateData = useMemo(() => async (newData) => {
+        const userDocRef = doc(firestore, `users/${auth.currentUser.uid}`);
+        try {
+            await runTransaction(firestore, async (transaction) => {
+                const userDoc = await transaction.get(userDocRef);
+                if (!userDoc.exists()) throw new Error("Document does not exist!");
+                transaction.update(userDocRef, newData);
+            });
+        } catch (error) {
+            console.error("Update data transaction failed:", error);
+        }
+    }, []);
+
+    const updateStats = useMemo(() => async (newData) => {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         try {
             await runTransaction(firestore, async (transaction) => {
@@ -182,7 +191,7 @@ export function AppProvider({children}) {
     };
 
     // Update statistics
-    const updateStats = async () => {
+    const refreshStats = async () => {
         const createCategory = () => {
             return {
                 totalPutts: 0,
@@ -288,8 +297,91 @@ export function AppProvider({children}) {
                 }
             }
         };
+        const createSimpleStats = () => {
+            return {
+                onePutts: 0,
+                twoPutts: 0,
+                threePutts: 0,
+                avgMiss: 0,
+                totalDistance: 0,
+                puttsMisread: 0,
+                puttsMishits: 0,
+                strokesGained: {
+                    overall: 0,
+                    distance: [0, 0, 0, 0],
+                    puttsAtThatDistance: [0, 0, 0, 0],
+                    slopes: {
+                        downhill: {
+                            straight: [0, 0], // strokesGained, putts
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        },
+                        neutral: {
+                            straight: [0, 0],
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        },
+                        uphill: {
+                            straight: [0, 0],
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        }
+                    }
+                },
+                puttsAHole: {
+                    distance: [0, 0, 0, 0],
+                    puttsAtThatDistance: [0, 0, 0, 0],
+                    puttsAHole: 0,
+                    normalHoles: 0,
+                    puttsAHoleWhenMishit: 0,
+                    mishitHoles: 0,
+                    misreadPuttsAHole: 0,
+                    misreadHoles: 0,
+                    slopes: {
+                        downhill: {
+                            straight: [0, 0], // putts a hole, holes
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        },
+                        neutral: {
+                            straight: [0, 0],
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        },
+                        uphill: {
+                            straight: [0, 0],
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        }
+                    }
+                },
+                madePutts: {
+                    distance: [0, 0, 0, 0],
+                    puttsAtThatDistance: [0, 0, 0, 0],
+                    slopes: {
+                        downhill: {
+                            straight: [0, 0], // made putts, putts
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        },
+                        neutral: {
+                            straight: [0, 0],
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        },
+                        uphill: {
+                            straight: [0, 0],
+                            leftToRight: [0, 0],
+                            rightToLeft: [0, 0]
+                        }
+                    }
+                },
+                rounds: 0,
+            }
+        }
 
         const newStats = {
+            averagePerformance: createSimpleStats(),
             lessThanSix: createCategory(),
             sixToTwelve: createCategory(),
             twelveToTwenty: createCategory(),
@@ -297,96 +389,17 @@ export function AppProvider({children}) {
         };
 
         const newPuttSessions = await refreshData();
+        const strokesGained = calculateTotalStrokesGained(newPuttSessions);
+        const putters = userData.putters.slice(1).map((putter) => {
+            return {name: putter, stats: createSimpleStats()};
+        });
 
         let totalPutts = 0;
 
-        const strokesGained = calculateTotalStrokesGained(newPuttSessions);
-
-        const averagePerformance = {
-            "onePutts": 0,
-            "twoPutts": 0,
-            "threePutts": 0,
-            "avgMiss": 0,
-            "totalDistance": 0,
-            "puttsMisread": 0,
-            "puttsMishits": 0,
-            strokesGained: {
-                overall: 0,
-                distance: [0, 0, 0, 0],
-                puttsAtThatDistance: [0, 0, 0, 0],
-                slopes: {
-                    downhill: {
-                        straight: [0, 0], // strokesGained, putts
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0],
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    },
-                    uphill: {
-                        straight: [0, 0],
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    }
-                }
-            },
-            puttsAHole: {
-                distance: [0, 0, 0, 0],
-                puttsAtThatDistance: [0, 0, 0, 0],
-                puttsAHole: 0,
-                normalHoles: 0,
-                puttsAHoleWhenMishit: 0,
-                mishitHoles: 0,
-                misreadPuttsAHole: 0,
-                misreadHoles: 0,
-                slopes: {
-                    downhill: {
-                        straight: [0, 0], // putts a hole, holes
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0],
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    },
-                    uphill: {
-                        straight: [0, 0],
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    }
-                }
-            },
-            madePutts: {
-                distance: [0, 0, 0, 0],
-                puttsAtThatDistance: [0, 0, 0, 0],
-                slopes: {
-                    downhill: {
-                        straight: [0, 0], // made putts, putts
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    },
-                    neutral: {
-                        straight: [0, 0],
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    },
-                    uphill: {
-                        straight: [0, 0],
-                        leftToRight: [0, 0],
-                        rightToLeft: [0, 0]
-                    }
-                }
-            },
-            rounds: 0,
-        }
-
         newPuttSessions.forEach((session, index) => {
             // TODO do we want to include the fake rounds too? (this is prompted by total distance, as it is relative to difficulty in the fake rounds)
-            const averaging = averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
-            if (averaging) averagePerformance["rounds"]++;
+            const averaging = newStats.averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
+            if (averaging) newStats.averagePerformance.rounds++;
 
             session.putts.forEach((putt) => {
                 const {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
@@ -404,45 +417,12 @@ export function AppProvider({children}) {
                 statCategory.rawPutts++;
 
                 if (averaging) {
-                    if (putt.totalPutts === 1) {
-                        averagePerformance["onePutts"]++;
-                        averagePerformance.madePutts.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-                        averagePerformance.madePutts.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0]++;
-                    }
-                    else if (putt.totalPutts === 2) averagePerformance["twoPutts"]++;
-                    else averagePerformance["threePutts"]++;
-
-                    averagePerformance.madePutts.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-                    averagePerformance.madePutts.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
-
-                    if (misReadLine || misReadSlope) {
-                        averagePerformance.puttsAHole.misreadPuttsAHole += putt.totalPutts;
-                        averagePerformance.puttsAHole.misreadHoles++;
-                    }
-
-                    if (misHit) {
-                        averagePerformance.puttsAHole.puttsAHoleWhenMishit += putt.totalPutts;
-                        averagePerformance.puttsAHole.mishitHoles++;
-                    } else {
-                        averagePerformance.puttsAHole.puttsAHole += putt.totalPutts;
-                        averagePerformance.puttsAHole.normalHoles++;
-                    }
-
-                    const strokesGained = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
-
-                    averagePerformance.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += putt.totalPutts;
-                    averagePerformance.puttsAHole.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-                    averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0] += putt.totalPutts;
-                    averagePerformance.puttsAHole.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
-
-                    averagePerformance.strokesGained.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += strokesGained;
-                    averagePerformance.strokesGained.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-                    averagePerformance.strokesGained.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][0] += strokesGained;
-                    averagePerformance.strokesGained.slopes[slopes[puttBreak[1]]][breaks[puttBreak[0]]][1]++;
-
-                    averagePerformance["totalDistance"] += distance;
-                    averagePerformance["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
-                    averagePerformance["avgMiss"] += distanceMissed;
+                    console.log(newStats.averagePerformance, putt, category)
+                    updateSimpleStats(newStats.averagePerformance, putt, category);
+                }
+                // TODO decide if you want to use all rounds with the putter, or only the last 5
+                if (session.putter !== "default") {
+                    updateSimpleStats(putters.find((putter) => putter.name === session.putter).stats, putt, category);
                 }
 
                 if (distanceMissed === 0) {
@@ -533,19 +513,19 @@ export function AppProvider({children}) {
             });
         });
 
-        averagePerformance["avgMiss"] = roundTo(averagePerformance["avgMiss"] / (averagePerformance["rounds"] * 18), 1);
-        averagePerformance["totalDistance"] = roundTo(averagePerformance["totalDistance"] / averagePerformance["rounds"], 1);
-        averagePerformance["puttsMisread"] = roundTo(averagePerformance["puttsMisread"] / averagePerformance["rounds"], 1);
-        averagePerformance["onePutts"] = roundTo(averagePerformance["onePutts"] / averagePerformance["rounds"], 1);
-        averagePerformance["twoPutts"] = roundTo(averagePerformance["twoPutts"] / averagePerformance["rounds"], 1);
-        averagePerformance["threePutts"] = roundTo(averagePerformance["threePutts"] / averagePerformance["rounds"], 1);
-
-        averagePerformance.strokesGained = cleanAverageStrokesGained(averagePerformance, strokesGained["overall"]);
-        averagePerformance.puttsAHole = cleanPuttsAHole(averagePerformance);
-        averagePerformance.madePutts = cleanMadePutts(averagePerformance);
+        newStats.averagePerformance.avgMiss = roundTo(newStats.averagePerformance["avgMiss"] / (newStats.averagePerformance["rounds"] * 18), 1);
+        newStats.averagePerformance.totalDistance = roundTo(newStats.averagePerformance["totalDistance"] / newStats.averagePerformance["rounds"], 1);
+        newStats.averagePerformance.puttsMisread = roundTo(newStats.averagePerformance["puttsMisread"] / newStats.averagePerformance["rounds"], 1);
+        newStats.averagePerformance.onePutts = roundTo(newStats.averagePerformance["onePutts"] / newStats.averagePerformance["rounds"], 1);
+        newStats.averagePerformance.twoPutts = roundTo(newStats.averagePerformance["twoPutts"] / newStats.averagePerformance["rounds"], 1);
+        newStats.averagePerformance.threePutts = roundTo(newStats.averagePerformance["threePutts"] / newStats.averagePerformance["rounds"], 1);
+        newStats.averagePerformance.strokesGained = cleanAverageStrokesGained(newStats.averagePerformance, strokesGained["overall"]);
+        newStats.averagePerformance.puttsAHole = cleanPuttsAHole(newStats.averagePerformance);
+        newStats.averagePerformance.madePutts = cleanMadePutts(newStats.averagePerformance);
 
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {
+            if (category === "averagePerformance") continue;
             const statCategory = newStats[category];
 
             statCategory.strokesGained = strokesGained[category];
@@ -579,15 +559,42 @@ export function AppProvider({children}) {
 
         setCurrentStats(newStats);
         // TODO maybe move this to updateData?
-        setUserData({...userData, totalPutts: totalPutts, averagePerformance: averagePerformance, stats: newStats});
-        await updateData({totalPutts: totalPutts, averagePerformance: averagePerformance, stats: newStats});
+        setUserData({...userData, totalPutts: totalPutts});
+        await updateData({totalPutts: totalPutts});
+
+        await updateStats(newStats)
+
+        putters.forEach((putter) => {
+            putter.stats.avgMiss = roundTo(putter.stats["avgMiss"] / (putter.stats["rounds"] * 18), 1);
+            putter.stats.totalDistance = roundTo(putter.stats["totalDistance"] / putter.stats["rounds"], 1);
+            putter.stats.puttsMisread = roundTo(putter.stats["puttsMisread"] / putter.stats["rounds"], 1);
+            putter.stats.onePutts = roundTo(putter.stats["onePutts"] / putter.stats["rounds"], 1);
+            putter.stats.twoPutts = roundTo(putter.stats["twoPutts"] / putter.stats["rounds"], 1);
+            putter.stats.threePutts = roundTo(putter.stats["threePutts"] / putter.stats["rounds"], 1);
+
+            putter.stats.strokesGained = cleanAverageStrokesGained(putter.stats, strokesGained["overall"]);
+            putter.stats.puttsAHole = cleanPuttsAHole(putter.stats);
+            putter.stats.madePutts = cleanMadePutts(putter.stats);
+
+            const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/putters/${putter.name}`);
+            runTransaction(firestore, async (transaction) => {
+                const userDoc = await transaction.get(userDocRef);
+                if (!userDoc.exists()) {
+                    console.error("Document does not exist!");
+                    return;
+                }
+                transaction.update(userDocRef, putter.stats);
+            }).catch(error => {
+                console.error("Set putter transaction failed:", error);
+            });
+        });
     };
 
     // Get all statistics
     const getAllStats = async () => {
         if (Object.keys(currentStats).length === 0) {
-            getDoc(doc(firestore, `users/${auth.currentUser.uid}`)).then((doc) => {
-                setCurrentStats(doc.data().stats || {});
+            getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/current`)).then((doc) => {
+                setCurrentStats(doc.data() || {});
             }).catch((error) => {
                 console.log("couldn't find the documents: " + error)
             });
@@ -608,10 +615,10 @@ export function AppProvider({children}) {
         initialize,
         refreshData,
         updateData,
-        updateStats,
+        updateStats: refreshStats,
         getAllStats,
         setStat,
-    }), [userData, puttSessions, currentStats, initialize, refreshData, updateData, updateStats, getAllStats, setStat]);
+    }), [userData, puttSessions, currentStats, initialize, refreshData, updateData, refreshStats, getAllStats, setStat]);
 
     const authContextValue = useMemo(() => ({
         signIn,

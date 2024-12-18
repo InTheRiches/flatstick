@@ -7,14 +7,19 @@ import {Easing, runOnJS} from "react-native-reanimated";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../buttons/PrimaryButton";
+import {auth, firestore, useAppContext} from "@/contexts/AppCtx";
+import {doc, getDoc} from "firebase/firestore";
 
 export default function SelectPutterModal({selectPutterRef, selectedPutter, setSelectedPutter}) {
     const colors = useColors();
     const router = useRouter();
     const colorScheme = useColorScheme();
     const [personalRef, setPersonalRef] = useState();
+    const {userData, currentStats} = useAppContext();
 
     const snapPoints = useMemo(() => ["100%"], []);
+
+    const [putters, setPutters] = useState([]);
 
     const animationConfigs = useBottomSheetTimingConfigs({
         duration: 250,
@@ -28,6 +33,36 @@ export default function SelectPutterModal({selectPutterRef, selectedPutter, setS
     const gesture = Gesture.Tap().onStart((data) => {
         runOnJS(personalRef.close)();
     });
+
+    useEffect(() => {
+        if (userData.putters === undefined) return;
+
+        for (const type of userData.putters) {
+            if (type==="default") {
+                // TODO when you switch to individual files change this
+                setPutters(prev => [...prev, {
+                    type: type,
+                    name: "Default Putter",
+                    stats: currentStats.averagePerformance
+                }]);
+                continue;
+            }
+
+            const getData = async () => {
+                const docRef = doc(firestore, `users/${auth.currentUser.uid}/putters/` + type);
+                const data = await getDoc(docRef);
+                // the type is in this format: default-putter, format it so it is Default Putter
+                const formattedName = type.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+                return {
+                    type: type,
+                    name: formattedName,
+                    stats: data.data()
+                };
+            }
+
+            setPutters(prev => [...prev, getData()]);
+        }
+    }, [userData]);
 
     return (
         <BottomSheetModal stackBehavior={"push"} animationConfigs={animationConfigs} enableOverDrag={false} handleStyle={{ display: "none"}} backgroundStyle={{backgroundColor: colors.background.primary}} ref={selectPutterRef} snapPoints={snapPoints}>
@@ -51,84 +86,58 @@ export default function SelectPutterModal({selectPutterRef, selectedPutter, setS
                     <PrimaryButton style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} title={"New"}></PrimaryButton>
                 </View>
                 <View style={{marginTop: 16, width: "100%"}}>
-                    <GestureDetector gesture={Gesture.Tap().onStart((data) => runOnJS(setSelectedPutter)(0))}>
-                        <View style={{flexDirection: "row", width: "100%", gap: 12, borderWidth: 1, borderRadius: 10, borderColor: selectedPutter === 0 ? colors.toggleable.toggled.border : colors.toggleable.border, backgroundColor: selectedPutter === 0 ? colors.toggleable.toggled.background : colors.toggleable.background, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 24, alignItems: "center"}}>
-                            <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
-                            <View style={{flexDirection: "column", flex: 1}}>
-                                <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>Default Putter</Text>
-                                <View style={{flexDirection: "row"}}>
-                                    <View style={{flexDirection: "column", flex: 1}}>
-                                        <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                        <Text style={{color: colors.text.secondary}}>Strokes Gained: 2.3</Text>
-                                    </View>
-                                    <View style={{flexDirection: "column", flex: 1}}>
-                                        <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                        <Text style={{color: colors.text.secondary}}>Strokes Gained: 2.3</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            {selectedPutter === 0 && (
-                                <View style={{
-                                    position: "absolute",
-                                    right: -7,
-                                    top: -7,
-                                    backgroundColor: "#40C2FF",
-                                    padding: 3,
-                                    borderRadius: 50,
-                                }}>
-                                    <Svg width={18}
-                                         height={18}
-                                         stroke={colors.checkmark.color}
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         strokeWidth="3">
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                    </Svg>
-                                </View>
-                            )}
-                        </View>
-                    </GestureDetector>
-                    <GestureDetector gesture={Gesture.Tap().onStart((data) => runOnJS(setSelectedPutter)(1))}>
-                        <View style={{flexDirection: "row", width: "100%", gap: 12, borderWidth: 1, borderRadius: 10, borderColor: selectedPutter === 1 ? colors.toggleable.toggled.border : colors.toggleable.border, backgroundColor: selectedPutter === 1 ? colors.toggleable.toggled.background : colors.toggleable.background, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 24, alignItems: "center"}}>
-                            <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
-                            <View style={{flexDirection: "column", flex: 1}}>
-                                <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>Default Putter</Text>
-                                <View style={{flexDirection: "row"}}>
-                                    <View style={{flexDirection: "column", flex: 1}}>
-                                        <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                        <Text style={{color: colors.text.secondary}}>Strokes Gained: 2.3</Text>
-                                    </View>
-                                    <View style={{flexDirection: "column", flex: 1}}>
-                                        <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                        <Text style={{color: colors.text.secondary}}>Strokes Gained: 2.3</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            {selectedPutter === 1 && (
-                                <View style={{
-                                    position: "absolute",
-                                    right: -7,
-                                    top: -7,
-                                    backgroundColor: "#40C2FF",
-                                    padding: 3,
-                                    borderRadius: 50,
-                                }}>
-                                    <Svg width={18}
-                                         height={18}
-                                         stroke={colors.checkmark.color}
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         strokeWidth="3">
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                    </Svg>
-                                </View>
-                            )}
-                        </View>
-                    </GestureDetector>
+                    {
+                        putters.map((putter, index) => {
+                            return <PutterSelector key={putter.type} id={index} setSelectedPutter={setSelectedPutter} selectedPutter={selectedPutter} name={putter.name} stats={putter.stats}></PutterSelector>
+                        })
+                    }
                 </View>
             </BottomSheetView>
         </BottomSheetModal>
+    )
+}
+
+function PutterSelector({id, setSelectedPutter, selectedPutter, name, stats}) {
+    const colors = useColors();
+
+    return (
+        <GestureDetector gesture={Gesture.Tap().onStart((data) => runOnJS(setSelectedPutter)(id))}>
+            <View style={{flexDirection: "row", width: "100%", gap: 12, borderWidth: 1, borderRadius: 10, borderColor: selectedPutter === id ? colors.toggleable.toggled.border : colors.toggleable.border, backgroundColor: selectedPutter === id ? colors.toggleable.toggled.background : colors.toggleable.background, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 24, alignItems: "center"}}>
+                <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
+                <View style={{flexDirection: "column", flex: 1}}>
+                    <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
+                    <View style={{flexDirection: "row"}}>
+                        <View style={{flexDirection: "column", flex: 1}}>
+                            <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
+                            <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
+                        </View>
+                        <View style={{flexDirection: "column", flex: 1}}>
+                            <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
+                            <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
+                        </View>
+                    </View>
+                </View>
+                {selectedPutter === id && (
+                    <View style={{
+                        position: "absolute",
+                        right: -7,
+                        top: -7,
+                        backgroundColor: "#40C2FF",
+                        padding: 3,
+                        borderRadius: 50,
+                    }}>
+                        <Svg width={18}
+                             height={18}
+                             stroke={colors.checkmark.color}
+                             xmlns="http://www.w3.org/2000/svg"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             strokeWidth="3">
+                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                        </Svg>
+                    </View>
+                )}
+            </View>
+        </GestureDetector>
     )
 }

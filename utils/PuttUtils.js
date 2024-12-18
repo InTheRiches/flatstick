@@ -192,46 +192,46 @@ function sumMisses(data, distance, slope, breakType) {
     let totalPutts = 0;
 
     // Get all distances if 'all' is specified, otherwise just the specific one
-    const distances = distance === -1 ? Object.keys(data) : [dataDistances[distance]];
+    const distances = distance === -1 ? Object.keys(data).slice(1) : [dataDistances[distance]];
 
     distances.forEach(distanceKey => {
+
+        console.log(distanceKey, data[distanceKey])
         // Check if the distance exists
-        if (data[distanceKey]) {
-            const slopeData = data[distanceKey].slopeAndBreakDistribution;
+        if (!data[distanceKey])
+            return;
 
-            // Get all slopes if 'all' is specified, otherwise just the specific one
-            const slopes = slope === -1 ? Object.keys(slopeData) : [dataSlopes[slope]];
+        const slopeData = data[distanceKey].slopeAndBreakDistribution;
+        const slopes = slope === -1 ? Object.keys(slopeData) : [dataSlopes[slope]];
+        slopes.forEach(slopeKey => {
+            // Check if the slope exists
+            if (slopeData[slopeKey]) {
+                const breakData = slopeData[slopeKey];
 
-            slopes.forEach(slopeKey => {
-                // Check if the slope exists
-                if (slopeData[slopeKey]) {
-                    const breakData = slopeData[slopeKey];
+                // Get all break types if 'all' is specified, otherwise just the specific one
+                const breakTypes = breakType === -1 ? Object.keys(breakData) : [dataBreaks[breakType]];
 
-                    // Get all break types if 'all' is specified, otherwise just the specific one
-                    const breakTypes = breakType === -1 ? Object.keys(breakData) : [dataBreaks[breakType]];
+                breakTypes.forEach(breakKey => {
+                    // Check if the break type exists
+                    if (breakData[breakKey]) {
+                        const misses = breakData[breakKey].misses;
+                        const distances = breakData[breakKey].missDistances;
 
-                    breakTypes.forEach(breakKey => {
-                        // Check if the break type exists
-                        if (breakData[breakKey]) {
-                            const misses = breakData[breakKey].misses;
-                            const distances = breakData[breakKey].missDistances;
+                        // Add the misses to the totalMisses array
+                        totalMisses = totalMisses.map((val, idx) => val + misses[idx]);
 
-                            // Add the misses to the totalMisses array
-                            totalMisses = totalMisses.map((val, idx) => val + misses[idx]);
+                        // calculate the average miss distance of each miss location
+                        missDistances = missDistances.map((val, idx) => {
+                            let newVal = val + distances[idx];
+                            // if the miss location is 0 or the total misses is 0, return the new value, as nothing changed, so you dont want to divide in half
+                            return val === 0 || distances[idx] === 0 ? newVal : newVal / 2;
+                        });
 
-                            // calculate the average miss distance of each miss location
-                            missDistances = missDistances.map((val, idx) => {
-                                let newVal = val + distances[idx];
-                                // if the miss location is 0 or the total misses is 0, return the new value, as nothing changed, so you dont want to divide in half
-                                return val === 0 || distances[idx] === 0 ? newVal : newVal / 2;
-                            });
-
-                            totalPutts += breakData[breakKey].putts;
-                        }
-                    });
-                }
-            });
-        }
+                        totalPutts += breakData[breakKey].putts;
+                    }
+                });
+            }
+        });
     });
 
     return [totalPutts, totalMisses, missDistances];
@@ -373,4 +373,60 @@ function cleanMadePutts(averagePerformance) {
     return refinedMadePutts;
 }
 
-export { cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+function updateSimpleStats(simpleStats, putt, category) {
+    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak} = putt;
+
+    const statBreaks = [
+        "leftToRight",
+        "rightToLeft",
+        "straight",
+    ]
+
+    const statSlopes = [
+        "downhill",
+        "neutral",
+        "uphill"
+    ]
+
+    if (putt.totalPutts === 1) {
+        simpleStats.onePutts++;
+        simpleStats.madePutts.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+        simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+    }
+    else if (putt.totalPutts === 2) simpleStats["twoPutts"]++;
+    else simpleStats["threePutts"]++;
+
+    simpleStats.madePutts.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+    simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+
+    if (misReadLine || misReadSlope) {
+        simpleStats.puttsAHole.misreadPuttsAHole += putt.totalPutts;
+        simpleStats.puttsAHole.misreadHoles++;
+    }
+
+    if (misHit) {
+        simpleStats.puttsAHole.puttsAHoleWhenMishit += putt.totalPutts;
+        simpleStats.puttsAHole.mishitHoles++;
+    } else {
+        simpleStats.puttsAHole.puttsAHole += putt.totalPutts;
+        simpleStats.puttsAHole.normalHoles++;
+    }
+
+    const strokesGained = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
+
+    simpleStats.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += putt.totalPutts;
+    simpleStats.puttsAHole.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+    simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += putt.totalPutts;
+    simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+
+    simpleStats.strokesGained.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += strokesGained;
+    simpleStats.strokesGained.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+    simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += strokesGained;
+    simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+
+    simpleStats["totalDistance"] += distance;
+    simpleStats["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
+    simpleStats["avgMiss"] += distanceMissed;
+}
+
+export { updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

@@ -78,6 +78,8 @@ export default function Stats({}) {
 
     const scrollTo = (i) => {
         listRef.current.scrollToIndex({index: i});
+
+
     }
 
     const {width} = Dimensions.get("screen")
@@ -86,7 +88,6 @@ export default function Stats({}) {
     }
 
     useEffect(() => {
-        console.log(tab)
         if (scrollViewRef.current !== null && tab !== undefined)
             scrollViewRef.current.scrollToIndex({
                 index: tab,
@@ -247,7 +248,7 @@ function StrokesGainedTab() {
                     datasets: [
                         {
                             data: [
-                                userData.averagePerformance.strokesGained.distance[0], userData.averagePerformance.strokesGained.distance[1], userData.averagePerformance.strokesGained.distance[2], userData.averagePerformance.strokesGained.distance[3]
+                                currentStats.averagePerformance.strokesGained.distance[0], currentStats.averagePerformance.strokesGained.distance[1], currentStats.averagePerformance.strokesGained.distance[2], currentStats.averagePerformance.strokesGained.distance[3]
                             ]
                         }
                     ],
@@ -289,7 +290,7 @@ function StrokesGainedTab() {
 
     // TODO make the text red when negative
     const SGByBreakSlope = () => {
-        if (userData === undefined || Object.keys(userData).length === 0) {
+        if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
         }
 
@@ -297,7 +298,7 @@ function StrokesGainedTab() {
             <RadarChart graphSize={Dimensions.get("screen").width-36}
                         scaleCount={4}
                         numberInterval={0}
-                        data={[createStrokesGainedByBreak(userData)]}
+                        data={[createStrokesGainedByBreak(currentStats)]}
                         options={{
                             graphShape: 1,
                             showAxis: true,
@@ -312,7 +313,7 @@ function StrokesGainedTab() {
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{userData.averagePerformance.strokesGained.overall}</Text>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{currentStats.averagePerformance.strokesGained.overall}</Text>
                 <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                     <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
                 </View>
@@ -442,7 +443,7 @@ function OverviewTab() {
         <ScrollView contentContainerStyle={{paddingBottom: 32}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{userData.averagePerformance.strokesGained.overall}</Text>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{currentStats.averagePerformance.strokesGained.overall}</Text>
                 <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                     <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
                 </View>
@@ -489,8 +490,8 @@ function OverviewTab() {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{userData.averagePerformance.onePutts}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.onePutts/18)*100, 0)}%)</Text>
+                            }}>{currentStats.averagePerformance.onePutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.onePutts/18)*100, 0)}%)</Text>
                         </View>
                     </View>
                     <View style={{
@@ -508,8 +509,8 @@ function OverviewTab() {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{userData.averagePerformance.twoPutts}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.twoPutts/18)*100,0)}%)</Text>
+                            }}>{currentStats.averagePerformance.twoPutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.twoPutts/18)*100,0)}%)</Text>
                         </View>
                     </View>
                     <View style={{
@@ -525,8 +526,8 @@ function OverviewTab() {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{userData.averagePerformance.threePutts}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.threePutts/18)*100,0)}%)</Text>
+                            }}>{currentStats.averagePerformance.threePutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.threePutts/18)*100,0)}%)</Text>
                         </View>
                     </View>
                 </View>
@@ -546,7 +547,7 @@ function OverviewTab() {
                             color: colors.text.primary,
                             fontWeight: "bold",
                             textAlign: "left"
-                        }}>{userData.averagePerformance.avgMiss}ft</Text>
+                        }}>{currentStats.averagePerformance.avgMiss}ft</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -563,7 +564,7 @@ function OverviewTab() {
                             color: colors.text.primary,
                             fontWeight: "bold",
                             textAlign: "left"
-                        }}>{userData.averagePerformance.totalDistance}ft</Text>
+                        }}>{currentStats.averagePerformance.totalDistance}ft</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -578,8 +579,8 @@ function OverviewTab() {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{userData.averagePerformance.puttsMisread}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((userData.averagePerformance.puttsMisread/18)*100,0)}%)</Text>
+                            }}>{currentStats.averagePerformance.puttsMisread}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.puttsMisread/18)*100,0)}%)</Text>
                         </View>
                     </View>
                 </View>
@@ -606,7 +607,7 @@ function PuttsAHoleTab() {
     const {width} = Dimensions.get("screen")
 
     const PuttsByBreakSlope = () => {
-        if (userData === undefined || Object.keys(userData).length === 0) {
+        if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
         }
 
@@ -614,7 +615,7 @@ function PuttsAHoleTab() {
             <RadarChart graphSize={Dimensions.get("screen").width - 36}
                         scaleCount={4}
                         numberInterval={0}
-                        data={[createPuttsByBreak(userData)]}
+                        data={[createPuttsByBreak(currentStats)]}
                         options={{
                             graphShape: 1,
                             showAxis: true,
@@ -634,7 +635,7 @@ function PuttsAHoleTab() {
                     datasets: [
                         {
                             data: [
-                                userData.averagePerformance.puttsAHole.distance[0], userData.averagePerformance.puttsAHole.distance[1], userData.averagePerformance.puttsAHole.distance[2], userData.averagePerformance.puttsAHole.distance[3]
+                                currentStats.averagePerformance.puttsAHole.distance[0], currentStats.averagePerformance.puttsAHole.distance[1], currentStats.averagePerformance.puttsAHole.distance[2], currentStats.averagePerformance.puttsAHole.distance[3]
                             ]
                         },
                         {
@@ -723,7 +724,7 @@ function PuttsAHoleTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>{userData.averagePerformance.puttsAHole.puttsAHole}</Text>
+                        }}>{currentStats.averagePerformance.puttsAHole.puttsAHole}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -739,7 +740,7 @@ function PuttsAHoleTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>{userData.averagePerformance.puttsAHole.puttsAHoleWhenMisread}</Text>
+                        }}>{currentStats.averagePerformance.puttsAHole.puttsAHoleWhenMisread}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -753,7 +754,7 @@ function PuttsAHoleTab() {
                             fontSize: 20,
                             color: colors.text.primary,
                             fontWeight: "bold",
-                        }}>{userData.averagePerformance.puttsAHole.puttsAHoleWhenMishit}</Text>
+                        }}>{currentStats.averagePerformance.puttsAHole.puttsAHoleWhenMishit}</Text>
                     </View>
                 </View>
             </View>
@@ -795,7 +796,7 @@ function MadePuttsTab() {
                     datasets: [
                         {
                             data: [
-                                userData.averagePerformance.madePutts.distance[0]*100, userData.averagePerformance.madePutts.distance[1]*100, userData.averagePerformance.madePutts.distance[2]*100, userData.averagePerformance.madePutts.distance[3]*100
+                                currentStats.averagePerformance.madePutts.distance[0]*100, currentStats.averagePerformance.madePutts.distance[1]*100, currentStats.averagePerformance.madePutts.distance[2]*100, currentStats.averagePerformance.madePutts.distance[3]*100
                             ]
                         },
                         {
@@ -843,7 +844,7 @@ function MadePuttsTab() {
     }
 
     const MakeByBreakSlope = () => {
-        if (userData === undefined || Object.keys(userData).length === 0) {
+        if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
         }
 
@@ -851,7 +852,7 @@ function MadePuttsTab() {
             <RadarChart graphSize={Dimensions.get("screen").width-36}
                         scaleCount={4}
                         numberInterval={0}
-                        data={[createPuttsMadeByBreak(userData)]}
+                        data={[createPuttsMadeByBreak(currentStats)]}
                         options={{
                             graphShape: 1,
                             showAxis: true,

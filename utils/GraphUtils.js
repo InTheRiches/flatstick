@@ -1,8 +1,8 @@
 import {roundTo} from "./roundTo";
 
-function createPuttsByBreak(userData) {
+function createPuttsByBreak(currentStats) {
     // copy the object
-    const mySlopes = userData.averagePerformance.puttsAHole.slopes;
+    const mySlopes = currentStats.averagePerformance.puttsAHole.slopes;
 
     let max = 0;
 
@@ -29,9 +29,9 @@ function createPuttsByBreak(userData) {
     }
 }
 
-function createPuttsMadeByBreak(userData) {
+function createPuttsMadeByBreak(currentStats) {
     // copy the object
-    const mySlopes = userData.averagePerformance.madePutts.slopes;
+    const mySlopes = currentStats.averagePerformance.madePutts.slopes;
 
     let max = -999;
 
@@ -70,9 +70,9 @@ function createPuttsMadeByBreak(userData) {
     }
 }
 
-function createStrokesGainedByBreak(userData) {
+function createStrokesGainedByBreak(currentStats) {
     // copy the object
-    const mySlopes = userData.averagePerformance.strokesGained.slopes;
+    const mySlopes = currentStats.averagePerformance.strokesGained.slopes;
 
     let max = -999;
 

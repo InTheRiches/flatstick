@@ -89,6 +89,7 @@ export default function CreateAccount() {
                     totalPutts: 0,
                     sessions: 0,
                     stats: {},
+                    putters: ["default"]
                 }).then((data) => {
                     console.log("made document");
                 })
