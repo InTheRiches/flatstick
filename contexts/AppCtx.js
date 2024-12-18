@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import {calculateTotalStrokesGained, cleanAverageStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
-import {cleanMadePutts, cleanPuttsAHole, updateSimpleStats} from "@/utils/PuttUtils";
+import {cleanMadePutts, cleanPuttsAHole, createSimpleStats, updateSimpleStats} from "@/utils/PuttUtils";
 
 const breaks = [
     "leftToRight",
@@ -158,12 +158,10 @@ export function AppProvider({children}) {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         try {
             await runTransaction(firestore, async (transaction) => {
-                const userDoc = await transaction.get(userDocRef);
-                if (!userDoc.exists()) throw new Error("Document does not exist!");
                 transaction.update(userDocRef, newData);
             });
         } catch (error) {
-            console.error("Update data transaction failed:", error);
+            console.error("Update stats transaction failed:", error);
         }
     }, []);
 
@@ -297,88 +295,6 @@ export function AppProvider({children}) {
                 }
             }
         };
-        const createSimpleStats = () => {
-            return {
-                onePutts: 0,
-                twoPutts: 0,
-                threePutts: 0,
-                avgMiss: 0,
-                totalDistance: 0,
-                puttsMisread: 0,
-                puttsMishits: 0,
-                strokesGained: {
-                    overall: 0,
-                    distance: [0, 0, 0, 0],
-                    puttsAtThatDistance: [0, 0, 0, 0],
-                    slopes: {
-                        downhill: {
-                            straight: [0, 0], // strokesGained, putts
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        },
-                        neutral: {
-                            straight: [0, 0],
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        },
-                        uphill: {
-                            straight: [0, 0],
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        }
-                    }
-                },
-                puttsAHole: {
-                    distance: [0, 0, 0, 0],
-                    puttsAtThatDistance: [0, 0, 0, 0],
-                    puttsAHole: 0,
-                    normalHoles: 0,
-                    puttsAHoleWhenMishit: 0,
-                    mishitHoles: 0,
-                    misreadPuttsAHole: 0,
-                    misreadHoles: 0,
-                    slopes: {
-                        downhill: {
-                            straight: [0, 0], // putts a hole, holes
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        },
-                        neutral: {
-                            straight: [0, 0],
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        },
-                        uphill: {
-                            straight: [0, 0],
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        }
-                    }
-                },
-                madePutts: {
-                    distance: [0, 0, 0, 0],
-                    puttsAtThatDistance: [0, 0, 0, 0],
-                    slopes: {
-                        downhill: {
-                            straight: [0, 0], // made putts, putts
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        },
-                        neutral: {
-                            straight: [0, 0],
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        },
-                        uphill: {
-                            straight: [0, 0],
-                            leftToRight: [0, 0],
-                            rightToLeft: [0, 0]
-                        }
-                    }
-                },
-                rounds: 0,
-            }
-        }
 
         const newStats = {
             averagePerformance: createSimpleStats(),

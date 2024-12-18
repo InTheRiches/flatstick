@@ -13,7 +13,7 @@ import NewRealRound from "@/components/popups/NewRealRound";
 import {ScrollView, Text, View} from "react-native";
 import RecentSessionSummary from "@/utils/RecentSessionSummaries";
 import PressureInfo from "@/components/popups/info/PressureInfo";
-import SelectPutterModal from "@/components/popups/SelectPutterModal";
+import SelectPutterModal from "@/components/popups/putters/SelectPutterModal";
 
 export default function HomeScreen() {
     const colors = useColors();
