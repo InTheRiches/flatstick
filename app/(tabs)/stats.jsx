@@ -78,8 +78,6 @@ export default function Stats({}) {
 
     const scrollTo = (i) => {
         listRef.current.scrollToIndex({index: i});
-
-
     }
 
     const {width} = Dimensions.get("screen")

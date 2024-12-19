@@ -10,7 +10,8 @@ import {
     initializeFirestore,
     orderBy,
     query,
-    runTransaction
+    runTransaction,
+    setDoc
 } from "firebase/firestore";
 import {calculateTotalStrokesGained, cleanAverageStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
@@ -53,12 +54,14 @@ const AppContext = createContext({
     userData: {},
     puttSessions: [],
     currentStats: {},
+    putters: [],
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
     updateStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
     setStat: () => Promise.resolve(),
+    newPutter: () => Promise.resolve(),
 });
 const AuthContext = createContext({
     signIn: () => Promise.resolve(),
@@ -81,6 +84,7 @@ export function AppProvider({children}) {
     const [currentStats, setCurrentStats] = useState({});
     const [session, setSession] = useState(null);
     const [isLoading, setLoading] = useState(true);
+    const [putters, setPutters] = useState([]);
 
     // Firebase authentication functions
     const signIn = useMemo(() => async (email, password) => {
@@ -118,11 +122,46 @@ export function AppProvider({children}) {
         return () => unsubscribe();
     }, []);
 
+    const newPutter = (type) => {
+        const id = type.toLowerCase().replace(/\s/g, "-");
+        setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleStats()).then((data) => {
+            console.log("made new putter document");
+        }).catch((error) => {
+            console.log(error);
+        });
+
+        setPutters(prev => [...prev, {
+            type: id,
+            name: type,
+            stats: createSimpleStats()
+        }]);
+    }
+
     // Initialize user data and sessions
     const initialize = () => {
         if (!auth.currentUser) return;
 
-        getAllStats();
+        getAllStats().then(async (updatedStats) => {
+            let localPutters = [{type: "default", name: "Default Putter", stats: updatedStats.averagePerformance}];
+
+            const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
+            try {
+                const querySnapshot = await getDocs(sessionQuery);
+
+                if (querySnapshot.docs.length !== 0)
+                    localPutters = [...localPutters, ...querySnapshot.docs.map((doc) => {
+                        return {
+                            type: doc.id,
+                            name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
+                            stats: doc.data()
+                        }
+                    })];
+            } catch (error) {
+                console.error("Error refreshing putters:", error);
+            }
+
+            setPutters(localPutters);
+        });
 
         const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
         getDoc(docRef)
@@ -429,15 +468,17 @@ export function AppProvider({children}) {
             });
         });
 
-        newStats.averagePerformance.avgMiss = roundTo(newStats.averagePerformance["avgMiss"] / (newStats.averagePerformance["rounds"] * 18), 1);
-        newStats.averagePerformance.totalDistance = roundTo(newStats.averagePerformance["totalDistance"] / newStats.averagePerformance["rounds"], 1);
-        newStats.averagePerformance.puttsMisread = roundTo(newStats.averagePerformance["puttsMisread"] / newStats.averagePerformance["rounds"], 1);
-        newStats.averagePerformance.onePutts = roundTo(newStats.averagePerformance["onePutts"] / newStats.averagePerformance["rounds"], 1);
-        newStats.averagePerformance.twoPutts = roundTo(newStats.averagePerformance["twoPutts"] / newStats.averagePerformance["rounds"], 1);
-        newStats.averagePerformance.threePutts = roundTo(newStats.averagePerformance["threePutts"] / newStats.averagePerformance["rounds"], 1);
-        newStats.averagePerformance.strokesGained = cleanAverageStrokesGained(newStats.averagePerformance, strokesGained["overall"]);
-        newStats.averagePerformance.puttsAHole = cleanPuttsAHole(newStats.averagePerformance);
-        newStats.averagePerformance.madePutts = cleanMadePutts(newStats.averagePerformance);
+        if (newStats.averagePerformance["rounds"] > 0) {
+            newStats.averagePerformance.avgMiss = roundTo(newStats.averagePerformance["avgMiss"] / (newStats.averagePerformance["rounds"] * 18), 1);
+            newStats.averagePerformance.totalDistance = roundTo(newStats.averagePerformance["totalDistance"] / newStats.averagePerformance["rounds"], 1);
+            newStats.averagePerformance.puttsMisread = roundTo(newStats.averagePerformance["puttsMisread"] / newStats.averagePerformance["rounds"], 1);
+            newStats.averagePerformance.onePutts = roundTo(newStats.averagePerformance["onePutts"] / newStats.averagePerformance["rounds"], 1);
+            newStats.averagePerformance.twoPutts = roundTo(newStats.averagePerformance["twoPutts"] / newStats.averagePerformance["rounds"], 1);
+            newStats.averagePerformance.threePutts = roundTo(newStats.averagePerformance["threePutts"] / newStats.averagePerformance["rounds"], 1);
+            newStats.averagePerformance.strokesGained = cleanAverageStrokesGained(newStats.averagePerformance, strokesGained["overall"]);
+            newStats.averagePerformance.puttsAHole = cleanPuttsAHole(newStats.averagePerformance);
+            newStats.averagePerformance.madePutts = cleanMadePutts(newStats.averagePerformance);
+        }
 
         // Finalize average calculations
         for (const category of Object.keys(newStats)) {
@@ -508,14 +549,15 @@ export function AppProvider({children}) {
 
     // Get all statistics
     const getAllStats = async () => {
+        let updatedStats = currentStats;
         if (Object.keys(currentStats).length === 0) {
-            getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/current`)).then((doc) => {
-                setCurrentStats(doc.data() || {});
-            }).catch((error) => {
-                console.log("couldn't find the documents: " + error)
-            });
+            const document = await getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/current`));
+
+            setCurrentStats(document.data());
+            updatedStats = document.data();
         }
-        return currentStats;
+
+        return updatedStats;
     };
 
     // Set specific statistic
@@ -528,13 +570,15 @@ export function AppProvider({children}) {
         userData,
         puttSessions,
         currentStats,
+        putters,
         initialize,
         refreshData,
         updateData,
         updateStats: refreshStats,
         getAllStats,
         setStat,
-    }), [userData, puttSessions, currentStats, initialize, refreshData, updateData, refreshStats, getAllStats, setStat]);
+        newPutter,
+    }), [userData, puttSessions, currentStats, updateData, setStat, putters]);
 
     const authContextValue = useMemo(() => ({
         signIn,

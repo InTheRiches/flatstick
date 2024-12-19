@@ -1,31 +1,19 @@
 import React, {useCallback, useState} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Image, Pressable, Text, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
-
-const putters = [
-    {
-        id: "default",
-        name: "Default Putter",
-    },
-    {
-        id: "custom",
-        name: "Custom Putter",
-    }
-]
+import {useAppContext} from "@/contexts/AppCtx";
 
 export default function NewRealRound({newRealRoundRef, selectPutterRef, selectedPutter}) {
     const colors = useColors();
-
     const [holes, setHoles] = useState(9);
-
     const router = useRouter();
-
     const [open, setOpen] = useState(true);
+    const {putters} = useAppContext();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
@@ -41,28 +29,21 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
         [open]
     );
 
+    console.log(putters[selectedPutter]);
+
     // renders
     return (
         <BottomSheetModal
             ref={newRealRoundRef}
             backdropComponent={myBackdrop}
             backgroundStyle={{backgroundColor: colors.background.secondary}}
-            stackBehavior={"push"}
-        >
-            <BottomSheetView
-                style={{
-                    paddingBottom: 12,
-                    backgroundColor: colors.background.secondary,
-                }}
-            >
+            stackBehavior={"push"}>
+            <BottomSheetView style={{
+                paddingBottom: 12,
+                backgroundColor: colors.background.secondary,
+            }}>
                 <View style={{marginHorizontal: 24, marginBottom: 4}}>
-                    <Text
-                        style={{
-                            fontSize: 20,
-                            fontWeight: 500,
-                            color: colors.text.primary,
-                        }}
-                    >
+                    <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>
                         New Real Round Session
                     </Text>
                     <Text
@@ -110,20 +91,15 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         strokeWidth="3">
-                                        <Path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="m4.5 12.75 6 6 9-13.5"
-                                        />
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                     </Svg>
                                 </View>
                             )}
-                            <Text
-                                style={{
-                                    textAlign: "center",
-                                    color: colors.text.primary,
-                                    fontSize: 16,
-                                }}>
+                            <Text style={{
+                                textAlign: "center",
+                                color: colors.text.primary,
+                                fontSize: 16,
+                            }}>
                                 9 Holes
                             </Text>
                         </Pressable>
@@ -143,8 +119,7 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                                     holes === 18
                                         ? colors.toggleable.toggled.background
                                         : "transparent",
-                            }}
-                        >
+                            }}>
                             {holes === 18 && (
                                 <View
                                     style={{
@@ -154,8 +129,7 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                                         backgroundColor: "#40C2FF",
                                         padding: 3,
                                         borderRadius: 50,
-                                    }}
-                                >
+                                    }}>
                                     <Svg
                                         width={18}
                                         height={18}
@@ -163,23 +137,12 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
                                         viewBox="0 0 24 24"
-                                        strokeWidth="3"
-                                    >
-                                        <Path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="m4.5 12.75 6 6 9-13.5"
-                                        />
+                                        strokeWidth="3">
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                     </Svg>
                                 </View>
                             )}
-                            <Text
-                                style={{
-                                    textAlign: "center",
-                                    color: colors.text.primary,
-                                    fontSize: 16,
-                                }}
-                            >
+                            <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>
                                 18 Holes
                             </Text>
                         </Pressable>
@@ -190,17 +153,18 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                         color: colors.text.primary,
                         marginBottom: 4,
                     }}>Putter:</Text>
-                    <View style={{flexDirection: "row", borderWidth: 1, borderRadius: 10, borderColor: colors.border.default, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 24, alignItems: "center"}}>
+                    <View style={{flexDirection: "row", backgroundColor: colors.background.primary, borderWidth: 1, gap: 12, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 24, alignItems: "center"}}>
+                        <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                         <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters[selectedPutter].name}</Text>
+                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[selectedPutter].name : "Default Putter"}</Text>
                             <View style={{flexDirection: "row"}}>
                                 <View style={{flexDirection: "column", flex: 1}}>
                                     <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                    <Text style={{color: colors.text.secondary}}>Strokes Gained: 2.3</Text>
+                                    <Text style={{color: colors.text.secondary}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
                                 </View>
                                 <View style={{flexDirection: "column", flex: 1}}>
                                     <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                    <Text style={{color: colors.text.secondary}}>Strokes Gained: 2.3</Text>
+                                    <Text style={{color: colors.text.secondary}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
                                 </View>
                             </View>
                         </View>
