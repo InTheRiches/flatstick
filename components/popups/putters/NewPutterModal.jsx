@@ -82,10 +82,10 @@ export default function NewPutterModal({newPutterRef, setPutters, putters}) {
                             console.log(error);
                         });
 
-                        const newPutterArray = putters.map((putter) => putter.type);
+                        const newPutterArray = [...putters.map((putter) => putter.type), id];
 
                         updateData({putters: newPutterArray}).then(() => {
-                            console.log("updated putters array");
+                            console.log("updated putters array: " + newPutterArray);
                         }).catch((error) => {
                             console.log(":failed ", error);
                         });

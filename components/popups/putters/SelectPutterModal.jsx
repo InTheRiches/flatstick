@@ -6,7 +6,7 @@ import {Easing, runOnJS} from "react-native-reanimated";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../buttons/PrimaryButton";
-import {doc, getDoc} from "firebase/firestore";
+import {doc, getDoc, getFirestore} from "firebase/firestore";
 import NewPutterModal from "@/components/popups/putters/NewPutterModal";
 import {useAppContext} from "@/contexts/AppCtx";
 
@@ -17,6 +17,7 @@ export default function SelectPutterModal({selectPutterRef, selectedPutter, setS
     const snapPoints = useMemo(() => ["100%"], []);
     const [putters, setPutters] = useState([]);
     const newPutterRef = useRef();
+    const db = getFirestore();
 
     const animationConfigs = useBottomSheetTimingConfigs({
         duration: 250,
@@ -48,18 +49,21 @@ export default function SelectPutterModal({selectPutterRef, selectedPutter, setS
             console.log("Getting putter data for: " + type);
 
             const getData = async () => {
-                const docRef = doc(firestore, `users/${auth.currentUser.uid}/putters/` + type);
+                console.log(`users/${auth.currentUser.uid}/putters/` + type);
+                const docRef = doc(db, `users/${auth.currentUser.uid}/putters/` + type);
                 const data = await getDoc(docRef);
+
+                console.log("data: " + data.data())
                 // the type is in this format: default-putter, format it so it is Default Putter
                 const formattedName = type.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-                return {
+                setPutters(prev => [...prev, {
                     type: type,
                     name: formattedName,
                     stats: data.data()
-                };
+                }]);
             }
 
-            setPutters(prev => [...prev, getData()]);
+            getData();
         }
     }, [userData]);
 
