@@ -1,6 +1,5 @@
 import React, {useRef, useState} from 'react';
 import {getAuth} from "firebase/auth";
-import {getFirestore} from "firebase/firestore";
 import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import useColors from "@/hooks/useColors";
@@ -13,24 +12,19 @@ import NewRealRound from "@/components/popups/NewRealRound";
 import {ScrollView, Text, View} from "react-native";
 import RecentSessionSummary from "@/utils/RecentSessionSummaries";
 import PressureInfo from "@/components/popups/info/PressureInfo";
-import SelectPutterModal from "@/components/popups/putters/SelectPutterModal";
 
 export default function HomeScreen() {
     const colors = useColors();
 
     const auth = getAuth();
-    const db = getFirestore();
 
     const router = useRouter();
     const {signOut, isLoading} = useSession();
     const {userData, updateStats} = useAppContext();
 
-    const [selectedPutter, setSelectedPutter] = useState(0);
-
     const newSessionRef = useRef(null);
     const newRealRoundRef = useRef(null);
     const pressureInfoRef = useRef(null);
-    const selectPutterRef = useRef(null);
 
     return (
         <View style={{
@@ -129,9 +123,8 @@ export default function HomeScreen() {
                 </View>
             </ScrollView>
             <DrawerNewSession newSessionRef={newSessionRef}></DrawerNewSession>
-            <NewRealRound selectedPutter={selectedPutter} selectPutterRef={selectPutterRef} newRealRoundRef={newRealRoundRef}></NewRealRound>
+            <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
             <PressureInfo pressureInfoRef={pressureInfoRef}></PressureInfo>
-            <SelectPutterModal selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter} selectPutterRef={selectPutterRef}></SelectPutterModal>
         </View>
     );
 }

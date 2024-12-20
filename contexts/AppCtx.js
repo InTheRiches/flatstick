@@ -56,6 +56,8 @@ const AppContext = createContext({
     puttSessions: [],
     currentStats: {},
     putters: [],
+    selectedPutter: 0,
+    setSelectedPutter: () => {},
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
@@ -89,6 +91,7 @@ export function AppProvider({children}) {
     const [session, setSession] = useState(null);
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
+    const [selectedPutter, setSelectedPutter] = useState(0);
 
     // Firebase authentication functions
     const signIn = useMemo(() => async (email, password) => {
@@ -620,6 +623,8 @@ export function AppProvider({children}) {
         puttSessions,
         currentStats,
         putters,
+        selectedPutter,
+        setSelectedPutter,
         initialize,
         refreshData,
         updateData,
@@ -629,7 +634,7 @@ export function AppProvider({children}) {
         newPutter,
         newSession,
         getPreviousStats
-    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats]);
+    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, selectedPutter]);
 
     const authContextValue = useMemo(() => ({
         signIn,

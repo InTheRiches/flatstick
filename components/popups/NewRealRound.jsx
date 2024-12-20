@@ -2,18 +2,19 @@ import React, {useCallback, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
-import {useRouter} from "expo-router";
+import {useNavigation, useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/popups/CustomBackdrop";
 import {useAppContext} from "@/contexts/AppCtx";
 
-export default function NewRealRound({newRealRoundRef, selectPutterRef, selectedPutter}) {
+export default function NewRealRound({newRealRoundRef}) {
     const colors = useColors();
     const [holes, setHoles] = useState(9);
     const router = useRouter();
     const [open, setOpen] = useState(true);
-    const {putters} = useAppContext();
+    const {putters, selectedPutter} = useAppContext();
+    const navigator = useNavigation();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
@@ -160,7 +161,7 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                                 <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
                             </View>
                         </View>
-                        <PrimaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => selectPutterRef.current.present()}>
+                        <PrimaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editputters"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke={colors.button.primary.text} width={24} height={24}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"

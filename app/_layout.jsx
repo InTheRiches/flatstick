@@ -1,4 +1,4 @@
-import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
+import {DarkTheme, DefaultTheme, NavigationContainer, ThemeProvider} from '@react-navigation/native';
 import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -30,23 +30,26 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={{flex: 1, }} edges={['top', 'bottom']}>
       <AppProvider>
-        <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
-        <GestureHandlerRootView>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}>
-              <Stack.Screen name="(tabs)"/>
-              <Stack.Screen name={"simulation/pressure/index"}/>
-              <Stack.Screen name={"simulation/pressure/setup/index"}/>
-              <Stack.Screen name={"simulation/round/index"}/>
-              <Stack.Screen name={"simulation/round/recap/index"}/>
-              <Stack.Screen name={"simulation/real/index"}/>
-              <Stack.Screen name="+not-found"/>
-            </Stack>
-          </ThemeProvider>
-        </GestureHandlerRootView>
+        <NavigationContainer>
+          <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
+          <GestureHandlerRootView>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <Stack
+                  screenOptions={{
+                    headerShown: false,
+                  }}>
+                <Stack.Screen name="(tabs)"/>
+                <Stack.Screen name={"simulation/pressure/index"}/>
+                <Stack.Screen name={"simulation/pressure/setup/index"}/>
+                <Stack.Screen name={"simulation/round/index"}/>
+                <Stack.Screen name={"simulation/round/recap/index"}/>
+                <Stack.Screen name={"simulation/real/index"}/>
+                <Stack.Screen name="+not-found"/>
+                <Stack.Screen name={"editputters/index"}/>
+              </Stack>
+            </ThemeProvider>
+          </GestureHandlerRootView>
+        </NavigationContainer>
       </AppProvider>
     </SafeAreaView>
   );

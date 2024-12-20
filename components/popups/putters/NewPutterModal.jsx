@@ -1,4 +1,4 @@
-import {Text, TextInput, View} from "react-native";
+import {Keyboard, Text, TextInput, View} from "react-native";
 import React, {useCallback, useState} from "react";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../CustomBackdrop";
@@ -34,8 +34,9 @@ export default function NewPutterModal({newPutterRef}) {
         <BottomSheetModal
             ref={newPutterRef}
             backdropComponent={myBackdrop}
-            backgroundStyle={{backgroundColor: colors.background.secondary}}
-            stackBehavior={"push"}>
+            android_keyboardInputMode={"adjustPan"}
+            keyboardBlurBehavior={"restore"}
+            backgroundStyle={{backgroundColor: colors.background.secondary}}>
             <BottomSheetView style={{
                     paddingBottom: 12,
                     backgroundColor: colors.background.secondary,
@@ -74,7 +75,11 @@ export default function NewPutterModal({newPutterRef}) {
 
                         newPutter(putterName);
 
-                        newPutterRef.current.dismiss();
+                        Keyboard.dismiss();
+
+                        setTimeout(() => {
+                            newPutterRef.current.forceClose();
+                        }, 400);
                     }}
                     style={{
                         borderRadius: 10,

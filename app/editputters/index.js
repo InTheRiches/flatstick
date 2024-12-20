@@ -1,69 +1,28 @@
-import useColors from "../../../hooks/useColors";
-import {Image, Text, useColorScheme, View} from "react-native";
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {
-    BottomSheetFlatList,
-    BottomSheetModal,
-    BottomSheetView,
-    useBottomSheetTimingConfigs
-} from "@gorhom/bottom-sheet";
-import {Easing, runOnJS} from "react-native-reanimated";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
+import {Image, Text, useColorScheme, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
-import {PrimaryButton} from "../../buttons/PrimaryButton";
-import {getFirestore} from "firebase/firestore";
-import NewPutterModal from "@/components/popups/putters/NewPutterModal";
-import {useAppContext} from "@/contexts/AppCtx";
-import CustomBackdrop from "@/components/popups/CustomBackdrop";
+import {PrimaryButton} from "../../components/buttons/PrimaryButton";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import NewPutterModal from "../../components/popups/putters/NewPutterModal";
+import React, {useRef} from "react";
+import useColors from "../../hooks/useColors";
+import {runOnJS} from "react-native-reanimated";
+import {useAppContext} from "../../contexts/AppCtx";
+import {useNavigation} from "expo-router";
 
-export default function SelectPutterModal({selectPutterRef, selectedPutter, setSelectedPutter}) {
+export default function EditPutters({route}) {
     const colors = useColors();
-    const [personalRef, setPersonalRef] = useState();
-    const {userData, currentStats, putters} = useAppContext();
-
-    const newPutterRef = useRef();
-    const db = getFirestore();
-    const [open, setOpen] = useState(true);
-
-    const animationConfigs = useBottomSheetTimingConfigs({
-        duration: 250,
-        easing: Easing.ease,
-    });
-
-    useEffect(() => {
-        setPersonalRef(selectPutterRef.current);
-    }, []);
+    const newPutterRef = useRef(null);
+    const {putters, selectedPutter, setSelectedPutter} = useAppContext();
+    const navigation = useNavigation();
 
     const gesture = Gesture.Tap().onStart((data) => {
-        runOnJS(personalRef.close)();
+        runOnJS(navigation.goBack)();
     });
 
-    const myBackdrop = useCallback(
-        ({ animatedIndex, style }) => {
-            return (
-                <CustomBackdrop
-                    open={open}
-                    reference={selectPutterRef}
-                    animatedIndex={animatedIndex}
-                    style={style}
-                />
-            );
-        },
-        [open]
-    );
-
     return (
-        <BottomSheetModal
-            backdropComponent={myBackdrop}
-            style={{borderRadius: 0}}
-            stackBehavior={"push"}
-            animationConfigs={animationConfigs}
-            enableOverDrag={false}
-            backgroundStyle={{backgroundColor: colors.background.secondary}}
-            maxDynamicContentSize={400}
-            ref={selectPutterRef}>
-            <BottomSheetView style={{ flex: 1, width: "100%", flexDirection: "column", alignItems: "center", paddingHorizontal: 32}}>
-                {/* this is a gesutre handler as a pressable didnt work */}
+        <BottomSheetModalProvider>
+            <View style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
                 <GestureDetector gesture={gesture}>
                     <View style={{flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start"}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}
@@ -79,31 +38,15 @@ export default function SelectPutterModal({selectPutterRef, selectedPutter, setS
                     <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => newPutterRef.current.present()} title={"New"}></PrimaryButton>
                 </View>
                 <View style={{marginTop: 16, width: "100%", paddingBottom: 12}}>
-                    {/*{ (putters !== undefined && putters.length !== 0) &&*/}
-                    {/*    putters.map((putter, index) => {*/}
-                    {/*        return <PutterSelector key={"putt_" + putter.type} id={index} setSelectedPutter={setSelectedPutter} selectedPutter={selectedPutter} name={putter.name} stats={putter.stats}></PutterSelector>*/}
-                    {/*    })*/}
-                    {/*}*/}
-                    {putters !== undefined && putters.length !== 0 && (
-                        <BottomSheetFlatList
-                            data={putters}
-                            renderItem={({ item, index }) => (
-                                <PutterSelector
-                                    key={"putt_" + item.type}
-                                    id={index}
-                                    setSelectedPutter={setSelectedPutter}
-                                    selectedPutter={selectedPutter}
-                                    name={item.name}
-                                    stats={item.stats}
-                                />
-                            )}
-                            keyExtractor={(item) => item.type}
-                        />
-                    )}
+                    { (putters !== undefined && putters.length !== 0) &&
+                        putters.map((putter, index) => {
+                            return <PutterSelector key={"putt_" + putter.type} id={index} setSelectedPutter={setSelectedPutter} selectedPutter={selectedPutter} name={putter.name} stats={putter.stats}></PutterSelector>
+                        })
+                    }
                 </View>
                 <NewPutterModal newPutterRef={newPutterRef}></NewPutterModal>
-            </BottomSheetView>
-        </BottomSheetModal>
+            </View>
+        </BottomSheetModalProvider>
     )
 }
 
