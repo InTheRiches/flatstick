@@ -85,11 +85,13 @@ function createStrokesGainedByBreak(currentStats) {
         }
     }
 
+    max += 0.1; // push it back from the edges
+
     // make another copy of mySlopes
     const mySlopesCopy = JSON.parse(JSON.stringify(mySlopes));
     for (let slope of ["downhill", "neutral", "uphill"]) {
         for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
-            mySlopesCopy[slope][brek] += 1;
+            mySlopesCopy[slope][brek] += 1; // this stuff makes it never less than 0, and since its a web graph, thats good :)
 
             if (mySlopesCopy[slope][brek] < 0) {
                 mySlopesCopy[slope][brek] = 0;
