@@ -61,7 +61,6 @@ export default function HomeScreen() {
             console.log("Error updating profile: ", error);
         });
 
-        console.log(state.email);
         // TODO this doesnt work, unless the user has recently authenticated, which means we need
         // to prompt the user for their password before updating their email (by modal)
         updateEmail(auth.currentUser, state.email).then(() => {

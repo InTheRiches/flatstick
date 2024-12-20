@@ -195,8 +195,7 @@ function sumMisses(data, distance, slope, breakType) {
     const distances = distance === -1 ? Object.keys(data).slice(1) : [dataDistances[distance]];
 
     distances.forEach(distanceKey => {
-
-        console.log(distanceKey, data[distanceKey])
+        if (distanceKey === "averagePerformance") return;
         // Check if the distance exists
         if (!data[distanceKey])
             return;

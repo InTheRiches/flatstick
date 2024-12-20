@@ -1,5 +1,5 @@
 import useColors from "../../../hooks/useColors";
-import {Image, Text, View} from "react-native";
+import {Image, Text, useColorScheme, View} from "react-native";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {BottomSheetModal, BottomSheetView, useBottomSheetTimingConfigs} from "@gorhom/bottom-sheet";
 import {Easing, runOnJS} from "react-native-reanimated";
@@ -64,22 +64,28 @@ export default function SelectPutterModal({selectPutterRef, selectedPutter, setS
 
 function PutterSelector({id, setSelectedPutter, selectedPutter, name, stats}) {
     const colors = useColors();
+    const colorScheme = useColorScheme();
 
     return (
         <GestureDetector key={id + "_putter"} gesture={Gesture.Tap().onStart((data) => runOnJS(setSelectedPutter)(id))}>
-            <View style={{flexDirection: "row", width: "100%", gap: 12, borderWidth: 1, borderRadius: 10, borderColor: selectedPutter === id ? colors.toggleable.toggled.border : colors.toggleable.border, backgroundColor: selectedPutter === id ? colors.toggleable.toggled.background : colors.background.primary, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 12, alignItems: "center"}}>
+            <View style={{
+                flexDirection: "row",
+                width: "100%",
+                gap: 12,
+                borderWidth: 1,
+                borderRadius: 10,
+                borderColor: selectedPutter === id ? colors.toggleable.toggled.border : colors.toggleable.border,
+                backgroundColor: selectedPutter === id ? colors.toggleable.toggled.background : colorScheme === "light" ? colors.background.secondary : "transparent",
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                marginBottom: 12,
+                alignItems: "center"}}>
                 <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                 <View style={{flexDirection: "column", flex: 1}}>
                     <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
-                    <View style={{flexDirection: "row"}}>
-                        <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                            <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
-                        </View>
-                        <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                            <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
-                        </View>
+                    <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
+                        <Text style={{color: colors.text.secondary, width: "40%"}}>Sessions: 3</Text>
+                        <Text style={{color: colors.text.secondary, width: "50%"}}>Strokes Gained: {stats.strokesGained.overall}</Text>
                     </View>
                 </View>
                 {selectedPutter === id && (

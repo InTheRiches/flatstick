@@ -29,8 +29,6 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
         [open]
     );
 
-    console.log(putters[selectedPutter]);
-
     // renders
     return (
         <BottomSheetModal
@@ -153,19 +151,13 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                         color: colors.text.primary,
                         marginBottom: 4,
                     }}>Putter:</Text>
-                    <View style={{flexDirection: "row", backgroundColor: colors.background.primary, borderWidth: 1, gap: 12, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 24, alignItems: "center"}}>
+                    <View style={{flexDirection: "row", borderWidth: 1, gap: 0, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 24, alignItems: "center"}}>
                         <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
-                        <View style={{flexDirection: "column", flex: 1}}>
+                        <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
                             <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[selectedPutter].name : "Default Putter"}</Text>
-                            <View style={{flexDirection: "row"}}>
-                                <View style={{flexDirection: "column", flex: 1}}>
-                                    <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                    <Text style={{color: colors.text.secondary}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
-                                </View>
-                                <View style={{flexDirection: "column", flex: 1}}>
-                                    <Text style={{color: colors.text.secondary}}>Sessions: 3</Text>
-                                    <Text style={{color: colors.text.secondary}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
-                                </View>
+                            <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
+                                <Text style={{color: colors.text.secondary, width: "35%"}}>Sessions: 3</Text>
+                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
                             </View>
                         </View>
                         <PrimaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => selectPutterRef.current.present()}>
@@ -186,7 +178,7 @@ export default function NewRealRound({newRealRoundRef, selectPutterRef, selected
                                 pathname: `/simulation/real`,
                                 params: {
                                     stringHoles: holes,
-                                    selectedPutterId: putters[selectedPutter].id,
+                                    selectedPutterId: putters[selectedPutter].type,
                                 },
                             });
                         }}

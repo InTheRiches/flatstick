@@ -92,10 +92,9 @@ export default function CreateAccount() {
                     putters: ["default"]
                 }).then((data) => {
                     console.log("made document");
-                })
-                    .catch((error) => {
+                }).catch((error) => {
                         console.log(error);
-                    });
+                });
 
                 setLoading(false);
 

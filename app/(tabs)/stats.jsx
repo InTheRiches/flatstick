@@ -17,36 +17,36 @@ const tabs = [
     {
         id: 1,
         title: "Overview",
-        content: (
-            <OverviewTab/>
+        content: (previousStats) => (
+            <OverviewTab previousStats={previousStats}/>
         )
     },
     {
         id: 2,
         title:"Strokes Gained",
-        content: (
-            <StrokesGainedTab></StrokesGainedTab>
+        content: (previousStats) => (
+            <StrokesGainedTab previousStats={previousStats}></StrokesGainedTab>
         )
     },
     {
         id: 3,
         title: "Putts / Hole",
-        content: (
-            <PuttsAHoleTab/>
+        content: (previousStats) => (
+            <PuttsAHoleTab previousStats={previousStats}/>
         )
     },
     {
         id: 4,
         title: "Made Putts",
-        content: (
-            <MadePuttsTab/>
+        content: (previousStats) => (
+            <MadePuttsTab previousStats={previousStats}/>
         )
     },
     {
         id: 5,
         title: "Misses",
-        content: (
-            <MissesTab/>
+        content: (previousStats) => (
+            <MissesTab previousStats={previousStats}/>
         )
     }
 ]
@@ -75,6 +75,14 @@ export default function Stats({}) {
     const [tab, setTab] = useState(0);
     const listRef = useRef(null);
     const scrollViewRef = useRef(null);
+    const {getPreviousStats} = useAppContext();
+    const [previousStats, setPreviousStats] = useState(undefined);
+
+    useEffect(() => {
+        getPreviousStats().then((stats) => {
+            setPreviousStats(stats);
+        })
+    });
 
     const scrollTo = (i) => {
         listRef.current.scrollToIndex({index: i});
@@ -122,7 +130,7 @@ export default function Stats({}) {
                 horizontal={true}
                 pagingEnabled={true}
                 showsHorizontalScrollIndicator={false}
-                renderItem={({item}) => item.content}
+                renderItem={({item}) => item.content(previousStats)}
             />
         </View>
 
@@ -227,7 +235,7 @@ function MissesTab() {
     )
 }
 
-function StrokesGainedTab() {
+function StrokesGainedTab({previousStats}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -307,14 +315,21 @@ function StrokesGainedTab() {
         )
     }
 
+    let difference = 0;
+
+    if (previousStats !== undefined && previousStats.length > 0)
+        difference = currentStats.averagePerformance.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
+
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
                 <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{currentStats.averagePerformance.strokesGained.overall}</Text>
-                <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                    <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
-                </View>
+                { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
+                    <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
+                        <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</Text>
+                    </View>
+                }
             </View>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</Text>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Distance</Text>
@@ -331,7 +346,7 @@ function StrokesGainedTab() {
     )
 }
 
-function OverviewTab() {
+function OverviewTab({previousStats}) {
     const colors = useColors();
 
     const {currentStats, userData, puttSessions} = useAppContext();
@@ -437,14 +452,21 @@ function OverviewTab() {
         )
     }
 
+    let difference = 0;
+
+    if (previousStats !== undefined && previousStats.length > 0)
+        difference = currentStats.averagePerformance.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
+
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 32}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
                 <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{currentStats.averagePerformance.strokesGained.overall}</Text>
-                <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                    <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>+ 0.4 SG</Text>
-                </View>
+                { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
+                    <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
+                        <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</Text>
+                    </View>
+                }
             </View>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</Text>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, marginTop: 20}}>
@@ -681,7 +703,7 @@ function PuttsAHoleTab() {
     }
 
     return (
-        <ScrollView contentContainerStyle={{alignItems: "center", paddingBottom: 12}} style={{width: width, paddingHorizontal: 24}}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{alignItems: "center", paddingBottom: 12}} style={{width: width, paddingHorizontal: 24}}>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, width: "100%"}}>
                 <View style={{
                     paddingHorizontal: 12,

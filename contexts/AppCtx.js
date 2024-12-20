@@ -16,6 +16,7 @@ import {
 import {calculateTotalStrokesGained, cleanAverageStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
 import {cleanMadePutts, cleanPuttsAHole, createSimpleStats, updateSimpleStats} from "@/utils/PuttUtils";
+import generatePushID from "@/components/utils/GeneratePushID";
 
 const breaks = [
     "leftToRight",
@@ -62,7 +63,10 @@ const AppContext = createContext({
     getAllStats: () => Promise.resolve(),
     setStat: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
+    newSession: () => Promise.resolve(),
+    getPreviousStats: () => Promise.resolve(),
 });
+
 const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
@@ -105,6 +109,19 @@ export function AppProvider({children}) {
         } catch (error) {
             console.error("Error during sign-out:", error);
         }
+    }, []);
+
+    const getPreviousStats = useMemo(() => async () => {
+        const statsQuery = query(collection(firestore, `users/${auth.currentUser.uid}/stats`));
+        try {
+            const querySnapshot = await getDocs(statsQuery);
+            return querySnapshot.docs
+                .filter(doc => doc.id !== 'current')
+                .map(doc => doc.data());
+        } catch (error) {
+            console.error("Error getting previous stats:", error);
+        }
+        return [];
     }, []);
 
     // Monitor authentication state changes
@@ -195,13 +212,24 @@ export function AppProvider({children}) {
 
     const updateStats = useMemo(() => async (newData) => {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
-        try {
-            await runTransaction(firestore, async (transaction) => {
-                transaction.update(userDocRef, newData);
-            });
-        } catch (error) {
-            console.error("Update stats transaction failed:", error);
-        }
+        getDoc(userDocRef).then(async (doc) => {
+            if (!doc.exists()) {
+                setDoc(userDocRef, newData).then((data) => {
+                    console.log("made new stats document");
+                }).catch((error) => {
+                    console.log(error);
+                });
+                return;
+            }
+            // if has been over
+            try {
+                await runTransaction(firestore, async (transaction) => {
+                    transaction.update(userDocRef, newData);
+                });
+            } catch (error) {
+                console.error("Update stats transaction failed:", error);
+            }
+        });
     }, []);
 
     // Refresh user data and sessions
@@ -345,8 +373,9 @@ export function AppProvider({children}) {
 
         const newPuttSessions = await refreshData();
         const strokesGained = calculateTotalStrokesGained(newPuttSessions);
-        const putters = userData.putters.slice(1).map((putter) => {
-            return {name: putter, stats: createSimpleStats()};
+        const newPutters = putters.slice(1).map((putter) => {
+            putter.stats = createSimpleStats();
+            return putter;
         });
 
         let totalPutts = 0;
@@ -355,6 +384,9 @@ export function AppProvider({children}) {
             // TODO do we want to include the fake rounds too? (this is prompted by total distance, as it is relative to difficulty in the fake rounds)
             const averaging = newStats.averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
             if (averaging) newStats.averagePerformance.rounds++;
+
+            if (session.putter !== "default")
+                newPutters.find((putter) => putter.type === session.putter).stats.rounds += session.holes / 18;
 
             session.putts.forEach((putt) => {
                 const {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
@@ -372,12 +404,13 @@ export function AppProvider({children}) {
                 statCategory.rawPutts++;
 
                 if (averaging) {
-                    console.log(newStats.averagePerformance, putt, category)
                     updateSimpleStats(newStats.averagePerformance, putt, category);
                 }
+
                 // TODO decide if you want to use all rounds with the putter, or only the last 5
                 if (session.putter !== "default") {
-                    updateSimpleStats(putters.find((putter) => putter.name === session.putter).stats, putt, category);
+                    console.log("hey");
+                    updateSimpleStats(newPutters.find((putter) => putter.type === session.putter).stats, putt, category);
                 }
 
                 if (distanceMissed === 0) {
@@ -521,7 +554,7 @@ export function AppProvider({children}) {
 
         await updateStats(newStats)
 
-        putters.forEach((putter) => {
+        newPutters.forEach((putter) => {
             putter.stats.avgMiss = roundTo(putter.stats["avgMiss"] / (putter.stats["rounds"] * 18), 1);
             putter.stats.totalDistance = roundTo(putter.stats["totalDistance"] / putter.stats["rounds"], 1);
             putter.stats.puttsMisread = roundTo(putter.stats["puttsMisread"] / putter.stats["rounds"], 1);
@@ -533,11 +566,11 @@ export function AppProvider({children}) {
             putter.stats.puttsAHole = cleanPuttsAHole(putter.stats);
             putter.stats.madePutts = cleanMadePutts(putter.stats);
 
-            const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/putters/${putter.name}`);
+            const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/putters/${putter.type}`);
             runTransaction(firestore, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) {
-                    console.error("Document does not exist!");
+                    console.error("Putter " + putter.type + " Document does not exist!");
                     return;
                 }
                 transaction.update(userDocRef, putter.stats);
@@ -545,6 +578,8 @@ export function AppProvider({children}) {
                 console.error("Set putter transaction failed:", error);
             });
         });
+
+        return newStats;
     };
 
     // Get all statistics
@@ -565,6 +600,20 @@ export function AppProvider({children}) {
         console.warn("setStat is not implemented yet:", statName, statValue);
     }, []);
 
+    const newSession = async (file, data) => {
+        await setDoc(doc(firestore, file, generatePushID()), data)
+        const newStats = await refreshStats();
+
+        const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`));
+        getDocs(sessionQuery).then((querySnapshot) => {
+            console.log(querySnapshot.docs.length);
+            if (querySnapshot.docs.length % 5 === 0) {
+                setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
+            }
+        });
+        return true;
+    }
+
     // Memoized context value
     const appContextValue = useMemo(() => ({
         userData,
@@ -578,7 +627,9 @@ export function AppProvider({children}) {
         getAllStats,
         setStat,
         newPutter,
-    }), [userData, puttSessions, currentStats, updateData, setStat, putters]);
+        newSession,
+        getPreviousStats
+    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats]);
 
     const authContextValue = useMemo(() => ({
         signIn,

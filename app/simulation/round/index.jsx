@@ -8,9 +8,7 @@ import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from "@/components/buttons/DangerButton";
-import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
-import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
@@ -57,11 +55,11 @@ function generateDistance(difficulty) {
     let minDistance, maxDistance;
 
     if (difficulty === "easy") {
-        minDistance = 3; // Easy: Minimum 3 ft
-        maxDistance = 10; // Easy: Maximum 10 ft
+        minDistance = 5; // Easy: Minimum 3 ft
+        maxDistance = 15; // Easy: Maximum 10 ft
     } else if (difficulty === "medium") {
-        minDistance = 5; // Medium: Minimum 5 ft
-        maxDistance = 20; // Medium: Maximum 20 ft
+        minDistance = 8; // Medium: Minimum 5 ft
+        maxDistance = 25; // Medium: Maximum 20 ft
     } else if (difficulty === "hard") {
         minDistance = 8; // Hard: Minimum 8 ft
         maxDistance = 40; // Hard: Maximum 40 ft
@@ -93,13 +91,12 @@ const initialState = {
 export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
-    const {updateStats} = useAppContext();
+    const {newSession} = useAppContext();
 
-    const db = getFirestore();
     const auth = getAuth();
     const router = useRouter();
 
-    const {localHoles, difficulty, mode} = useLocalSearchParams();
+    const {localHoles, difficulty, mode, selectedPutterId} = useLocalSearchParams();
     const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
@@ -261,7 +258,7 @@ export default function RoundSimulation() {
 
         updateField("loading", true);
 
-        setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), {
+        const data = {
             date: new Date().toISOString(),
             timestamp: new Date().getTime(),
             difficulty: difficulty,
@@ -272,28 +269,25 @@ export default function RoundSimulation() {
             avgMiss: avgMiss,
             strokesGained: roundTo(strokesGained, 1),
             madePercent: madePercent,
-            type: "round-simulation"
-        }).then(() => {
-            updateStats().then(() => {
-                router.push({
-                    pathname: `/simulation/round/recap`,
-                    params: {
-                        current: true,
-                        holes: partial ? puttsCopy.length : holes,
-                        difficulty: difficulty,
-                        mode: mode,
-                        totalPutts: totalPutts,
-                        avgMiss: avgMiss,
-                        serializedPutts: JSON.stringify(trimmedPutts),
-                        madePercent: madePercent,
-                        date: new Date().toISOString()
-                    }
-                });
-            }).catch((error) => {
-                console.log("updateStats " + error);
+            type: "round-simulation",
+            putter: selectedPutterId,
+        }
+
+        newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
+            router.push({
+                pathname: `/simulation/round/recap`,
+                params: {
+                    current: true,
+                    holes: partial ? puttsCopy.length : holes,
+                    difficulty: difficulty,
+                    mode: mode,
+                    totalPutts: totalPutts,
+                    avgMiss: avgMiss,
+                    serializedPutts: JSON.stringify(trimmedPutts),
+                    madePercent: madePercent,
+                    date: new Date().toISOString()
+                }
             });
-        }).catch((error) => {
-            console.log("setDocs " + error);
         });
     }
 

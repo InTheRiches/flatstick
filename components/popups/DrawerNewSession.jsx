@@ -308,7 +308,7 @@ const DrawerNewSession = ({newSessionRef}) => {
                             newSessionRef.current?.dismiss();
                             router.push({
                                 pathname: `/simulation/round`, params: {
-                                    localHoles: 18, difficulty: difficulty, mode: mode,
+                                    localHoles: 18, difficulty: difficulty, mode: mode, selectedPutterId: "default"
                                 },
                             });
                         }}

@@ -8,9 +8,7 @@ import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from '@/components/buttons/DangerButton';
-import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
-import generatePushID from "@/components/utils/GeneratePushID";
 import Loading from "@/components/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
@@ -81,9 +79,8 @@ const slopes = {
 export default function RealSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
-    const {updateStats} = useAppContext();
+    const {newSession} = useAppContext();
 
-    const db = getFirestore();
     const auth = getAuth();
     const router = useRouter();
 
@@ -149,8 +146,6 @@ export default function RealSimulation() {
             if (largeMissDistance === -1)
                 largeMissDistance = putts[hole - 1].distanceMissed
         }
-
-        console.log(theta);
 
         const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy);
         updateField("putts", puttsCopy);
@@ -242,17 +237,10 @@ export default function RealSimulation() {
             putter: selectedPutterId
         }
 
-        // Add a new document in collection "cities"
-        setDoc(doc(db, `users/${auth.currentUser.uid}/sessions`, generatePushID()), data).then(() => {
-            updateStats().then(() => {
-                router.push({
-                    pathname: `/`,
-                });
-            }).catch((error) => {
-                console.log("updateStats " + error);
+        newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
+            router.push({
+                pathname: `/`,
             });
-        }).catch((error) => {
-            console.log("setDocs " + error);
         });
     }
 
