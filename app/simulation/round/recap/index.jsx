@@ -7,58 +7,16 @@ import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {roundTo} from "../../../../utils/roundTo";
 
-const initialMisses = {
-    farLeft: 0,
-    left: 0,
-    center: 0,
-    right: 0,
-    farRight: 0,
-    long: 0,
-    short: 0,
-}
-
 export default function SimulationRecap() {
-    const {current, holes, madePercent, totalPutts, difficulty, mode, avgMiss, serializedPutts, date} = useLocalSearchParams();
+    const {current, holes, madePercent, totalPutts, difficulty, mode, missData, avgMiss, serializedPutts, date} = useLocalSearchParams();
     const putts = JSON.parse(serializedPutts);
 
     const parsedDate = new Date(date);
 
+    const parsedMissData = JSON.parse(missData);
+
     const colors = useColors();
     const navigation = useNavigation();
-
-    const [{farLeft, left, center, right, farRight, long, short}, setMisses] = useState(initialMisses);
-
-    useEffect(() => {
-        let farLeft = 0
-        let left = 0;
-        let center = 0;
-        let right = 0;
-        let farRight = 0;
-        let long = 0;
-        let short = 0;
-
-        putts.forEach((putt) => {
-            const angle = Math.atan2(putt.yDistance, putt.xDistance); // atan2 handles dx = 0 cases
-            const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
-
-            // Check the quadrant based on the rotated ranges
-            if (putt.distanceMissed <= 0.5 && !putt.largeMiss) {
-                center++
-            } else if (degrees > -45 && degrees <= 45) {
-                if (putt.distanceMissed <= 2 && !putt.largeMiss) right++;
-                else farRight++;
-            } else if (degrees > 45 && degrees <= 135) {
-                long++;
-            } else if (degrees > -135 && degrees <= -45) {
-                short++;
-            } else {
-                if (putt.distanceMissed <= 2 && !putt.largeMiss) left++;
-                else farLeft++;
-            }
-        });
-
-        setMisses({farLeft, left, center, right, farRight, long: long, short});
-    }, []);
 
     return (
         <ThemedView style={{flex: 1, alignItems: "center", flexDirection: "column", justifyContent: "space-between"}}>
@@ -87,7 +45,7 @@ export default function SimulationRecap() {
                                 type={"default"}>This {current === "true" ? "is" : "was"} your nth
                         session.</ThemedText>
                     <RecapVisual makePercent={madePercent} holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
-                                 makeData={{farLeft, left, center, right, farRight, long, short}}
+                                 makeData={parsedMissData}
                                  date={parsedDate}></RecapVisual>
                 </View>
             </View>

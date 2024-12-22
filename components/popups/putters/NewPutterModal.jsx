@@ -99,6 +99,7 @@ export default function NewPutterModal({newPutterRef}) {
                             newPutterRef.current.forceClose();
                         }, 400);
                     }}
+                    disabled={putterInvalid}
                     style={{
                         borderRadius: 10,
                         paddingVertical: 10,

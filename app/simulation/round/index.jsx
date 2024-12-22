@@ -285,6 +285,7 @@ export default function RoundSimulation() {
                     holes: partial ? puttsCopy.length : holes,
                     difficulty: difficulty,
                     mode: mode,
+                    missData: JSON.stringify(missData),
                     totalPutts: totalPutts,
                     avgMiss: avgMiss,
                     serializedPutts: JSON.stringify(trimmedPutts),
