@@ -2,7 +2,7 @@ import {Dimensions, FlatList, ScrollView, Text, useColorScheme, View} from "reac
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
-import React, {useEffect, useRef, useState} from "react";
+import React, {memo, useEffect, useRef, useState} from "react";
 import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
@@ -91,15 +91,12 @@ export default function Stats({}) {
     const {width} = Dimensions.get("screen")
     const handleScroll = (event) => {
         setTab(Math.round(event.nativeEvent.contentOffset.x / width))
-    }
 
-    useEffect(() => {
-        if (scrollViewRef.current !== null && tab !== undefined)
-            scrollViewRef.current.scrollToIndex({
-                index: tab,
-                viewPosition: 0.5,
-            });
-    }, [tab]);
+        scrollViewRef.current.scrollToIndex({
+            index: Math.round(event.nativeEvent.contentOffset.x / width),
+            viewPosition: 0.5,
+        });
+    }
 
     return (
         <View style={{
@@ -171,33 +168,6 @@ function MissesTab() {
         )
     }
 
-    const MissDistanceChart = () => {
-        const data = [{
-            value: currentStats.lessThanSix.avgMiss*12,
-            label: "<6 ft",
-            labelTextStyle: {color: colors.text.primary},
-        }, {
-            value: currentStats.sixToTwelve.avgMiss*12,
-            label: "6-12 ft",
-            labelTextStyle: {color: colors.text.primary},
-        }, {
-            value: currentStats.twelveToTwenty.avgMiss*12,
-            label: "12-20 ft",
-            labelTextStyle: {color: colors.text.primary},
-        }, {
-            value: currentStats.twentyPlus.avgMiss*12,
-            label: ">20 ft",
-            labelTextStyle: {color: colors.text.primary},
-        }]
-
-        // biggest avgMiss:
-        const max = Math.max(...data.map((item) => item.value)) * 1.1;
-
-        return (
-            <View/>
-        )
-    }
-
     return (
         <ScrollView bounces={false} contentContainerStyle={{
             width: width,
@@ -224,10 +194,6 @@ function MissesTab() {
             </View>
             <MissDistribution currentStats={currentStats}/>
 
-            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center", marginBottom: 12}}>Miss
-                by Distance</Text>
-            <MissDistanceChart></MissDistanceChart>
-
             <SlopePopup slopeRef={slopeRef} slope={slope} setSlope={setSlope}></SlopePopup>
             <BreakPopup breakRef={breakRef} brek={brek} setBrek={setBrek}></BreakPopup>
             <DistancePopup distanceRef={distanceRef} distance={distance} setDistance={setDistance}></DistancePopup>
@@ -235,7 +201,7 @@ function MissesTab() {
     )
 }
 
-function StrokesGainedTab({previousStats}) {
+const StrokesGainedTab = memo(({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -243,7 +209,7 @@ function StrokesGainedTab({previousStats}) {
 
     const {width} = Dimensions.get("screen")
 
-    const SGByDistanceChart = () => {
+    const SGByDistanceChart = memo(({}) => {
         return (
             <BarChart
                 minNumber={-2}
@@ -292,10 +258,10 @@ function StrokesGainedTab({previousStats}) {
                 hideLegend={true}
             />
         )
-    }
+    });
 
     // TODO make the text red when negative
-    const SGByBreakSlope = () => {
+    const SGByBreakSlope = memo(({}) => {
         if (currentStats === undefined || Object.keys(currentStats).length === 0) {
             return <View></View>
         }
@@ -313,7 +279,7 @@ function StrokesGainedTab({previousStats}) {
                             dotList: [false, true],
                         }}></RadarChart>
         )
-    }
+    });
 
     let difference = 0;
 
@@ -344,9 +310,9 @@ function StrokesGainedTab({previousStats}) {
             <SGByBreakSlope></SGByBreakSlope>
         </ScrollView>
     )
-}
+})
 
-function OverviewTab({previousStats}) {
+const OverviewTab = memo(({previousStats}) => {
     const colors = useColors();
 
     const {currentStats, userData, puttSessions} = useAppContext();
@@ -616,9 +582,9 @@ function OverviewTab({previousStats}) {
             </View>
         </ScrollView>
     )
-}
+});
 
-function PuttsAHoleTab() {
+const PuttsAHoleTab = memo(({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -796,9 +762,9 @@ function PuttsAHoleTab() {
             </View>
         </ScrollView>
     )
-}
+});
 
-function MadePuttsTab() {
+const MadePuttsTab = memo(({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -903,4 +869,4 @@ function MadePuttsTab() {
             <MakeByBreakSlope></MakeByBreakSlope>
         </ScrollView>
     )
-}
+});

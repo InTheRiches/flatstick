@@ -1,10 +1,11 @@
 import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation} from "expo-router";
-import {Image, Text, View, StyleSheet} from "react-native";
+import {Image, Text, View} from "react-native";
 import React, {useState} from "react";
 import {roundTo} from "../../../utils/roundTo";
 import {SecondaryButton} from "../../../components/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
+import {useAppContext} from "../../../contexts/AppCtx";
 
 export default function IndividualSession({}) {
     // use local params to get data
@@ -14,6 +15,7 @@ export default function IndividualSession({}) {
     const navigation = useNavigation();
     const [horizontalBiasWidth, setHorizontalBiasWidth] = useState(1);
     const [verticalBiasWidth, setVerticalBiasWidth] = useState(1);
+    const {deleteSession} = useAppContext();
 
     const gridData = Array.from({length: 15}, (_, index) => index + 1);
 
@@ -36,18 +38,18 @@ export default function IndividualSession({}) {
             <>
                 <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Short / Past Bias</Text>
                 <View onLayout={onVertiLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
-                    <View style={{width: 1, height: 32, backgroundColor: "black"}}></View>
-                    <View style={{flex: 1, height: 1, backgroundColor: "black"}}></View>
-                    <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: "black", backgroundColor: "white"}}></View>
-                    <View style={{flex: 1, height: 1, backgroundColor: "black"}}></View>
-                    <View style={{width: 1, height: 32, backgroundColor: "black"}}></View>
-                    <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: "black", backgroundColor: colors.checkmark.background}}></View>
+                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
+                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
+                    <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: "white"}}></View>
+                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
+                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
+                    <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
                 </View>
                 <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                     <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
                     <Text style={{color: colors.text.secondary, opacity: left < ((verticalBiasWidth/2) - 30) || left > ((verticalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
                     <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                    <Text style={{position: "absolute", left: left-10}}>{session.shortPastBias > 0 ? "+" : ""}{session.shortPastBias}ft</Text>
+                    <Text style={{position: "absolute", left: left-10, color: colors.text.primary}}>{session.shortPastBias > 0 ? "+" : ""}{session.shortPastBias}ft</Text>
                 </View>
                 <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                     <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Short</Text>
@@ -56,7 +58,6 @@ export default function IndividualSession({}) {
             </>
         )
     }
-
 
     const LeftRightBias = () => {
         let left = session.leftRightBias / 2 * (horizontalBiasWidth/2);
@@ -69,18 +70,18 @@ export default function IndividualSession({}) {
             <>
                 <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Left to Right Bias</Text>
                 <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
-                    <View style={{width: 1, height: 32, backgroundColor: "black"}}></View>
-                    <View style={{flex: 1, height: 1, backgroundColor: "black"}}></View>
-                    <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: "black", backgroundColor: "white"}}></View>
-                    <View style={{flex: 1, height: 1, backgroundColor: "black"}}></View>
-                    <View style={{width: 1, height: 32, backgroundColor: "black"}}></View>
-                    <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: "black", backgroundColor: colors.checkmark.background}}></View>
+                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
+                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
+                    <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: "white"}}></View>
+                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
+                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
+                    <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
                 </View>
                 <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                     <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
                     <Text style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 30) || left > ((horizontalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
                     <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                    <Text style={{position: "absolute", left: left-10}}>{session.leftRightBias > 0 ? "+" : session.leftRightBias === 0 ? "" : "-"}{session.leftRightBias}ft</Text>
+                    <Text style={{position: "absolute", left: left-10, color: colors.text.primary}}>{session.leftRightBias > 0 ? "+" : ""}{session.leftRightBias}ft</Text>
                 </View>
                 <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                     <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</Text>
@@ -91,7 +92,7 @@ export default function IndividualSession({}) {
     }
 
     return (
-        <View style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1}}>
+        <View style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1, backgroundColor: colors.background.primary}}>
             <View>
                 <Text style={{
                     fontSize: 24,
@@ -278,7 +279,12 @@ export default function IndividualSession({}) {
                 <SecondaryButton onPress={() => navigation.goBack()}
                                title={"Back"}
                                style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
-                <SecondaryButton onPress={() => {}} style={{position: "absolute", right: 0, top: 0, aspectRatio: 1, height: 42, borderRadius: 50}}>
+                <SecondaryButton onPress={() => {
+                    // todo make this trigger a loading screen
+                    deleteSession(session.id).then(() => {
+                        navigation.goBack();
+                    });
+                }} style={{position: "absolute", right: 0, top: 0, aspectRatio: 1, height: 42, borderRadius: 50}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                          stroke={colors.button.secondary.text} width={24} height={24}>
                         <Path strokeLinecap="round" strokeLinejoin="round"

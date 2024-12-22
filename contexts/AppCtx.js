@@ -4,6 +4,7 @@ import {initializeApp} from "firebase/app";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import {
     collection,
+    deleteDoc,
     doc,
     getDoc,
     getDocs,
@@ -67,6 +68,7 @@ const AppContext = createContext({
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
+    deleteSession: () => Promise.resolve(),
 });
 
 const AuthContext = createContext({
@@ -183,20 +185,7 @@ export function AppProvider({children}) {
             setPutters(localPutters);
         });
 
-        const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
-        getDoc(docRef)
-            .then((data) => {
-                setUserData(data.data());
-            })
-            .catch((error) => console.error("Error initializing user data:", error));
-
-        const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`));
-        getDocs(sessionQuery)
-            .then((querySnapshot) => {
-                const sessions = querySnapshot.docs.map((doc) => doc.data());
-                setPuttSessions(sessions);
-            })
-            .catch((error) => console.error("Error initializing sessions:", error));
+        refreshStats();
     };
 
     // Update user data
@@ -248,7 +237,12 @@ export function AppProvider({children}) {
         const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`), orderBy("timestamp", "desc"));
         try {
             const querySnapshot = await getDocs(sessionQuery);
-            const sessions = querySnapshot.docs.map((doc) => doc.data());
+            const sessions = querySnapshot.docs.map((doc) => {
+                return ({
+                    id: doc.ref.id,
+                    ...doc.data()
+                })
+            });
             setPuttSessions(sessions);
             return sessions;
         } catch (error) {
@@ -617,6 +611,18 @@ export function AppProvider({children}) {
         return true;
     }
 
+    const deleteSession = async (sessionId) => {
+        const docRef = doc(firestore, `users/${auth.currentUser.uid}/sessions/${sessionId}`);
+        try {
+            await deleteDoc(docRef);
+        } catch(error) {
+            console.error("Error deleting session:", error);
+            return false;
+        }
+        await refreshStats();
+        return true;
+    }
+
     // Memoized context value
     const appContextValue = useMemo(() => ({
         userData,
@@ -633,7 +639,8 @@ export function AppProvider({children}) {
         setStat,
         newPutter,
         newSession,
-        getPreviousStats
+        getPreviousStats,
+        deleteSession
     }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, selectedPutter]);
 
     const authContextValue = useMemo(() => ({
