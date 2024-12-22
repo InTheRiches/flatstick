@@ -45,37 +45,37 @@ export default function Stats({}) {
         {
             id: 1,
             title: "Overview",
-            content: useMemo((previousStats) => {
+            content: useMemo(() => {
                 return <OverviewTab previousStats={previousStats}/>
-            }, [])
+            }, [previousStats])
         },
         {
             id: 2,
             title:"Strokes Gained",
-            content: useMemo((previousStats) => {
+            content: useMemo(() => {
                 return <StrokesGainedTab previousStats={previousStats}/>
-            }, [])
+            }, [previousStats])
         },
         {
             id: 3,
             title: "Putts / Hole",
-            content: useMemo((previousStats) => {
+            content: useMemo(() => {
                 return <PuttsAHoleTab previousStats={previousStats}/>
-            }, [])
+            }, [previousStats])
         },
         {
             id: 4,
             title: "Made Putts",
-            content: useMemo((previousStats) => {
+            content: useMemo(() => {
                 return <MadePuttsTab previousStats={previousStats}/>
-            }, [])
+            }, [previousStats])
         },
         {
             id: 5,
             title: "Misses",
-            content: useMemo((previousStats) => {
+            content: useMemo(() => {
                 return <MissesTab previousStats={previousStats}/>
-            }, [])
+            }, [previousStats])
         }
     ]
 
