@@ -2,7 +2,7 @@ import {Dimensions, FlatList, ScrollView, Text, useColorScheme, View} from "reac
 import useColors from "../../hooks/useColors";
 import RadarChart from "../../components/stats/graphs/SpiderGraph";
 import {useAppContext} from "../../contexts/AppCtx";
-import React, {memo, useEffect, useRef, useState} from "react";
+import React, {memo, useEffect, useMemo, useRef, useState} from "react";
 import SlopePopup from "../../components/stats/popups/SlopePopup";
 import {PrimaryButton} from "../../components/buttons/PrimaryButton";
 import BreakPopup from "../../components/stats/popups/BreakPopup";
@@ -12,45 +12,6 @@ import {filterMissDistribution} from "../../utils/PuttUtils";
 import {roundTo} from "../../utils/roundTo";
 import {createPuttsByBreak, createPuttsMadeByBreak, createStrokesGainedByBreak} from "../../utils/GraphUtils";
 import {BarChart} from "../../charts";
-import {useMutative} from "use-mutative";
-
-const tabs = [
-    {
-        id: 1,
-        title: "Overview",
-        content: (previousStats) => (
-            <OverviewTab previousStats={previousStats}/>
-        )
-    },
-    {
-        id: 2,
-        title:"Strokes Gained",
-        content: (previousStats) => (
-            <StrokesGainedTab previousStats={previousStats}></StrokesGainedTab>
-        )
-    },
-    {
-        id: 3,
-        title: "Putts / Hole",
-        content: (previousStats) => (
-            <PuttsAHoleTab previousStats={previousStats}/>
-        )
-    },
-    {
-        id: 4,
-        title: "Made Putts",
-        content: (previousStats) => (
-            <MadePuttsTab previousStats={previousStats}/>
-        )
-    },
-    {
-        id: 5,
-        title: "Misses",
-        content: (previousStats) => (
-            <MissesTab previousStats={previousStats}/>
-        )
-    }
-]
 
 const slopes = [
     "Downhill",
@@ -74,12 +35,49 @@ const distances = [
 export default function Stats({}) {
     const colors = useColors();
     const [tab, setTab] = useState(0);
-    const [selectedTab, setSelectedTab] = useMutative(0);
     const listRef = useRef(null);
     const scrollViewRef = useRef(null);
     const {getPreviousStats, puttSessions} = useAppContext();
     const [previousStats, setPreviousStats] = useState(undefined);
     const [isUserScrolling, setIsUserScrolling] = useState(false);
+
+    const tabs = [
+        {
+            id: 1,
+            title: "Overview",
+            content: useMemo((previousStats) => {
+                return <OverviewTab previousStats={previousStats}/>
+            }, [])
+        },
+        {
+            id: 2,
+            title:"Strokes Gained",
+            content: useMemo((previousStats) => {
+                return <StrokesGainedTab previousStats={previousStats}/>
+            }, [])
+        },
+        {
+            id: 3,
+            title: "Putts / Hole",
+            content: useMemo((previousStats) => {
+                return <PuttsAHoleTab previousStats={previousStats}/>
+            }, [])
+        },
+        {
+            id: 4,
+            title: "Made Putts",
+            content: useMemo((previousStats) => {
+                return <MadePuttsTab previousStats={previousStats}/>
+            }, [])
+        },
+        {
+            id: 5,
+            title: "Misses",
+            content: useMemo((previousStats) => {
+                return <MissesTab previousStats={previousStats}/>
+            }, [])
+        }
+    ]
 
     useEffect(() => {
         getPreviousStats().then((stats) => {
@@ -88,15 +86,14 @@ export default function Stats({}) {
     });
 
     const scrollTo = async (i) => {
-        setSelectedTab(i);
+        setTab(i);
         listRef.current.scrollToIndex({index: i});
     }
 
     const {width} = Dimensions.get("screen")
     const handleScroll = (event) => {
-        setTab(Math.round(event.nativeEvent.contentOffset.x / width))
         if (isUserScrolling) {
-            setSelectedTab(Math.round(event.nativeEvent.contentOffset.x / width));
+            setTab(Math.round(event.nativeEvent.contentOffset.x / width));
         }
 
         scrollViewRef.current.scrollToIndex({
@@ -132,7 +129,7 @@ export default function Stats({}) {
                 data={tabs}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={selectedTab === index} onPress={() => {
+                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={tab === index} onPress={() => {
                     scrollTo(index);
                 }}/>}
             />
@@ -143,13 +140,13 @@ export default function Stats({}) {
                 }}
                 ref={listRef}
                 data={tabs}
+                onMomentumScrollEnd={() => setIsUserScrolling(false)}
                 onScroll={handleScroll}
                 horizontal={true}
                 onScrollBeginDrag={() => setIsUserScrolling(true)}
-                onScrollEndDrag={() => setIsUserScrolling(false)}
                 pagingEnabled={true}
                 showsHorizontalScrollIndicator={false}
-                renderItem={({item}) => item.content(previousStats)}
+                renderItem={({item}) => item.content}
             />
         </View>
     )
@@ -222,7 +219,7 @@ function MissesTab() {
     )
 }
 
-const StrokesGainedTab = memo(({previousStats}) => {
+const StrokesGainedTab = ({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -331,9 +328,9 @@ const StrokesGainedTab = memo(({previousStats}) => {
             <SGByBreakSlope></SGByBreakSlope>
         </ScrollView>
     )
-})
+}
 
-const OverviewTab = memo(({previousStats}) => {
+const OverviewTab = ({previousStats}) => {
     const colors = useColors();
 
     const {currentStats, puttSessions} = useAppContext();
@@ -603,9 +600,9 @@ const OverviewTab = memo(({previousStats}) => {
             </View>
         </ScrollView>
     )
-});
+};
 
-const PuttsAHoleTab = memo(({previousStats}) => {
+const PuttsAHoleTab = ({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -783,9 +780,9 @@ const PuttsAHoleTab = memo(({previousStats}) => {
             </View>
         </ScrollView>
     )
-});
+};
 
-const MadePuttsTab = memo(({previousStats}) => {
+const MadePuttsTab =  ({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -890,4 +887,4 @@ const MadePuttsTab = memo(({previousStats}) => {
             <MakeByBreakSlope></MakeByBreakSlope>
         </ScrollView>
     )
-});
+};
