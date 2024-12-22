@@ -12,6 +12,7 @@ import {filterMissDistribution} from "../../utils/PuttUtils";
 import {roundTo} from "../../utils/roundTo";
 import {createPuttsByBreak, createPuttsMadeByBreak, createStrokesGainedByBreak} from "../../utils/GraphUtils";
 import {BarChart} from "../../charts";
+import {useMutative} from "use-mutative";
 
 const tabs = [
     {
@@ -73,10 +74,12 @@ const distances = [
 export default function Stats({}) {
     const colors = useColors();
     const [tab, setTab] = useState(0);
+    const [selectedTab, setSelectedTab] = useMutative(0);
     const listRef = useRef(null);
     const scrollViewRef = useRef(null);
-    const {getPreviousStats} = useAppContext();
+    const {getPreviousStats, puttSessions} = useAppContext();
     const [previousStats, setPreviousStats] = useState(undefined);
+    const [isUserScrolling, setIsUserScrolling] = useState(false);
 
     useEffect(() => {
         getPreviousStats().then((stats) => {
@@ -84,13 +87,17 @@ export default function Stats({}) {
         })
     });
 
-    const scrollTo = (i) => {
+    const scrollTo = async (i) => {
+        setSelectedTab(i);
         listRef.current.scrollToIndex({index: i});
     }
 
     const {width} = Dimensions.get("screen")
     const handleScroll = (event) => {
         setTab(Math.round(event.nativeEvent.contentOffset.x / width))
+        if (isUserScrolling) {
+            setSelectedTab(Math.round(event.nativeEvent.contentOffset.x / width));
+        }
 
         scrollViewRef.current.scrollToIndex({
             index: Math.round(event.nativeEvent.contentOffset.x / width),
@@ -98,7 +105,20 @@ export default function Stats({}) {
         });
     }
 
-    return (
+    return puttSessions.length === 0 ? (
+        <View style={{
+            backgroundColor: colors.background.primary,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border.default,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: 32
+        }}>
+            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</Text>
+            <Text style={{color: colors.text.secondary, fontSize: 18, textAlign: "center"}}>Come back when you have some sessions logged!</Text>
+        </View>
+    ) : (
         <View style={{
             backgroundColor: colors.background.primary,
             borderBottomWidth: 1,
@@ -112,7 +132,7 @@ export default function Stats({}) {
                 data={tabs}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={tab === index} onPress={() => {
+                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={selectedTab === index} onPress={() => {
                     scrollTo(index);
                 }}/>}
             />
@@ -125,12 +145,13 @@ export default function Stats({}) {
                 data={tabs}
                 onScroll={handleScroll}
                 horizontal={true}
+                onScrollBeginDrag={() => setIsUserScrolling(true)}
+                onScrollEndDrag={() => setIsUserScrolling(false)}
                 pagingEnabled={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item}) => item.content(previousStats)}
             />
         </View>
-
     )
 }
 
@@ -205,7 +226,7 @@ const StrokesGainedTab = memo(({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    const {currentStats, userData, puttSessions} = useAppContext();
+    const {currentStats} = useAppContext();
 
     const {width} = Dimensions.get("screen")
 
@@ -315,7 +336,7 @@ const StrokesGainedTab = memo(({previousStats}) => {
 const OverviewTab = memo(({previousStats}) => {
     const colors = useColors();
 
-    const {currentStats, userData, puttSessions} = useAppContext();
+    const {currentStats, puttSessions} = useAppContext();
 
     const {width} = Dimensions.get("screen")
 
@@ -588,7 +609,7 @@ const PuttsAHoleTab = memo(({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    const {currentStats, userData} = useAppContext();
+    const {currentStats} = useAppContext();
 
     const {width} = Dimensions.get("screen")
 
@@ -768,7 +789,7 @@ const MadePuttsTab = memo(({previousStats}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    const {currentStats, userData, puttSessions} = useAppContext();
+    const {currentStats} = useAppContext();
 
     const {width} = Dimensions.get("screen")
 

@@ -1,20 +1,9 @@
 import React from "react";
-import {useColorScheme, View, ViewStyle} from "react-native";
-import {
-  Defs,
-  G,
-  LinearGradient,
-  Rect,
-  Stop,
-  Svg,
-  Text
-} from "react-native-svg";
+import {View, ViewStyle} from "react-native";
+import {Defs, G, LinearGradient, Rect, Stop, Svg, Text} from "react-native-svg";
 
-import AbstractChart, {
-  AbstractChartConfig,
-  AbstractChartProps
-} from "./AbstractChart";
-import { ChartData } from "./HelperTypes";
+import AbstractChart, {AbstractChartConfig, AbstractChartProps} from "./AbstractChart";
+import {ChartData} from "./HelperTypes";
 
 const barWidth = 32;
 
@@ -129,7 +118,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             (i * (width - paddingRight)) / data.length +
             barWidth / 2
           }
-          y={((baseHeight - barHeight) / 4) * 3 + paddingTop}
+          y={((baseHeight - barHeight) / 4) * 3 + (baseline ? 0 : paddingTop)}
           width={barWidth}
           height={3}
           fill={baseline ? this.props.chartConfig.secondaryCapColor : this.props.chartConfig.capColor}

@@ -1,5 +1,3 @@
-import {getAuth} from "firebase/auth";
-import {getFirestore} from "firebase/firestore";
 import React from "react";
 import useColors from "../hooks/useColors";
 import {Text, useColorScheme, View} from "react-native";
@@ -7,9 +5,6 @@ import {roundTo} from "./roundTo";
 import {useAppContext} from "@/contexts/AppCtx";
 
 export default function RecentSessionSummary({unfinished}) {
-    const auth = getAuth();
-    const db = getFirestore();
-
     const {puttSessions} = useAppContext();
 
     const colors = useColors();
@@ -131,14 +126,14 @@ function getHoleSimulation(colors, colorScheme, date, recentSession, unfinished)
                         }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
+                    <Text style={{textAlign: "left", color: colors.text.secondary}}>SG</Text>
                     <Text
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{recentSession.totalPutts}</Text>
+                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</Text>
                 </View>
                 <View>
                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
