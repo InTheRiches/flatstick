@@ -20,7 +20,7 @@ export default function HomeScreen() {
 
     const router = useRouter();
     const {signOut, isLoading} = useSession();
-    const {userData, updateStats} = useAppContext();
+    const {userData, updateStats, puttSessions} = useAppContext();
 
     const newSessionRef = useRef(null);
     const newRealRoundRef = useRef(null);
@@ -41,7 +41,7 @@ export default function HomeScreen() {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Header auth={auth}></Header>
                 <RecentSessionSummary unfinished={false}></RecentSessionSummary>
-                <SecondaryButton onPress={() => {}} style={{
+                {puttSessions.length > 0 && <SecondaryButton onPress={() => router.push({pathname: "sessions"})} style={{
                     borderRadius: 50,
                     flexDirection: "row",
                     alignSelf: "center",
@@ -65,8 +65,8 @@ export default function HomeScreen() {
                                   d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
                         </Svg>
                     </View>
-                </SecondaryButton>
-                <View style={{gap: 12, marginBottom: 18}}>
+                </SecondaryButton>}
+                <View style={{marginTop: puttSessions.length > 0 ? 0 : 24, gap: 12, marginBottom: 18}}>
                     <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New
                         Practice</Text>
                     <PracticeMode

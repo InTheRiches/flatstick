@@ -220,7 +220,7 @@ export default function RealSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true)
 
@@ -234,7 +234,11 @@ export default function RealSimulation() {
             avgMiss: avgMiss,
             madePercent: madePercent,
             type: "real-simulation",
-            putter: selectedPutterId
+            putter: selectedPutterId,
+            puttCounts: puttCounts,
+            shortPastBias: shortPastBias,
+            leftRightBias: leftRightBias,
+            missData: missData,
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {

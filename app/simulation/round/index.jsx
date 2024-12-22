@@ -254,7 +254,7 @@ export default function RoundSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true);
 
@@ -271,6 +271,10 @@ export default function RoundSimulation() {
             madePercent: madePercent,
             type: "round-simulation",
             putter: selectedPutterId,
+            puttCounts: puttCounts,
+            leftRightBias: leftRightBias,
+            shortPastBias: shortPastBias,
+            missData: missData
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {

@@ -151,8 +151,8 @@ export default function NewRealRound({newRealRoundRef}) {
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,
-                    }}>Putter:</Text>
-                    <View style={{flexDirection: "row", borderWidth: 1, gap: 0, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 24, alignItems: "center"}}>
+                    }}>Putter</Text>
+                    <View style={{flexDirection: "row", borderWidth: 1, gap: 0, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
                         <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                         <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
                             <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[selectedPutter].name : "Default Putter"}</Text>

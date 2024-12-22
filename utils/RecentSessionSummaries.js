@@ -1,46 +1,27 @@
 import {getAuth} from "firebase/auth";
-import {collection, getDocs, getFirestore, limit, orderBy, query} from "firebase/firestore";
-import React, {useEffect, useState} from "react";
+import {getFirestore} from "firebase/firestore";
+import React from "react";
 import useColors from "../hooks/useColors";
 import {Text, useColorScheme, View} from "react-native";
 import {roundTo} from "./roundTo";
+import {useAppContext} from "@/contexts/AppCtx";
 
 export default function RecentSessionSummary({unfinished}) {
     const auth = getAuth();
     const db = getFirestore();
 
-    const [recentSession, setRecentSession] = useState(null);
-    const [loaded, setLoaded] = useState(false);
+    const {puttSessions} = useAppContext();
 
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    useEffect(() => {
-        console.log("getting data")
-        const q = query(collection(db, "users/" + auth.currentUser.uid + "/sessions"), orderBy("timestamp", "desc"), limit(1));
-        getDocs(q).then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                setRecentSession(doc.data());
-                console.log("found data")
-            });
-            setLoaded(true);
-        }).catch((error) => {
-            console.log("couldnt find the documents: " + error)
-        });
-    }, []);
-
     let date;
-    if (recentSession !== null)
-        date = new Date(recentSession.date);
+    if (puttSessions[0] !== null && puttSessions[0] !== undefined)
+        date = new Date(puttSessions[0].date);
     else
         date = new Date();
 
-    if (!loaded) {
-        return <View></View>
-    }
-
-    if (recentSession === null) {
+    if (puttSessions[0] === null || puttSessions[0] === undefined) {
         return (
             <View
                 style={{
@@ -69,11 +50,11 @@ export default function RecentSessionSummary({unfinished}) {
         )
     }
 
-    switch(recentSession.type) {
+    switch(puttSessions[0].type) {
         case "real-simulation":
-            return getRealSimulation(colors, colorScheme, date, recentSession, unfinished);
+            return getRealSimulation(colors, colorScheme, date, puttSessions[0], unfinished);
         case "round-simulation":
-            return getHoleSimulation(colors, colorScheme, date, recentSession, unfinished);
+            return getHoleSimulation(colors, colorScheme, date, puttSessions[0], unfinished);
     }
 }
 

@@ -46,6 +46,8 @@ export default function RootLayout() {
                 <Stack.Screen name={"simulation/real/index"}/>
                 <Stack.Screen name="+not-found"/>
                 <Stack.Screen name={"editputters/index"}/>
+                <Stack.Screen name={"sessions/index"}/>
+                <Stack.Screen name={"sessions/individual/index"}/>
               </Stack>
             </ThemeProvider>
           </GestureHandlerRootView>

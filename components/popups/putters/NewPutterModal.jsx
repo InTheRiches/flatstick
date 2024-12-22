@@ -11,8 +11,9 @@ export default function NewPutterModal({newPutterRef}) {
 
     const [putterName, setPutterName] = useState("");
     const [putterFocused, setPutterFocused] = useState(false);
+    const [putterInvalid, setPutterInvalid] = useState(false);
     const [open, setOpen] = useState(false);
-    const {newPutter} = useAppContext();
+    const {newPutter, putters} = useAppContext();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
@@ -27,6 +28,23 @@ export default function NewPutterModal({newPutterRef}) {
         },
         [open]
     );
+
+    const updatePutterName = (name) => {
+        if (name.length < 4) {
+            setPutterInvalid(true);
+            return;
+        }
+        // if that name is already taken, setPutterInvalid(true)
+        for (const putter of putters) {
+            if (putter.name === name) {
+                setPutterInvalid(true);
+                return;
+            }
+        }
+
+        setPutterInvalid(false);
+        setPutterName(name);
+    }
 
     // TODO handle putter name validation, ALSO DECIDE IF YOU WANT POPUP OR menu to slide out from under the "your putters" text, and not be a modal
 
@@ -54,24 +72,24 @@ export default function NewPutterModal({newPutterRef}) {
                     style={{
                         marginHorizontal: 24,
                         padding: 12,
-                        backgroundColor: colors.input.background,
+                        backgroundColor: putterInvalid ? colors.input.invalid.background : colors.input.background,
                         borderRadius: 10,
                         borderWidth: 1,
-                        borderColor: colors.input.border,
-                        color: colors.text.primary,
+                        borderColor: putterInvalid ? colors.input.invalid.border : colors.input.border,
+                        color: putterInvalid ? colors.input.invalid.text : colors.input.text,
                         fontSize: 16,
                         marginBottom: 12,
                     }}
                     placeholder={"Putter name..."}
                     placeholderTextColor={colors.text.secondary}
-                    onChangeText={setPutterName}
+                    onChangeText={updatePutterName}
                     onFocus={() => setPutterFocused(true)}
                     onBlur={() => setPutterFocused(false)}
                 />
                 <PrimaryButton
                     title={"Create"}
                     onPress={() => {
-                        if (putterName === "" || putterName.length < 4) return;
+                        if (putterInvalid) return;
 
                         newPutter(putterName);
 

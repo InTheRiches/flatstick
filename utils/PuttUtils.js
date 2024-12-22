@@ -110,6 +110,17 @@ const calculateStats = (puttsCopy, width, height) => {
     let madePercent = 0;
     const trimmedPutts = [];
     let strokesGained = 0;
+    let leftRightBias = 0;
+    let shortPastBias = 0;
+    let puttCounts = [0, 0, 0]
+
+    let farLeft = 0
+    let left = 0;
+    let center = 0;
+    let right = 0;
+    let farRight = 0;
+    let long = 0;
+    let short = 0;
 
     puttsCopy.forEach((putt, index) => {
         if (putt === undefined || putt.distance === -1 || putt.point.x === undefined)
@@ -122,17 +133,27 @@ const calculateStats = (puttsCopy, width, height) => {
         }
 
         if (putt.totalPutts === -1) {
-            if (putt.largeMiss)
+            if (putt.largeMiss) {
                 totalPutts += 3;
+                puttCounts[2]++;
+            }
             else if (putt.distanceMissed === 0) {
                 totalPutts++;
                 madePercent++;
-            } else
+                puttCounts[0]++;
+            } else {
                 totalPutts += 2;
+                puttCounts[1]++;
+            }
         } else {
             if (putt.totalPutts === 1 || putt.distanceMissed === 0)
                 madePercent++;
             totalPutts += putt.totalPutts;
+            // add the totalPutts into the puttCount array, if the putt was > 3 strokes, add it to the 3 putt count
+            if (putt.totalPutts > 3)
+                puttCounts[2]++;
+            else
+                puttCounts[putt.totalPutts - 1]++;
         }
         if (putt.distanceMissed !== 0) {
             avgMiss += putt.distanceMissed;
@@ -145,6 +166,27 @@ const calculateStats = (puttsCopy, width, height) => {
             xDistance = roundTo(putt.point.x, 2);
             yDistance = roundTo(putt.point.y, 2);
         }
+        leftRightBias += xDistance;
+        shortPastBias += yDistance;
+
+        const angle = Math.atan2(yDistance, xDistance); // atan2 handles dx = 0 cases
+        const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
+
+        // Check the quadrant based on the rotated ranges
+        if (putt.distanceMissed === 0 && !putt.largeMiss) {
+            center++
+        } else if (degrees > -45 && degrees <= 45) {
+            if (putt.distanceMissed <= 2 && !putt.largeMiss) right++;
+            else farRight++;
+        } else if (degrees > 45 && degrees <= 135) {
+            long++;
+        } else if (degrees > -135 && degrees <= -45) {
+            short++;
+        } else {
+            if (putt.distanceMissed <= 2 && !putt.largeMiss) left++;
+            else farLeft++;
+        }
+
         let puttBreak = putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
         trimmedPutts.push({
             distance: putt.distance,
@@ -164,7 +206,10 @@ const calculateStats = (puttsCopy, width, height) => {
     avgMiss = roundTo(avgMiss, 1);
     madePercent /= puttsCopy.length;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained };
+    leftRightBias /= puttsCopy.length;
+    shortPastBias /= puttsCopy.length;
+
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias, shortPastBias, puttCounts, missData: {farLeft, left, center, right, farRight, long, short} };
 };
 
 const dataSlopes = [
