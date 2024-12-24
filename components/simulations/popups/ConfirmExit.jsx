@@ -10,11 +10,8 @@ export function ConfirmExit({ confirmExitRef, end, cancel, partial}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    const [open, setOpen] = useState(false);
-
     const myBackdrop = useCallback(({animatedIndex, style}) => {
         return (<CustomBackdrop
-            open={true}
             reference={confirmExitRef}
             animatedIndex={animatedIndex}
             style={style}
@@ -25,9 +22,6 @@ export function ConfirmExit({ confirmExitRef, end, cancel, partial}) {
     return (<BottomSheetModal
         ref={confirmExitRef}
         backdropComponent={myBackdrop}
-        onChange={() => {
-            setOpen(!open);
-        }}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
         keyboardBlurBehavior={"restore"}
     >

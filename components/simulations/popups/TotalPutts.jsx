@@ -14,20 +14,17 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
     const [puttsFocused, setPuttsFocused] = useState(false);
     const [invalid, setInvalid] = useState(false);
 
-    const [open, setOpen] = useState(true);
-
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
             return (
                 <CustomBackdrop
-                    open={open}
                     reference={totalPuttsRef}
                     animatedIndex={animatedIndex}
                     style={style}
                 />
             );
         },
-        [open]
+        []
     );
 
     const updatePutts = (newPutts) => {

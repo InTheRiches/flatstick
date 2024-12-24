@@ -4,10 +4,17 @@ import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
+import {useAppContext} from "../../contexts/AppCtx";
 
-export function PutterSelector({id, setSelectedPutter, selectedPutter, name, stats}) {
+// Make sure there is a max of like 5 putters
+export function PutterSelector({id, name, stats}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
+    const {userData, updateData} = useAppContext();
+
+    const setSelectedPutter = (id) => {
+        updateData({preferences: {...userData.preferences, selectedPutter: id}});
+    }
 
     return (
         <GestureDetector key={id + "_putter"} gesture={Gesture.Tap().onStart((data) => runOnJS(setSelectedPutter)(id))}>
@@ -17,8 +24,8 @@ export function PutterSelector({id, setSelectedPutter, selectedPutter, name, sta
                 gap: 12,
                 borderWidth: 1,
                 borderRadius: 10,
-                borderColor: selectedPutter === id ? colors.toggleable.toggled.border : colors.toggleable.border,
-                backgroundColor: selectedPutter === id ? colors.toggleable.toggled.background : colorScheme === "light" ? colors.background.secondary : "transparent",
+                borderColor: userData.preferences.selectedPutter === id ? colors.toggleable.toggled.border : colors.toggleable.border,
+                backgroundColor: userData.preferences.selectedPutter === id ? colors.toggleable.toggled.background : colorScheme === "light" ? colors.background.secondary : "transparent",
                 paddingHorizontal: 12,
                 paddingVertical: 10,
                 marginBottom: 12,
@@ -31,7 +38,7 @@ export function PutterSelector({id, setSelectedPutter, selectedPutter, name, sta
                         <Text style={{color: colors.text.secondary, width: "50%"}}>Strokes Gained: {stats.strokesGained.overall}</Text>
                     </View>
                 </View>
-                {selectedPutter === id && (
+                {userData.preferences.selectedPutter === id && (
                     <View style={{
                         position: "absolute",
                         right: -7,

@@ -47,7 +47,7 @@ export const firestore = initializeFirestore(app, {
     useFetchStreams: false,
     ignoreUndefinedProperties: true,
 });
-export const auth = initializeAuth(app, {
+const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
@@ -57,9 +57,7 @@ const AppContext = createContext({
     puttSessions: [],
     currentStats: {},
     putters: [],
-    selectedPutter: 0,
     previousStats: [],
-    setSelectedPutter: () => {},
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
@@ -94,7 +92,6 @@ export function AppProvider({children}) {
     const [session, setSession] = useState(null);
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
-    const [selectedPutter, setSelectedPutter] = useState(0);
     const [previousStats, setPreviousStats] = useState([]);
 
     // Firebase authentication functions
@@ -197,8 +194,12 @@ export function AppProvider({children}) {
 
     // Update user data
     const updateData = useMemo(() => async (newData) => {
+        setUserData(prev => ({...prev, ...newData}));
+
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}`);
         try {
+            // update the userData state with the new partial data
+
             await runTransaction(firestore, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) throw new Error("Document does not exist!");
@@ -412,6 +413,7 @@ export function AppProvider({children}) {
                 }
 
                 // TODO decide if you want to use all rounds with the putter, or only the last 5
+                // TODO if the putter no longer exists (was deleted), then we should just use the default putter
                 if (session.putter !== "default") {
                     updateSimpleStats(newPutters.find((putter) => putter.type === session.putter).stats, putt, category);
                 }
@@ -646,9 +648,7 @@ export function AppProvider({children}) {
         puttSessions,
         currentStats,
         putters,
-        selectedPutter,
         previousStats,
-        setSelectedPutter,
         initialize,
         refreshData,
         updateData,
@@ -659,7 +659,7 @@ export function AppProvider({children}) {
         newSession,
         getPreviousStats,
         deleteSession
-    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, selectedPutter, previousStats]);
+    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, previousStats]);
 
     const authContextValue = useMemo(() => ({
         signIn,

@@ -12,22 +12,19 @@ export function NewRealRound({newRealRoundRef}) {
     const colors = useColors();
     const [holes, setHoles] = useState(9);
     const router = useRouter();
-    const [open, setOpen] = useState(true);
-    const {putters, selectedPutter} = useAppContext();
-    const navigator = useNavigation();
+    const {putters, userData} = useAppContext();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
             return (
                 <CustomBackdrop
-                    open={open}
                     reference={newRealRoundRef}
                     animatedIndex={animatedIndex}
                     style={style}
                 />
             );
         },
-        [open]
+        []
     );
 
     // renders
@@ -155,10 +152,10 @@ export function NewRealRound({newRealRoundRef}) {
                     <View style={{flexDirection: "row", borderWidth: 1, gap: 0, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
                         <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                         <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
-                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[selectedPutter].name : "Default Putter"}</Text>
+                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[userData.preferences.selectedPutter].name : "Default Putter"}</Text>
                             <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
                                 <Text style={{color: colors.text.secondary, width: "35%"}}>Sessions: 3</Text>
-                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
+                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[userData.preferences.selectedPutter].stats.strokesGained.overall : 0}</Text>
                             </View>
                         </View>
                         <PrimaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editputters"})}>
@@ -179,7 +176,6 @@ export function NewRealRound({newRealRoundRef}) {
                                 pathname: `/simulation/real`,
                                 params: {
                                     stringHoles: holes,
-                                    selectedPutterId: putters[selectedPutter].type,
                                 },
                             });
                         }}

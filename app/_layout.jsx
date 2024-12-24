@@ -1,4 +1,4 @@
-import {DarkTheme, DefaultTheme, NavigationContainer, ThemeProvider} from '@react-navigation/native';
+import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -10,6 +10,8 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
 import * as SystemUI from "expo-system-ui";
+import {useEffect} from "react";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 export default function RootLayout() {
   const colors = useColors();
@@ -28,30 +30,36 @@ export default function RootLayout() {
   SystemUI.setBackgroundColorAsync(colors.background.primary);
 
   return (
-    <SafeAreaView style={{flex: 1, }} edges={['top', 'bottom']}>
+    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
       <AppProvider>
-        <NavigationContainer>
           <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
           <GestureHandlerRootView>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}>
-                <Stack.Screen name="(tabs)"/>
-                <Stack.Screen name={"simulation/pressure/index"}/>
-                <Stack.Screen name={"simulation/pressure/setup/index"}/>
-                <Stack.Screen name={"simulation/round/index"}/>
-                <Stack.Screen name={"simulation/round/recap/index"}/>
-                <Stack.Screen name={"simulation/real/index"}/>
-                <Stack.Screen name="+not-found"/>
-                <Stack.Screen name={"editputters/index"}/>
-                <Stack.Screen name={"sessions/index"}/>
-                <Stack.Screen name={"sessions/individual/index"}/>
-              </Stack>
-            </ThemeProvider>
+            <BottomSheetModalProvider>
+              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <Stack screenOptions={{
+                      headerShown: false,
+                    }}>
+                  <Stack.Screen name="(tabs)"/>
+                  <Stack.Screen name={"simulation/pressure/index"}/>
+                  <Stack.Screen name={"simulation/pressure/setup/index"}/>
+                  <Stack.Screen name={"simulation/round/index"}/>
+                  <Stack.Screen name={"simulation/round/recap/index"}/>
+                  <Stack.Screen name={"simulation/real/index"}/>
+                  <Stack.Screen name="+not-found"/>
+                  <Stack.Screen name={"editputters/index"} options={{
+                    presentation: 'modal',
+                    animation: "slide_from_bottom"
+                  }}/>
+                  <Stack.Screen name={"sessions/index"}/>
+                  <Stack.Screen name={"sessions/individual/index"}/>
+                  <Stack.Screen name={"statsettings/index"} options={{
+                    presentation: 'transparentModal',
+                    animation: "slide_from_bottom",
+                  }}/>
+                </Stack>
+              </ThemeProvider>
+            </BottomSheetModalProvider>
           </GestureHandlerRootView>
-        </NavigationContainer>
       </AppProvider>
     </SafeAreaView>
   );

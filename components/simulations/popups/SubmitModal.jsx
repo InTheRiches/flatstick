@@ -11,20 +11,17 @@ export function SubmitModal({submitRef, submit, cancel}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
-    const [open, setOpen] = useState(true);
-
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
             return (
                 <CustomBackdrop
-                    open={open}
                     reference={submitRef}
                     animatedIndex={animatedIndex}
                     style={style}
                 />
             );
         },
-        [open]
+        []
     );
 
     // renders

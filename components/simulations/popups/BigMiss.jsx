@@ -64,7 +64,6 @@ export function BigMissModal({
 
     const myBackdrop = useCallback(({animatedIndex, style}) => {
         return (<CustomBackdrop
-            open={true}
             reference={bigMissRef}
             animatedIndex={animatedIndex}
             style={style}

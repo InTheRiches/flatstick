@@ -92,12 +92,12 @@ const initialState = {
 export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
-    const {newSession} = useAppContext();
+    const {newSession, putters, userData} = useAppContext();
 
     const auth = getAuth();
     const router = useRouter();
 
-    const {localHoles, difficulty, mode, selectedPutterId} = useLocalSearchParams();
+    const {localHoles, difficulty, mode} = useLocalSearchParams();
     const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
@@ -250,7 +250,7 @@ export default function RoundSimulation() {
             strokesGained: roundTo(strokesGained, 1),
             madePercent: madePercent,
             type: "round-simulation",
-            putter: selectedPutterId,
+            putter: putters[userData.preferences.selectedPutter].type,
             puttCounts: puttCounts,
             leftRightBias: leftRightBias,
             shortPastBias: shortPastBias,
@@ -277,134 +277,132 @@ export default function RoundSimulation() {
     }
 
     return (loading ? <Loading/> :
-            <BottomSheetModalProvider>
-                <View style={{flexGrow: 1}}>
-                    <View style={{
-                        width: "100%",
-                        flexGrow: 1,
-                        paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        marginBottom: 20
-                    }}>
-                        <View>
-                            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                                <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
-                                <Pressable onPress={() => confirmExitRef.current.present()}>
-                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         strokeWidth={1.5}
-                                         stroke={colors.text.primary} width={32} height={32}>
-                                        <Path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
-                                    </Svg>
-                                </Pressable>
-                            </View>
-                            <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
-                                         puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
-                        </View>
-                        <View style={{flexDirection: "column", gap: 4}}>
-                            <Pressable onPress={() => updateField("misHit", !misHit)} style={{
-                                marginTop: 12,
-                                marginBottom: 4,
-                                paddingRight: 20,
-                                paddingLeft: 10,
-                                paddingVertical: 8,
-                                borderRadius: 8,
-                                backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
-                                alignSelf: "center",
-                                flexDirection: "row",
-                                justifyContent: "center",
-                                alignItems: 'center',
-                            }}>
-                                {misHit ?
-                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         strokeWidth={2}
-                                         width={20}
-                                         height={20} stroke={colors.button.danger.text}>
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                    </Svg> :
-                                    <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
-                                }
-                                <Text style={{color: 'white', marginLeft: 8}}>Mishit</Text>
-                            </Pressable>
-                            <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
-                                <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
-                                    marginBottom: 4,
-                                    paddingRight: 20,
-                                    paddingLeft: 10,
-                                    paddingVertical: 8,
-                                    borderRadius: 8,
-                                    backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
-                                    alignSelf: "center",
-                                    flexDirection: "row",
-                                    justifyContent: "center",
-                                    alignItems: 'center',
-                                }}>
-                                    {misReadSlope ?
-                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             strokeWidth={2}
-                                             width={20}
-                                             height={20} stroke={colors.button.danger.text}>
-                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                        </Svg> :
-                                        <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
-                                    }
-                                    <Text style={{color: 'white', marginLeft: 8}}>Misread Slope</Text>
-                                </Pressable>
-                                <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
-                                    marginBottom: 4,
-                                    paddingRight: 20,
-                                    paddingLeft: 10,
-                                    paddingVertical: 8,
-                                    borderRadius: 8,
-                                    backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
-                                    alignSelf: "center",
-                                    flexDirection: "row",
-                                    justifyContent: "center",
-                                    alignItems: 'center',
-                                }}>
-                                    {misReadLine ?
-                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             strokeWidth={2}
-                                             width={20}
-                                             height={20} stroke={colors.button.danger.text}>
-                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                        </Svg> :
-                                        <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
-                                    }
-                                    <Text style={{color: 'white', marginLeft: 8}}>Misread Line</Text>
-                                </Pressable>
-                            </View>
-                        </View>
-                        <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
-                        <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
-                            <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
-                                           title="Back"
-                                           disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                            <DangerButton onPress={() => {
-                                updateField("largeMiss", true);
-                                bigMissRef.current.present();
-                            }}
-                                          title={"Miss > 3ft?"}></DangerButton>
-                            {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
-                                            title={hole === holes ? "Submit" : "Next"}
-                                            disabled={point.x === undefined}
-                                            onPress={() => {
-                                                if (point.x === undefined) return;
-
-                                                if (center) nextHole(1);
-                                                else totalPuttsRef.current.present()
-                                            }}></PrimaryButton>}
-                        </View>
+        <View style={{flexGrow: 1}}>
+            <View style={{
+                width: "100%",
+                flexGrow: 1,
+                paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
+                flexDirection: "column",
+                justifyContent: "space-between",
+                marginBottom: 20
+            }}>
+                <View>
+                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
+                        <Pressable onPress={() => confirmExitRef.current.present()}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 strokeWidth={1.5}
+                                 stroke={colors.text.primary} width={32} height={32}>
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
+                            </Svg>
+                        </Pressable>
                     </View>
-                    <TotalPutts currentPutts={putts[hole - 1] ? putts[hole - 1].totalPutts : 2}
-                                totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-                    <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
-                                  rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
-                    <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
-                    <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
+                    <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
+                                 puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
                 </View>
-            </BottomSheetModalProvider>
+                <View style={{flexDirection: "column", gap: 4}}>
+                    <Pressable onPress={() => updateField("misHit", !misHit)} style={{
+                        marginTop: 12,
+                        marginBottom: 4,
+                        paddingRight: 20,
+                        paddingLeft: 10,
+                        paddingVertical: 8,
+                        borderRadius: 8,
+                        backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
+                        alignSelf: "center",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: 'center',
+                    }}>
+                        {misHit ?
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 strokeWidth={2}
+                                 width={20}
+                                 height={20} stroke={colors.button.danger.text}>
+                                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                            </Svg> :
+                            <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                        }
+                        <Text style={{color: 'white', marginLeft: 8}}>Mishit</Text>
+                    </Pressable>
+                    <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
+                        <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
+                            marginBottom: 4,
+                            paddingRight: 20,
+                            paddingLeft: 10,
+                            paddingVertical: 8,
+                            borderRadius: 8,
+                            backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
+                            alignSelf: "center",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: 'center',
+                        }}>
+                            {misReadSlope ?
+                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth={2}
+                                     width={20}
+                                     height={20} stroke={colors.button.danger.text}>
+                                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                </Svg> :
+                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                            }
+                            <Text style={{color: 'white', marginLeft: 8}}>Misread Slope</Text>
+                        </Pressable>
+                        <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
+                            marginBottom: 4,
+                            paddingRight: 20,
+                            paddingLeft: 10,
+                            paddingVertical: 8,
+                            borderRadius: 8,
+                            backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
+                            alignSelf: "center",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: 'center',
+                        }}>
+                            {misReadLine ?
+                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth={2}
+                                     width={20}
+                                     height={20} stroke={colors.button.danger.text}>
+                                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                </Svg> :
+                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                            }
+                            <Text style={{color: 'white', marginLeft: 8}}>Misread Line</Text>
+                        </Pressable>
+                    </View>
+                </View>
+                <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
+                <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
+                    <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                                   title="Back"
+                                   disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
+                    <DangerButton onPress={() => {
+                        updateField("largeMiss", true);
+                        bigMissRef.current.present();
+                    }}
+                                  title={"Miss > 3ft?"}></DangerButton>
+                    {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                                    title={hole === holes ? "Submit" : "Next"}
+                                    disabled={point.x === undefined}
+                                    onPress={() => {
+                                        if (point.x === undefined) return;
+
+                                        if (center) nextHole(1);
+                                        else totalPuttsRef.current.present()
+                                    }}></PrimaryButton>}
+                </View>
+            </View>
+            <TotalPutts currentPutts={putts[hole - 1] ? putts[hole - 1].totalPutts : 2}
+                        totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
+            <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
+                          rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
+            <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
+            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
+        </View>
     );
 }
 

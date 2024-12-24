@@ -1,4 +1,4 @@
-import {Dimensions, FlatList, ScrollView, Text, useColorScheme, View} from "react-native";
+import {Dimensions, FlatList, Pressable, ScrollView, Text, useColorScheme, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {RadarChart} from "../../components/tabs/stats";
 import {useAppContext} from "../../contexts/AppCtx";
@@ -13,6 +13,8 @@ import {StrokesGainedTab} from "../../components/tabs/stats/sg";
 import {OverviewTab} from "../../components/tabs/stats/overview";
 import {PuttsAHoleTab} from "../../components/tabs/stats/putts";
 import {MadePuttsTab} from "../../components/tabs/stats/made";
+import Svg, {Path} from "react-native-svg";
+import {useRouter} from "expo-router";
 
 const slopes = [
     "Downhill",
@@ -40,6 +42,7 @@ export default function Stats({}) {
     const scrollViewRef = useRef(null);
     const {previousStats, puttSessions} = useAppContext();
     const [isUserScrolling, setIsUserScrolling] = useState(false);
+    const router = useRouter();
 
     const tabs = [
         {
@@ -116,16 +119,26 @@ export default function Stats({}) {
             borderBottomColor: colors.border.default,
             flex: 1
         }}>
-            <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12}}>Stats</Text>
+            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
+                <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "statsettings"})}>
+                    <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.primary} width={32} height={32} className="size-6">
+                        <Path fillRule="evenodd"
+                              d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 0 0-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 0 0-2.282.819l-.922 1.597a1.875 1.875 0 0 0 .432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 0 0 0 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 0 0-.432 2.385l.922 1.597a1.875 1.875 0 0 0 2.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 0 0 2.28-.819l.923-1.597a1.875 1.875 0 0 0-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 0 0 0-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 0 0-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 0 0-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 0 0-1.85-1.567h-1.843ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"
+                              clipRule="evenodd"/>
+                    </Svg>
+                </Pressable>
+            </View>
             <FlatList
                 ref={scrollViewRef}
                 contentContainerStyle={{gap: 4, paddingHorizontal: 24}}
                 data={tabs}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={tab === index} onPress={() => {
-                    scrollTo(index);
-                }}/>}
+                renderItem={({item, index}) => <Toggleable key={item.id} title={item.title} toggled={tab === index}
+                                                           onPress={() => {
+                                                               scrollTo(index);
+                                                           }}/>}
             />
             <FlatList
                 contentContainerStyle={{

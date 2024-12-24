@@ -15,24 +15,21 @@ export const NewRound = ({newSessionRef}) => {
     const [difficulty, setDifficulty] = useState("easy");
     const [mode, setMode] = useState("random");
     const bottomSheetPosition = useSharedValue(0);
-    const {putters, selectedPutter} = useAppContext();
+    const {putters, userData} = useAppContext();
 
     const router = useRouter();
-
-    const [open, setOpen] = useState(true);
 
     const myBackdrop = useCallback(
         ({ animatedIndex, style }) => {
             return (
                 <CustomBackdrop
-                    open={open}
                     reference={newSessionRef}
                     animatedIndex={animatedIndex}
                     style={style}
                 />
             );
         },
-        [open]
+        []
     );
 
     // renders
@@ -264,10 +261,10 @@ export const NewRound = ({newSessionRef}) => {
                     <View style={{flexDirection: "row", borderWidth: 1, gap: 0, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
                         <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                         <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
-                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[selectedPutter].name : "Default Putter"}</Text>
+                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[userData.preferences.selectedPutter].name : "Default Putter"}</Text>
                             <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
                                 <Text style={{color: colors.text.secondary, width: "35%"}}>Sessions: 3</Text>
-                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[selectedPutter].stats.strokesGained.overall : 0}</Text>
+                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[userData.preferences.selectedPutter].stats.strokesGained.overall : 0}</Text>
                             </View>
                         </View>
                         <PrimaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editputters"})}>
@@ -286,7 +283,7 @@ export const NewRound = ({newSessionRef}) => {
                             newSessionRef.current?.dismiss();
                             router.push({
                                 pathname: `/simulation/round`, params: {
-                                    localHoles: 18, difficulty: difficulty, mode: mode, selectedPutterId: putters[selectedPutter].type,
+                                    localHoles: 18, difficulty: difficulty, mode: mode,
                                 },
                             });
                         }}
