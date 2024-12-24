@@ -4,10 +4,8 @@ import {Dimensions, View} from "react-native";
 import {roundTo} from "../../../../../utils/roundTo";
 import {RadarChart} from "../../";
 
-export const SGByBreakSlope = () => {
-    const {currentStats} = useAppContext();
-
-    if (currentStats === undefined || Object.keys(currentStats).length === 0) {
+export const SGByBreakSlope = ({statsToUse}) => {
+    if (statsToUse === undefined || Object.keys(statsToUse).length === 0) {
         return <View></View>
     }
 
@@ -15,7 +13,7 @@ export const SGByBreakSlope = () => {
         <RadarChart graphSize={Dimensions.get("screen").width-36}
                     scaleCount={4}
                     numberInterval={0}
-                    data={[createStrokesGainedByBreak(currentStats)]}
+                    data={[createStrokesGainedByBreak(statsToUse)]}
                     options={{
                         graphShape: 1,
                         showAxis: true,

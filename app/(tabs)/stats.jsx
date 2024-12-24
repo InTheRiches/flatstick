@@ -1,4 +1,4 @@
-import {Dimensions, FlatList, Pressable, ScrollView, Text, useColorScheme, View} from "react-native";
+import {Dimensions, FlatList, Pressable, ScrollView, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {RadarChart} from "../../components/tabs/stats";
 import {useAppContext} from "../../contexts/AppCtx";
@@ -37,48 +37,53 @@ const distances = [
 
 export default function Stats({}) {
     const colors = useColors();
+    const router = useRouter();
+
     const [tab, setTab] = useState(0);
+    const [isUserScrolling, setIsUserScrolling] = useState(false);
+
     const listRef = useRef(null);
     const scrollViewRef = useRef(null);
-    const {previousStats, puttSessions} = useAppContext();
-    const [isUserScrolling, setIsUserScrolling] = useState(false);
-    const router = useRouter();
+
+    const {currentStats, puttSessions, putters, userData} = useAppContext();
+
+    const statsToUse = userData.preferences.filteringPutter !== 0 ? putters[userData.preferences.filteringPutter].stats : currentStats;
 
     const tabs = [
         {
             id: 1,
             title: "Overview",
             content: useMemo(() => {
-                return <OverviewTab/>
-            }, [])
+                return <OverviewTab statsToUse={statsToUse}/>
+            }, [statsToUse])
         },
         {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
-                return <StrokesGainedTab/>
-            }, [])
+                return <StrokesGainedTab statsToUse={statsToUse}/>
+            }, [statsToUse])
         },
         {
             id: 3,
             title: "Putts / Hole",
             content: useMemo(() => {
-                return <PuttsAHoleTab/>
-            }, [])
+                return <PuttsAHoleTab statsToUse={statsToUse}/>
+            }, [statsToUse])
         },
         {
             id: 4,
             title: "Made Putts",
             content: useMemo(() => {
-                return <MadePuttsTab previousStats={previousStats}/>
-            }, [previousStats])
+                return <MadePuttsTab statsToUse={statsToUse}/>
+            }, [statsToUse])
         },
         {
             id: 5,
             title: "Misses",
             content: useMemo(() => {
-                return <MissesTab previousStats={previousStats}/>
-            }, [previousStats])
+                return <MissesTab statsToUse={statsToUse}/>
+            }, [statsToUse])
         }
     ]
 

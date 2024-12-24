@@ -1,11 +1,9 @@
-// TODO mayeb make this a graph that shows the difference, where it starts in the middle and goes up /down
 import {BarChart} from "../../../../../charts";
 import {Dimensions, useColorScheme} from "react-native";
-import {useAppContext} from "../../../../../contexts/AppCtx";
 import useColors from "../../../../../hooks/useColors";
 
-export const PuttsByDistance = () => {
-    const {currentStats} = useAppContext();
+// TODO mayeb make this a graph that shows the difference, where it starts in the middle and goes up /down
+export const PuttsByDistance = ({statsToUse}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -15,7 +13,7 @@ export const PuttsByDistance = () => {
                 labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
                 datasets: [{
                     data: [
-                        currentStats.averagePerformance.puttsAHole.distance[0], currentStats.averagePerformance.puttsAHole.distance[1], currentStats.averagePerformance.puttsAHole.distance[2], currentStats.averagePerformance.puttsAHole.distance[3]
+                        statsToUse.averagePerformance.puttsAHole.distance[0], statsToUse.averagePerformance.puttsAHole.distance[1], statsToUse.averagePerformance.puttsAHole.distance[2], statsToUse.averagePerformance.puttsAHole.distance[3]
                     ]},
                     {data: [1.34, 1.50, 1.70, 2]}],
             }}

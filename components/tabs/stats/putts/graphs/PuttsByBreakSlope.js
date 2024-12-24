@@ -3,10 +3,8 @@ import {Dimensions, View} from "react-native";
 import {RadarChart} from "../../";
 import {roundTo} from "../../../../../utils/roundTo";
 
-export const PuttsByBreakSlope = () => {
-    const {currentStats} = useAppContext();
-
-    if (currentStats === undefined || Object.keys(currentStats).length === 0) {
+export const PuttsByBreakSlope = ({statsToUse}) => {
+    if (statsToUse === undefined || Object.keys(statsToUse).length === 0) {
         return <View></View>
     }
 
@@ -14,7 +12,7 @@ export const PuttsByBreakSlope = () => {
         <RadarChart graphSize={Dimensions.get("screen").width - 36}
                     scaleCount={4}
                     numberInterval={0}
-                    data={[createPuttsByBreak(currentStats)]}
+                    data={[createPuttsByBreak(statsToUse)]}
                     options={{
                         graphShape: 1,
                         showAxis: true,

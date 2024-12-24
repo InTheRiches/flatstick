@@ -4,11 +4,9 @@ import {useAppContext} from "../../../../contexts/AppCtx";
 import React from "react";
 import {PuttsByBreakSlope, PuttsByDistance} from "./graphs";
 
-export const PuttsAHoleTab = () => {
+export const PuttsAHoleTab = ({statsToUse}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
-
-    const {currentStats} = useAppContext();
 
     const {width} = Dimensions.get("screen");
 
@@ -38,7 +36,7 @@ export const PuttsAHoleTab = () => {
                         paddingLeft: 12,
                     }}>
                         <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts per Hole</Text>
-                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{currentStats.averagePerformance.puttsAHole.puttsAHole}</Text>
+                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.averagePerformance.puttsAHole.puttsAHole}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -50,19 +48,19 @@ export const PuttsAHoleTab = () => {
                         paddingLeft: 12
                     }}>
                         <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misread</Text>
-                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{currentStats.averagePerformance.puttsAHole.puttsAHoleWhenMisread}</Text>
+                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.averagePerformance.puttsAHole.puttsAHoleWhenMisread}</Text>
                     </View>
                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misshit</Text>
-                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{currentStats.averagePerformance.puttsAHole.puttsAHoleWhenMishit}</Text>
+                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Mishit</Text>
+                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.averagePerformance.puttsAHole.puttsAHoleWhenMishit}</Text>
                     </View>
                 </View>
             </View>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Putts a Hole by Break/Slope</Text>
-            <PuttsByBreakSlope></PuttsByBreakSlope>
+            <PuttsByBreakSlope statsToUse={statsToUse}></PuttsByBreakSlope>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Putts a Hole by Distance</Text>
             <View style={{overflow: "hidden", marginRight: 32, paddingLeft: 24}}>
-                <PuttsByDistance/>
+                <PuttsByDistance statsToUse={statsToUse}/>
             </View>
             <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 12}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 6}}>

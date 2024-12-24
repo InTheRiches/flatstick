@@ -4,8 +4,7 @@ import React from "react";
 import {useAppContext} from "../../../../../contexts/AppCtx";
 import useColors from "../../../../../hooks/useColors";
 
-export const MakeByDistance = () => {
-    const {currentStats} = useAppContext();
+export const MakeByDistance = ({statsToUse}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -17,7 +16,7 @@ export const MakeByDistance = () => {
                 labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
                 datasets: [{
                     data: [
-                        currentStats.averagePerformance.madePutts.distance[0]*100, currentStats.averagePerformance.madePutts.distance[1]*100, currentStats.averagePerformance.madePutts.distance[2]*100, currentStats.averagePerformance.madePutts.distance[3]*100
+                        statsToUse.averagePerformance.madePutts.distance[0]*100, statsToUse.averagePerformance.madePutts.distance[1]*100, statsToUse.averagePerformance.madePutts.distance[2]*100, statsToUse.averagePerformance.madePutts.distance[3]*100
                     ]},
                     {data: [75, 50, 20, 10]},
                 ],

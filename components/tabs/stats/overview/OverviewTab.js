@@ -5,21 +5,21 @@ import {roundTo} from "../../../../utils/roundTo";
 import {RecentSession} from "./RecentSession";
 import React from "react";
 
-export const OverviewTab = () => {
+export const OverviewTab = ({statsToUse}) => {
     const colors = useColors();
-    const {currentStats, puttSessions, previousStats} = useAppContext();
+    const {puttSessions, previousStats} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     let difference = 0;
 
     if (previousStats !== undefined && previousStats.length > 0)
-        difference = currentStats.averagePerformance.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
+        difference = statsToUse.averagePerformance.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 32}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{currentStats.averagePerformance.strokesGained.overall}</Text>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.averagePerformance.strokesGained.overall}</Text>
                 { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
                     <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                         <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</Text>
@@ -68,8 +68,8 @@ export const OverviewTab = () => {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{currentStats.averagePerformance.onePutts}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.onePutts/18)*100, 0)}%)</Text>
+                            }}>{statsToUse.averagePerformance.onePutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.averagePerformance.onePutts/18)*100, 0)}%)</Text>
                         </View>
                     </View>
                     <View style={{
@@ -87,8 +87,8 @@ export const OverviewTab = () => {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{currentStats.averagePerformance.twoPutts}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.twoPutts/18)*100,0)}%)</Text>
+                            }}>{statsToUse.averagePerformance.twoPutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.averagePerformance.twoPutts/18)*100,0)}%)</Text>
                         </View>
                     </View>
                     <View style={{
@@ -104,8 +104,8 @@ export const OverviewTab = () => {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{currentStats.averagePerformance.threePutts}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.threePutts/18)*100,0)}%)</Text>
+                            }}>{statsToUse.averagePerformance.threePutts}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.averagePerformance.threePutts/18)*100,0)}%)</Text>
                         </View>
                     </View>
                 </View>
@@ -125,7 +125,7 @@ export const OverviewTab = () => {
                             color: colors.text.primary,
                             fontWeight: "bold",
                             textAlign: "left"
-                        }}>{currentStats.averagePerformance.avgMiss}ft</Text>
+                        }}>{statsToUse.averagePerformance.avgMiss}ft</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -142,7 +142,7 @@ export const OverviewTab = () => {
                             color: colors.text.primary,
                             fontWeight: "bold",
                             textAlign: "left"
-                        }}>{currentStats.averagePerformance.totalDistance}ft</Text>
+                        }}>{statsToUse.averagePerformance.totalDistance}ft</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -157,8 +157,8 @@ export const OverviewTab = () => {
                                 fontSize: 20,
                                 color: colors.text.primary,
                                 fontWeight: "bold",
-                            }}>{currentStats.averagePerformance.puttsMisread}</Text>
-                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((currentStats.averagePerformance.puttsMisread/18)*100,0)}%)</Text>
+                            }}>{statsToUse.averagePerformance.puttsMisread}</Text>
+                            <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.averagePerformance.puttsMisread/18)*100,0)}%)</Text>
                         </View>
                     </View>
                 </View>

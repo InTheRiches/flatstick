@@ -4,8 +4,7 @@ import {Dimensions, useColorScheme} from "react-native";
 import {useAppContext} from "../../../../../contexts/AppCtx";
 import useColors from "../../../../../hooks/useColors";
 
-export const SGByDistanceChart = memo(({}) => {
-    const {currentStats} = useAppContext();
+export const SGByDistanceChart = memo(({statsToUse}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
@@ -19,7 +18,7 @@ export const SGByDistanceChart = memo(({}) => {
                 datasets: [
                     {
                         data: [
-                            currentStats.averagePerformance.strokesGained.distance[0], currentStats.averagePerformance.strokesGained.distance[1], currentStats.averagePerformance.strokesGained.distance[2], currentStats.averagePerformance.strokesGained.distance[3]
+                            statsToUse.averagePerformance.strokesGained.distance[0], statsToUse.averagePerformance.strokesGained.distance[1], statsToUse.averagePerformance.strokesGained.distance[2], statsToUse.averagePerformance.strokesGained.distance[3]
                         ]
                     }
                 ],
