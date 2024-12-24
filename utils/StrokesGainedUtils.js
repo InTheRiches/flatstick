@@ -17,7 +17,7 @@ const sgBaselinePutts = [
     { distance: 90, strokesGained: 2.40 }
 ];
 
-function cleanAverageStrokesGained(averagePerformance, strokesGained) {
+function cleanAverageStrokesGained(averagePerformance, strokesGained = -999) {
     const refinedStrokesGained = {
         distance: [0, 0, 0, 0],
         overall: 0,
@@ -39,8 +39,10 @@ function cleanAverageStrokesGained(averagePerformance, strokesGained) {
             }
         }
     }
-
-    refinedStrokesGained.overall = strokesGained;
+    if (strokesGained !== -999)
+        refinedStrokesGained.overall = strokesGained;
+    else
+        refinedStrokesGained.overall = averagePerformance.strokesGained.overall;
     refinedStrokesGained.distance = averagePerformance.strokesGained.distance.map((val, idx) => {
         if (averagePerformance.strokesGained.puttsAtThatDistance[idx] === 0) return 0;
         return roundTo(val / averagePerformance.strokesGained.puttsAtThatDistance[idx], 1);

@@ -1,4 +1,3 @@
-import {ThemedText} from '@/components/ThemedText';
 import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
 
 import React, {useEffect, useRef, useState} from 'react';
@@ -6,9 +5,9 @@ import {getAuth, updateEmail, updateProfile} from "firebase/auth";
 import {getFirestore} from "firebase/firestore";
 import useColors from "@/hooks/useColors";
 import {useAppContext, useSession} from "@/contexts/AppCtx";
-import SaveChangesModal from "../../components/popups/SaveChangesModal";
+import SaveChangesModal from "../../components/general/popups/SaveChangesModal";
 import useKeyboardVisible from "../../hooks/useKeyboardVisible";
-import {PrimaryButton} from "../../components/buttons/PrimaryButton";
+import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 
 export default function HomeScreen() {
@@ -131,7 +130,7 @@ function Profile({state, updateField}) {
             <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary}}>Profile</Text>
             <Text style={{fontSize: 16, fontWeight: 400, color: colors.text.secondary}}>General information about you,
                 this information is displayed publicly, so beware.</Text>
-            <ThemedText style={{fontSize: 16, marginTop: 12, marginBottom: 4}}>Display Name</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 12, marginBottom: 4}}>Display Name</Text>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -167,7 +166,7 @@ function Profile({state, updateField}) {
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Your display name must be at least 6
                     characters!</Text>}
 
-            <ThemedText style={{fontSize: 16, marginTop: 12}}>Photo</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 12}}>Photo</Text>
             <View style={{flexDirection: "row", gap: 12}}>
                 <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white"
                      width={96} height={96}>
@@ -185,7 +184,7 @@ function Profile({state, updateField}) {
                 Info</Text>
             <Text style={{fontSize: 16, fontWeight: 400, color: colors.text.secondary}}>Information about you, never
                 shared.</Text>
-            <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</Text>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{

@@ -1,9 +1,10 @@
 import {useAppContext} from "../../contexts/AppCtx";
-import {FlatList, Pressable, Text, useColorScheme, View} from "react-native";
+import {FlatList, Pressable, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
-import {useNavigation, useRouter} from "expo-router";
+import {useNavigation} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
+import {Session} from "../../components/sessions";
 
 export default function Sessions({}) {
     const {puttSessions} = useAppContext();
@@ -41,38 +42,5 @@ export default function Sessions({}) {
                 keyExtractor={(item, index) => "session_" + index}
             />
         </View>
-    )
-}
-
-function Session({session}) {
-    const colors = useColors();
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-
-    const condensedType = {
-        "real-simulation": "Round",
-        "round-simulation": "Sim"
-    }
-    return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(session)}})}
-                   style={({pressed}) =>
-                       [{
-                           backgroundColor: colorScheme === "light" ? pressed ? colors.button.primary.depressed : colors.button.primary.background : pressed ? colors.button.secondary.depressed : colors.button.secondary.background,
-                       }, {
-                           flexDirection: "row",
-                           borderBottomWidth: 1,
-                           borderColor: colors.border.default,
-                           paddingLeft: 12,
-                           paddingVertical: 10
-                   }]}>
-            <Text style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "left"}}>{condensedType[session.type]}</Text>
-            <Text style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{new Date(session.timestamp).toLocaleDateString('en-US', {
-                year: '2-digit',
-                month: '2-digit',
-                day: '2-digit'
-            })}</Text>
-            <Text style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{session.totalPutts}</Text>
-            <Text style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{session.strokesGained}</Text>
-        </Pressable>
     )
 }

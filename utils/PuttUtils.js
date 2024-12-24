@@ -113,6 +113,7 @@ const calculateStats = (puttsCopy, width, height) => {
     let leftRightBias = 0;
     let shortPastBias = 0;
     let puttCounts = [0, 0, 0]
+    let totalDistance = 0;
 
     let farLeft = 0
     let left = 0;
@@ -201,6 +202,8 @@ const calculateStats = (puttsCopy, width, height) => {
             totalPutts: putt.totalPutts,
             point: putt.point
         });
+
+        totalDistance += putt.distance;
     });
 
     avgMiss = roundTo(avgMiss, 1);
@@ -208,8 +211,9 @@ const calculateStats = (puttsCopy, width, height) => {
 
     leftRightBias /= puttsCopy.length;
     shortPastBias /= puttsCopy.length;
+    totalDistance /= puttsCopy.length;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short} };
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1)};
 };
 
 const dataSlopes = [

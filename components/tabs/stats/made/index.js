@@ -1,0 +1,1 @@
+export {MadePuttsTab} from "./MadePuttsTab";

@@ -1,0 +1,55 @@
+import {useAppContext} from "../../../../../contexts/AppCtx";
+import {Dimensions, View} from "react-native";
+import {RadarChart} from "../../";
+import {roundTo} from "../../../../../utils/roundTo";
+
+export const PuttsByBreakSlope = () => {
+    const {currentStats} = useAppContext();
+
+    if (currentStats === undefined || Object.keys(currentStats).length === 0) {
+        return <View></View>
+    }
+
+    return (
+        <RadarChart graphSize={Dimensions.get("screen").width - 36}
+                    scaleCount={4}
+                    numberInterval={0}
+                    data={[createPuttsByBreak(currentStats)]}
+                    options={{
+                        graphShape: 1,
+                        showAxis: true,
+                        showIndicator: true,
+                        colorList: ["#24b2ff", "red"],
+                        dotList: [false, true],
+                    }}></RadarChart>
+    )
+}
+
+function createPuttsByBreak(currentStats) {
+    // copy the object
+    const mySlopes = currentStats.averagePerformance.puttsAHole.slopes;
+
+    let max = 0;
+
+    // find the highest value, and take all of those out of that (as a percent)
+    for (let slope of ["downhill", "neutral", "uphill"]) {
+        for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
+            if (mySlopes[slope][brek] > max) {
+                max = mySlopes[slope][brek];
+            }
+        }
+    }
+
+    max += 0.2;
+
+    return {
+        "Downhill\nStraight": [roundTo(mySlopes.downhill.straight / max, 2), mySlopes.downhill.straight + " Putts"],
+        "Downhill\nLeft to Right": [roundTo(mySlopes.downhill.leftToRight / max, 2), mySlopes.downhill.leftToRight + " Putts"],
+        "Neutral\nLeft to Right": [roundTo(mySlopes.neutral.leftToRight / max, 2), mySlopes.neutral.leftToRight + " Putts"],
+        "Uphill\nLeft to Right": [roundTo(mySlopes.uphill.leftToRight / max, 2), mySlopes.uphill.leftToRight + " Putts"],
+        "Uphill\nStraight": [roundTo(mySlopes.uphill.straight / max, 2), mySlopes.uphill.straight + " Putts"],
+        "Uphill\nRight to Left": [roundTo(mySlopes.uphill.rightToLeft / max, 2), mySlopes.uphill.rightToLeft + " Putts"],
+        "Neutral\nRight to Left": [roundTo(mySlopes.neutral.rightToLeft / max, 2), mySlopes.neutral.rightToLeft + " Putts"],
+        "Downhill\nRight to Left": [roundTo(mySlopes.downhill.rightToLeft / max, 2), mySlopes.downhill.rightToLeft + " Putts"],
+    }
+}

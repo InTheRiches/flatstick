@@ -1,22 +1,25 @@
-import {ThemedText} from '@/components/ThemedText';
-import {ThemedView} from '@/components/ThemedView';
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Image, Platform, Pressable, Text, TextInput, useColorScheme, View} from 'react-native';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {runOnJS} from 'react-native-reanimated';
+import {BackHandler, Platform, Pressable, Text, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
-import DangerButton from '@/components/buttons/DangerButton';
+import DangerButton from '@/components/general/buttons/DangerButton';
 import {getAuth} from "firebase/auth";
-import Loading from "@/components/popups/Loading";
+import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
-import {PrimaryButton} from "@/components/buttons/PrimaryButton";
+import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
-import GreenBreakSelector from '../../../components/utils/GreenBreakSelector';
-import TotalPutts from '../../../components/popups/TotalPutts';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import BigMissModal from '../../../components/popups/BigMiss';
+import {roundTo} from "../../../utils/roundTo";
+import {
+    PuttingGreen
+} from '../../../components/simulations';
+import {
+    TotalPutts,
+    BigMissModal,
+    SubmitModal,
+    ConfirmExit,
+} from '../../../components/simulations/popups';
 import {
     calculateDistanceMissedFeet,
     calculateStats,
@@ -25,9 +28,7 @@ import {
     loadPuttData,
     updatePuttsCopy
 } from '../../../utils/PuttUtils';
-import SubmitModal from "../../../components/popups/SubmitModal";
-import ConfirmExit from "../../../components/popups/ConfirmExit";
-import {roundTo} from "../../../utils/roundTo";
+import {GreenVisual} from "../../../components/simulations/real";
 
 const initialState = {
     confirmLeave: false,
@@ -136,9 +137,8 @@ export default function RealSimulation() {
     const pushHole = (totalPutts, largeMissDistance) => {
         let distanceMissedFeet = 0;
 
-        if (!largeMiss) {
+        if (!largeMiss)
             distanceMissedFeet = calculateDistanceMissedFeet(center, point, width, height);
-        }
 
         if (putts[hole - 1] !== undefined) {
             if (totalPutts === -1)
@@ -192,27 +192,6 @@ export default function RealSimulation() {
         updateField("hole", hole - 1);
     };
 
-    const onLayout = (event) => {
-        const {width, height} = event.nativeEvent.layout;
-
-        updateField("width", width);
-        updateField("height", height);
-    };
-
-    const singleTap = Gesture.Tap()
-        .onStart((data) => {
-            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
-
-            const boxWidth = width / 10;
-            const boxHeight = height / 10;
-
-            // Assuming tap data comes in as `data.x` and `data.y`
-            const snappedX = Math.round(data.x / boxWidth) * boxWidth;
-            const snappedY = Math.round(data.y / boxHeight) * boxHeight;
-
-            runOnJS(updateField)("point", {x: snappedX, y: snappedY});
-        });
-
     const fullReset = () => {
         navigation.goBack();
     }
@@ -220,7 +199,7 @@ export default function RealSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData, totalDistance} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true)
 
@@ -239,6 +218,7 @@ export default function RealSimulation() {
             shortPastBias: shortPastBias,
             leftRightBias: leftRightBias,
             missData: missData,
+            totalDistance: totalDistance,
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
@@ -250,7 +230,7 @@ export default function RealSimulation() {
 
     return (loading ? <Loading/> :
             <BottomSheetModalProvider>
-                <ThemedView style={{flexGrow: 1}}>
+                <View style={{backgroundColor: colors.background.primary, flexGrow: 1}}>
                     <View style={{
                         width: "100%",
                         flexGrow: 1,
@@ -261,8 +241,7 @@ export default function RealSimulation() {
                     }}>
                         <View>
                             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                                <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}<Text
-                                    style={{fontSize: 14}}>/{holes}</Text></ThemedText>
+                                <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
                                 <Pressable onPress={() => confirmExitRef.current.present()}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          strokeWidth={1.5}
@@ -351,81 +330,7 @@ export default function RealSimulation() {
                                 </Pressable>
                             </View>
                         </View>
-                        <View>
-                            <View style={{
-                                alignSelf: "center",
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                width: "100%"
-                            }}>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>0
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>1
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                                <ThemedText type="defaultSemiBold" style={{color: colors.putting.grid.text}}>2
-                                    ft</ThemedText>
-                                <ThemedText></ThemedText>
-                            </View>
-                            <GestureDetector gesture={singleTap}>
-                                <View onLayout={onLayout}
-                                      style={{
-                                          alignSelf: "center",
-                                          alignItems: "center",
-                                          justifyContent: "center",
-                                          width: "100%"
-                                      }}>
-                                    <Image
-                                        source={require('@/assets/images/putting-grid.png')}
-                                        style={{
-                                            borderWidth: 1,
-                                            borderRadius: 12,
-                                            borderColor: colors.putting.grid.border,
-                                            width: "100%",
-                                            aspectRatio: "1",
-                                            height: undefined
-                                        }}/>
-                                    <View style={{
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        position: "absolute",
-                                        left: width / 2 - (width / 20),
-                                        top: height / 2 - (width / 20),
-                                        width: width / 10 + 1,
-                                        height: width / 10 + 1,
-                                        borderRadius: 24,
-                                        backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
-                                    }}>
-                                        <Svg width={24} height={24}
-                                             stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
-                                             xmlns="http://www.w3.org/2000/svg" fill="none"
-                                             viewBox="0 0 24 24" strokeWidth="3">
-                                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                                  d="m4.5 12.75 6 6 9-13.5"/>
-                                        </Svg>
-                                    </View>
-                                    {point.x !== undefined && center !== true ? (
-                                        <Image source={require('@/assets/images/golf-ball.png')} style={{
-                                            position: "absolute",
-                                            left: point.x - 12,
-                                            top: point.y - 12,
-                                            width: 24,
-                                            height: 24,
-                                            borderRadius: 12,
-                                            backgroundColor: "#fff"
-                                        }}></Image>
-                                    ) : null}
-                                </View>
-                            </GestureDetector>
-                        </View>
+                        <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
                         <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
                             <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                            title="Back"
@@ -454,187 +359,7 @@ export default function RealSimulation() {
                                   rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
                     <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
                     <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
-                </ThemedView>
+                </View>
             </BottomSheetModalProvider>
     );
-}
-
-function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
-    const colors = useColors();
-    const colorScheme = useColorScheme();
-
-    const validateDistance = (text) => {
-        // if it's not a number, make it invalid
-        if (text === "") {
-            updateField("distance", -1);
-            updateField("distanceInvalid", true);
-            return;
-        }
-        if (text.match(/[^0-9]/g)) {
-            updateField("distanceInvalid", true);
-            return;
-        }
-
-        const num = parseInt(text);
-        updateField("distance", num);
-        updateField("distanceInvalid", num < 1 || num > 99);
-    }
-
-    return (
-        <View style={{
-            backgroundColor: colors.background.secondary,
-            flexDirection: "row",
-            borderRadius: 16,
-            elevation: 4,
-            overflow: "hidden",
-            gap: 8
-        }}>
-            <View style={{flex: 1, padding: 8, paddingRight: 0}}>
-                <GreenBreakSelector theta={theta} setTheta={setTheta}/>
-            </View>
-            <View style={{flex: 0.9, flexDirection: "column", borderLeftWidth: 1, borderColor: colors.border.default}}>
-                <View style={{
-                    flexDirection: "column",
-                    borderBottomWidth: 1,
-                    borderColor: colors.border.default,
-                    paddingLeft: 8,
-                    flex: 1,
-                    justifyContent: "center"
-                }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</Text>
-                    <Text style={{
-                        fontSize: 20,
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontWeight: "bold"
-                    }}>{puttBreak}</Text>
-                </View>
-                <View style={{
-                    flexDirection: "column",
-                    borderBottomWidth: 1,
-                    borderColor: colors.border.default,
-                    paddingLeft: 8,
-                    flex: 1,
-                    justifyContent: "center"
-                }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</Text>
-                    <Text style={{
-                        fontSize: 20,
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontWeight: "bold"
-                    }}>{slope}</Text>
-                </View>
-                <View style={{ flex: 1, flexDirection: "column"}}>
-                    <Text style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</Text>
-                    <View style={{
-                        flexDirection: "row",
-                        gap: 12,
-                        alignItems: "center",
-                        alignSelf: "center",
-                        paddingHorizontal: 12
-                    }}>
-                        <PrimaryButton style={{
-                            aspectRatio: 1,
-                            paddingHorizontal: 4,
-                            paddingVertical: 4,
-                            borderRadius: 16,
-                            flex: 0
-                        }} onPress={() => {
-                            if (distance === -1) validateDistance((99).toString());
-                            else if (distance === 1) validateDistance((99).toString());
-                            else validateDistance((distance - 1).toString());
-                        }}>
-                            <Svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={3}
-                                stroke={colors.button.primary.text}
-                                width={18}
-                                height={18}
-                            >
-                                <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
-                            </Svg>
-                        </PrimaryButton>
-                        <View style={{
-                            alignSelf: "center",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            borderWidth: 1.5,
-                            borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
-                            borderRadius: 8,
-                            flex: 1,
-                            overflow: "hidden"
-                        }}>
-                            <TextInput style={{
-                                flex: 1,
-                                fontSize: 20,
-                                fontWeight: "bold",
-                                color: colors.text.primary,
-                                backgroundColor: colorScheme === "light" ? "transparent" : distanceInvalid ? "#6D3232" : colors.background.primary,
-                            }}
-                                       placeholder="?"
-                                       placeholderTextColor={colors.text.secondary}
-                                       textAlign='center'
-                                       value={distance !== -1 ? "" + distance : ""}
-                                       onChangeText={validateDistance}
-                                       keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
-                            <View
-                                style={{
-                                    borderLeftWidth: 1.5,
-                                    borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
-                                    backgroundColor:
-                                        distanceInvalid ?
-                                            colorScheme === "light" ?
-                                                "#FFBCBC" :
-                                                colors.input.invalid.text :
-                                            colorScheme === "light" ?
-                                                colors.background.primary :
-                                                colors.border.default,
-                                    flex: 1
-                                }}>
-                                <Text style={{
-                                    fontSize: 20,
-                                    paddingVertical: 2,
-                                    fontWeight: "bold",
-                                    textAlign: "center",
-                                    color: colors.text.primary,
-                                }}>ft</Text>
-                            </View>
-                        </View>
-                        <PrimaryButton
-                            style={{
-                                aspectRatio: 1,
-                                paddingHorizontal: 4,
-                                paddingVertical: 4,
-                                borderRadius: 16,
-                                flex: 0
-                            }}
-                            onPress={() => {
-                                if (distance === -1) validateDistance((1).toString());
-                                else if (distance === 99) validateDistance((1).toString());
-                                else validateDistance((distance + 1).toString());
-                            }}>
-                            <Svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={3}
-                                stroke={colors.button.primary.text}
-                                width={18}
-                                height={18}
-                            >
-                                <Path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 4.5v15m7.5-7.5h-15"
-                                />
-                            </Svg>
-                        </PrimaryButton>
-                    </View>
-                </View>
-                </View>
-        </View>
-    )
 }

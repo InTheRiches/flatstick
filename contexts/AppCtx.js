@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, memo, useContext, useEffect, useMemo, useState} from 'react';
 import {getReactNativePersistence, initializeAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {initializeApp} from "firebase/app";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,7 +17,7 @@ import {
 import {calculateTotalStrokesGained, cleanAverageStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
 import {cleanMadePutts, cleanPuttsAHole, createSimpleStats, updateSimpleStats} from "@/utils/PuttUtils";
-import generatePushID from "@/components/utils/GeneratePushID";
+import generatePushID from "@/components/general/utils/GeneratePushID";
 
 const breaks = [
     "leftToRight",
@@ -58,6 +58,7 @@ const AppContext = createContext({
     currentStats: {},
     putters: [],
     selectedPutter: 0,
+    previousStats: [],
     setSelectedPutter: () => {},
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
@@ -94,6 +95,7 @@ export function AppProvider({children}) {
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
     const [selectedPutter, setSelectedPutter] = useState(0);
+    const [previousStats, setPreviousStats] = useState([]);
 
     // Firebase authentication functions
     const signIn = useMemo(() => async (email, password) => {
@@ -117,17 +119,20 @@ export function AppProvider({children}) {
     }, []);
 
     const getPreviousStats = useMemo(() => async () => {
+        console.log("getting previous stats");
         const statsQuery = query(collection(firestore, `users/${auth.currentUser.uid}/stats`));
         try {
             const querySnapshot = await getDocs(statsQuery);
-            return querySnapshot.docs
+            const statDocs = querySnapshot.docs
                 .filter(doc => doc.id !== 'current')
                 .map(doc => doc.data());
+            setPreviousStats(statDocs);
+            return statDocs;
         } catch (error) {
             console.error("Error getting previous stats:", error);
         }
         return [];
-    }, []);
+    }, [puttSessions]);
 
     // Monitor authentication state changes
     useEffect(() => {
@@ -186,6 +191,8 @@ export function AppProvider({children}) {
         });
 
         refreshStats();
+
+        getPreviousStats();
     };
 
     // Update user data
@@ -406,7 +413,6 @@ export function AppProvider({children}) {
 
                 // TODO decide if you want to use all rounds with the putter, or only the last 5
                 if (session.putter !== "default") {
-                    console.log("hey");
                     updateSimpleStats(newPutters.find((putter) => putter.type === session.putter).stats, putt, category);
                 }
 
@@ -496,6 +502,16 @@ export function AppProvider({children}) {
                 slopeBreakStats.avgMiss += distanceMissed; // Avg miss distance (will divide later)
                 slopeBreakStats.putts++;
             });
+
+            if (session.putter !== "default") {
+                const puttStats = newPutters.find((putter) => putter.type === session.putter).stats;
+                if (puttStats.strokesGained.overall === 0) {
+                    puttStats.strokesGained.overall += 29 - session.totalPutts;
+                    return;
+                }
+                puttStats.strokesGained.overall += 29 - session.totalPutts;
+                puttStats.strokesGained.overall /= 2;
+            }
         });
 
         if (newStats.averagePerformance["rounds"] > 0) {
@@ -552,6 +568,7 @@ export function AppProvider({children}) {
         await updateStats(newStats)
 
         newPutters.forEach((putter) => {
+            if (putter.stats["rounds"] === 0) return;
             putter.stats.avgMiss = roundTo(putter.stats["avgMiss"] / (putter.stats["rounds"] * 18), 1);
             putter.stats.totalDistance = roundTo(putter.stats["totalDistance"] / putter.stats["rounds"], 1);
             putter.stats.puttsMisread = roundTo(putter.stats["puttsMisread"] / putter.stats["rounds"], 1);
@@ -559,7 +576,7 @@ export function AppProvider({children}) {
             putter.stats.twoPutts = roundTo(putter.stats["twoPutts"] / putter.stats["rounds"], 1);
             putter.stats.threePutts = roundTo(putter.stats["threePutts"] / putter.stats["rounds"], 1);
 
-            putter.stats.strokesGained = cleanAverageStrokesGained(putter.stats, strokesGained["overall"]);
+            putter.stats.strokesGained = cleanAverageStrokesGained(putter.stats);
             putter.stats.puttsAHole = cleanPuttsAHole(putter.stats);
             putter.stats.madePutts = cleanMadePutts(putter.stats);
 
@@ -630,6 +647,7 @@ export function AppProvider({children}) {
         currentStats,
         putters,
         selectedPutter,
+        previousStats,
         setSelectedPutter,
         initialize,
         refreshData,
@@ -641,7 +659,7 @@ export function AppProvider({children}) {
         newSession,
         getPreviousStats,
         deleteSession
-    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, selectedPutter]);
+    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, selectedPutter, previousStats]);
 
     const authContextValue = useMemo(() => ({
         signIn,

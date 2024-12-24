@@ -1,25 +1,26 @@
-import {ThemedText} from '@/components/ThemedText';
-import {ThemedView} from '@/components/ThemedView';
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {BackHandler, Image, Platform, Pressable, Text, View} from 'react-native';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {runOnJS} from 'react-native-reanimated';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
-import DangerButton from "@/components/buttons/DangerButton";
+import DangerButton from "@/components/general/buttons/DangerButton";
 import {getAuth} from "firebase/auth";
-import Loading from "@/components/popups/Loading";
+import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
-import {PrimaryButton} from "@/components/buttons/PrimaryButton";
+import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import TotalPutts from '../../../components/popups/TotalPutts';
-import BigMissModal from '../../../components/popups/BigMiss';
 import {calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
-import SubmitModal from "../../../components/popups/SubmitModal";
-import ConfirmExit from "../../../components/popups/ConfirmExit";
 import {roundTo} from "../../../utils/roundTo";
+import {
+    PuttingGreen
+} from '../../../components/simulations';
+import {
+    TotalPutts,
+    BigMissModal,
+    SubmitModal,
+    ConfirmExit,
+} from '../../../components/simulations/popups';
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -226,27 +227,6 @@ export default function RoundSimulation() {
         updateField("hole", hole - 1);
     };
 
-    const onLayout = (event) => {
-        const {width, height} = event.nativeEvent.layout;
-
-        updateField("width", width);
-        updateField("height", height);
-    };
-
-    const singleTap = Gesture.Tap()
-        .onStart((data) => {
-            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
-
-            const boxWidth = width / 10;
-            const boxHeight = height / 10;
-
-            // Assuming tap data comes in as `data.x` and `data.y`
-            const snappedX = Math.round(data.x / boxWidth) * boxWidth;
-            const snappedY = Math.round(data.y / boxHeight) * boxHeight;
-
-            runOnJS(updateField)("point", {x: snappedX, y: snappedY});
-        });
-
     const fullReset = () => {
         navigation.goBack();
     }
@@ -254,7 +234,7 @@ export default function RoundSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true);
 
@@ -274,7 +254,8 @@ export default function RoundSimulation() {
             puttCounts: puttCounts,
             leftRightBias: leftRightBias,
             shortPastBias: shortPastBias,
-            missData: missData
+            missData: missData,
+            totalDistance: totalDistance
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
@@ -288,7 +269,6 @@ export default function RoundSimulation() {
                     missData: JSON.stringify(missData),
                     totalPutts: totalPutts,
                     avgMiss: avgMiss,
-                    serializedPutts: JSON.stringify(trimmedPutts),
                     madePercent: madePercent,
                     date: new Date().toISOString()
                 }
@@ -298,7 +278,7 @@ export default function RoundSimulation() {
 
     return (loading ? <Loading/> :
             <BottomSheetModalProvider>
-                <ThemedView style={{flexGrow: 1}}>
+                <View style={{flexGrow: 1}}>
                     <View style={{
                         width: "100%",
                         flexGrow: 1,
@@ -309,7 +289,7 @@ export default function RoundSimulation() {
                     }}>
                         <View>
                             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                                <ThemedText style={{marginBottom: 6}} type="title">Hole {hole}</ThemedText>
+                                <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
                                 <Pressable onPress={() => confirmExitRef.current.present()}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          strokeWidth={1.5}
@@ -396,81 +376,7 @@ export default function RoundSimulation() {
                                 </Pressable>
                             </View>
                         </View>
-                        <View>
-                            <View style={{
-                                alignSelf: "center",
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                width: "100%"
-                            }}>
-                                <Text></Text>
-                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>2
-                                    ft</Text>
-                                <Text></Text>
-                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>1
-                                    ft</Text>
-                                <Text></Text>
-                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>0
-                                    ft</Text>
-                                <Text></Text>
-                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>1
-                                    ft</Text>
-                                <Text></Text>
-                                <Text style={{color: colors.putting.grid.text, fontSize: 16, fontWeight: 500}}>2
-                                    ft</Text>
-                                <Text></Text>
-                            </View>
-                            <GestureDetector gesture={singleTap}>
-                                <View onLayout={onLayout}
-                                      style={{
-                                          alignSelf: "center",
-                                          alignItems: "center",
-                                          justifyContent: "center",
-                                          width: "100%"
-                                      }}>
-                                    <Image
-                                        source={require('@/assets/images/putting-grid.png')}
-                                        style={{
-                                            borderWidth: 1,
-                                            borderRadius: 12,
-                                            borderColor: colors.putting.grid.border,
-                                            width: "100%",
-                                            aspectRatio: "1",
-                                            height: undefined
-                                        }}/>
-                                    <View style={{
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        position: "absolute",
-                                        left: width / 2 - (width / 20),
-                                        top: height / 2 - (width / 20),
-                                        width: width / 10 + 1,
-                                        height: width / 10 + 1,
-                                        borderRadius: 24,
-                                        backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
-                                    }}>
-                                        <Svg width={24} height={24}
-                                             stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
-                                             xmlns="http://www.w3.org/2000/svg" fill="none"
-                                             viewBox="0 0 24 24" strokeWidth="3">
-                                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                                  d="m4.5 12.75 6 6 9-13.5"/>
-                                        </Svg>
-                                    </View>
-                                    {point.x !== undefined && center !== true ? (
-                                        <Image source={require('@/assets/images/golf-ball.png')} style={{
-                                            position: "absolute",
-                                            left: point.x - 12,
-                                            top: point.y - 12,
-                                            width: 24,
-                                            height: 24,
-                                            borderRadius: 12,
-                                            backgroundColor: "#fff"
-                                        }}></Image>
-                                    ) : null}
-                                </View>
-                            </GestureDetector>
-                        </View>
+                        <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
                         <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
                             <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                            title="Back"
@@ -497,7 +403,7 @@ export default function RoundSimulation() {
                                   rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
                     <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
                     <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
-                </ThemedView>
+                </View>
             </BottomSheetModalProvider>
     );
 }

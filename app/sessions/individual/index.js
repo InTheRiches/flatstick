@@ -1,104 +1,25 @@
 import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation} from "expo-router";
-import {Image, Text, View} from "react-native";
-import React, {useState} from "react";
+import {Text, View} from "react-native";
+import React from "react";
 import {roundTo} from "../../../utils/roundTo";
-import {SecondaryButton} from "../../../components/buttons/SecondaryButton";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import {useAppContext} from "../../../contexts/AppCtx";
+import {LeftRightBias, ShortPastBias} from "../../../components/sessions/individual";
+import {MissDistributionDiagram} from "../../../components/simulations/recap";
 
 export default function IndividualSession({}) {
-    // use local params to get data
     const colors = useColors();
     const {jsonSession} = useLocalSearchParams();
     const session = JSON.parse(jsonSession);
     const navigation = useNavigation();
-    const [horizontalBiasWidth, setHorizontalBiasWidth] = useState(1);
-    const [verticalBiasWidth, setVerticalBiasWidth] = useState(1);
     const {deleteSession} = useAppContext();
-
-    const gridData = Array.from({length: 15}, (_, index) => index + 1);
-
-    const onHorizLayout = (event) => {
-        setHorizontalBiasWidth(event.nativeEvent.layout.width-25);
-    };
-
-    const onVertiLayout = (event) => {
-        setVerticalBiasWidth(event.nativeEvent.layout.width-25);
-    };
-
-    const ShortPastBias = () => {
-        let left = session.shortPastBias / 2 * (verticalBiasWidth/2);
-        left = left + (verticalBiasWidth/2);
-
-        if (Math.abs(session.shortPastBias) < 0.2) {
-            left = (verticalBiasWidth/2) + 2.5;
-        }
-        return (
-            <>
-                <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Short / Past Bias</Text>
-                <View onLayout={onVertiLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
-                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
-                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
-                    <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: "white"}}></View>
-                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
-                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
-                    <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
-                </View>
-                <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                    <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
-                    <Text style={{color: colors.text.secondary, opacity: left < ((verticalBiasWidth/2) - 30) || left > ((verticalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
-                    <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                    <Text style={{position: "absolute", left: left-10, color: colors.text.primary}}>{session.shortPastBias > 0 ? "+" : ""}{session.shortPastBias}ft</Text>
-                </View>
-                <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                    <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Short</Text>
-                    <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>Past</Text>
-                </View>
-            </>
-        )
-    }
-
-    const LeftRightBias = () => {
-        let left = session.leftRightBias / 2 * (horizontalBiasWidth/2);
-        left = left + (horizontalBiasWidth/2);
-
-        if (Math.abs(session.leftRightBias) < 0.2) {
-            left = (horizontalBiasWidth/2) + 2.5;
-        }
-        return (
-            <>
-                <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Left to Right Bias</Text>
-                <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
-                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
-                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
-                    <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: "white"}}></View>
-                    <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
-                    <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
-                    <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
-                </View>
-                <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                    <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
-                    <Text style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 30) || left > ((horizontalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
-                    <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                    <Text style={{position: "absolute", left: left-10, color: colors.text.primary}}>{session.leftRightBias > 0 ? "+" : ""}{session.leftRightBias}ft</Text>
-                </View>
-                <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                    <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</Text>
-                    <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>Right</Text>
-                </View>
-            </>
-        )
-    }
 
     return (
         <View style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1, backgroundColor: colors.background.primary}}>
             <View>
-                <Text style={{
-                    fontSize: 24,
-                    fontWeight: 500,
-                    color: colors.text.primary
-                }}>18 Hole Simulation</Text>
+                <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>18 Hole Simulation</Text>
                 <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                     <View style={{alignItems: "center", flex: 0.5}}>
                         <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
@@ -115,13 +36,7 @@ export default function IndividualSession({}) {
                             justifyContent: "space-between",
                             alignItems: "center"
                         }}>
-                            <Text style={{
-                                fontSize: 16,
-                                textAlign: "left",
-                                color: colors.text.primary,
-                                fontWeight: "bold",
-                                flex: 1
-                            }}>Performance</Text>
+                            <Text style={{fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: "bold", flex: 1}}>Performance</Text>
                         </View>
                         <View style={{flexDirection: "row"}}>
                             <View style={{
@@ -135,28 +50,14 @@ export default function IndividualSession({}) {
                             }}>
                                 <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</Text>
                                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                    <Text style={{
-                                        fontSize: 20,
-                                        color: colors.text.primary,
-                                        fontWeight: "bold",
-                                    }}>{session.puttCounts[0]}</Text>
+                                    <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[0]}</Text>
                                     <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[0]/session.totalPutts) * 100, 0)}%)</Text>
                                 </View>
                             </View>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
-                                paddingBottom: 6,
-                                paddingTop: 6,
-                                paddingLeft: 12
-                            }}>
+                            <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
                                 <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</Text>
                                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                    <Text style={{
-                                        fontSize: 20,
-                                        color: colors.text.primary,
-                                        fontWeight: "bold",
-                                    }}>{session.puttCounts[1]}</Text>
+                                    <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{session.puttCounts[1]}</Text>
                                     <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[1]/session.totalPutts) * 100, 0)}%)</Text>
                                 </View>
                             </View>
@@ -173,107 +74,21 @@ export default function IndividualSession({}) {
                             }}>
                                 <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</Text>
                                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                    <Text style={{
-                                        fontSize: 20,
-                                        color: colors.text.primary,
-                                        fontWeight: "bold",
-                                    }}>{session.puttCounts[2]}</Text>
+                                    <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</Text>
                                     <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/session.totalPutts) * 100, 0)}%)</Text>
                                 </View>
                             </View>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
-                                paddingBottom: 6,
-                                paddingTop: 6,
-                                paddingLeft: 12
-                            }}>
+                            <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
                                 <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                                <Text style={{
-                                    fontSize: 20,
-                                    color: colors.text.primary,
-                                    fontWeight: "bold",
-                                }}>{session.avgMiss}ft</Text>
+                                <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.avgMiss}ft</Text>
                             </View>
                         </View>
                     </View>
                 </View>
                 <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>1st Putt Distribution</Text>
-                <View style={{
-                    backgroundColor: colors.background.secondary,
-                    flexDirection: "column",
-                    borderRadius: 16,
-                    elevation: 5
-                }}>
-                    <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
-                        <Image source={require("@/assets/images/recapBackground.png")} style={{
-                            width: "100%",
-                            height: "auto",
-                            aspectRatio: 4096 / 1835,
-                            position: "absolute",
-                            top: 0,
-                            left: 0
-                        }}></Image>
-
-                        <View style={{
-                            width: "75%",
-                            height: "auto",
-                            aspectRatio: 3072 / 1835,
-                            flexDirection: 'row',
-                            flexWrap: 'wrap',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            columnGap: 9,
-                            rowGap: 4,
-                            paddingTop: 12
-                        }}>
-                            {gridData.map((item, index) => {
-                                let text = "";
-
-                                if (index === 2) {
-                                    text = Math.floor((session.missData.long / session.holes) * 100) + "%";
-                                }
-                                if (index === 5) {
-                                    text = Math.floor((session.missData.farLeft / session.holes) * 100) + "%";
-                                }
-                                if (index === 6) {
-                                    text = Math.floor((session.missData.left / session.holes) * 100) + "%";
-                                }
-                                if (index === 7) {
-                                    text = Math.floor((session.missData.center / session.holes) * 100) + "%";
-                                }
-                                if (index === 8) {
-                                    text = Math.floor((session.missData.right / session.holes) * 100) + "%";
-                                }
-                                if (index === 9) {
-                                    text = Math.floor((session.missData.farRight / session.holes) * 100) + "%";
-                                }
-                                if (index === 12) {
-                                    text = Math.floor((session.missData.short / session.holes) * 100) + "%";
-                                }
-
-                                return (
-                                    <View key={index} style={{
-                                        paddingTop: index > 4 && index !== 7 ? index === 12 ? 14 : 6 : 4,
-                                        width: '16%',
-                                        aspectRatio: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        borderRadius: 5
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            fontWeight: "bold",
-                                            color: index === 7 ? "black" : [5, 9].includes(index) ? "white" : "#0e450b"
-                                        }}>{text}</Text>
-                                    </View>
-                                )
-                            })}
-                        </View>
-                    </View>
-                </View>
-                <LeftRightBias></LeftRightBias>
-                <ShortPastBias></ShortPastBias>
+                <MissDistributionDiagram missData={session.missData} holes={session.holes} alone={true}></MissDistributionDiagram>
+                <LeftRightBias session={session}></LeftRightBias>
+                <ShortPastBias session={session}></ShortPastBias>
             </View>
             <View style={{width: "100%", paddingBottom: 24, paddingHorizontal: 48, flexDirection: "row", alignItems: "center", gap: 12}}>
                 <SecondaryButton onPress={() => navigation.goBack()}

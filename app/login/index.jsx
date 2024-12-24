@@ -1,14 +1,13 @@
-import {ThemedText} from "@/components/ThemedText";
 import {Pressable, Text, TextInput, View} from "react-native";
 import {useState} from "react";
 import {SvgGoogle} from "@/assets/svg/SvgComponents";
 import {getAuth} from "firebase/auth";
 import {useRouter} from "expo-router";
-import Loading from "../../components/popups/Loading";
+import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {useSession} from "../../contexts/AppCtx";
-import {SecondaryButton} from "../../components/buttons/SecondaryButton";
-import {PrimaryButton} from "../../components/buttons/PrimaryButton";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 
 const initialState = {
     password: "",
@@ -77,8 +76,8 @@ export default function Login() {
                 justifyContent: "center",
                 alignContent: "center"
             }}>
-                <ThemedText type={"title"} style={{marginBottom: 30}}>Sign in to your account</ThemedText>
-                <ThemedText style={{fontSize: 16, marginBottom: 8}} secondary={true}>Login with:</ThemedText>
+                <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 600, marginBottom: 30}}>Sign in to your account</Text>
+                <Text style={{color: colors.text.primary, fontSize: 16, marginBottom: 8}} secondary={true}>Login with:</Text>
                 <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
                     <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
                         <SvgGoogle fill={colors.button.secondary.text}
@@ -96,7 +95,7 @@ export default function Login() {
                         backgroundColor: colors.text.secondary,
                         marginTop: 12
                     }}></View>
-                    <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
+                    <Text style={{color: colors.text.primary, fontSize: 16}} secondary={true}>Or continue with</Text>
                     <View style={{
                         height: 1,
                         flex: 1,
@@ -104,7 +103,7 @@ export default function Login() {
                         marginTop: 12
                     }}></View>
                 </View>
-                <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</ThemedText>
+                <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</Text>
                 <View style={{flexDirection: "row"}}>
                     <TextInput
                         style={{
@@ -142,7 +141,7 @@ export default function Login() {
                     : state.invalidEmail &&
                     <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
 
-                <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
+                <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</Text>
                 <View style={{flexDirection: "row"}}>
                     <TextInput
                         style={{

@@ -1,15 +1,14 @@
-import {ThemedText} from "@/components/ThemedText";
-import {PrimaryButton} from "@/components/buttons/PrimaryButton";
 import {Pressable, Text, TextInput, useColorScheme, View} from "react-native";
 import {useEffect, useState} from "react";
 import Svg, {Path} from "react-native-svg";
-import {SvgArrow, SvgGoogle} from "@/assets/svg/SvgComponents";
+import {SvgArrow, SvgGoogle} from "../../assets/svg/SvgComponents";
 import {createUserWithEmailAndPassword, getAuth, updateProfile} from "firebase/auth";
 import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {useRouter} from "expo-router";
-import Loading from "../../components/popups/Loading";
+import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
-import {SecondaryButton} from "../../components/buttons/SecondaryButton";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 
 const initialState = {
     skill: -1,
@@ -23,7 +22,7 @@ const initialState = {
     invalid: false,
 }
 
-// TODO ADD DISPLAY NAME ENTRY, AS WELL AS PROFILE ICON
+// TODO make sure this separates all out into different components
 export default function CreateAccount() {
     const colors = useColors();
 
@@ -174,7 +173,7 @@ function Skill({state, setState}) {
 
     return (
         <View style={{flexDirection: "column", gap: 10}}>
-            <ThemedText type={"title"} style={{marginBottom: 12}}>What is your skill level?</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 600, marginBottom: 12}}>What is your skill level?</Text>
             <SelectableButton onPress={() => setSkill(0)} selected={state.skill === 0} title={"Hacker"}
                               subtitle={"25+ Handicap (or unknown)"}/>
             <SelectableButton onPress={() => setSkill(1)} selected={state.skill === 1} title={"Bogey Golf"}
@@ -231,7 +230,7 @@ function Frequency({state, setState}) {
 
     return (
         <View style={{flexDirection: "column", gap: 10}}>
-            <ThemedText type={"title"} style={{marginBottom: 12}}>How often do you play?</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 600, marginBottom: 12}}>How often do you play?</Text>
             <SelectableButton onPress={() => setFrequency(0)} selected={state.frequency === 0} title={"Occassionally"}
                               subtitle={"<10 Rounds a year"}/>
             <SelectableButton onPress={() => setFrequency(1)} selected={state.frequency === 1} title={"Committed"}
@@ -256,7 +255,7 @@ function Putts({state, setState}) {
 
     return (
         <View style={{flexDirection: "column", gap: 10}}>
-            <ThemedText type={"title"} style={{marginBottom: 12}}>How many putts per round?</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 600, marginBottom: 12}}>How many putts per round?</Text>
             <SelectableButton onPress={() => setPutts(0)} selected={state.putts === 0} title={"3 Putt Pro"}
                               subtitle={"40+ Putts"}/>
             <SelectableButton onPress={() => setPutts(1)} selected={state.putts === 1} title={"Amateur"}
@@ -288,11 +287,10 @@ function Done({nextTab}) {
                     </Svg>
                 </View>
             </View>
-            <ThemedText type={"header"} style={{fontWeight: 500, textAlign: "center", marginTop: 14}}>Account
-                Created</ThemedText>
-            <ThemedText type={"default"} secondary={true}
-                        style={{textAlign: "center", lineHeight: 18, marginTop: 10, marginBottom: 48}}>Your account has
-                teed-off! Continue to begin your putting journey!</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center", marginTop: 14}}>Account
+                Created</Text>
+            <Text style={{color: colors.text.secondary, textAlign: "center", lineHeight: 18, marginTop: 10, marginBottom: 48}}>Your account has
+                teed-off! Continue to begin your putting journey!</Text>
             <PrimaryButton onPress={nextTab} title={"Continue"}
                            style={{paddingVertical: 10, borderRadius: 10}}></PrimaryButton>
         </View>
@@ -377,8 +375,8 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
 
     return (
         <View>
-            <ThemedText type={"title"} style={{marginBottom: 30}}>Create Your Account</ThemedText>
-            <ThemedText secondary={true} style={{fontSize: 16, marginBottom: 4}}>Create with:</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 600, marginBottom: 30}}>Create Your Account</Text>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginBottom: 4}}>Create with:</Text>
             <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
                 <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
                     <SvgGoogle fill={colors.button.secondary.text}
@@ -396,7 +394,7 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
                     backgroundColor: colors.text.secondary,
                     marginTop: 12
                 }}></View>
-                <ThemedText style={{fontSize: 16}} secondary={true}>Or continue with</ThemedText>
+                <Text style={{color: colors.text.primary, fontSize: 16}} secondary={true}>Or continue with</Text>
                 <View style={{
                     height: 1,
                     flex: 1,
@@ -405,7 +403,7 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
                 }}></View>
             </View>
 
-            <ThemedText style={{fontSize: 16, marginTop: 12, marginBottom: 4}}>Display Name</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 12, marginBottom: 4}}>Display Name</Text>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -440,7 +438,7 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
             {invalidUsername &&
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Your display name must be at least 6
                     characters!</Text>}
-            <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</Text>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -477,7 +475,7 @@ function Signup({errorCode, setErrorCode, setState, state, create}) {
             {errorCode === "auth/email-already-in-use" &&
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}
 
-            <ThemedText style={{fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</ThemedText>
+            <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</Text>
             <View style={{flexDirection: "row", marginBottom: 12}}>
                 <TextInput
                     style={{
