@@ -3,10 +3,8 @@ import useColors from "../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {FilterPutters} from "../../components/tabs/stats/settings/popups";
 import {useAppContext} from "../../contexts/AppCtx";
-import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
-import {runOnJS} from "react-native-reanimated";
 
 export default function StatSettings({}) {
     const colors = useColors();
@@ -48,7 +46,7 @@ export default function StatSettings({}) {
                     onPressIn={() => setIsPressed(true)}
                     onPressOut={() => setIsPressed(false)}
                     onPress={() => filterPuttersRef.current.present()} style={{padding: 7}}>
-                    <Text style={{color: colors.text.link, opacity: isPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.filteringPutter === -1 ? "All" : putters[userData.preferences.filteringPutter].name}</Text>
+                    <Text style={{color: colors.text.link, opacity: isPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.filteringPutter === 0 ? "All" : putters[userData.preferences.filteringPutter].name}</Text>
                 </Pressable>
             </View>
             <FilterPutters filterPuttersRef={filterPuttersRef}/>

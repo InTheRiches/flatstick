@@ -52,7 +52,7 @@ function Putter({putter, index, filteringPutter, setFilteringPutter}) {
                 if (filteringPutter !== index)
                     setFilteringPutter(index);
             }}>
-            <Text style={{color: colors.text.primary, fontSize: 16}}>{putter.name}</Text>
+            <Text style={{color: colors.text.primary, fontSize: 16}}>{putter.type === "default" ? "All Putters" : putter.name}</Text>
             {
                 filteringPutter === index &&
                 <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">

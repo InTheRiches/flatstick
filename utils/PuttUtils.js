@@ -95,6 +95,7 @@ const loadPuttData = (putt, updateField) => {
     updateField("misReadSlope", putt.misReadSlope);
     updateField("misHit", putt.misHit);
     updateField("center", putt.distanceMissed === 0);
+    updateField("currentPutts", putt.totalPutts);
     if (putt.theta)
         updateField("theta", putt.theta);
     else
@@ -499,7 +500,7 @@ const createSimpleRefinedStats = () => {
             distance: [0, 0, 0, 0],
             puttsAHole: 0,
             puttsAHoleWhenMishit: 0,
-            misreadPuttsAHole: 0,
+            puttsAHoleWhenMisread: 0,
             slopes: {
                 downhill: {
                     straight: 0, // putts a hole, holes
