@@ -1,6 +1,6 @@
 // TODO ADD DATE + # OF HOLES
 import useColors from "../../../hooks/useColors";
-import {Text, View} from "react-native";
+import {Image, Text, View} from "react-native";
 import {MissDistributionDiagram} from "./MissDistributionDiagram";
 
 export function RecapVisual({holes, totalPutts, avgDistance, makeData, makePercent}) {
