@@ -2,15 +2,15 @@ import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {Text, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
-import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import React, {useRef} from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
 import {useNavigation} from "expo-router";
-import {PutterSelector, NewPutterModal} from "../../components/editputters";
+import {NewPutterModal, PutterSelector} from "../../components/editputters";
 
 // TODO REMEMBER THAT WHEN YOU DELETE A PUTTER, YOU NEED TO CHECK TO SEE IF THE FILTERING PUTTER OR THE SELECTED PUTTER ARE OUT OF BOUNDS, and CHANGE THEM IF SO
+// TODO add brand / model, not just name?
 export default function EditPutters() {
     const colors = useColors();
     const newPutterRef = useRef(null);
@@ -35,7 +35,15 @@ export default function EditPutters() {
             </GestureDetector>
             <View style={{flexDirection: "row", marginTop: 12, justifyContent: "space-between", alignItems: "center", width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 10}}>
                 <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Putters</Text>
-                <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => newPutterRef.current.present()} title={"New"}></PrimaryButton>
+                {
+                    putters.length < 4 ? (
+                        <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={newPutterRef.current.present} title={"New"}></PrimaryButton>
+                    ) : (
+                        <View style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 16, marginLeft: 8, borderColor: colors.input.invalid.border, borderWidth: 1, backgroundColor: colors.input.invalid.background}}>
+                            <Text style={{color: colors.input.invalid.text}}>At Max Putters</Text>
+                        </View>
+                    )
+                }
             </View>
             <View style={{marginTop: 16, width: "100%", paddingBottom: 12}}>
                 { (putters !== undefined && putters.length !== 0) &&

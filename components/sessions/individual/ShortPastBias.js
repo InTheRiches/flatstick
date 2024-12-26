@@ -32,7 +32,7 @@ export const ShortPastBias = ({session}) => {
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < ((verticalBiasWidth/2) - 30) || left > ((verticalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                <Text style={{position: "absolute", left: left-10, color: colors.text.primary}}>{session.shortPastBias > 0 ? "+" : ""}{session.shortPastBias}ft</Text>
+                <Text style={{position: "absolute", left: left - (session.shortPastBias > 0 ? 10 : 0), color: colors.text.primary}}>{session.shortPastBias > 0 ? "+" : ""}{session.shortPastBias}ft</Text>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Short</Text>

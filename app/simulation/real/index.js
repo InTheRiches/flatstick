@@ -4,22 +4,14 @@ import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from '@/components/general/buttons/DangerButton';
-import {getAuth} from "firebase/auth";
+import {getAuth} from "../../../utils/firebase";
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {roundTo} from "../../../utils/roundTo";
-import {
-    PuttingGreen
-} from '../../../components/simulations';
-import {
-    TotalPutts,
-    BigMissModal,
-    SubmitModal,
-    ConfirmExit,
-} from '../../../components/simulations/popups';
+import {PuttingGreen} from '../../../components/simulations';
+import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {
     calculateDistanceMissedFeet,
     calculateStats,

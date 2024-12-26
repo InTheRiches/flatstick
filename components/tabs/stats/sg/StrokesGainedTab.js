@@ -2,7 +2,7 @@ import useColors from "../../../../hooks/useColors";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import {Dimensions, ScrollView, Text, View} from "react-native";
 import React from "react";
-import {SGByDistanceChart, SGByBreakSlope} from "./graphs";
+import {SGByBreakSlope, SGByDistanceChart} from "./graphs";
 
 export const StrokesGainedTab = ({statsToUse}) => {
     const colors = useColors();
@@ -18,7 +18,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.averagePerformance.strokesGained.overall}</Text>
+                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.strokesGained.overall}</Text>
                 { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
                     <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                         <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</Text>

@@ -1,4 +1,3 @@
-import {useAppContext} from "../../../../../contexts/AppCtx";
 import {Dimensions, View} from "react-native";
 import {RadarChart} from "../../";
 import {roundTo} from "../../../../../utils/roundTo";
@@ -25,7 +24,7 @@ export const PuttsByBreakSlope = ({statsToUse}) => {
 
 function createPuttsByBreak(currentStats) {
     // copy the object
-    const mySlopes = currentStats.averagePerformance.puttsAHole.slopes;
+    const mySlopes = currentStats.puttsAHole.slopes;
 
     let max = 0;
 
@@ -36,6 +35,19 @@ function createPuttsByBreak(currentStats) {
                 max = mySlopes[slope][brek];
             }
         }
+    }
+
+    if (max === 0) {
+        return {
+            "Downhill\nStraight": [0, "0%"],
+            "Downhill\nLeft to Right": [0, "0%"],
+            "Neutral\nLeft to Right": [0, "0%"],
+            "Uphill\nLeft to Right": [0, "0%"],
+            "Uphill\nStraight": [0, "0%"],
+            "Uphill\nRight to Left": [0, "0%"],
+            "Neutral\nRight to Left": [0, "0%"],
+            "Downhill\nRight to Left": [0, "0%"],
+        };
     }
 
     max += 0.2;

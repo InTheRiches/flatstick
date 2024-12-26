@@ -7,14 +7,13 @@ import useColors from "../../../../../hooks/useColors";
 import CustomBackdrop from "../../../../general/popups/CustomBackdrop";
 
 export function FilterPutters({filterPuttersRef}) {
-    const {putters, userData, updateData} = useAppContext()
+    const {putters, userData, updateData, setUserData} = useAppContext()
     const colors = useColors();
-    const [filteringPutter, setFilteringPutter] = useState(userData.preferences.filteringPutter);
     const [open, setOpen] = useState(false);
 
     const close = () => {
         console.log("updating");
-        updateData({preferences: {...userData.preferences, filteringPutter}});
+        updateData({...userData});
     }
 
     return (
@@ -33,7 +32,7 @@ export function FilterPutters({filterPuttersRef}) {
                 <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>
                 {
                     putters.map((putter, index) => {
-                        return <Putter filteringPutter={filteringPutter} setFilteringPutter={setFilteringPutter} putter={putter} index={index} key={"puu-" + index}/>
+                        return <Putter filteringPutter={userData.preferences.filteringPutter} setFilteringPutter={(newPutter) => setUserData({preferences: {...userData.preferences, filteringPutter: newPutter}})} putter={putter} index={index} key={"puu-" + index}/>
                     })
                 }
             </BottomSheetView>
@@ -43,6 +42,8 @@ export function FilterPutters({filterPuttersRef}) {
 
 function Putter({putter, index, filteringPutter, setFilteringPutter}) {
     const colors = useColors();
+
+    console.log(index);
 
     return (
         <Pressable

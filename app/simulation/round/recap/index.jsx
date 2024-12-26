@@ -36,7 +36,7 @@ export default function SimulationRecap() {
                 </View>
                 <View style={{paddingHorizontal: 24, width: "100%", paddingTop: 32}}>
                     <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 18, fontWeight: 600}}>Good Job!</Text>
-                    <text style={{textAlign: "center", color: colors.text.primary, marginBottom: 24}}>This {current === "true" ? "is" : "was"} your nth session.</text>
+                    <Text style={{textAlign: "center", color: colors.text.primary, marginBottom: 24}}>This {current === "true" ? "is" : "was"} your nth session.</Text>
                     <RecapVisual makePercent={madePercent} holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
                                  makeData={parsedMissData}
                                  date={parsedDate}></RecapVisual>

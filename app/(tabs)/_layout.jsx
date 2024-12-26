@@ -3,7 +3,7 @@ import React from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import {Text} from "react-native";
-import {getAuth} from "firebase/auth";
+import {getAuth} from "../../utils/firebase"
 import useColors from "@/hooks/useColors";
 import {useSession} from "@/contexts/AppCtx";
 import {GestureHandlerRootView} from "react-native-gesture-handler";

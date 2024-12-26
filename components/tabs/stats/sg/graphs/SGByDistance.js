@@ -1,7 +1,6 @@
 import React, {memo} from "react";
 import {BarChart} from "../../../../../charts";
 import {Dimensions, useColorScheme} from "react-native";
-import {useAppContext} from "../../../../../contexts/AppCtx";
 import useColors from "../../../../../hooks/useColors";
 
 export const SGByDistanceChart = memo(({statsToUse}) => {
@@ -18,7 +17,7 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
                 datasets: [
                     {
                         data: [
-                            statsToUse.averagePerformance.strokesGained.distance[0], statsToUse.averagePerformance.strokesGained.distance[1], statsToUse.averagePerformance.strokesGained.distance[2], statsToUse.averagePerformance.strokesGained.distance[3]
+                            statsToUse.strokesGained.distance[0], statsToUse.strokesGained.distance[1], statsToUse.strokesGained.distance[2], statsToUse.strokesGained.distance[3]
                         ]
                     }
                 ],

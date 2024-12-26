@@ -9,18 +9,10 @@ import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
 import {roundTo} from "../../../utils/roundTo";
-import {
-    PuttingGreen
-} from '../../../components/simulations';
-import {
-    TotalPutts,
-    BigMissModal,
-    SubmitModal,
-    ConfirmExit,
-} from '../../../components/simulations/popups';
+import {PuttingGreen} from '../../../components/simulations';
+import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -56,7 +48,7 @@ function generateDistance(difficulty) {
     let minDistance, maxDistance;
 
     if (difficulty === "easy") {
-        minDistance = 5; // Easy: Minimum 3 ft
+        minDistance = 3; // Easy: Minimum 3 ft
         maxDistance = 15; // Easy: Maximum 10 ft
     } else if (difficulty === "medium") {
         minDistance = 8; // Medium: Minimum 5 ft
@@ -65,6 +57,9 @@ function generateDistance(difficulty) {
         minDistance = 8; // Hard: Minimum 8 ft
         maxDistance = 40; // Hard: Maximum 40 ft
     }
+
+    // for the easy difficulty, I dont want it equally distributed, so I will make it more likely to be closer to the minDistance
+
 
     // Generate random distance between minDistance and maxDistance
     return Math.floor(Math.random() * (maxDistance - minDistance + 1)) + minDistance;
@@ -277,7 +272,7 @@ export default function RoundSimulation() {
     }
 
     return (loading ? <Loading/> :
-        <View style={{flexGrow: 1}}>
+        <View style={{flexGrow: 1, backgroundColor: colors.background.primary}}>
             <View style={{
                 width: "100%",
                 flexGrow: 1,

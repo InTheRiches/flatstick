@@ -13,7 +13,7 @@ export const PuttsByDistance = ({statsToUse}) => {
                 labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
                 datasets: [{
                     data: [
-                        statsToUse.averagePerformance.puttsAHole.distance[0], statsToUse.averagePerformance.puttsAHole.distance[1], statsToUse.averagePerformance.puttsAHole.distance[2], statsToUse.averagePerformance.puttsAHole.distance[3]
+                        statsToUse.puttsAHole.distance[0], statsToUse.puttsAHole.distance[1], statsToUse.puttsAHole.distance[2], statsToUse.puttsAHole.distance[3]
                     ]},
                     {data: [1.34, 1.50, 1.70, 2]}],
             }}

@@ -25,7 +25,7 @@ export const MakeByBreakSlope = ({statsToUse}) => {
 
 function createPuttsMadeByBreak(currentStats) {
     // copy the object
-    const mySlopes = currentStats.averagePerformance.madePutts.slopes;
+    const mySlopes = currentStats.madePutts.slopes;
 
     let max = -999;
 
@@ -36,6 +36,19 @@ function createPuttsMadeByBreak(currentStats) {
                 max = mySlopes[slope][brek]*100;
             }
         }
+    }
+
+    if (max === 0) {
+        return {
+            "Downhill\nStraight": [0, "0%"],
+            "Downhill\nLeft to Right": [0, "0%"],
+            "Neutral\nLeft to Right": [0, "0%"],
+            "Uphill\nLeft to Right": [0, "0%"],
+            "Uphill\nStraight": [0, "0%"],
+            "Uphill\nRight to Left": [0, "0%"],
+            "Neutral\nRight to Left": [0, "0%"],
+            "Downhill\nRight to Left": [0, "0%"],
+        };
     }
 
     max += 0.1;

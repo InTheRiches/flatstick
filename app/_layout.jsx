@@ -10,7 +10,6 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
 import * as SystemUI from "expo-system-ui";
-import {useEffect} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 export default function RootLayout() {
@@ -48,12 +47,12 @@ export default function RootLayout() {
                   <Stack.Screen name="+not-found"/>
                   <Stack.Screen name={"editputters/index"} options={{
                     presentation: 'modal',
-                    animation: "slide_from_bottom"
+                    animation: "slide_from_bottom",
                   }}/>
                   <Stack.Screen name={"sessions/index"}/>
                   <Stack.Screen name={"sessions/individual/index"}/>
                   <Stack.Screen name={"statsettings/index"} options={{
-                    presentation: 'transparentModal',
+                    presentation: 'modal',
                     animation: "slide_from_bottom",
                   }}/>
                 </Stack>

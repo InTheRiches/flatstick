@@ -1,7 +1,7 @@
 import {Pressable, Text, TextInput, View} from "react-native";
 import {useState} from "react";
 import {SvgGoogle} from "@/assets/svg/SvgComponents";
-import {getAuth} from "firebase/auth";
+import {getAuth} from "../../utils/firebase";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";

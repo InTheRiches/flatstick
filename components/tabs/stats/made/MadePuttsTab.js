@@ -1,14 +1,15 @@
 import useColors from "../../../../hooks/useColors";
 import {Dimensions, ScrollView, Text, useColorScheme, View} from "react-native";
 import React from "react";
-import {MakeByBreakSlope} from "./graphs";
-import {MakeByDistance} from "./graphs";
+import {MakeByBreakSlope, MakeByDistance} from "./graphs";
 
 export const MadePuttsTab = ({statsToUse}) => {
     const colors = useColors();
     const colorScheme = useColorScheme();
 
     const {width} = Dimensions.get("screen")
+
+    console.log("hey")
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>

@@ -1,7 +1,6 @@
 import {BarChart} from "../../../../../charts";
 import {Dimensions, useColorScheme} from "react-native";
 import React from "react";
-import {useAppContext} from "../../../../../contexts/AppCtx";
 import useColors from "../../../../../hooks/useColors";
 
 export const MakeByDistance = ({statsToUse}) => {
@@ -16,7 +15,7 @@ export const MakeByDistance = ({statsToUse}) => {
                 labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
                 datasets: [{
                     data: [
-                        statsToUse.averagePerformance.madePutts.distance[0]*100, statsToUse.averagePerformance.madePutts.distance[1]*100, statsToUse.averagePerformance.madePutts.distance[2]*100, statsToUse.averagePerformance.madePutts.distance[3]*100
+                        statsToUse.madePutts.distance[0]*100, statsToUse.madePutts.distance[1]*100, statsToUse.madePutts.distance[2]*100, statsToUse.madePutts.distance[3]*100
                     ]},
                     {data: [75, 50, 20, 10]},
                 ],

@@ -43,7 +43,7 @@ export function PracticeModes({newSessionRef, newRealRoundRef, pressureInfoRef})
                 name={"Ladder Challenge"}
                 distance={"< 8ft"}/>
             <SecondaryButton onPress={() => {
-                router.push({pathname: "statsettings"})
+                updateStats();
             }} style={{
                 borderRadius: 50,
                 flexDirection: "row",

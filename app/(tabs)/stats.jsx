@@ -47,7 +47,7 @@ export default function Stats({}) {
 
     const {currentStats, puttSessions, putters, userData} = useAppContext();
 
-    const statsToUse = userData.preferences.filteringPutter !== 0 ? putters[userData.preferences.filteringPutter].stats : currentStats;
+    const statsToUse = userData.preferences.filteringPutter !== 0 ? putters[userData.preferences.filteringPutter].stats : currentStats.averagePerformance;
 
     const tabs = [
         {

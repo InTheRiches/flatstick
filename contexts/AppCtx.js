@@ -1,14 +1,12 @@
-import React, {createContext, memo, useContext, useEffect, useMemo, useState} from 'react';
-import {getReactNativePersistence, initializeAuth, signInWithEmailAndPassword} from "firebase/auth";
-import {initializeApp} from "firebase/app";
-import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import {signInWithEmailAndPassword} from "firebase/auth";
 import {
     collection,
     deleteDoc,
     doc,
     getDoc,
     getDocs,
-    initializeFirestore,
+    getFirestore,
     orderBy,
     query,
     runTransaction,
@@ -16,8 +14,16 @@ import {
 } from "firebase/firestore";
 import {calculateTotalStrokesGained, cleanAverageStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "@/utils/roundTo";
-import {cleanMadePutts, cleanPuttsAHole, createSimpleStats, updateSimpleStats} from "@/utils/PuttUtils";
+import {
+    cleanMadePutts,
+    cleanPuttsAHole,
+    createSimpleRefinedStats,
+    createSimpleStats,
+    updateSimpleStats
+} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
+import {updateBestSession} from "@/utils/sessions/best";
+import {getAuth} from "@/utils/firebase";
 
 const breaks = [
     "leftToRight",
@@ -31,26 +37,6 @@ const slopes = [
     "uphill"
 ]
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAP7ZATyBFL934s87r-tvZNAVpq7t2cJas",
-    authDomain: "puttperfect-e6438.firebaseapp.com",
-    projectId: "puttperfect-e6438",
-    storageBucket: "puttperfect-e6438.firebasestorage.app",
-    messagingSenderId: "737663000705",
-    appId: "1:737663000705:web:d3a6ed8c2e2f8a9c02ed80",
-    measurementId: "G-ZM9VDTXJY9"
-};
-
-export const app = initializeApp(firebaseConfig);
-export const firestore = initializeFirestore(app, {
-    experimentalForceLongPolling: true,
-    useFetchStreams: false,
-    ignoreUndefinedProperties: true,
-});
-const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-});
-
 // TODO seperate the practices from the sessions, and make two separate folders for them in Firestore
 const AppContext = createContext({
     userData: {},
@@ -61,6 +47,7 @@ const AppContext = createContext({
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
+    setUserData: () => Promise.resolve(),
     updateStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
     setStat: () => Promise.resolve(),
@@ -93,6 +80,8 @@ export function AppProvider({children}) {
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
     const [previousStats, setPreviousStats] = useState([]);
+    const auth = getAuth();
+    const firestore = getFirestore();
 
     // Firebase authentication functions
     const signIn = useMemo(() => async (email, password) => {
@@ -148,7 +137,7 @@ export function AppProvider({children}) {
 
     const newPutter = (type) => {
         const id = type.toLowerCase().replace(/\s/g, "-");
-        setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleStats()).then((data) => {
+        setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleRefinedStats()).then((data) => {
             console.log("made new putter document");
         }).catch((error) => {
             console.log(error);
@@ -187,14 +176,18 @@ export function AppProvider({children}) {
             setPutters(localPutters);
         });
 
-        refreshStats();
+        refreshData();
 
         getPreviousStats();
     };
 
     // Update user data
-    const updateData = useMemo(() => async (newData) => {
-        setUserData(prev => ({...prev, ...newData}));
+    const updateData = async (newData) => {
+        console.log("updating data: " + Object.keys(userData));
+        setUserData(prev => {
+            console.log("data: " + Object.keys({...prev, ...newData}));
+            return {...prev, ...newData};
+        });
 
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}`);
         try {
@@ -208,9 +201,9 @@ export function AppProvider({children}) {
         } catch (error) {
             console.error("Update data transaction failed:", error);
         }
-    }, []);
+    };
 
-    const updateStats = useMemo(() => async (newData) => {
+    const updateStats = async (newData) => {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         getDoc(userDocRef).then(async (doc) => {
             if (!doc.exists()) {
@@ -230,7 +223,7 @@ export function AppProvider({children}) {
                 console.error("Update stats transaction failed:", error);
             }
         });
-    }, []);
+    };
 
     // Refresh user data and sessions
     const refreshData = async () => {
@@ -238,6 +231,7 @@ export function AppProvider({children}) {
         try {
             const data = await getDoc(docRef);
             setUserData(data.data());
+            console.log("refreshed user data: " + Object.keys(data.data()));
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }
@@ -563,8 +557,7 @@ export function AppProvider({children}) {
         }
 
         setCurrentStats(newStats);
-        // TODO maybe move this to updateData?
-        setUserData({...userData, totalPutts: totalPutts});
+
         await updateData({totalPutts: totalPutts});
 
         await updateStats(newStats)
@@ -627,6 +620,10 @@ export function AppProvider({children}) {
                 setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
             }
         });
+
+        // Update the best session
+        await updateBestSession(data);
+
         return true;
     }
 
@@ -652,6 +649,7 @@ export function AppProvider({children}) {
         initialize,
         refreshData,
         updateData,
+        setUserData,
         updateStats: refreshStats,
         getAllStats,
         setStat,

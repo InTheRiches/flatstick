@@ -1,13 +1,15 @@
 import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import {Text, View} from "react-native";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {roundTo} from "../../../utils/roundTo";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {LeftRightBias, ShortPastBias} from "../../../components/sessions/individual";
 import {MissDistributionDiagram} from "../../../components/simulations/recap";
+import Loading from "../../../components/general/popups/Loading";
+import {getBestSession} from "../../../utils/sessions/best";
 
 export default function IndividualSession({}) {
     const colors = useColors();
@@ -15,8 +17,16 @@ export default function IndividualSession({}) {
     const session = JSON.parse(jsonSession);
     const navigation = useNavigation();
     const {deleteSession} = useAppContext();
+    const [loading, setLoading] = useState(false);
+    const [bestSession, setBestSession] = useState({strokesGained: "~"});
 
-    return (
+    useEffect(() => {
+        getBestSession().then((session) => {
+            setBestSession(session);
+        });
+    }, []);
+
+    return loading ? <Loading></Loading> : (
         <View style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1, backgroundColor: colors.background.primary}}>
             <View>
                 <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>18 Hole Simulation</Text>
@@ -24,7 +34,7 @@ export default function IndividualSession({}) {
                     <View style={{alignItems: "center", flex: 0.5}}>
                         <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
                         <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</Text>
-                        <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(Best: +8.4)</Text>
+                        <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(Best: {bestSession.totalPutts && bestSession.strokesGained > 0 ? "+" : ""}{bestSession.strokesGained})</Text>
                     </View>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, flex: 1}}>
                         <View style={{
@@ -96,6 +106,7 @@ export default function IndividualSession({}) {
                                style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
                 <SecondaryButton onPress={() => {
                     // todo make this trigger a loading screen
+                    setLoading(true);
                     deleteSession(session.id).then(() => {
                         navigation.goBack();
                     });

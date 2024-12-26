@@ -465,6 +465,82 @@ const createSimpleStats = () => {
         rounds: 0,
     }
 }
+const createSimpleRefinedStats = () => {
+    return {
+        onePutts: 0,
+        twoPutts: 0,
+        threePutts: 0,
+        avgMiss: 0,
+        totalDistance: 0,
+        puttsMisread: 0,
+        puttsMishits: 0,
+        strokesGained: {
+            overall: 0,
+            distance: [0, 0, 0, 0],
+            slopes: {
+                downhill: {
+                    straight: 0, // strokesGained, putts
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            }
+        },
+        puttsAHole: {
+            distance: [0, 0, 0, 0],
+            puttsAHole: 0,
+            puttsAHoleWhenMishit: 0,
+            misreadPuttsAHole: 0,
+            slopes: {
+                downhill: {
+                    straight: 0, // putts a hole, holes
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            }
+        },
+        madePutts: {
+            distance: [0, 0, 0, 0],
+            slopes: {
+                downhill: {
+                    straight: 0, // made putts, putts
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            }
+        },
+        rounds: 0,
+    }
+}
 
 function cleanMadePutts(averagePerformance) {
     const refinedMadePutts = {
@@ -560,4 +636,4 @@ function updateSimpleStats(simpleStats, putt, category) {
     simpleStats["avgMiss"] += distanceMissed;
 }
 
-export { createSimpleStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { createSimpleStats, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

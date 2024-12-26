@@ -1,6 +1,5 @@
 import useColors from "../../../../hooks/useColors";
 import {Dimensions, ScrollView, Text, useColorScheme, View} from "react-native";
-import {useAppContext} from "../../../../contexts/AppCtx";
 import React from "react";
 import {PuttsByBreakSlope, PuttsByDistance} from "./graphs";
 
@@ -36,7 +35,7 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                         paddingLeft: 12,
                     }}>
                         <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts per Hole</Text>
-                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.averagePerformance.puttsAHole.puttsAHole}</Text>
+                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.puttsAHole.puttsAHole}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -48,11 +47,11 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                         paddingLeft: 12
                     }}>
                         <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misread</Text>
-                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.averagePerformance.puttsAHole.puttsAHoleWhenMisread}</Text>
+                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMisread}</Text>
                     </View>
                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
                         <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Mishit</Text>
-                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.averagePerformance.puttsAHole.puttsAHoleWhenMishit}</Text>
+                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMishit}</Text>
                     </View>
                 </View>
             </View>

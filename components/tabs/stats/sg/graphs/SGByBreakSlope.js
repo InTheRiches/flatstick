@@ -1,5 +1,4 @@
 // TODO make the text red when negative
-import {useAppContext} from "../../../../../contexts/AppCtx";
 import {Dimensions, View} from "react-native";
 import {roundTo} from "../../../../../utils/roundTo";
 import {RadarChart} from "../../";
@@ -26,7 +25,7 @@ export const SGByBreakSlope = ({statsToUse}) => {
 
 function createStrokesGainedByBreak(currentStats) {
     // copy the object
-    const mySlopes = currentStats.averagePerformance.strokesGained.slopes;
+    const mySlopes = currentStats.strokesGained.slopes;
 
     let max = -999;
 
@@ -37,6 +36,19 @@ function createStrokesGainedByBreak(currentStats) {
                 max = mySlopes[slope][brek]+1;
             }
         }
+    }
+
+    if (max-1 === 0) {
+        return {
+            "Downhill\nStraight": [0, "0%"],
+            "Downhill\nLeft to Right": [0, "0%"],
+            "Neutral\nLeft to Right": [0, "0%"],
+            "Uphill\nLeft to Right": [0, "0%"],
+            "Uphill\nStraight": [0, "0%"],
+            "Uphill\nRight to Left": [0, "0%"],
+            "Neutral\nRight to Left": [0, "0%"],
+            "Downhill\nRight to Left": [0, "0%"],
+        };
     }
 
     max += 0.1; // push it back from the edges

@@ -1,7 +1,8 @@
 import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
 
 import React, {useEffect, useRef, useState} from 'react';
-import {getAuth, updateEmail, updateProfile} from "firebase/auth";
+import {updateEmail, updateProfile} from "firebase/auth";
+import {getAuth} from "../../utils/firebase"
 import {getFirestore} from "firebase/firestore";
 import useColors from "@/hooks/useColors";
 import {useAppContext, useSession} from "@/contexts/AppCtx";

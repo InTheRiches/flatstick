@@ -2,7 +2,8 @@ import {Pressable, Text, TextInput, useColorScheme, View} from "react-native";
 import {useEffect, useState} from "react";
 import Svg, {Path} from "react-native-svg";
 import {SvgArrow, SvgGoogle} from "../../assets/svg/SvgComponents";
-import {createUserWithEmailAndPassword, getAuth, updateProfile} from "firebase/auth";
+import {createUserWithEmailAndPassword, updateProfile} from "firebase/auth";
+import {getAuth} from "../../utils/firebase"
 import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
