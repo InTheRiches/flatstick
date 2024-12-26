@@ -79,7 +79,8 @@ const initialState = {
     misReadLine: false,
     misReadSlope: false,
     misHit: false,
-    putts: []
+    putts: [],
+    currentPutts: 0,
 }
 
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
@@ -113,7 +114,8 @@ export default function RoundSimulation() {
         misReadLine,
         misReadSlope,
         misHit,
-        putts
+        putts,
+        currentPutts
     },
         setState
     ] = useState(initialState);
@@ -197,6 +199,7 @@ export default function RoundSimulation() {
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
         if (putts[hole] === undefined) {
+            updateField("currentPutts", 2);
             updateField("point", {});
             updateField("misReadLine", false);
             updateField("misReadSlope", false);
@@ -217,7 +220,7 @@ export default function RoundSimulation() {
     const lastHole = () => {
         if (hole === 1) return;
 
-        const puttsCopy = pushHole(-1, 0);
+        const puttsCopy = pushHole(2, -1);
         loadPuttData(puttsCopy[hole - 2], updateField);
         updateField("hole", hole - 1);
     };
@@ -391,7 +394,7 @@ export default function RoundSimulation() {
                                     }}></PrimaryButton>}
                 </View>
             </View>
-            <TotalPutts currentPutts={putts[hole - 1] ? putts[hole - 1].totalPutts : 2}
+            <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                         totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
             <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                           rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>

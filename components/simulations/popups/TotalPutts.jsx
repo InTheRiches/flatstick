@@ -7,12 +7,13 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import Svg, {Path} from "react-native-svg";
 
 // TODO add the same increment/decrement functionality as the distance input
-export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
+export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHole}) {
     const colors = useColors();
 
-    const [putts, setPutts] = useState(currentPutts);
     const [puttsFocused, setPuttsFocused] = useState(false);
     const [invalid, setInvalid] = useState(false);
+
+    console.log(currentPutts)
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
@@ -29,7 +30,7 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
 
     const updatePutts = (newPutts) => {
         if (newPutts === "") {
-            setPutts(-1);
+            setCurrentPutts(-1);
             setInvalid(true);
             return;
         }
@@ -41,7 +42,7 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
 
         let fixedPutts = parseInt(newPutts.replace(/[^0-9]/g, ""));
         setInvalid(fixedPutts < 2 || fixedPutts > 9)
-        setPutts(fixedPutts);
+        setCurrentPutts(fixedPutts);
     }
 
     // renders
@@ -85,9 +86,9 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
                                 borderRadius: 16,
                                 flex: 0
                             }} onPress={() => {
-                                if (putts === -1) setPutts(9);
-                                else if (putts === 2) setPutts(9);
-                                else setPutts(putts - 1);
+                                if (currentPutts === -1) setCurrentPutts(9);
+                                else if (currentPutts === 2) setCurrentPutts(9);
+                                else setCurrentPutts(currentPutts - 1);
                             }}>
                                 <Svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +124,7 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
                                             ? colors.input.focused.background
                                             : colors.input.background,
                                 }}
-                                value={putts !== -1 ? putts.toString() : ""}
+                                value={currentPutts !== -1 ? currentPutts.toString() : ""}
                                 defaultValue={currentPutts.toString}
                                 onFocus={() => setPuttsFocused(true)}
                                 onBlur={() => setPuttsFocused(false)}
@@ -136,9 +137,9 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
                                 borderRadius: 16,
                                 flex: 0
                             }} onPress={() => {
-                                if (putts === -1) setPutts(2);
-                                else if (putts === 9) setPutts(2);
-                                else setPutts(putts + 1);
+                                if (currentPutts === -1) setCurrentPutts(2);
+                                else if (currentPutts === 9) setCurrentPutts(2);
+                                else setCurrentPutts(currentPutts + 1);
                             }}>
                                 <Svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +164,7 @@ export function TotalPutts({totalPuttsRef, currentPutts, nextHole}) {
                         disabled={invalid}
                         onPress={() => {
                             if (invalid) return;
-                            nextHole(parseInt(putts));
+                            nextHole(parseInt(currentPutts));
                             totalPuttsRef.current?.dismiss();
                         }}
                     ></PrimaryButton>

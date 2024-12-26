@@ -41,6 +41,7 @@ const initialState = {
     misHit: false,
     theta: 999,
     putts: [],
+    currentPutts: 2,
 }
 
 const breaks = {
@@ -100,6 +101,7 @@ export default function RealSimulation() {
         misReadSlope,
         misHit,
         putts,
+        currentPutts
     },
         setState
     ] = useState(initialState);
@@ -144,6 +146,7 @@ export default function RealSimulation() {
         return puttsCopy;
     };
 
+    // TODO totalPutts can probably be removed, as totalPutts is altering currentPutts now. Remember to change over bigmiss and stuff as well
     const nextHole = (totalPutts, largeMissDistance = -1) => {
         if (hole === holes) {
             pushHole(totalPutts, largeMissDistance);
@@ -157,6 +160,7 @@ export default function RealSimulation() {
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
         if (putts[hole] === undefined) {
+            updateField("currentPutts", 2);
             updateField("point", {});
             updateField("misReadLine", false);
             updateField("misReadSlope", false);
@@ -179,7 +183,7 @@ export default function RealSimulation() {
     const lastHole = () => {
         if (hole === 1) return;
 
-        const puttsCopy = pushHole(-1, -1);
+        const puttsCopy = pushHole(2, -1);
         loadPuttData(puttsCopy[hole - 2], updateField);
         updateField("hole", hole - 1);
     };
@@ -214,6 +218,7 @@ export default function RealSimulation() {
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
+            console.log("redirecting")
             router.push({
                 pathname: `/`,
             });
@@ -344,7 +349,7 @@ export default function RealSimulation() {
                                     }}></PrimaryButton>}
                 </View>
             </View>
-            <TotalPutts currentPutts={putts[hole - 1] ? putts[hole - 1].totalPutts : 2}
+            <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                         totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
             <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                           rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
