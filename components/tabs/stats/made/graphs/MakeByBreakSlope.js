@@ -66,13 +66,13 @@ function createPuttsMadeByBreak(currentStats) {
     }
 
     return {
-        "Downhill\nStraight": [mySlopesCopy.downhill.straight, mySlopes.downhill.straight + "%"],
-        "Downhill\nLeft to Right": [mySlopesCopy.downhill.leftToRight, mySlopes.downhill.leftToRight + "%"],
-        "Neutral\nLeft to Right": [mySlopesCopy.neutral.leftToRight, mySlopes.neutral.leftToRight + "%"],
-        "Uphill\nLeft to Right": [mySlopesCopy.uphill.leftToRight, mySlopes.uphill.leftToRight + "%"],
-        "Uphill\nStraight": [mySlopesCopy.uphill.straight, mySlopes.uphill.straight + "%"],
-        "Uphill\nRight to Left": [mySlopesCopy.uphill.rightToLeft, mySlopes.uphill.rightToLeft + "%"],
-        "Neutral\nRight to Left": [mySlopesCopy.neutral.rightToLeft, mySlopes.neutral.rightToLeft + "%"],
-        "Downhill\nRight to Left": [mySlopesCopy.downhill.rightToLeft, mySlopes.downhill.rightToLeft + "%"],
+        "Downhill\nStraight": [mySlopesCopy.downhill.straight,  roundTo(mySlopes.downhill.straight*100, 0) + "%"],
+        "Downhill\nLeft to Right": [mySlopesCopy.downhill.leftToRight, roundTo(mySlopes.downhill.leftToRight*100, 0) + "%"],
+        "Neutral\nLeft to Right": [mySlopesCopy.neutral.leftToRight, roundTo(mySlopes.neutral.leftToRight*100, 0) + "%"],
+        "Uphill\nLeft to Right": [mySlopesCopy.uphill.leftToRight, roundTo(mySlopes.uphill.leftToRight*100, 0) + "%"],
+        "Uphill\nStraight": [mySlopesCopy.uphill.straight, roundTo(mySlopes.uphill.straight*100, 0) + "%"],
+        "Uphill\nRight to Left": [mySlopesCopy.uphill.rightToLeft, roundTo(mySlopes.uphill.rightToLeft*100, 0) + "%"],
+        "Neutral\nRight to Left": [mySlopesCopy.neutral.rightToLeft, roundTo(mySlopes.neutral.rightToLeft*100, 0) + "%"],
+        "Downhill\nRight to Left": [mySlopesCopy.downhill.rightToLeft, roundTo(mySlopes.downhill.rightToLeft*100, 0) + "%"],
     }
 }
