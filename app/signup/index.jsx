@@ -89,7 +89,12 @@ export default function CreateAccount() {
                     totalPutts: 0,
                     sessions: 0,
                     stats: {},
-                    putters: ["default"]
+                    putters: ["default"],
+                    preferences: {
+                        countMishits: false,
+                        filteringPutter: 0,
+                        selectedPutters: 0
+                    }
                 }).then((data) => {
                     console.log("made document");
                 }).catch((error) => {
