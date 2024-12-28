@@ -5,7 +5,7 @@ import {roundTo} from "../../../utils/roundTo";
 import {useAppContext} from "@/contexts/AppCtx";
 
 export function RecentSessionSummary({unfinished}) {
-    const {puttSessions} = useAppContext();
+    const {puttSessions, userData} = useAppContext();
 
     const colors = useColors();
     const colorScheme = useColorScheme();
@@ -47,13 +47,13 @@ export function RecentSessionSummary({unfinished}) {
 
     switch(puttSessions[0].type) {
         case "real-simulation":
-            return getRealSimulation(colors, colorScheme, date, puttSessions[0], unfinished);
+            return getRealSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished);
         case "round-simulation":
-            return getHoleSimulation(colors, colorScheme, date, puttSessions[0], unfinished);
+            return getHoleSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished);
     }
 }
 
-function getHoleSimulation(colors, colorScheme, date, recentSession, unfinished) {
+function getHoleSimulation(userData, colors, colorScheme, date, recentSession, unfinished) {
     return (
         <View
             style={{
@@ -142,14 +142,14 @@ function getHoleSimulation(colors, colorScheme, date, recentSession, unfinished)
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.avgMiss}ft</Text>
+                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                 </View>
             </View>
         </View>
     );
 }
 
-function getRealSimulation(colors, colorScheme, date, recentSession, unfinished) {
+function getRealSimulation(userData, colors, colorScheme, date, recentSession, unfinished) {
     return (
         <View
             style={{
@@ -225,14 +225,14 @@ function getRealSimulation(colors, colorScheme, date, recentSession, unfinished)
                         }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
+                    <Text style={{textAlign: "left", color: colors.text.secondary}}>SG</Text>
                     <Text
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{recentSession.totalPutts}</Text>
+                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</Text>
                 </View>
                 <View>
                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
@@ -241,7 +241,7 @@ function getRealSimulation(colors, colorScheme, date, recentSession, unfinished)
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.avgMiss}ft</Text>
+                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                 </View>
             </View>
         </View>
