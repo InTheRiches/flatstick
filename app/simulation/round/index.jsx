@@ -1,7 +1,7 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {BackHandler, Platform, Pressable, Text, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from "@/components/general/buttons/DangerButton";
 import {getAuth} from "firebase/auth";
@@ -20,8 +20,16 @@ import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {GreenVisual} from "../../../components/simulations/round";
+import {
+    createDistanceProbabilities,
+    createRollProbabilities,
+    generateBreak,
+    generateDistance,
+    generateTargetedDistance,
+    pickWeightedRandom
+} from "../../../components/simulations/Utils";
 
-// TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
+// TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
 const breaks = [
     "Left to Right",
     "Right to Left",
@@ -46,43 +54,6 @@ const greenMaps = {
     "2,2": require("@/assets/images/greens/back.png"),
 }
 
-function generateBreak() {
-    // Generate a random break
-    return [Math.floor(Math.random() * breaks.length), Math.floor(Math.random() * slopes.length)];
-}
-
-function generateDistance(difficulty, units) {
-    let minDistance, maxDistance;
-
-    if (units === 0) {
-        if (difficulty === "easy") {
-            minDistance = 3; // Easy: Minimum 3 ft
-            maxDistance = 15; // Easy: Maximum 10 ft
-        } else if (difficulty === "medium") {
-            minDistance = 8; // Medium: Minimum 5 ft
-            maxDistance = 25; // Medium: Maximum 20 ft
-        } else if (difficulty === "hard") {
-            minDistance = 10; // Hard: Minimum 8 ft
-            maxDistance = 40; // Hard: Maximum 40 ft
-        }
-    }
-    else {
-        if (difficulty === "easy") {
-            minDistance = 1; // Easy: Minimum 3 ft
-            maxDistance = 5; // Easy: Maximum 10 ft
-        } else if (difficulty === "medium") {
-            minDistance = 3; // Medium: Minimum 5 ft
-            maxDistance = 8; // Medium: Maximum 20 ft
-        } else if (difficulty === "hard") {
-            minDistance = 3; // Hard: Minimum 8 ft
-            maxDistance = 13; // Hard: Maximum 40 ft
-        }
-    }
-
-    // Generate random distance between minDistance and maxDistance
-    return Math.floor(Math.random() * (maxDistance - minDistance + 1)) + minDistance;
-}
-
 const initialState = {
     loading: false,
     largeMiss: false,
@@ -102,11 +73,10 @@ const initialState = {
 }
 
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
-// ABOVE THAT, MAKE A GOAL MENU, THAT SHOWS THE GOAL THAT ALIGNS WITH THE PUTT, IF NONE, JUST SAY "make a goal if you need to work on this"
 export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
-    const {newSession, putters, userData} = useAppContext();
+    const {newSession, putters, userData, currentStats} = useAppContext();
 
     const auth = getAuth();
     const router = useRouter();
@@ -117,6 +87,9 @@ export default function RoundSimulation() {
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
     const confirmExitRef = useRef(null);
+
+    const rollProbabilities = useMemo(() => createRollProbabilities(currentStats), [currentStats]);
+    const distanceProbabilities = useMemo(() => createDistanceProbabilities(currentStats), [currentStats]);
 
     const [{
         loading,
@@ -213,8 +186,16 @@ export default function RoundSimulation() {
             updateField("misHit", false);
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
-            updateField("puttBreak", generateBreak());
-            updateField("distance", generateDistance(difficulty, userData.preferences.units));
+            if (mode === "weaknesses") {
+                const target = pickWeightedRandom(rollProbabilities);
+                updateField("puttBreak", [target.break, target.slope]);
+                const distanceTarget = pickWeightedRandom(distanceProbabilities);
+                // this is a number 0-3, which is the ranges of distances
+                updateField("distance", generateTargetedDistance(distanceTarget.distance, userData.preferences.units));
+            } else {
+                updateField("puttBreak", generateBreak());
+                updateField("distance", generateDistance(difficulty, userData.preferences.units));
+            }
             updateField("hole", hole + 1);
             updateField("largeMiss", false);
             return;

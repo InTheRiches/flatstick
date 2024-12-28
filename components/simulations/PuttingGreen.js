@@ -51,13 +51,9 @@ export function PuttingGreen({updateField, width, height, point, center}) {
             const boxWidth = width / 8;
             const boxHeight = width / 8; // this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
 
-            console.log(puttingGreenWidth/8)
-
             // Assuming tap data comes in as `data.x` and `data.y`
             const snappedX = Math.round(data.x / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
-
-            console.log(snappedX, snappedY)
 
             runOnJS(updateField)("point", {x: snappedX * 1.005, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
