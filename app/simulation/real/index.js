@@ -146,7 +146,6 @@ export default function RealSimulation() {
         return puttsCopy;
     };
 
-    // TODO totalPutts can probably be removed, as totalPutts is altering currentPutts now. Remember to change over bigmiss and stuff as well
     const nextHole = (totalPutts, largeMissDistance = -1) => {
         if (hole === holes) {
             pushHole(totalPutts, largeMissDistance);

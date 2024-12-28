@@ -303,7 +303,7 @@ function Done({nextTab}) {
     );
 }
 
-// TODO ADD USERNAME VALIDATION, AND PREVENT DUPLICATES
+// TODO PREVENT DUPLICATE USERNAMES
 function Signup({errorCode, setErrorCode, setState, state, create}) {
     const colors = useColors();
 

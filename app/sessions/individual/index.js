@@ -113,7 +113,6 @@ export default function IndividualSession({}) {
                                title={isRecap ? "Continue" : "Back"}
                                style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
                 {!isRecap && <SecondaryButton onPress={() => {
-                    // todo make this trigger a loading screen
                     setLoading(true);
                     deleteSession(session.id).then(() => {
                         navigation.goBack();

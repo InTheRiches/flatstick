@@ -6,7 +6,6 @@ import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import Svg, {Path} from "react-native-svg";
 
-// TODO add the same increment/decrement functionality as the distance input
 export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHole}) {
     const colors = useColors();
 

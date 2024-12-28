@@ -3,7 +3,6 @@ import {Dimensions, useColorScheme} from "react-native";
 import useColors from "../../../../../hooks/useColors";
 import {useAppContext} from "../../../../../contexts/AppCtx";
 
-// TODO mayeb make this a graph that shows the difference, where it starts in the middle and goes up /down
 export const PuttsByDistance = ({statsToUse}) => {
     const colors = useColors();
     const {userData} = useAppContext();

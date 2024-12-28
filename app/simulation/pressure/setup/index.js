@@ -8,7 +8,6 @@ import useColors from "@/hooks/useColors";
 import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 import {canvas2Polar, normalizeRad} from "react-native-redash";
 
-// TODO add a back button somewhere, kind of like the modal
 export default function PressurePuttingSetup() {
     const colors = useColors();
     const router = useRouter();

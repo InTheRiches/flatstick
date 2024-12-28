@@ -12,7 +12,6 @@ export default function StatSettings({}) {
 
     const [initialData, setInitialData] = useState(userData.preferences);
 
-    // TODO implement the mishits functionality
     const [misHits, setMisHits] = useState(userData.preferences.countMishits);
     const filterPuttersRef = useRef(null);
     const navigation = useNavigation();

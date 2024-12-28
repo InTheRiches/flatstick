@@ -46,8 +46,6 @@ export function NewPutterModal({newPutterRef}) {
         setPutterName(name);
     }
 
-    // TODO handle putter name validation, ALSO DECIDE IF YOU WANT POPUP OR menu to slide out from under the "your putters" text, and not be a modal
-
     return (
         <BottomSheetModal
             ref={newPutterRef}

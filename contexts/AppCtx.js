@@ -292,7 +292,6 @@ export function AppProvider({children}) {
 
                 missDistribution: [0, 0, 0, 0, 0, 0, 0, 0], // past, past right, right, short right, short, short left, left, past left
 
-                // TODO ADD MISSREAD DATA
                 slopeAndBreakDistribution: {
                     uphill: {
                         straight: {
@@ -440,7 +439,6 @@ export function AppProvider({children}) {
                         updateSimpleStats(userData, newStats.averagePerformance, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts: putt.totalPutts}, category);
                     }
 
-                    // TODO decide if you want to use all rounds with the putter, or only the last 5
                     // TODO if the putter no longer exists (was deleted), then we should just use the default putter
                     if (session.putter !== "default") {
                         updateSimpleStats(userData, newPutters.find((putter) => putter.type === session.putter).stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts: putt.totalPutts}, category);
