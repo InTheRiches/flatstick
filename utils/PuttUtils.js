@@ -246,13 +246,20 @@ const dataDistances = [
     "twentyPlus"
 ]
 
-function sumMisses(data, distance, slope, breakType) {
+const dataDistancesMetric = [
+    "lessThanTwo",
+    "twoToFour",
+    "fourToSeven",
+    "sevenPlus"
+]
+
+function sumMisses(userData, data, distance, slope, breakType) {
     let totalMisses = [0, 0, 0, 0, 0, 0, 0, 0];
     let missDistances = [0, 0, 0, 0, 0, 0, 0, 0];
     let totalPutts = 0;
 
     // Get all distances if 'all' is specified, otherwise just the specific one
-    const distances = distance === -1 ? Object.keys(data).slice(1) : [dataDistances[distance]];
+    const distances = distance === -1 ? Object.keys(data).slice(1) : [userData.preferences.units === 0 ? dataDistances[distance] : dataDistancesMetric[distance]];
 
     distances.forEach(distanceKey => {
         if (distanceKey === "averagePerformance") return;
@@ -314,8 +321,8 @@ function formatFeetAndInches(feet) {
     return result;
 }
 
-function filterMissDistribution(currentStats, distance, slope, brek) {
-    const [totalPutts, merged, missDistances] = sumMisses(currentStats, distance, slope, brek);
+function filterMissDistribution(userData, currentStats, distance, slope, brek) {
+    const [totalPutts, merged, missDistances] = sumMisses(userData, currentStats, distance, slope, brek);
 
     // Calculate missDistribution
     const missDistribution = merged.map((value) => value / totalPutts);

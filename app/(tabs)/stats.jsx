@@ -167,7 +167,7 @@ export default function Stats({}) {
 // TODO allow filtering by time as well
 function MissesTab() {
     const colors = useColors();
-    const {currentStats} = useAppContext();
+    const {currentStats, userData} = useAppContext();
     const [slope, setSlope] = useState(-1);
     const [brek, setBrek] = useState(-1);
     const [distance, setDistance] = useState(-1);
@@ -187,7 +187,7 @@ function MissesTab() {
             <RadarChart graphSize={400}
                         scaleCount={4}
                         numberInterval={0}
-                        data={[filterMissDistribution(currentStats, distance, slope, brek)]}
+                        data={[filterMissDistribution(userData, currentStats, distance, slope, brek)]}
                         options={{
                             graphShape: 1,
                             showAxis: true,

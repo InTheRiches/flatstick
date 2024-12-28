@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { Defs, Line, LinearGradient, Stop, Text } from "react-native-svg";
+import React, {Component} from "react";
+import {Defs, Line, LinearGradient, Stop, Text} from "react-native-svg";
 
-import { ChartConfig, Dataset, PartialBy } from "./HelperTypes";
+import {ChartConfig, Dataset, PartialBy} from "./HelperTypes";
 
 export interface AbstractChartProps {
   fromZero?: boolean;
@@ -63,8 +63,8 @@ class AbstractChart<
   };
 
   calcBaseHeight = (data: number[], height: number) => {
-    const min = this.props.minNumber ? this.props.minNumber : Math.min(...data);
-    const max = this.props.maxNumber ? this.props.maxNumber : Math.max(...data);
+    const min = this.props.minNumber !== undefined ? this.props.minNumber : Math.min(...data);
+    const max = this.props.maxNumber !== undefined ? this.props.maxNumber : Math.max(...data);
     if (min >= 0 && max >= 0) {
       return height;
     } else if (min < 0 && max <= 0) {
@@ -214,8 +214,9 @@ class AbstractChart<
         )}${yAxisSuffix}`;
       } else {
         const label = this.props.fromZero
-          ? (this.calcScaler(data) / count) * i + (minNumber ? minNumber : Math.min(...data, 0))
-          : (this.calcScaler(data) / count) * i + (minNumber ? minNumber : Math.min(...data));
+          ? ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data, 0))
+          : ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data));
+
         yLabel = `${yAxisLabel}${formatYLabel(
           label.toFixed(decimalPlaces)
         )}${yAxisSuffix}`;

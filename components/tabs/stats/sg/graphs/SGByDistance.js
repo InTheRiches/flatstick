@@ -2,9 +2,11 @@ import React, {memo} from "react";
 import {BarChart} from "../../../../../charts";
 import {Dimensions, useColorScheme} from "react-native";
 import useColors from "../../../../../hooks/useColors";
+import {useAppContext} from "../../../../../contexts/AppCtx";
 
 export const SGByDistanceChart = memo(({statsToUse}) => {
     const colors = useColors();
+    const {userData} = useAppContext();
     const colorScheme = useColorScheme();
 
     return (
@@ -13,7 +15,7 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
             maxNumber={2}
             segments={4}
             data={{
-                labels: ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'],
+                labels: userData.preferences.units === 0 ? ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'] : ['<2 m', '2-4 m', '4-7 m', '>7 m'],
                 datasets: [
                     {
                         data: [
