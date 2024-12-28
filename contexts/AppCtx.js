@@ -204,7 +204,7 @@ export function AppProvider({children}) {
         }
     };
 
-    const updateStats = async (newData) => {
+    const updateStats = async (newData, replace = false) => {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         getDoc(userDocRef).then(async (doc) => {
             if (!doc.exists()) {
@@ -218,6 +218,10 @@ export function AppProvider({children}) {
             // if has been over
             try {
                 await runTransaction(firestore, async (transaction) => {
+                    if (replace) {
+                        transaction.set(userDocRef, newData);
+                        return;
+                    }
                     transaction.update(userDocRef, newData);
                 });
             } catch (error) {
@@ -592,7 +596,7 @@ export function AppProvider({children}) {
         setCurrentStats(newStats);
 
         await updateData({totalPutts: totalPutts});
-        await updateStats(newStats)
+        await updateStats(newStats, true)
 
         newPutters.forEach((putter) => {
             if (putter.stats["rounds"] === 0) return;
