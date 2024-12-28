@@ -10,6 +10,8 @@ export default function StatSettings({}) {
     const colors = useColors();
     const {putters, userData, updateData, updateStats} = useAppContext();
 
+    const [initialData, setInitialData] = useState(userData.preferences);
+
     // TODO implement the mishits functionality
     const [misHits, setMisHits] = useState(userData.preferences.countMishits);
     const filterPuttersRef = useRef(null);
@@ -26,7 +28,8 @@ export default function StatSettings({}) {
         <View style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                 <Pressable onPress={() => {
-                    updateStats();
+                    if (initialData !== userData.preferences)
+                        updateStats();
                     navigation.goBack()
                 }} style={{padding: 4, paddingLeft: 0}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}

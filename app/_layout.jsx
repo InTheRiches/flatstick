@@ -54,6 +54,7 @@ export default function RootLayout() {
                   <Stack.Screen name={"statsettings/index"} options={{
                     presentation: 'modal',
                     animation: "slide_from_bottom",
+                    animationDuration: 150,
                   }}/>
                 </Stack>
               </ThemeProvider>
