@@ -13,6 +13,14 @@ export const LightTheme = {
     default: '#CFCFCF',
     popup: 'white',
   },
+  switch: {
+    track: "#757777",
+    thumb: "#f4f3f4",
+    active: {
+      track: "#d5d9da",
+      thumb: "#40C2FF",
+    },
+  },
   button: {
     primary: {
       border: '#CFCFCF',

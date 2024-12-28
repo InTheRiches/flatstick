@@ -129,10 +129,10 @@ export default function RealSimulation() {
     }, []);
 
     const pushHole = (totalPutts, largeMissDistance) => {
-        let distanceMissedFeet = 0;
+        let distanceMissed = 0;
 
         if (!largeMiss)
-            distanceMissedFeet = calculateDistanceMissedFeet(center, point, width, height);
+            distanceMissed = userData.preferences.units === 0 ? calculateDistanceMissedFeet(center, point, width, height) : calculateDistanceMissedMeters(center, point, width, height);
 
         if (putts[hole - 1] !== undefined) {
             if (totalPutts === -1)
@@ -141,7 +141,7 @@ export default function RealSimulation() {
                 largeMissDistance = putts[hole - 1].distanceMissed
         }
 
-        const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy);
+        const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, largeMissDistance, point, getLargeMissPoint, largeMissBy);
         updateField("putts", puttsCopy);
         return puttsCopy;
     };
@@ -215,6 +215,7 @@ export default function RealSimulation() {
             leftRightBias: leftRightBias,
             missData: missData,
             totalDistance: totalDistance,
+            units: userData.preferences.units
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
@@ -337,7 +338,7 @@ export default function RealSimulation() {
                         bigMissRef.current.present();
                     }}
                                   disabled={distance === -1}
-                                  title={"Miss > 3ft?"}></DangerButton>
+                                  title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`}></DangerButton>
                     {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                     title={hole === holes ? "Submit" : "Next"}
                                     disabled={point.x === undefined || distance === -1}

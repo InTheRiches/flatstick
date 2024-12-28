@@ -1,9 +1,12 @@
 // only 18 hole simulations and real simulations, no other practices
 import {Text, View} from "react-native";
 import useColors from "../../../../hooks/useColors";
+import {convertUnits} from "../../../../utils/Conversions";
+import {useAppContext} from "../../../../contexts/AppCtx";
 
 export const RecentSession = ({recentSession}) => {
     const colors = useColors();
+    const {userData} = useAppContext();
 
     const formattedName = () => {
         if (recentSession.type === "real-simulation") {
@@ -77,7 +80,7 @@ export const RecentSession = ({recentSession}) => {
                         fontSize: 20,
                         color: colors.text.primary,
                         fontWeight: "bold",
-                    }}>{recentSession.type === "round-simulation" ? recentSession.difficulty : recentSession.totalDistance}</Text>
+                    }}>{recentSession.type === "round-simulation" ? recentSession.difficulty : convertUnits(recentSession.totalDistance, recentSession.units, userData.preferences.units)}</Text>
                 </View>
                 <View style={{
                     flexDirection: "column",

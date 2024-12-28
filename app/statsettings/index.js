@@ -8,19 +8,27 @@ import {useNavigation} from "expo-router";
 
 export default function StatSettings({}) {
     const colors = useColors();
-    const {putters, userData} = useAppContext();
+    const {putters, userData, updateData, updateStats} = useAppContext();
 
     // TODO implement the mishits functionality
-    const [misHits, setMisHits] = useState(false);
-    const toggleMisHits = () => setMisHits(previousState => !previousState);
+    const [misHits, setMisHits] = useState(userData.preferences.countMishits);
     const filterPuttersRef = useRef(null);
     const navigation = useNavigation();
     const [isPressed, setIsPressed] = useState(false);
 
+    const toggleMisHits = () => {
+        updateData({...userData, preferences: {...userData.preferences, countMishits: !misHits}});
+
+        setMisHits(previousState => !previousState);
+    }
+
     return (
         <View style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
-                <Pressable onPress={() => navigation.goBack()} style={{padding: 4, paddingLeft: 0}}>
+                <Pressable onPress={() => {
+                    updateStats();
+                    navigation.goBack()
+                }} style={{padding: 4, paddingLeft: 0}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
                          stroke={colors.text.primary} width={24} height={24}>
                         <Path strokeLinecap="round" strokeLinejoin="round"

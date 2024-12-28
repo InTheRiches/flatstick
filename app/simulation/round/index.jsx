@@ -1,5 +1,5 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Image, Platform, Pressable, Text, View} from 'react-native';
+import {BackHandler, Platform, Pressable, Text, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
@@ -9,10 +9,17 @@ import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
-import {calculateStats, getLargeMissPoint, loadPuttData} from '../../../utils/PuttUtils';
+import {
+    calculateDistanceMissedFeet,
+    calculateDistanceMissedMeters,
+    calculateStats,
+    getLargeMissPoint,
+    loadPuttData
+} from '../../../utils/PuttUtils';
 import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
+import {GreenVisual} from "../../../components/simulations/round";
 
 // TODO add an extreme mode with like left right left breaks, as well as extremem vs slight breaks
 const breaks = [
@@ -44,22 +51,33 @@ function generateBreak() {
     return [Math.floor(Math.random() * breaks.length), Math.floor(Math.random() * slopes.length)];
 }
 
-function generateDistance(difficulty) {
+function generateDistance(difficulty, units) {
     let minDistance, maxDistance;
 
-    if (difficulty === "easy") {
-        minDistance = 3; // Easy: Minimum 3 ft
-        maxDistance = 15; // Easy: Maximum 10 ft
-    } else if (difficulty === "medium") {
-        minDistance = 8; // Medium: Minimum 5 ft
-        maxDistance = 25; // Medium: Maximum 20 ft
-    } else if (difficulty === "hard") {
-        minDistance = 8; // Hard: Minimum 8 ft
-        maxDistance = 40; // Hard: Maximum 40 ft
+    if (units === 0) {
+        if (difficulty === "easy") {
+            minDistance = 3; // Easy: Minimum 3 ft
+            maxDistance = 15; // Easy: Maximum 10 ft
+        } else if (difficulty === "medium") {
+            minDistance = 8; // Medium: Minimum 5 ft
+            maxDistance = 25; // Medium: Maximum 20 ft
+        } else if (difficulty === "hard") {
+            minDistance = 10; // Hard: Minimum 8 ft
+            maxDistance = 40; // Hard: Maximum 40 ft
+        }
     }
-
-    // for the easy difficulty, I dont want it equally distributed, so I will make it more likely to be closer to the minDistance
-
+    else {
+        if (difficulty === "easy") {
+            minDistance = 1; // Easy: Minimum 3 ft
+            maxDistance = 5; // Easy: Maximum 10 ft
+        } else if (difficulty === "medium") {
+            minDistance = 3; // Medium: Minimum 5 ft
+            maxDistance = 8; // Medium: Maximum 20 ft
+        } else if (difficulty === "hard") {
+            minDistance = 3; // Hard: Minimum 8 ft
+            maxDistance = 13; // Hard: Maximum 40 ft
+        }
+    }
 
     // Generate random distance between minDistance and maxDistance
     return Math.floor(Math.random() * (maxDistance - minDistance + 1)) + minDistance;
@@ -80,7 +98,7 @@ const initialState = {
     misReadSlope: false,
     misHit: false,
     putts: [],
-    currentPutts: 0,
+    currentPutts: 2,
 }
 
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
@@ -128,7 +146,7 @@ export default function RoundSimulation() {
     };
 
     useEffect(() => {
-        updateField("distance", generateDistance(difficulty));
+        updateField("distance", generateDistance(difficulty, userData.preferences.units));
     }, []);
 
     useEffect(() => {
@@ -147,27 +165,16 @@ export default function RoundSimulation() {
     }, []);
 
     const pushHole = (totalPutts, largeMissDistance) => {
-        let distanceMissedFeet = 0;
+        let distanceMissed = 0;
 
-        if (!largeMiss) {
-            // find the distance to center of the point in x and y
-            const distanceX = width / 2 - point.x;
-            const distanceY = height / 2 - point.y;
-            const distanceMissed = center ? 0 : Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+        if (!largeMiss)
+            distanceMissed = userData.preferences.units === 0 ? calculateDistanceMissedFeet(center, point, width, height) : calculateDistanceMissedMeters(center, point, width, height);
 
-            const conversionFactor = 5 / width;
-            distanceMissedFeet = distanceMissed * conversionFactor;
-        }
-
-        // if the hole exists already, and totalPutts is -1, then we are going to use the existing value, and not the -1
-        if (totalPutts === -1) {
-            if (putts[hole - 1] !== undefined)
-                totalPutts = putts[hole - 1].totalPutts;
-            else totalPutts = 2;
-        }
-
-        if (putts[hole - 1] !== undefined && largeMissDistance === 0) {
-            largeMissDistance = putts[hole - 1].distanceMissed;
+        if (putts[hole - 1] !== undefined) {
+            if (totalPutts === -1)
+                totalPutts = putts[hole - 1].totalPutts
+            if (largeMissDistance === -1)
+                largeMissDistance = putts[hole - 1].distanceMissed;
         }
 
         const puttsCopy = [...putts];
@@ -179,7 +186,7 @@ export default function RoundSimulation() {
             misHit: misHit,
             largeMiss: largeMiss,
             totalPutts: totalPutts,
-            distanceMissed: largeMiss ? largeMissDistance : distanceMissedFeet,
+            distanceMissed: largeMiss ? largeMissDistance : distanceMissed,
             point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance) : point
         };
         updateField("putts", puttsCopy);
@@ -207,7 +214,7 @@ export default function RoundSimulation() {
             updateField("center", false);
             updateField("largeMissBy", [0, 0]);
             updateField("puttBreak", generateBreak());
-            updateField("distance", generateDistance(difficulty));
+            updateField("distance", generateDistance(difficulty, userData.preferences.units));
             updateField("hole", hole + 1);
             updateField("largeMiss", false);
             return;
@@ -253,22 +260,16 @@ export default function RoundSimulation() {
             leftRightBias: leftRightBias,
             shortPastBias: shortPastBias,
             missData: missData,
-            totalDistance: totalDistance
+            totalDistance: totalDistance,
+            units: userData.preferences.units
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
             router.push({
-                pathname: `/simulation/round/recap`,
+                pathname: `/sessions/individual`,
                 params: {
-                    current: true,
-                    holes: partial ? puttsCopy.length : holes,
-                    difficulty: difficulty,
-                    mode: mode,
-                    missData: JSON.stringify(missData),
-                    totalPutts: totalPutts,
-                    avgMiss: avgMiss,
-                    madePercent: madePercent,
-                    date: new Date().toISOString()
+                    jsonSession: JSON.stringify(data),
+                    recap: "true"
                 }
             });
         });
@@ -382,7 +383,7 @@ export default function RoundSimulation() {
                         updateField("largeMiss", true);
                         bigMissRef.current.present();
                     }}
-                                  title={"Miss > 3ft?"}></DangerButton>
+                                  title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`}></DangerButton>
                     {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                     title={hole === holes ? "Submit" : "Next"}
                                     disabled={point.x === undefined}
@@ -404,73 +405,3 @@ export default function RoundSimulation() {
     );
 }
 
-function GreenVisual({distance, puttBreak, slope, imageSource}) {
-    const colors = useColors();
-
-    return (
-        <View style={{
-            backgroundColor: colors.background.secondary,
-            flexDirection: "column",
-            borderRadius: 16,
-            elevation: 4,
-            overflow: "hidden"
-        }}>
-            <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
-                <Image source={imageSource} style={{
-                    width: Platform.OS === "ios" ? "90%" : "100%",
-                    height: "auto",
-                    aspectRatio: 2
-                }}></Image>
-            </View>
-            <View
-                style={{width: "100%", flexDirection: "column", borderTopWidth: 1, borderColor: colors.border.default}}>
-                <View style={{flexDirection: "row"}}>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontWeight: "bold"
-                        }}>{puttBreak}</Text>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 0.7,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontWeight: "bold"
-                        }}>{slope}</Text>
-                    </View>
-                    <View
-                        style={{flexDirection: "column", flex: 0.7, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
-                        <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</Text>
-                        <Text style={{
-                            fontSize: 20,
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontWeight: "bold"
-                        }}>{distance}ft</Text>
-                    </View>
-                </View>
-            </View>
-        </View>
-    )
-}

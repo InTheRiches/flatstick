@@ -24,6 +24,7 @@ import {
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {getAuth} from "@/utils/firebase";
+import {convertUnits} from "@/utils/Conversions";
 
 const breaks = [
     "leftToRight",
@@ -362,13 +363,25 @@ export function AppProvider({children}) {
             }
         };
 
-        const newStats = {
-            averagePerformance: createSimpleStats(),
-            lessThanSix: createCategory(),
-            sixToTwelve: createCategory(),
-            twelveToTwenty: createCategory(),
-            twentyPlus: createCategory()
-        };
+        let newStats;
+
+        if (userData.preferences.units === 0) {
+            newStats = {
+                averagePerformance: createSimpleStats(),
+                lessThanSix: createCategory(),
+                sixToTwelve: createCategory(),
+                twelveToTwenty: createCategory(),
+                twentyPlus: createCategory()
+            };
+        } else {
+            newStats = {
+                averagePerformance: createSimpleStats(),
+                lessThanTwo: createCategory(),
+                twoToFour: createCategory(),
+                fourToSeven: createCategory(),
+                sevenPlus: createCategory()
+            };
+        }
 
         const newPuttSessions = await refreshData();
         const strokesGained = calculateTotalStrokesGained(newPuttSessions);
@@ -379,6 +392,7 @@ export function AppProvider({children}) {
 
         let totalPutts = 0;
 
+
         newPuttSessions.forEach((session, index) => {
             // TODO do we want to include the fake rounds too? (this is prompted by total distance, as it is relative to difficulty in the fake rounds)
             const averaging = newStats.averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
@@ -388,28 +402,47 @@ export function AppProvider({children}) {
                 newPutters.find((putter) => putter.type === session.putter).stats.rounds += session.holes / 18;
 
             session.putts.forEach((putt) => {
-                const {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
+                let {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
+
+                console.log("dist 1: " + distance)
+
+                distance = convertUnits(distance, session.units, userData.preferences.units);
+                console.log("dist 2: " + distance)
+                distanceMissed = convertUnits(distanceMissed, session.units, userData.preferences.units);
+                xDistance = convertUnits(xDistance, session.units, userData.preferences.units);
+                yDistance = convertUnits(yDistance, session.units, userData.preferences.units);
 
                 // Categorize putt distance
                 let category;
-                if (distance < 6) category = "lessThanSix";
-                else if (distance < 12) category = "sixToTwelve";
-                else if (distance < 20) category = "twelveToTwenty";
-                else category = "twentyPlus";
+                if (userData.preferences.units === 0) {
+                    if (distance < 6) category = "lessThanSix";
+                    else if (distance < 12) category = "sixToTwelve";
+                    else if (distance < 20) category = "twelveToTwenty";
+                    else category = "twentyPlus";
+                } else {
+                    if (distance < 2) category = "lessThanTwo";
+                    else if (distance < 4) category = "twoToFour";
+                    else if (distance < 7) category = "fourToSeven";
+                    else category = "sevenPlus";
+                }
 
                 const statCategory = newStats[category];
 
                 // Increment total putts
                 statCategory.rawPutts++;
 
-                if (averaging) {
-                    updateSimpleStats(newStats.averagePerformance, putt, category);
-                }
+                try {
+                    if (averaging) {
+                        updateSimpleStats(userData, newStats.averagePerformance, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts: putt.totalPutts}, category);
+                    }
 
-                // TODO decide if you want to use all rounds with the putter, or only the last 5
-                // TODO if the putter no longer exists (was deleted), then we should just use the default putter
-                if (session.putter !== "default") {
-                    updateSimpleStats(newPutters.find((putter) => putter.type === session.putter).stats, putt, category);
+                    // TODO decide if you want to use all rounds with the putter, or only the last 5
+                    // TODO if the putter no longer exists (was deleted), then we should just use the default putter
+                    if (session.putter !== "default") {
+                        updateSimpleStats(userData, newPutters.find((putter) => putter.type === session.putter).stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts: putt.totalPutts}, category);
+                    }
+                } catch (error) {
+                    console.error("Error updating stats:", error);
                 }
 
                 if (distanceMissed === 0) {
@@ -454,21 +487,21 @@ export function AppProvider({children}) {
                     slopeBreakStats.misses[1]++; // past right
                     slopeBreakStats.missDistances[1] += distanceMissed;
 
-                    if (distanceMissed <= 2) statCategory.percentJustLong++;
+                    if (distanceMissed <= (userData.preferences.units === 0 ? 2 : 0.75)) statCategory.percentJustLong++;
                     else statCategory.percentTooLong++;
                 } else if (degrees > 67.5 && degrees <= 112.5) {
                     statCategory.missDistribution[0]++; // past
                     slopeBreakStats.misses[0]++; // past
                     slopeBreakStats.missDistances[0] += distanceMissed;
 
-                    if (distanceMissed <= distance + 2) statCategory.percentJustLong++;
+                    if (distanceMissed <= (userData.preferences.units === 0 ? 2 : 0.75)) statCategory.percentJustLong++;
                     else statCategory.percentTooLong++;
                 } else if (degrees > 112.5 && degrees <= 157.5) {
                     statCategory.missDistribution[7]++; // past left
                     slopeBreakStats.misses[7]++; // past left
                     slopeBreakStats.missDistances[7] += distanceMissed;
 
-                    if (distanceMissed <= 2) statCategory.percentJustLong++;
+                    if (distanceMissed <= (userData.preferences.units === 0 ? 2 : 0.75)) statCategory.percentJustLong++;
                     else statCategory.percentTooLong++;
                 } else if (degrees > -67.5 && degrees <= -22.5) {
                     statCategory.missDistribution[3]++; // short right
@@ -559,12 +592,18 @@ export function AppProvider({children}) {
         setCurrentStats(newStats);
 
         await updateData({totalPutts: totalPutts});
-
         await updateStats(newStats)
 
         newPutters.forEach((putter) => {
             if (putter.stats["rounds"] === 0) return;
-            putter.stats.avgMiss = roundTo(putter.stats["avgMiss"] / (putter.stats["rounds"] * 18), 1);
+
+            const allPutts = putter.stats["rounds"] * 18;
+            // if we are not counting mishits, then we need to remove them from the total putts
+            if (putter.stats["totalMishits"] === 0) {
+                putter.stats.totalPutts -= putter.stats.puttsMishits;
+            }
+
+            putter.stats.avgMiss = roundTo(putter.stats["avgMiss"] / allPutts, 1);
             putter.stats.totalDistance = roundTo(putter.stats["totalDistance"] / putter.stats["rounds"], 1);
             putter.stats.puttsMisread = roundTo(putter.stats["puttsMisread"] / putter.stats["rounds"], 1);
             putter.stats.onePutts = roundTo(putter.stats["onePutts"] / putter.stats["rounds"], 1);

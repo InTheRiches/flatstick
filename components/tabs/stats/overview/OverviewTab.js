@@ -7,12 +7,10 @@ import React from "react";
 
 export const OverviewTab = ({statsToUse}) => {
     const colors = useColors();
-    const {puttSessions, previousStats} = useAppContext();
+    const {puttSessions, previousStats, userData} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     let difference = 0;
-
-    console.log(statsToUse);
 
     if (previousStats !== undefined && previousStats.length > 0)
         difference = statsToUse.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
@@ -127,7 +125,7 @@ export const OverviewTab = ({statsToUse}) => {
                             color: colors.text.primary,
                             fontWeight: "bold",
                             textAlign: "left"
-                        }}>{statsToUse.avgMiss}ft</Text>
+                        }}>{statsToUse.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -144,7 +142,7 @@ export const OverviewTab = ({statsToUse}) => {
                             color: colors.text.primary,
                             fontWeight: "bold",
                             textAlign: "left"
-                        }}>{statsToUse.totalDistance}ft</Text>
+                        }}>{statsToUse.totalDistance}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                     </View>
                     <View style={{
                         flexDirection: "column",

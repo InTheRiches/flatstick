@@ -4,10 +4,12 @@ import Svg, {Path} from "react-native-svg";
 import React from "react";
 import useColors from "../../../hooks/useColors";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
+import {useAppContext} from "../../../contexts/AppCtx";
 
 export function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
     const colorScheme = useColorScheme();
+    const {userData} = useAppContext();
 
     const validateDistance = (text) => {
         // if it's not a number, make it invalid
@@ -127,7 +129,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                                                 colors.background.primary :
                                                 colors.border.default,
                                     flex: 1}}>
-                                <Text style={{fontSize: 20, paddingVertical: 2, fontWeight: "bold", textAlign: "center", color: colors.text.primary,}}>ft</Text>
+                                <Text style={{fontSize: 20, paddingVertical: 2, fontWeight: "bold", textAlign: "center", color: colors.text.primary,}}>{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                             </View>
                         </View>
                         <PrimaryButton

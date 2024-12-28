@@ -2,7 +2,7 @@ import {Image, Text, View} from "react-native";
 import React from "react";
 import useColors from "../../../hooks/useColors";
 
-export function MissDistributionDiagram({missData, holes, alone = false}) {
+export function MissDistributionDiagram({missData, holes, alone = false, units = 0}) {
     const colors = useColors();
     const gridData = Array.from({length: 15}, (_, index) => index + 1);
 
@@ -14,7 +14,7 @@ export function MissDistributionDiagram({missData, holes, alone = false}) {
             elevation: alone ? 5 : 0
         }}>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
-                <Image source={require("@/assets/images/recapBackground.png")} style={{
+                <Image source={units === 0 ? require("@/assets/images/recapBackground.png") : require("@/assets/images/recapBackgroundMetric.png")} style={{
                     width: "100%",
                     height: "auto",
                     aspectRatio: 4096 / 1835,

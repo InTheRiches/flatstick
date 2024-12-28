@@ -1,19 +1,24 @@
 import {Text, View} from "react-native";
 import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
+import {convertUnits} from "../../../utils/Conversions";
+import {useAppContext} from "../../../contexts/AppCtx";
 
 export const ShortPastBias = ({session}) => {
     const colors = useColors();
+    const {userData} = useAppContext();
     const [verticalBiasWidth, setVerticalBiasWidth] = useState(1);
 
     const onVertiLayout = (event) => {
         setVerticalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    let left = session.shortPastBias / 2 * (verticalBiasWidth/2);
+    const shortPastBias = convertUnits(session.shortPastBias, session.units, userData.preferences.units);
+
+    let left = shortPastBias / (userData.preferences.units === 0 ? 2 : 1) * (verticalBiasWidth/2 + (shortPastBias > 0 ? 25 : 0));
     left = left + (verticalBiasWidth/2);
 
-    if (Math.abs(session.shortPastBias) < 0.2) {
+    if (Math.abs(shortPastBias) < (userData.preferences.units === 0 ? 0.2 : 0.1)) {
         left = (verticalBiasWidth/2) + 2.5;
     }
 
@@ -29,10 +34,10 @@ export const ShortPastBias = ({session}) => {
                 <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < ((verticalBiasWidth/2) - 30) || left > ((verticalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                <Text style={{position: "absolute", left: left - (session.shortPastBias > 0 ? 10 : 0), color: colors.text.primary}}>{session.shortPastBias > 0 ? "+" : ""}{session.shortPastBias}ft</Text>
+                <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</Text>
+                <Text style={{color: colors.text.secondary, opacity: left < ((verticalBiasWidth/2) - 40) || left > ((verticalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</Text>
+                <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</Text>
+                <Text style={{position: "absolute", left: left - (shortPastBias > 0 ? 10 : 0), color: colors.text.primary}}>{shortPastBias > 0 ? "+" : ""}{shortPastBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Short</Text>

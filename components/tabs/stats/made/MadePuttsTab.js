@@ -9,8 +9,6 @@ export const MadePuttsTab = ({statsToUse}) => {
 
     const {width} = Dimensions.get("screen")
 
-    console.log("hey")
-
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Make Percent by Distance</Text>

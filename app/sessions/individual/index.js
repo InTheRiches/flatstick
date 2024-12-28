@@ -10,13 +10,17 @@ import {LeftRightBias, ShortPastBias} from "../../../components/sessions/individ
 import {MissDistributionDiagram} from "../../../components/simulations/recap";
 import Loading from "../../../components/general/popups/Loading";
 import {getBestSession} from "../../../utils/sessions/best";
+import {convertUnits} from "../../../utils/Conversions";
 
 export default function IndividualSession({}) {
     const colors = useColors();
-    const {jsonSession} = useLocalSearchParams();
-    const session = JSON.parse(jsonSession);
     const navigation = useNavigation();
-    const {deleteSession} = useAppContext();
+    const {deleteSession, userData} = useAppContext();
+
+    const {jsonSession, recap} = useLocalSearchParams();
+    const session = JSON.parse(jsonSession);
+    const isRecap = recap === "true";
+
     const [loading, setLoading] = useState(false);
     const [bestSession, setBestSession] = useState({strokesGained: "~"});
 
@@ -33,7 +37,7 @@ export default function IndividualSession({}) {
                 <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                     <View style={{alignItems: "center", flex: 0.5}}>
                         <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
-                        <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</Text>
+                        <Text style={{color: colors.text.primary, fontSize: session.strokesGained < -10 ? 40 : 48, fontWeight: 600, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</Text>
                         <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(Best: {bestSession.totalPutts && bestSession.strokesGained > 0 ? "+" : ""}{bestSession.strokesGained})</Text>
                     </View>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, flex: 1}}>
@@ -90,21 +94,25 @@ export default function IndividualSession({}) {
                             </View>
                             <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
                                 <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                                <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.avgMiss}ft</Text>
+                                <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{convertUnits(session.avgMiss, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                             </View>
                         </View>
                     </View>
                 </View>
                 <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>1st Putt Distribution</Text>
-                <MissDistributionDiagram missData={session.missData} holes={session.holes} alone={true}></MissDistributionDiagram>
+                <MissDistributionDiagram missData={session.missData} holes={session.holes} alone={true} units={userData.preferences.units}></MissDistributionDiagram>
                 <LeftRightBias session={session}></LeftRightBias>
                 <ShortPastBias session={session}></ShortPastBias>
             </View>
             <View style={{width: "100%", paddingBottom: 24, paddingHorizontal: 48, flexDirection: "row", alignItems: "center", gap: 12}}>
-                <SecondaryButton onPress={() => navigation.goBack()}
-                               title={"Back"}
-                               style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
                 <SecondaryButton onPress={() => {
+                    if (isRecap) {
+                        navigation.navigate("(tabs)");
+                    } else navigation.goBack();
+                }}
+                               title={isRecap ? "Continue" : "Back"}
+                               style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
+                {!isRecap && <SecondaryButton onPress={() => {
                     // todo make this trigger a loading screen
                     setLoading(true);
                     deleteSession(session.id).then(() => {
@@ -116,7 +124,7 @@ export default function IndividualSession({}) {
                         <Path strokeLinecap="round" strokeLinejoin="round"
                               d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
                     </Svg>
-                </SecondaryButton>
+                </SecondaryButton>}
             </View>
         </View>
     )

@@ -6,11 +6,13 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import ArrowComponent from "@/components/general/icons/ArrowComponent";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
+import {useAppContext} from "../../../contexts/AppCtx";
 
 export function BigMissModal({
                                          updateField, rawLargeMissBy, bigMissRef, nextHole, lastHole, allPutts, hole,
                                      }) {
     const colors = useColors();
+    const {userData} = useAppContext();
 
     const [open, setOpen] = useState(false);
     const [transitioningBack, setTransitioningBack] = useState(false);
@@ -112,17 +114,17 @@ export function BigMissModal({
     const updateDistance = (newDistance) => {
         if (newDistance === "") {
             setDistance(-1);
-            setInvalid(true);
+            setDistanceInvalid(true);
             return;
         }
         if (newDistance.match(/[^0-9]/g)) {
-            setInvalid(true);
+            setDistanceInvalid(true);
             return;
         }
 
         let fixedDistance = parseInt(newDistance);
         setDistance(fixedDistance);
-        setDistanceInvalid(fixedDistance < 3 || fixedDistance > 99)
+        setDistanceInvalid(fixedDistance < (userData.preferences.units === 0 ? 3 : 1) || fixedDistance > 99)
     }
 
     // renders
@@ -136,25 +138,13 @@ export function BigMissModal({
             setOpen(!open);
         }}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
-        keyboardBlurBehavior={"restore"}
-    >
-        <BottomSheetView
-            style={{
+        keyboardBlurBehavior={"restore"}>
+        <BottomSheetView style={{
                 paddingBottom: 12, backgroundColor: colors.background.secondary,
-            }}
-        >
-            <View
-                style={{
-                    paddingHorizontal: 24, flexDirection: "column", alignItems: "center",
-                }}
-            >
-                <View
-                    style={{
-                        flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,
-                    }}
-                >
-                    <View
-                        style={{
+            }}>
+            <View style={{paddingHorizontal: 24, flexDirection: "column", alignItems: "center",}}>
+                <View style={{flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,}}>
+                    <View style={{
                             height: 32,
                             aspectRatio: 1,
                             alignItems: "center",
@@ -162,18 +152,11 @@ export function BigMissModal({
                             justifyContent: "center",
                             borderRadius: 50,
                             backgroundColor: colors.button.danger.background,
-                        }}
-                    >
-                        <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>
-                            !
-                        </Text>
+                        }}>
+                        <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>!</Text>
                     </View>
-                    <Text
-                        style={{
-                            fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left",
-                        }}
-                    >
-                        Miss &gt;3ft
+                    <Text style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left"}}>
+                        Miss &gt;{userData.preferences.units === 0 ? "3ft" : "1m"}
                     </Text>
                 </View>
                 <Text
@@ -184,14 +167,11 @@ export function BigMissModal({
                         textAlign: "center",
                         width: "70%",
                         marginBottom: 16,
-                    }}
-                >
+                    }}>
                     Putting for the rough, are we? You might need GPS for the next one.
                     Mark where you missed below.
                 </Text>
-                <View style={{
-                        flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",
-                    }}>
+                <View style={{flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",}}>
                     <View style={{flexDirection: "column", gap: 12}}>
                         <Pressable
                             onPress={() => setMissDirection([1, 1])}
@@ -203,8 +183,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={1}
                                 verticalSlope={0}
@@ -221,8 +200,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={1}
                                 verticalSlope={1}
@@ -239,8 +217,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={1}
                                 verticalSlope={2}
@@ -259,8 +236,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={2}
                                 verticalSlope={0}
@@ -277,8 +253,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={2}
                                 verticalSlope={2}
@@ -297,8 +272,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={0}
                                 verticalSlope={0}
@@ -315,8 +289,7 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={0}
                                 verticalSlope={1}
@@ -333,14 +306,80 @@ export function BigMissModal({
                                 flexDirection: "row",
                                 alignItems: "center",
                                 borderRadius: 50,
-                            }}
-                        >
+                            }}>
                             <ArrowComponent
                                 horizontalBreak={0}
                                 verticalSlope={2}
                                 selected={isEqual(largeMissBy, [-1, -1])}
                             ></ArrowComponent>
                         </Pressable>
+                    </View>
+                </View>
+                <View style={{
+                    flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end",
+                    marginBottom: 8
+                }}>
+                    <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>
+                        Estimated distance missed ({userData.preferences.units === 0 ? "ft" : "m"}):
+                    </Text>
+                    <View style={{
+                        flexDirection: "row", gap: 12, marginBottom: 12, alignItems: "center",
+                    }}>
+                        <PrimaryButton style={{
+                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
+                        }} onPress={() => {
+                            if (distance === -1) updateDistance("99"); else if (distance <= userData.preferences.units === 0 ? 3 : 1) updateDistance("99"); else updateDistance((distance - 1).toString());
+                        }}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}>
+                                <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
+                            </Svg>
+                        </PrimaryButton>
+                        <BottomSheetTextInput
+                            style={{
+                                width: 36,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: distanceFocused ? distanceInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : distanceInvalid ? colors.input.invalid.border : colors.input.border,
+                                borderRadius: 10,
+                                paddingVertical: 6,
+                                fontSize: 16,
+                                color: colors.input.text,
+                                backgroundColor: distanceInvalid ? colors.input.invalid.background : distanceFocused ? colors.input.focused.background : colors.input.background,
+                            }}
+                            onFocus={() => setDistanceFocused(true)}
+                            onBlur={() => setDistanceFocused(false)}
+                            onChangeText={(text) => updateDistance(text)}
+                            defaultValue={distance !== -1 ? distance.toString() : ""}
+                            keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
+                        />
+                        <PrimaryButton style={{
+                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
+                        }} onPress={() => {
+                            if (distance === -1) updateDistance(userData.preferences.units === 0 ? "3" : "1"); else if (distance >= 99) updateDistance(userData.preferences.units === 0 ? "3" : "1"); else updateDistance((distance + 1).toString());
+                        }}>
+                            <Svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={3}
+                                stroke={colors.button.primary.text}
+                                width={18}
+                                height={18}
+                            >
+                                <Path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4.5v15m7.5-7.5h-15"
+                                />
+                            </Svg>
+                        </PrimaryButton>
                     </View>
                 </View>
                 <View style={{
@@ -390,74 +429,6 @@ export function BigMissModal({
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                         }} onPress={() => {
                             if (putts === -1) updatePutts("2"); else if (putts >= 9) updatePutts("2"); else updatePutts((putts + 1).toString());
-                        }}>
-                            <Svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={3}
-                                stroke={colors.button.primary.text}
-                                width={18}
-                                height={18}
-                            >
-                                <Path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 4.5v15m7.5-7.5h-15"
-                                />
-                            </Svg>
-                        </PrimaryButton>
-                    </View>
-                </View>
-                <View style={{
-                    flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end",
-                    marginBottom: 8
-                }}>
-                    <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>
-                        Estimated distance missed (ft):
-                    </Text>
-                    <View style={{
-                            flexDirection: "row", gap: 12, marginBottom: 12, alignItems: "center",
-                        }}>
-                        <PrimaryButton style={{
-                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
-                        }} onPress={() => {
-                            if (distance === -1) updateDistance("99"); else if (distance <= 3) updateDistance("99"); else updateDistance((distance - 1).toString());
-                        }}>
-                            <Svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={3}
-                                stroke={colors.button.primary.text}
-                                width={18}
-                                height={18}
-                            >
-                                <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
-                            </Svg>
-                        </PrimaryButton>
-                        <BottomSheetTextInput
-                            style={{
-                                width: 36,
-                                textAlign: "center",
-                                borderWidth: 1,
-                                borderColor: distanceFocused ? distanceInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : distanceInvalid ? colors.input.invalid.border : colors.input.border,
-                                borderRadius: 10,
-                                paddingVertical: 6,
-                                fontSize: 16,
-                                color: colors.input.text,
-                                backgroundColor: distanceInvalid ? colors.input.invalid.background : distanceFocused ? colors.input.focused.background : colors.input.background,
-                            }}
-                            onFocus={() => setDistanceFocused(true)}
-                            onBlur={() => setDistanceFocused(false)}
-                            onChangeText={(text) => updateDistance(text)}
-                            defaultValue={distance !== -1 ? distance.toString() : ""}
-                            keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
-                        />
-                        <PrimaryButton style={{
-                            aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
-                        }} onPress={() => {
-                            if (distance === -1) updateDistance("3"); else if (distance >= 99) updateDistance("3"); else updateDistance((distance + 1).toString());
                         }}>
                             <Svg
                                 xmlns="http://www.w3.org/2000/svg"

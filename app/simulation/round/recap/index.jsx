@@ -5,7 +5,7 @@ import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {RecapVisual} from "../../../../components/simulations/recap";
 
 export default function SimulationRecap() {
-    const {current, holes, madePercent, totalPutts, difficulty, mode, missData, avgMiss, date} = useLocalSearchParams();
+    const {current, holes, madePercent, totalPutts, difficulty, mode, missData, avgMiss, date, units} = useLocalSearchParams();
 
     const parsedDate = new Date(date);
     const parsedMissData = JSON.parse(missData);
@@ -39,7 +39,7 @@ export default function SimulationRecap() {
                     <Text style={{textAlign: "center", color: colors.text.primary, marginBottom: 24}}>This {current === "true" ? "is" : "was"} your nth session.</Text>
                     <RecapVisual makePercent={madePercent} holes={holes} totalPutts={totalPutts} avgDistance={avgMiss}
                                  makeData={parsedMissData}
-                                 date={parsedDate}></RecapVisual>
+                                 date={parsedDate} units={units}></RecapVisual>
                 </View>
             </View>
             <View style={{width: "100%", paddingBottom: 24, paddingHorizontal: 32}}>

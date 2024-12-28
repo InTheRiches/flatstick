@@ -13,8 +13,6 @@ export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHo
     const [puttsFocused, setPuttsFocused] = useState(false);
     const [invalid, setInvalid] = useState(false);
 
-    console.log(currentPutts)
-
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
             return (

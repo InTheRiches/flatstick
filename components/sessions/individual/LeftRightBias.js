@@ -1,19 +1,24 @@
 import {Text, View} from "react-native";
 import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
+import {useAppContext} from "../../../contexts/AppCtx";
+import {convertUnits} from "../../../utils/Conversions";
 
 export const LeftRightBias = ({session}) => {
     const colors = useColors();
+    const {userData} = useAppContext();
     const [horizontalBiasWidth, setHorizontalBiasWidth] = useState(1);
 
     const onHorizLayout = (event) => {
         setHorizontalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    let left = session.leftRightBias / 2 * (horizontalBiasWidth/2);
+    const leftRightBias = convertUnits(session.leftRightBias, session.units, userData.preferences.units);
+
+    let left = leftRightBias / (userData.preferences.units === 0 ? 2 : 1) * (horizontalBiasWidth/2 + (leftRightBias > 0 ? 25 : 0));
     left = left + (horizontalBiasWidth/2);
 
-    if (Math.abs(session.leftRightBias) < 0.2) {
+    if (Math.abs(leftRightBias) < (userData.preferences.units === 0 ? 0.2 : 0.1)) {
         left = (horizontalBiasWidth/2) + 2.5;
     }
     return (
@@ -28,10 +33,10 @@ export const LeftRightBias = ({session}) => {
                 <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>-2ft</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 30) || left > ((horizontalBiasWidth/2) + 30) ? 1 : 0}}>0ft</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>+2ft</Text>
-                <Text style={{position: "absolute", left: left - (session.leftRightBias > 0 ? 10 : 0), color: colors.text.primary}}>{session.leftRightBias > 0 ? "+" : ""}{session.leftRightBias}ft</Text>
+                <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</Text>
+                <Text style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</Text>
+                <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</Text>
+                <Text style={{position: "absolute", left: left - (leftRightBias > 0 ? 10 : 0), color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</Text>

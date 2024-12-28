@@ -12,7 +12,6 @@ export function FilterPutters({filterPuttersRef}) {
     const [open, setOpen] = useState(false);
 
     const close = () => {
-        console.log("updating");
         updateData({...userData});
     }
 
@@ -42,8 +41,6 @@ export function FilterPutters({filterPuttersRef}) {
 
 function Putter({putter, index, filteringPutter, setFilteringPutter}) {
     const colors = useColors();
-
-    console.log(index);
 
     return (
         <Pressable

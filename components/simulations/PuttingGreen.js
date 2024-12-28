@@ -4,18 +4,35 @@ import Svg, {Path} from "react-native-svg";
 import React from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
+import {useAppContext} from "../../contexts/AppCtx";
 
 export function PuttingGreen({updateField, width, height, point, center}) {
     const colors = useColors();
+    const {userData} = useAppContext();
+    const [puttingGreenWidth, setPuttingGreenWidth] = React.useState(0);
 
     const onLayout = (event) => {
         const {width, height} = event.nativeEvent.layout;
 
         updateField("width", width);
         updateField("height", height);
+
+        if (userData.preferences.units === 0)
+            setPuttingGreenWidth(width);
+        else {
+            // find the number closest to width (less than) that is dividisble by 8
+            let closest = 0;
+            for (let i = Math.round(width); i > 0; i--) {
+                if (i % 8 === 0) {
+                    closest = i;
+                    break;
+                }
+            }
+            setPuttingGreenWidth(closest);
+        }
     };
 
-    const singleTap = Gesture.Tap()
+    const singleTap = userData.preferences.units === 0 ? Gesture.Tap()
         .onStart((data) => {
             runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
 
@@ -27,7 +44,27 @@ export function PuttingGreen({updateField, width, height, point, center}) {
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
             runOnJS(updateField)("point", {x: snappedX, y: snappedY});
+        }) : Gesture.Tap()
+        .onStart((data) => {
+            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
+
+            const boxWidth = width / 8;
+            const boxHeight = width / 8; // this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
+
+            console.log(puttingGreenWidth/8)
+
+            // Assuming tap data comes in as `data.x` and `data.y`
+            const snappedX = Math.round(data.x / boxWidth) * boxWidth;
+            const snappedY = Math.round(data.y / boxHeight) * boxHeight;
+
+            console.log(snappedX, snappedY)
+
+            runOnJS(updateField)("point", {x: snappedX * 1.005, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
+
+    const displayValue = (valueInFeet, valueInMetric) => {
+        return userData.preferences.units === 1 ? valueInMetric + " m" : valueInFeet + " ft";
+    };
 
     return (
         <View>
@@ -37,22 +74,29 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                 justifyContent: "space-between",
                 width: "100%"
             }}>
-                <Text></Text>
-                <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2
-                    ft</Text>
-                <Text></Text>
-                <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1
-                    ft</Text>
-                <Text></Text>
-                <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0
-                    ft</Text>
-                <Text></Text>
-                <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1
-                    ft</Text>
-                <Text></Text>
-                <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2
-                    ft</Text>
-                <Text></Text>
+                {userData.preferences.units === 0 ? (
+                    <>
+                        <Text></Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</Text>
+                        <Text></Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</Text>
+                        <Text></Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0ft</Text>
+                        <Text></Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</Text>
+                        <Text></Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</Text>
+                        <Text></Text>
+                    </>
+                ) : (
+                    <>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1m</Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1/2m</Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0m</Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1/2m</Text>
+                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1m</Text>
+                    </>
+                )}
             </View>
             <GestureDetector gesture={singleTap}>
                 <View onLayout={onLayout}
@@ -63,12 +107,12 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                           width: "100%"
                       }}>
                     <Image
-                        source={require('@/assets/images/putting-grid.png')}
+                        source={userData.preferences.units === 0 ? require('@/assets/images/putting-grid.png') : require('@/assets/images/putting-grid-metric.png')}
                         style={{
                             borderWidth: 1,
                             borderRadius: 12,
                             borderColor: colors.putting.grid.border,
-                            width: "100%",
+                            width: puttingGreenWidth,
                             aspectRatio: "1",
                             height: undefined
                         }}/>

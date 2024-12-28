@@ -1,5 +1,6 @@
 import {calculateBaselineStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "./roundTo";
+import {convertUnits} from "@/utils/Conversions";
 
 const breaks = {
     45: "Left to Right",
@@ -60,11 +61,20 @@ const calculateDistanceMissedFeet = (center, point, width, height) => {
     const distanceX = width / 2 - point.x;
     const distanceY = height / 2 - point.y;
     const distanceMissed = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-    const conversionFactor = 5 / width;
+    const conversionFactor = 5 / width; // 5 is the entire width of the green in feet
     return distanceMissed * conversionFactor;
 };
 
-const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissedFeet, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
+const calculateDistanceMissedMeters = (center, point, width, height) => {
+    if (center) return 0;
+    const distanceX = width / 2 - point.x;
+    const distanceY = height / 2 - point.y;
+    const distanceMissed = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+    const conversionFactor = 2 / width; // 2 is the entire width of the green in meters
+    return distanceMissed * conversionFactor;
+};
+
+const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
     const puttsCopy = [...putts];
 
     puttsCopy[hole - 1] = {
@@ -75,7 +85,7 @@ const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope
         misHit: misHit,
         largeMiss: largeMiss,
         totalPutts: totalPutts,
-        distanceMissed: largeMiss ? largeMissDistance : distanceMissedFeet,
+        distanceMissed: largeMiss ? largeMissDistance : distanceMissed,
         point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance) : point
     };
     return puttsCopy;
@@ -581,8 +591,8 @@ function cleanMadePutts(averagePerformance) {
     return refinedMadePutts;
 }
 
-function updateSimpleStats(simpleStats, putt, category) {
-    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak} = putt;
+function updateSimpleStats(userData, simpleStats, putt, category) {
+    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts} = putt;
 
     const statBreaks = [
         "leftToRight",
@@ -596,45 +606,65 @@ function updateSimpleStats(simpleStats, putt, category) {
         "uphill"
     ]
 
-    if (putt.totalPutts === 1) {
+    if (totalPutts === 1) {
         simpleStats.onePutts++;
-        simpleStats.madePutts.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+        if (userData.preferences.units === 0) {
+            simpleStats.madePutts.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+        } else {
+            simpleStats.madePutts.distance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3]++;
+        }
         simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
     }
-    else if (putt.totalPutts === 2) simpleStats["twoPutts"]++;
+    else if (totalPutts === 2) simpleStats["twoPutts"]++;
     else simpleStats["threePutts"]++;
 
-    simpleStats.madePutts.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+    if (userData.preferences.units === 0)
+        simpleStats.madePutts.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+    else
+        simpleStats.madePutts.puttsAtThatDistance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3]++;
     simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 
     if (misReadLine || misReadSlope) {
-        simpleStats.puttsAHole.misreadPuttsAHole += putt.totalPutts;
+        simpleStats.puttsAHole.misreadPuttsAHole += totalPutts;
         simpleStats.puttsAHole.misreadHoles++;
     }
 
     if (misHit) {
-        simpleStats.puttsAHole.puttsAHoleWhenMishit += putt.totalPutts;
+        simpleStats.puttsAHole.puttsAHoleWhenMishit += totalPutts;
         simpleStats.puttsAHole.mishitHoles++;
     } else {
-        simpleStats.puttsAHole.puttsAHole += putt.totalPutts;
+        simpleStats.puttsAHole.puttsAHole += totalPutts;
         simpleStats.puttsAHole.normalHoles++;
     }
 
-    const strokesGained = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
+    const strokesGained = calculateBaselineStrokesGained(convertUnits(distance, userData.preferences.units, 0)) - totalPutts;
 
-    simpleStats.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += putt.totalPutts;
-    simpleStats.puttsAHole.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-    simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += putt.totalPutts;
-    simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+    if ((misHit && userData.preferences.countMishits) || !misHit) {
+        if (userData.preferences.units === 0) {
+            simpleStats.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += totalPutts;
+            simpleStats.puttsAHole.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+        } else {
+            simpleStats.puttsAHole.distance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3] += totalPutts;
+            simpleStats.puttsAHole.puttsAtThatDistance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3]++;
+        }
+        simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += putt.totalPutts;
+        simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+        if (userData.preferences.units === 0) {
+            simpleStats.strokesGained.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += strokesGained;
+            simpleStats.strokesGained.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
+        } else {
+            simpleStats.strokesGained.distance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3] += strokesGained;
+            simpleStats.strokesGained.puttsAtThatDistance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3]++;
+        }
+        simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += strokesGained;
+        simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 
-    simpleStats.strokesGained.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += strokesGained;
-    simpleStats.strokesGained.puttsAtThatDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-    simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += strokesGained;
-    simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+        simpleStats["avgMiss"] += distanceMissed;
+    }
 
     simpleStats["totalDistance"] += distance;
     simpleStats["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
-    simpleStats["avgMiss"] += distanceMissed;
+    simpleStats["puttsMishits"] += misHit ? 1 : 0;
 }
 
-export { createSimpleStats, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { calculateDistanceMissedMeters, createSimpleStats, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

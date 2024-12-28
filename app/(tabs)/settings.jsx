@@ -1,110 +1,133 @@
-import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
+import {Pressable, ScrollView, Switch, Text, TextInput, View} from 'react-native';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {updateEmail, updateProfile} from "firebase/auth";
+import React, {useState} from 'react';
 import {getAuth} from "../../utils/firebase"
 import {getFirestore} from "firebase/firestore";
 import useColors from "@/hooks/useColors";
 import {useAppContext, useSession} from "@/contexts/AppCtx";
-import SaveChangesModal from "../../components/general/popups/SaveChangesModal";
-import useKeyboardVisible from "../../hooks/useKeyboardVisible";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import {SetTheme, SetUnits} from "../../components/tabs/settings/popups/";
 
 export default function HomeScreen() {
     const colors = useColors();
-    const isKeyboardVisible = useKeyboardVisible();
     const {signOut, isLoading} = useSession();
     const {userData} = useAppContext();
-    const drawerSaveChanges = useRef(null);
 
     const auth = getAuth();
     const db = getFirestore();
 
-    const initialState = {
-        displayName: auth.currentUser.displayName,
-        email: auth.currentUser.email,
-        reminders: false,
-        goals: false,
-        progress: false,
-        invalidEmail: false,
-        invalidDisplayName: false,
-    }
-    const [state, setState] = useState(initialState);
+    // const saveChanges = () => {
+    //     if (state.invalidEmail || state.invalidDisplayName) return;
+    //
+    //     // Save changes to the database
+    //     updateProfile(auth.currentUser, {
+    //         displayName: state.displayName
+    //     }).then(() => {
+    //         initialState.displayName = state.displayName;
+    //     }).catch((error) => {
+    //         // An error occurred
+    //         // ...
+    //         console.log("Error updating profile: ", error);
+    //     });
+    //
+    //     // TODO this doesnt work, unless the user has recently authenticated, which means we need
+    //     // to prompt the user for their password before updating their email (by modal)
+    //     updateEmail(auth.currentUser, state.email).then(() => {
+    //         // Email updated!
+    //         // ...
+    //         console.log("Email updated!");
+    //     }).catch((error) => {
+    //         // An error occurred
+    //         // ...
+    //         console.log("Error updating email: ", error);
+    //     });
+    // }
 
-    useEffect(() => {
-        if (!isKeyboardVisible && (state.displayName !== initialState.displayName || state.email !== auth.currentUser.email))
-            drawerSaveChanges.current.expand();
-        else
-            drawerSaveChanges.current.close();
-    }, [state]);
+    const [reminders, setReminders] = useState(userData.preferences.reminders);
+    const [theme, setTheme] = useState(userData.preferences.theme);
 
-    const updateField = (field, value) => {
-        setState(prevState => ({
-            ...prevState,
-            [field]: value,
-        }));
-    };
+    const [themePressed, setThemePressed] = useState(false);
+    const [unitsPressed, setUnitsPressed] = useState(false);
 
-    const saveChanges = () => {
-        if (state.invalidEmail || state.invalidDisplayName) return;
-
-        // Save changes to the database
-        updateProfile(auth.currentUser, {
-            displayName: state.displayName
-        }).then(() => {
-            drawerSaveChanges.current.close();
-            initialState.displayName = state.displayName;
-        }).catch((error) => {
-            // An error occurred
-            // ...
-            console.log("Error updating profile: ", error);
-        });
-
-        // TODO this doesnt work, unless the user has recently authenticated, which means we need
-        // to prompt the user for their password before updating their email (by modal)
-        updateEmail(auth.currentUser, state.email).then(() => {
-            // Email updated!
-            // ...
-            console.log("Email updated!");
-        }).catch((error) => {
-            // An error occurred
-            // ...
-            console.log("Error updating email: ", error);
-        });
-    }
+    const setThemeRef = React.useRef(null);
+    const setUnitsRef = React.useRef(null);
 
     return (
-        <View style={{
-            overflow: "hidden",
-            flexDirection: "column",
-            alignContent: "center",
-            borderBottomWidth: 1,
-            borderBottomColor: colors.border.default,
-            paddingHorizontal: 20,
-            backgroundColor: colors.background.primary,
-        }}>
-            <ScrollView keyboardShouldPersistTaps={'handled'}>
-                <View style={{
-                    flexDirection: "col",
-                    alignItems: "flex-start",
-                    flex: 0,
-                    paddingTop: 2,
-                    paddingBottom: 10,
-                }}>
-                    <Text style={{color: colors.text.secondary, fontSize: 16}}>Edit Your</Text>
-                    <Text style={{
-                        fontSize: 24,
-                        fontWeight: 500,
-                        color: colors.text.primary
-                    }}>Settings</Text>
-                </View>
-                <Profile state={state} updateField={updateField}></Profile>
-            </ScrollView>
-            <SaveChangesModal saveChangesRef={drawerSaveChanges}
-                              save={saveChanges}
-                              disabled={state.invalidDisplayName || state.invalidEmail}></SaveChangesModal>
-        </View>
+        <BottomSheetModalProvider>
+            <View style={{
+                overflow: "hidden",
+                flexDirection: "column",
+                alignContent: "center",
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border.default,
+                paddingHorizontal: 20,
+                backgroundColor: colors.background.primary,
+                flex: 1
+            }}>
+                <ScrollView keyboardShouldPersistTaps={'handled'}>
+                    <View style={{
+                        flexDirection: "col",
+                        alignItems: "flex-start",
+                        flex: 0,
+                        paddingTop: 2,
+                        paddingBottom: 10,
+                    }}>
+                        <Text style={{color: colors.text.secondary, fontSize: 16}}>Edit Your</Text>
+                        <Text style={{
+                            fontSize: 24,
+                            fontWeight: 500,
+                            color: colors.text.primary
+                        }}>Settings</Text>
+                    </View>
+                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</Text>
+                    <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Personal Info</Text>
+                        <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24" strokeWidth={3}
+                             stroke={colors.text.primary}>
+                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                  d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                        </Svg>
+                    </Pressable>
+                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>NOTIFICATIONS</Text>
+                    <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Practice Reminders</Text>
+                        <Switch
+                            trackColor={{false: colors.switch.track, true: colors.switch.active.track}}
+                            thumbColor={reminders ? colors.switch.active.thumb : colors.switch.thumb}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={() => setReminders(!reminders)}
+                            value={reminders}
+                        />
+                    </Pressable>
+                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>INTERFACE</Text>
+                    <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight:18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>App Theme</Text>
+                        <Pressable
+                            onPress={() => setThemeRef.current.present()}
+                            onPressIn={() => setThemePressed(true)}
+                            onPressOut={() => setThemePressed(false)}
+                            style={{padding: 7}}>
+                            <Text style={{color: colors.text.link, opacity: themePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.theme === 0 ? "Auto-Detect" : userData.preferences.theme === 1 ? "Dark" : "Light"}</Text>
+                        </Pressable>
+                    </Pressable>
+                    <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Units</Text>
+                        <Pressable
+                            onPressIn={() => setUnitsPressed(true)}
+                            onPressOut={() => setUnitsPressed(false)}
+                            onPress={() => setUnitsRef.current.present()}
+                            style={{padding: 7}}>
+                            <Text style={{color: colors.text.link, opacity: unitsPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.units === 0 ? "Imperial" : "Metric"}</Text>
+                        </Pressable>
+                    </Pressable>
+                </ScrollView>
+            </View>
+            <SetTheme setThemeRef={setThemeRef}/>
+            <SetUnits setUnitsRef={setUnitsRef}/>
+        </BottomSheetModalProvider>
     );
 }
 

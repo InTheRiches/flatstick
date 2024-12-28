@@ -2,8 +2,9 @@
 import useColors from "../../../hooks/useColors";
 import {Image, Text, View} from "react-native";
 import {MissDistributionDiagram} from "./MissDistributionDiagram";
+import {roundTo} from "../../../utils/roundTo";
 
-export function RecapVisual({holes, totalPutts, avgDistance, makeData, makePercent}) {
+export function RecapVisual({holes, totalPutts, avgDistance, makeData, makePercent, units}) {
     const colors = useColors();
 
     return (
