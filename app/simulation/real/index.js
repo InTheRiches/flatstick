@@ -85,6 +85,9 @@ export default function RealSimulation() {
     const submitRef = useRef(null);
     const confirmExitRef = useRef(null);
 
+    // keep track of the time this session started at
+    const [startTime, setStartTime] = useState(new Date().getTime());
+
     const [{
         loading,
         largeMiss,
@@ -200,6 +203,7 @@ export default function RealSimulation() {
 
         const data = {
             date: new Date().toISOString(),
+            startedAtTimestamp: startTime,
             timestamp: new Date().getTime(),
             holes: partial ? puttsCopy.length : holes,
             putts: trimmedPutts,
@@ -214,7 +218,8 @@ export default function RealSimulation() {
             leftRightBias: leftRightBias,
             missData: missData,
             totalDistance: totalDistance,
-            units: userData.preferences.units
+            units: userData.preferences.units,
+            duration: new Date().getTime() - startTime,
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {

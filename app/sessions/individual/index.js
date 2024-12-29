@@ -30,10 +30,21 @@ export default function IndividualSession({}) {
         });
     }, []);
 
+    const formatTimestamp = () => {
+        console.log(Object.keys(session));
+        const date = new Date(session.startedAtTimestamp);
+        const options = { month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true };
+        return date.toLocaleString('en-US', options);
+    };
+
     return loading ? <Loading></Loading> : (
         <View style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1, backgroundColor: colors.background.primary}}>
             <View>
-                <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>18 Hole Simulation</Text>
+                <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                    <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>18 Hole Simulation</Text>
+                    <Text style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "right"}}>{formatTimestamp()}</Text>
+                </View>
+
                 <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                     <View style={{alignItems: "center", flex: 0.5}}>
                         <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>

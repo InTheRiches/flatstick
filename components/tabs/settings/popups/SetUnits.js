@@ -29,6 +29,7 @@ export function SetUnits({setUnitsRef}) {
               backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={setUnitsRef} animatedIndex={animatedIndex} style={style}/>}
               enableDismissOnClose={true}
               stackBehavior={"replace"}
+              handleIndicatorStyle={{backgroundColor: colors.text.primary}}
               ref={setUnitsRef}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 24, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>

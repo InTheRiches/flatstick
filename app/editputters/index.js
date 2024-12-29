@@ -1,8 +1,8 @@
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
-import {Text, View} from "react-native";
+import {BackHandler, Text, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
-import React, {useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
@@ -14,10 +14,33 @@ import {NewPutterModal, PutterSelector} from "../../components/editputters";
 export default function EditPutters() {
     const colors = useColors();
     const newPutterRef = useRef(null);
-    const {putters} = useAppContext();
+    const {putters, userData, updateData, setUserData} = useAppContext();
     const navigation = useNavigation();
+    const [selectedPutter, setPutter] = useState(userData.preferences.selectedPutter);
+
+    const setSelectedPutter = (id) => {
+        setPutter(id);
+        setUserData({...userData, preferences: {...userData.preferences, selectedPutter: id}});
+    }
+
+    const onBackPress = () => {
+        updateData({...userData});
+        navigation.goBack();
+        return true;
+    };
+
+    // on back button save
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            onBackPress
+        );
+
+        return () => backHandler.remove();
+    }, [selectedPutter]);
 
     const gesture = Gesture.Tap().onStart((data) => {
+        runOnJS(updateData)({...userData});
         runOnJS(navigation.goBack)();
     });
 
@@ -48,7 +71,7 @@ export default function EditPutters() {
             <View style={{marginTop: 16, width: "100%", paddingBottom: 12}}>
                 { (putters !== undefined && putters.length !== 0) &&
                     putters.map((putter, index) => {
-                        return <PutterSelector key={"putt_" + putter.type} id={index} name={putter.name} stats={putter.stats}></PutterSelector>
+                        return <PutterSelector key={"putt_" + putter.type} id={index} name={putter.name} stats={putter.stats} selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter}></PutterSelector>
                     })
                 }
             </View>

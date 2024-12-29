@@ -7,7 +7,7 @@ export const LightTheme = {
   background: {
     primary: '#EDEDED',
     secondary: '#fff',
-    tinted: 'rgba(0, 0, 0, 0.3)',
+    tinted: 'rgba(0, 0, 0, 0.5)',
   },
   border: {
     default: '#CFCFCF',
@@ -138,16 +138,16 @@ export const DarkTheme = {
   },
   button: {
     primary: {
-      border: 'transparent',
-      text: 'black',
-      background: 'white',
-      depressed: '#C3C3C3',
-    },
-    secondary: {
       background: '#202425',
       border: '#424647',
       text: '#fff',
       depressed: '#323536',
+    },
+    secondary: {
+      border: 'transparent',
+      text: 'black',
+      background: 'white',
+      depressed: '#C3C3C3',
     },
     disabled: {
       background: "#0c0d0e",

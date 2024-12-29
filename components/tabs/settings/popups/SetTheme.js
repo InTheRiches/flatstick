@@ -30,6 +30,7 @@ export function SetTheme({setThemeRef}) {
         }}
               backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={setThemeRef} animatedIndex={animatedIndex} style={style}/>}
               enableDismissOnClose={true}
+              handleIndicatorStyle={{backgroundColor: colors.text.primary}}
               stackBehavior={"replace"}
               ref={setThemeRef}
               backgroundStyle={{backgroundColor: colors.background.primary}}>

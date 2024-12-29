@@ -16,7 +16,7 @@ export function Session({session}) {
         <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(session), recap: false}})}
                    style={({pressed}) =>
                        [{
-                           backgroundColor: colorScheme === "light" ? pressed ? colors.button.primary.depressed : colors.button.primary.background : pressed ? colors.button.secondary.depressed : colors.button.secondary.background,
+                           backgroundColor: colorScheme === "light" ? pressed ? colors.button.primary.depressed : colors.button.primary.background : pressed ? colors.button.primary.depressed : colors.button.primary.background,
                        }, {
                            flexDirection: "row",
                            borderBottomWidth: 1,

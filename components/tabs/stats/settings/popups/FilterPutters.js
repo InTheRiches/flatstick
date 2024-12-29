@@ -26,6 +26,7 @@ export function FilterPutters({filterPuttersRef}) {
               enableDismissOnClose={true}
               stackBehavior={"replace"}
               ref={filterPuttersRef}
+                          handleIndicatorStyle={{backgroundColor: colors.text.primary}}handleIndicatorStyle={{backgroundColor: colors.text.primary}}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
                 <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>

@@ -38,10 +38,11 @@ export const NewRound = ({newSessionRef}) => {
             bottomSheetPosition={bottomSheetPosition}
             enablePanDownToClose={true}
             backdropComponent={myBackdrop}
-            backgroundStyle={{backgroundColor: colors.background.secondary}}
+            handleIndicatorStyle={{backgroundColor: colors.text.primary}}
+            backgroundStyle={{backgroundColor: colors.background.primary}}
         >
             <BottomSheetView style={{
-                    paddingBottom: 12, backgroundColor: colors.background.secondary,
+                    paddingBottom: 12, backgroundColor: colors.background.primary,
                 }}>
                 <View style={{marginHorizontal: 24, paddingBottom: 12}}>
                     <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>
@@ -258,7 +259,7 @@ export const NewRound = ({newSessionRef}) => {
                         color: colors.text.primary,
                         marginBottom: 4,
                     }}>Putter</Text>
-                    <View style={{flexDirection: "row", borderWidth: 1, gap: 0, borderRadius: 10, borderColor: colors.toggleable.border, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
+                    <View style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
                         <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                         <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
                             <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[userData.preferences.selectedPutter].name : "Default Putter"}</Text>

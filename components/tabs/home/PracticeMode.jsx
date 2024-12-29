@@ -1,15 +1,17 @@
-import {Pressable, Text, View} from "react-native";
+import {Pressable, Text, useColorScheme, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
 import {useState} from "react";
 import useColors from "@/hooks/useColors";
 import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "react-native-reanimated";
 import {CollapsableContainer} from "./CollapsableContainer";
+import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
 // TODO make the arrow face right, but when expanded face forward right
 export function PracticeMode({name, description, onPress, onInfo, time, distance, focus}) {
     const [expanded, setExpanded] = useState(false);
     const colors = useColors();
+    const colorScheme = useColorScheme();
 
     const [rotation, setRotation] = useState(0);
     const animatedHeight = useSharedValue(-90);
@@ -53,24 +55,38 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                     <Text style={{fontSize: 18, color: colors.text.primary}}>{name}</Text>
                 </View>
                 <View style={{ flexDirection: "row", gap: 8}}>
-                    {onInfo && <PrimaryButton onPress={onInfo} style={{
+                    {onInfo && <SecondaryButton onPress={onInfo} style={{
                         borderRadius: 30,
                         width: 32,
                         aspectRatio: 1,
                         justifyContent: "center",
                         alignItems: "center"
                     }}>
-                        <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>?</Text>
-                    </PrimaryButton>}
-                    <PrimaryButton onPress={onPress} style={{
-                        borderRadius: 30,
-                        width: 32,
-                        aspectRatio: 1,
-                        justifyContent: "center",
-                        alignItems: "center"
-                    }}>
-                        <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
-                    </PrimaryButton>
+                        <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>?</Text>
+                    </SecondaryButton>}
+                    {
+                        colorScheme === "dark" ? (
+                            <SecondaryButton onPress={onPress} style={{
+                                borderRadius: 30,
+                                width: 32,
+                                aspectRatio: 1,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>+</Text>
+                            </SecondaryButton>
+                        ) : (
+                            <PrimaryButton onPress={onPress} style={{
+                                borderRadius: 30,
+                                width: 32,
+                                aspectRatio: 1,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
+                            </PrimaryButton>
+                        )
+                    }
                 </View>
             </Pressable>
             <CollapsableContainer expanded={expanded}>

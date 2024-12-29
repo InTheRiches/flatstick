@@ -95,8 +95,6 @@ export default function CreateAccount() {
                         filteringPutter: 0,
                         selectedPutters: 0
                     }
-                }).then((data) => {
-                    console.log("made document");
                 }).catch((error) => {
                         console.log(error);
                 });

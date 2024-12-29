@@ -85,7 +85,7 @@ export function AppProvider({children}) {
     const firestore = getFirestore();
 
     // Firebase authentication functions
-    const signIn = useMemo(() => async (email, password) => {
+    const signIn = async (email, password) => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const token = await userCredential.user.getIdToken();
@@ -94,19 +94,18 @@ export function AppProvider({children}) {
             console.error("Error during sign-in:", error);
             throw error;
         }
-    }, []);
+    };
 
-    const signOut = useMemo(() => async () => {
+    const signOut = async () => {
         try {
             await auth.signOut();
             setSession(null);
         } catch (error) {
             console.error("Error during sign-out:", error);
         }
-    }, []);
+    };
 
     const getPreviousStats = useMemo(() => async () => {
-        console.log("getting previous stats");
         const statsQuery = query(collection(firestore, `users/${auth.currentUser.uid}/stats`));
         try {
             const querySnapshot = await getDocs(statsQuery);
@@ -138,9 +137,7 @@ export function AppProvider({children}) {
 
     const newPutter = (type) => {
         const id = type.toLowerCase().replace(/\s/g, "-");
-        setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleRefinedStats()).then((data) => {
-            console.log("made new putter document");
-        }).catch((error) => {
+        setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleRefinedStats()).catch((error) => {
             console.log(error);
         });
 
@@ -184,9 +181,7 @@ export function AppProvider({children}) {
 
     // Update user data
     const updateData = async (newData) => {
-        console.log("updating data: " + Object.keys(userData));
         setUserData(prev => {
-            console.log("data: " + Object.keys({...prev, ...newData}));
             return {...prev, ...newData};
         });
 
@@ -208,9 +203,7 @@ export function AppProvider({children}) {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         getDoc(userDocRef).then(async (doc) => {
             if (!doc.exists()) {
-                setDoc(userDocRef, newData).then((data) => {
-                    console.log("made new stats document");
-                }).catch((error) => {
+                setDoc(userDocRef, newData).catch((error) => {
                     console.log(error);
                 });
                 return;
@@ -236,7 +229,6 @@ export function AppProvider({children}) {
         try {
             const data = await getDoc(docRef);
             setUserData(data.data());
-            console.log("refreshed user data: " + Object.keys(data.data()));
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }
@@ -407,10 +399,8 @@ export function AppProvider({children}) {
             session.putts.forEach((putt) => {
                 let {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
 
-                console.log("dist 1: " + distance)
-
                 distance = convertUnits(distance, session.units, userData.preferences.units);
-                console.log("dist 2: " + distance)
+
                 distanceMissed = convertUnits(distanceMissed, session.units, userData.preferences.units);
                 xDistance = convertUnits(xDistance, session.units, userData.preferences.units);
                 yDistance = convertUnits(yDistance, session.units, userData.preferences.units);
@@ -656,7 +646,6 @@ export function AppProvider({children}) {
 
         const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`));
         getDocs(sessionQuery).then((querySnapshot) => {
-            console.log(querySnapshot.docs.length);
             if (querySnapshot.docs.length % 5 === 0) {
                 setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
             }

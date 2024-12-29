@@ -88,6 +88,8 @@ export default function RoundSimulation() {
     const submitRef = useRef(null);
     const confirmExitRef = useRef(null);
 
+    const [startTime, setStartTime] = useState(new Date().getTime());
+
     const rollProbabilities = useMemo(() => createRollProbabilities(currentStats), [currentStats]);
     const distanceProbabilities = useMemo(() => createDistanceProbabilities(currentStats), [currentStats]);
 
@@ -226,6 +228,7 @@ export default function RoundSimulation() {
 
         const data = {
             date: new Date().toISOString(),
+            startedAtTimestamp: startTime,
             timestamp: new Date().getTime(),
             difficulty: difficulty,
             holes: partial ? puttsCopy.length : holes,
@@ -242,7 +245,8 @@ export default function RoundSimulation() {
             shortPastBias: shortPastBias,
             missData: missData,
             totalDistance: totalDistance,
-            units: userData.preferences.units
+            units: userData.preferences.units,
+            duration: new Date().getTime() - startTime,
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
