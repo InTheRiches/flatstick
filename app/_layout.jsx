@@ -56,6 +56,7 @@ export default function RootLayout() {
                     animation: "slide_from_bottom",
                     animationDuration: 150,
                   }}/>
+                  <Stack.Screen name={"compare/putters/index"} />
                 </Stack>
               </ThemeProvider>
             </BottomSheetModalProvider>

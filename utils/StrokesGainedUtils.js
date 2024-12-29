@@ -1,5 +1,6 @@
 // Example usage:
 import {roundTo} from "./roundTo";
+import {convertUnits} from "@/utils/Conversions";
 
 const sgBaselinePutts = [
     { distance: 1, strokesGained: 1.00 },
@@ -44,8 +45,8 @@ function cleanAverageStrokesGained(averagePerformance, strokesGained = -999) {
     else
         refinedStrokesGained.overall = averagePerformance.strokesGained.overall;
     refinedStrokesGained.distance = averagePerformance.strokesGained.distance.map((val, idx) => {
-        if (averagePerformance.strokesGained.puttsAtThatDistance[idx] === 0) return 0;
-        return roundTo(val / averagePerformance.strokesGained.puttsAtThatDistance[idx], 1);
+        if (averagePerformance.puttsByDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.puttsByDistance[idx], 1);
     });
     // handle the slopes
     for (const slope of ["uphill", "neutral", "downhill"]) {
@@ -95,16 +96,26 @@ function calculateSingleStrokesGained(totalPutts, distance) {
     return baselineStrokesGained - totalPutts;
 }
 
-function calculateTotalStrokesGained(sessions) {
+function calculateTotalStrokesGained(userData, sessions) {
     let overallPutts = 0;
     let overallRounds = 0;
 
-    const categories = {
-        'lessThanSix': {totalBaselines: 0, totalActualPutts: 0, totalHoles: 0},
-        'sixToTwelve': {totalBaselines: 0, totalActualPutts: 0, totalHoles: 0},
-        'twelveToTwenty': {totalBaselines: 0, totalActualPutts: 0, totalHoles: 0},
-        'twentyPlus': {totalBaselines: 0, totalActualPutts: 0, totalHoles: 0}
-    };
+    let categories;
+    if (userData.preferences.units === 0) {
+        categories = {
+            lessThanSix: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+            sixToTwelve: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+            twelveToTwenty: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+            twentyPlus: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0}
+        }
+    } else {
+        categories = {
+            lessThanTwo: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+            twoToFour: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+            fourToSeven: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+            sevenPlus: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+        }
+    }
 
     sessions.slice(0, 5).forEach(session => {
         const {totalPutts, holes} = session;
@@ -115,19 +126,23 @@ function calculateTotalStrokesGained(sessions) {
         session.putts.forEach(putt => {
             const {distance, totalPutts} = putt;
 
+            const convertedDistance = convertUnits(distance, session.units, userData.preferences.units);
+
             let category;
 
-            if (distance < 6) {
-                category = 'lessThanSix';
-            } else if (distance >= 6 && distance <= 12) {
-                category = 'sixToTwelve';
-            } else if (distance > 12 && distance <= 20) {
-                category = 'twelveToTwenty';
+            if (userData.preferences.units === 0) {
+                if (convertedDistance < 6) category = "lessThanSix";
+                else if (convertedDistance < 12) category = "sixToTwelve";
+                else if (convertedDistance < 20) category = "twelveToTwenty";
+                else category = "twentyPlus";
             } else {
-                category = 'twentyPlus';
+                if (convertedDistance < 2) category = "lessThanTwo";
+                else if (convertedDistance <= 4) category = "twoToFour";
+                else if (convertedDistance <= 7) category = "fourToSeven";
+                else category = "sevenPlus";
             }
 
-            const baselineStrokesGained = calculateBaselineStrokesGained(distance);
+            const baselineStrokesGained = calculateBaselineStrokesGained(convertUnits(distance, session.units, 0));
 
             categories[category].totalHoles++;
             categories[category].totalBaselines += baselineStrokesGained;

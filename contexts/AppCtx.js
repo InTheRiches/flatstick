@@ -25,6 +25,7 @@ import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {getAuth} from "@/utils/firebase";
 import {convertUnits} from "@/utils/Conversions";
+import {Appearance} from "react-native";
 
 const breaks = [
     "leftToRight",
@@ -229,6 +230,10 @@ export function AppProvider({children}) {
         try {
             const data = await getDoc(docRef);
             setUserData(data.data());
+
+            const theme = data.data().preferences.theme;
+
+            Appearance.setColorScheme(theme === 0 ? null : theme === 1 ? "dark" : "light");
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }
@@ -379,7 +384,7 @@ export function AppProvider({children}) {
         }
 
         const newPuttSessions = await refreshData();
-        const strokesGained = calculateTotalStrokesGained(newPuttSessions);
+        const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
         const newPutters = putters.slice(1).map((putter) => {
             putter.stats = createSimpleStats();
             return putter;
@@ -414,8 +419,8 @@ export function AppProvider({children}) {
                     else category = "twentyPlus";
                 } else {
                     if (distance < 2) category = "lessThanTwo";
-                    else if (distance < 4) category = "twoToFour";
-                    else if (distance < 7) category = "fourToSeven";
+                    else if (distance <= 4) category = "twoToFour";
+                    else if (distance <= 7) category = "fourToSeven";
                     else category = "sevenPlus";
                 }
 
@@ -426,12 +431,12 @@ export function AppProvider({children}) {
 
                 try {
                     if (averaging) {
-                        updateSimpleStats(userData, newStats.averagePerformance, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts: putt.totalPutts}, category);
+                        updateSimpleStats(userData, newStats.averagePerformance, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts}, category);
                     }
 
                     // TODO if the putter no longer exists (was deleted), then we should just use the default putter
                     if (session.putter !== "default") {
-                        updateSimpleStats(userData, newPutters.find((putter) => putter.type === session.putter).stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, totalPutts: putt.totalPutts}, category);
+                        updateSimpleStats(userData, newPutters.find((putter) => putter.type === session.putter).stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts}, category);
                     }
                 } catch (error) {
                     console.error("Error updating stats:", error);
@@ -542,9 +547,15 @@ export function AppProvider({children}) {
             newStats.averagePerformance.onePutts = roundTo(newStats.averagePerformance["onePutts"] / newStats.averagePerformance["rounds"], 1);
             newStats.averagePerformance.twoPutts = roundTo(newStats.averagePerformance["twoPutts"] / newStats.averagePerformance["rounds"], 1);
             newStats.averagePerformance.threePutts = roundTo(newStats.averagePerformance["threePutts"] / newStats.averagePerformance["rounds"], 1);
+            newStats.averagePerformance.leftRightBias = roundTo(newStats.averagePerformance.leftRightBias / (newStats.averagePerformance["rounds"]*18), 2);
+            newStats.averagePerformance.shortPastBias = roundTo(newStats.averagePerformance.shortPastBias / (newStats.averagePerformance["rounds"]*18), 2);
             newStats.averagePerformance.strokesGained = cleanAverageStrokesGained(newStats.averagePerformance, strokesGained["overall"]);
             newStats.averagePerformance.puttsAHole = cleanPuttsAHole(newStats.averagePerformance);
             newStats.averagePerformance.madePutts = cleanMadePutts(newStats.averagePerformance);
+            newStats.averagePerformance.avgMissDistance = newStats.averagePerformance.avgMissDistance.map((val, idx) => {
+                if (newStats.averagePerformance.puttsByDistance[idx] === 0) return 0;
+                return roundTo(val / newStats.averagePerformance.puttsByDistance[idx], 1);
+            });
         }
 
         // Finalize average calculations
@@ -601,10 +612,17 @@ export function AppProvider({children}) {
             putter.stats.onePutts = roundTo(putter.stats["onePutts"] / putter.stats["rounds"], 1);
             putter.stats.twoPutts = roundTo(putter.stats["twoPutts"] / putter.stats["rounds"], 1);
             putter.stats.threePutts = roundTo(putter.stats["threePutts"] / putter.stats["rounds"], 1);
+            putter.stats.leftRightBias = roundTo(putter.stats.leftRightBias / (putter.stats.rounds * 18), 2);
+            putter.stats.shortPastBias = roundTo(putter.stats.shortPastBias / (putter.stats.rounds * 18), 2);
 
             putter.stats.strokesGained = cleanAverageStrokesGained(putter.stats);
             putter.stats.puttsAHole = cleanPuttsAHole(putter.stats);
             putter.stats.madePutts = cleanMadePutts(putter.stats);
+
+            putter.stats.avgMissDistance = putter.stats.avgMissDistance.map((val, idx) => {
+                if (putter.stats.puttsByDistance[idx] === 0) return 0;
+                return roundTo(val / putter.stats.puttsByDistance[idx], 1);
+            });
 
             const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/putters/${putter.type}`);
             runTransaction(firestore, async (transaction) => {
@@ -618,6 +636,8 @@ export function AppProvider({children}) {
                 console.error("Set putter transaction failed:", error);
             });
         });
+
+        console.log("refreshed")
 
         return newStats;
     };
