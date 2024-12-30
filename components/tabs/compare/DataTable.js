@@ -132,17 +132,16 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
     const isBetterStrokesGained = (value1, value2) => value1 > value2;
     const isBetterAvgMiss = (value1, value2) => value1 < value2;
     const isBetterMakePercentage = (value1, value2) => value1 > value2;
-    const isBetterBias = (value1, value2) => Math.abs(value1) < Math.abs(value2);
-    const isBetterMisreadMishits = (value1, value2) => value1 < value2;
-    const isBetterOnePutts = (value1, value2) => value1 > value2;
     const isBetterThreePutts = (value1, value2) => value1 < value2;
+
+    console.log(stats2.avgMissDistance[distance]);
 
     return (
         <View style={{marginTop: 8}}>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <Text style={{flex: 1, color: colors.text.primary}}>Strokes Gained</Text>
-                <Text style={getStyle(stats1.strokesGained.distance[0], stats2.strokesGained.distance[0], isBetterStrokesGained)}>{stats1.strokesGained.distance[0]}</Text>
-                <Text style={getStyle(stats2.strokesGained.distance[0], stats1.strokesGained.distance[0], isBetterStrokesGained)}>{stats2.strokesGained.distance[0]}</Text>
+                <Text style={getStyle(stats1.strokesGained.distance[distance], stats2.strokesGained.distance[distance], isBetterStrokesGained)}>{stats1.strokesGained.distance[distance]}</Text>
+                <Text style={getStyle(stats2.strokesGained.distance[distance], stats1.strokesGained.distance[distance], isBetterStrokesGained)}>{stats2.strokesGained.distance[distance]}</Text>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <Text style={{flex: 1, color: colors.text.primary}}>Avg. Miss</Text>
@@ -156,8 +155,8 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <Text style={{flex: 1, color: colors.text.primary}}>Putts a hole</Text>
-                <Text style={getStyle(stats1.puttsAHole.puttsAHole, stats2.puttsAHole.puttsAHole, isBetterThreePutts)}>{stats1.puttsAHole.puttsAHole}</Text>
-                <Text style={getStyle(stats2.puttsAHole.puttsAHole, stats1.puttsAHole.puttsAHole, isBetterThreePutts)}>{stats2.puttsAHole.puttsAHole}</Text>
+                <Text style={getStyle(stats1.puttsAHole.distance[distance], stats2.puttsAHole.distance[distance], isBetterThreePutts)}>{stats1.puttsAHole.distance[distance]}</Text>
+                <Text style={getStyle(stats2.puttsAHole.distance[distance], stats1.puttsAHole.distance[distance], isBetterThreePutts)}>{stats2.puttsAHole.distance[distance]}</Text>
             </View>
         </View>
     )

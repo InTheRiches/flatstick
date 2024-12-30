@@ -106,16 +106,25 @@ export default function ComparePutters({}) {
             <SelectPutter setSelectedPutter={setSecondPutter} selectedPutter={secondPutter} filterPuttersRef={secondPutterRef}/>
             {
                 firstPutter !== 0 && secondPutter !== 0 && <>
-                    <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 600, marginTop: 24, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? putters[firstPutter].name : putters[secondPutter].name}</Text> putts better.</Text>
-                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"All Putts"}</Text>
+                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>RESULT</Text>
+                    <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? putters[firstPutter].name : putters[secondPutter].name}</Text> putts better.</Text>
+                    </View>
+                    <Text style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</Text>
                     <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>
                         <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</Text>
                         <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{firstPutter === 0 ? "All" : putters[firstPutter].name}</Text>
                         <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{secondPutter === 0 ? "All" : putters[secondPutter].name}</Text>
                     </View>
                     <DataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"}/>
-                    <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</Text>
+                    <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</Text>
                     <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={0}/>
+                    <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</Text>
+                    <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={1}/>
+                    <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</Text>
+                    <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={2}/>
+                    <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</Text>
+                    <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={3}/>
                 </>
             }
         </ScrollView>
