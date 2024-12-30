@@ -594,7 +594,7 @@ export function AppProvider({children}) {
 
         setCurrentStats(newStats);
 
-        await updateData({totalPutts: totalPutts});
+        await updateData({totalPutts: totalPutts, strokesGained: strokesGained["overall"]});
         await updateStats(newStats, true)
 
         newPutters.forEach((putter) => {

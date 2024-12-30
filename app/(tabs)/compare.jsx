@@ -12,7 +12,7 @@ export default function Compare({}) {
             <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 24}}>Compare Your Stats</Text>
             <View style={{flexDirection: "row", gap: 16}}>
                 <PrimaryButton onPress={() => router.push({pathname: "/compare/putters"})} style={{borderRadius: 12, paddingVertical: 12, flex: 1}} title={"By Putter"}></PrimaryButton>
-                <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1}} title={"By User"}></PrimaryButton>
+                <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1}} title={"By User"} onPress={() => router.push({pathname: "/compare/users/search"})}></PrimaryButton>
             </View>
         </View>
     )

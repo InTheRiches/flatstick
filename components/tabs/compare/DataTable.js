@@ -134,8 +134,6 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
     const isBetterMakePercentage = (value1, value2) => value1 > value2;
     const isBetterThreePutts = (value1, value2) => value1 < value2;
 
-    console.log(stats2.avgMissDistance[distance]);
-
     return (
         <View style={{marginTop: 8}}>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>

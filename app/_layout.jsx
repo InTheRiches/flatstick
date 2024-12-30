@@ -57,6 +57,8 @@ export default function RootLayout() {
                     animationDuration: 150,
                   }}/>
                   <Stack.Screen name={"compare/putters/index"} />
+                  <Stack.Screen name={"compare/users/search/index"} />
+                  <Stack.Screen name={"compare/users/index"} />
                 </Stack>
               </ThemeProvider>
             </BottomSheetModalProvider>
