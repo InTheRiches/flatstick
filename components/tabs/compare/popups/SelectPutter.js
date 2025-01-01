@@ -22,7 +22,7 @@ export function SelectPutter({filterPuttersRef, selectedPutter, setSelectedPutte
                 <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>
                 {
                     putters.slice(1).map((putter, index) => {
-                        return <Putter selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter} putter={putter} index={index+1} key={"puu-" + index}/>
+                        return <Putter selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter} putter={putter} index={index+1} key={"puu-" + index} reference={filterPuttersRef}/>
                     })
                 }
             </BottomSheetView>
@@ -30,13 +30,14 @@ export function SelectPutter({filterPuttersRef, selectedPutter, setSelectedPutte
     );
 }
 
-function Putter({putter, index, selectedPutter, setSelectedPutter}) {
+function Putter({putter, index, selectedPutter, setSelectedPutter, reference}) {
     const colors = useColors();
 
     return (
         <Pressable
             style={{flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: colors.background.secondary, borderRadius: 12, justifyContent: "space-between"}}
             onPress={() => {
+                reference.current.dismiss();
                 if (selectedPutter !== index)
                     setSelectedPutter(index);
             }}>

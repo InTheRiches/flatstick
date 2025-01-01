@@ -240,17 +240,10 @@ const dataBreaks = [
 ]
 
 const dataDistances = [
-    "lessThanSix",
-    "sixToTwelve",
-    "twelveToTwenty",
-    "twentyPlus"
-]
-
-const dataDistancesMetric = [
-    "lessThanTwo",
-    "twoToFour",
-    "fourToSeven",
-    "sevenPlus"
+    "distanceOne",
+    "distanceTwo",
+    "distanceThree",
+    "distanceFour"
 ]
 
 function sumMisses(userData, data, distance, slope, breakType) {
@@ -259,7 +252,7 @@ function sumMisses(userData, data, distance, slope, breakType) {
     let totalPutts = 0;
 
     // Get all distances if 'all' is specified, otherwise just the specific one
-    const distances = distance === -1 ? Object.keys(data).slice(1) : [userData.preferences.units === 0 ? dataDistances[distance] : dataDistancesMetric[distance]];
+    const distances = distance === -1 ? Object.keys(data).slice(1) : dataDistances[distance];
 
     distances.forEach(distanceKey => {
         if (distanceKey === "averagePerformance") return;
@@ -624,10 +617,7 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         simpleStats.onePutts++;
         simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
 
-        if (userData.preferences.units === 0)
-            simpleStats.madePutts.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-        else
-            simpleStats.madePutts.distance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3]++;
+        simpleStats.madePutts.distance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3]++;
     }
     else if (totalPutts === 2) simpleStats["twoPutts"]++;
     else simpleStats["threePutts"]++;
@@ -650,31 +640,18 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     const strokesGained = calculateBaselineStrokesGained(convertUnits(distance, userData.preferences.units, 0)) - totalPutts;
 
     if ((misHit && userData.preferences.countMishits) || !misHit) {
-        if (userData.preferences.units === 0)
-            simpleStats.puttsByDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3]++;
-        else
-            simpleStats.puttsByDistance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3]++;
-        if (userData.preferences.units === 0) {
-            simpleStats.puttsAHole.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += totalPutts;
-        } else {
-            simpleStats.puttsAHole.distance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3] += totalPutts;
-        }
+        simpleStats.puttsByDistance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3]++;
+
+        simpleStats.puttsAHole.distance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3] += totalPutts;
+
         simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += putt.totalPutts;
         simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
-        if (userData.preferences.units === 0) {
-            simpleStats.strokesGained.distance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += strokesGained;
-        } else {
-            simpleStats.strokesGained.distance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3] += strokesGained;
-        }
+        simpleStats.strokesGained.distance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3] += strokesGained;
         simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += strokesGained;
         simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 
         simpleStats.avgMiss += distanceMissed;
-        if (userData.preferences.units === 0) {
-            simpleStats.avgMissDistance[category === "lessThanSix" ? 0 : category === "sixToTwelve" ? 1 : category === "twelveToTwenty" ? 2 : 3] += distanceMissed;
-        } else {
-            simpleStats.avgMissDistance[category === "lessThanTwo" ? 0 : category === "twoToFour" ? 1 : category === "fourToSeven" ? 2 : 3] += distanceMissed;
-        }
+        simpleStats.avgMissDistance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3] += distanceMissed;
     }
 
     simpleStats.leftRightBias += xDistance;

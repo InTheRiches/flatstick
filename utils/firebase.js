@@ -34,7 +34,6 @@ async function getProfilesByUsername(username) {
         profiles.push({...doc.data(), id: doc.id});
     });
 
-    console.log(profiles);
     return profiles;
 }
 

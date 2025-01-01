@@ -363,25 +363,13 @@ export function AppProvider({children}) {
             }
         };
 
-        let newStats;
-
-        if (userData.preferences.units === 0) {
-            newStats = {
-                averagePerformance: createSimpleStats(),
-                lessThanSix: createCategory(),
-                sixToTwelve: createCategory(),
-                twelveToTwenty: createCategory(),
-                twentyPlus: createCategory()
-            };
-        } else {
-            newStats = {
-                averagePerformance: createSimpleStats(),
-                lessThanTwo: createCategory(),
-                twoToFour: createCategory(),
-                fourToSeven: createCategory(),
-                sevenPlus: createCategory()
-            };
-        }
+        const newStats = {
+            averagePerformance: createSimpleStats(),
+            distanceOne: createCategory(),
+            distanceTwo: createCategory(),
+            distanceThree: createCategory(),
+            distanceFour: createCategory()
+        };
 
         const newPuttSessions = await refreshData();
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
@@ -391,7 +379,6 @@ export function AppProvider({children}) {
         });
 
         let totalPutts = 0;
-
 
         newPuttSessions.forEach((session, index) => {
             // TODO do we want to include the fake rounds too? (this is prompted by total distance, as it is relative to difficulty in the fake rounds)
@@ -413,15 +400,15 @@ export function AppProvider({children}) {
                 // Categorize putt distance
                 let category;
                 if (userData.preferences.units === 0) {
-                    if (distance < 6) category = "lessThanSix";
-                    else if (distance < 12) category = "sixToTwelve";
-                    else if (distance < 20) category = "twelveToTwenty";
-                    else category = "twentyPlus";
+                    if (distance < 6) category = "distanceOne";
+                    else if (distance < 12) category = "distanceTwo";
+                    else if (distance < 20) category = "distanceThree";
+                    else category = "distanceFour";
                 } else {
-                    if (distance < 2) category = "lessThanTwo";
-                    else if (distance <= 4) category = "twoToFour";
-                    else if (distance <= 7) category = "fourToSeven";
-                    else category = "sevenPlus";
+                    if (distance < 2) category = "distanceOne";
+                    else if (distance <= 4) category = "distanceTwo";
+                    else if (distance <= 7) category = "distanceThree";
+                    else category = "distanceFour";
                 }
 
                 const statCategory = newStats[category];
@@ -435,6 +422,7 @@ export function AppProvider({children}) {
                     }
 
                     // TODO if the putter no longer exists (was deleted), then we should just use the default putter
+                    // TODO The stack only uses the last five sessions, maybe we should do the same
                     if (session.putter !== "default") {
                         updateSimpleStats(userData, newPutters.find((putter) => putter.type === session.putter).stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts}, category);
                     }

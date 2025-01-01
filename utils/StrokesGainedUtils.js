@@ -101,20 +101,11 @@ function calculateTotalStrokesGained(userData, sessions) {
     let overallRounds = 0;
 
     let categories;
-    if (userData.preferences.units === 0) {
-        categories = {
-            lessThanSix: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-            sixToTwelve: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-            twelveToTwenty: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-            twentyPlus: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0}
-        }
-    } else {
-        categories = {
-            lessThanTwo: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-            twoToFour: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-            fourToSeven: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-            sevenPlus: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-        }
+    categories = {
+        distanceOne: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+        distanceTwo: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+        distanceThree: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
+        distanceFour: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0}
     }
 
     sessions.slice(0, 5).forEach(session => {
@@ -131,15 +122,15 @@ function calculateTotalStrokesGained(userData, sessions) {
             let category;
 
             if (userData.preferences.units === 0) {
-                if (convertedDistance < 6) category = "lessThanSix";
-                else if (convertedDistance < 12) category = "sixToTwelve";
-                else if (convertedDistance < 20) category = "twelveToTwenty";
-                else category = "twentyPlus";
+                if (convertedDistance < 6) category = "distanceOne";
+                else if (convertedDistance < 12) category = "distanceTwo";
+                else if (convertedDistance < 20) category = "distanceThree";
+                else category = "distanceFour";
             } else {
-                if (convertedDistance < 2) category = "lessThanTwo";
-                else if (convertedDistance <= 4) category = "twoToFour";
-                else if (convertedDistance <= 7) category = "fourToSeven";
-                else category = "sevenPlus";
+                if (convertedDistance < 2) category = "distanceOne";
+                else if (convertedDistance <= 4) category = "distanceTwo";
+                else if (convertedDistance <= 7) category = "distanceThree";
+                else category = "distanceFour";
             }
 
             const baselineStrokesGained = calculateBaselineStrokesGained(convertUnits(distance, session.units, 0));

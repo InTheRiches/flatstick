@@ -1,9 +1,9 @@
 import {Pressable, ScrollView, Text, TextInput, View} from "react-native";
 import React, {useState} from "react";
 import useColors from "../../../../hooks/useColors";
-import {getProfilesByUsername} from "../../../../utils/firebase";
+import {auth, getProfilesByUsername} from "../../../../utils/firebase";
 import Svg, {Path} from "react-native-svg";
-import {useRouter} from "expo-router";
+import {useNavigation, useRouter} from "expo-router";
 
 export default function SearchUsers({}) {
     const colors = useColors();
@@ -11,13 +11,17 @@ export default function SearchUsers({}) {
     const [profiles, setProfiles] = useState([]);
     const [username, setUsername] = useState("");
     const router = useRouter();
+    const navigation = useNavigation();
 
     const updateUsername = (text) => {
         // search for profiles that match that name
         setUsername(text);
         if (text.length > 2) {
             getProfilesByUsername(text).then(fetchedProfiles => {
-                setProfiles(fetchedProfiles);
+                // remove the current user from the list
+                const currentUser = auth.currentUser;
+                const filteredProfiles = fetchedProfiles.filter(profile => profile.id !== currentUser.uid);
+                setProfiles(filteredProfiles);
             });
         } else {
             setProfiles([]);
@@ -55,16 +59,17 @@ export default function SearchUsers({}) {
             {profiles.length === 0 && <Text style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</Text>}
             <ScrollView keyboardShouldPersistTaps={true} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                 {profiles.length > 0 && profiles.map((profile, index) => {
+                    console.log(profile.id)
                     return (
-                        <Pressable key={"user-" + index} style={{
+                        <Pressable key={"user-" + index} style={({pressed}) => [{
                             padding: 8,
-                            backgroundColor: colors.background.secondary,
+                            backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary,
                             borderRadius: 14,
                             marginBottom: 8,
                             flexDirection: "row",
                             alignItems: "center",
                             justifyContent: "space-between"
-                        }} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.id, jsonProfile: JSON.stringify(profile)}})}>
+                        }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.id, jsonProfile: JSON.stringify(profile)}})}>
                             <View style={{flexDirection: "row",}}>
                                 <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
                                     <Path fillRule="evenodd"

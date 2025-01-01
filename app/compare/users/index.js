@@ -15,8 +15,7 @@ export default function CompareUsers({}) {
     const navigation = useNavigation();
     const {id, jsonProfile} = useLocalSearchParams();
     const profile = JSON.parse(jsonProfile);
-
-    console.log("id: ", id);
+    const [loading, setLoading] = useState(true);
 
     const [usersStats, setUsersStats] = useState(createSimpleRefinedStats());
 
@@ -27,7 +26,7 @@ export default function CompareUsers({}) {
             if (doc.exists()) {
                 const data = doc.data();
                 setUsersStats(data.averagePerformance);
-                console.log("found document")
+                setLoading(false);
             }
         });
     }, []);
@@ -80,7 +79,10 @@ export default function CompareUsers({}) {
             </View>
             <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>COMPARISON</Text>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
-                <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? "you" : profile.username}</Text> putt better.</Text>
+                {loading ?
+                    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Loading...</Text> :
+                    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? "you" : profile.username}</Text> putt better.</Text>
+                }
             </View>
             <Text style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</Text>
             <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>
