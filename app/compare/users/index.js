@@ -64,7 +64,7 @@ export default function CompareUsers({}) {
                               clipRule="evenodd"/>
                     </Svg>
                     <View style={{marginLeft: 6}}>
-                        <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.username}</Text>
+                        <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</Text>
                         <Text style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</Text>
                     </View>
                 </View>
@@ -81,14 +81,14 @@ export default function CompareUsers({}) {
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
                 {loading ?
                     <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Loading...</Text> :
-                    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? "you" : profile.username}</Text> putt better.</Text>
+                    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? "you" : profile.firstName + " " + profile.lastName}</Text> putt better.</Text>
                 }
             </View>
             <Text style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</Text>
             <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>
                 <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</Text>
                 <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{auth.currentUser.displayName}</Text>
-                <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.username}</Text>
+                <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</Text>
             </View>
             <DataTable stats1={currentStats.averagePerformance} stats2={usersStats} type={"users"}/>
             <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</Text>

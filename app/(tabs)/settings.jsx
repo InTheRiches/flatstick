@@ -1,58 +1,27 @@
 import {Pressable, ScrollView, Switch, Text, TextInput, View} from 'react-native';
 
 import React, {useState} from 'react';
-import {getAuth} from "../../utils/firebase"
-import {getFirestore} from "firebase/firestore";
 import useColors from "@/hooks/useColors";
-import {useAppContext, useSession} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppCtx";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
-import {SetTheme, SetUnits} from "../../components/tabs/settings/popups/";
+import {Reauthenticate, SetTheme, SetUnits} from "../../components/tabs/settings/popups/";
+import {useRouter} from "expo-router";
 
 export default function HomeScreen() {
     const colors = useColors();
-    const {signOut, isLoading} = useSession();
     const {userData} = useAppContext();
-
-    const auth = getAuth();
-    const db = getFirestore();
-
-    // const saveChanges = () => {
-    //     if (state.invalidEmail || state.invalidDisplayName) return;
-    //
-    //     // Save changes to the database
-    //     updateProfile(auth.currentUser, {
-    //         displayName: state.displayName
-    //     }).then(() => {
-    //         initialState.displayName = state.displayName;
-    //     }).catch((error) => {
-    //         // An error occurred
-    //         // ...
-    //         console.log("Error updating profile: ", error);
-    //     });
-    //
-    //     // TODO this doesnt work, unless the user has recently authenticated, which means we need
-    //     // to prompt the user for their password before updating their email (by modal)
-    //     updateEmail(auth.currentUser, state.email).then(() => {
-    //         // Email updated!
-    //         // ...
-    //         console.log("Email updated!");
-    //     }).catch((error) => {
-    //         // An error occurred
-    //         // ...
-    //         console.log("Error updating email: ", error);
-    //     });
-    // }
+    const router = useRouter();
 
     const [reminders, setReminders] = useState(userData.preferences.reminders);
-    const [theme, setTheme] = useState(userData.preferences.theme);
 
     const [themePressed, setThemePressed] = useState(false);
     const [unitsPressed, setUnitsPressed] = useState(false);
 
     const setThemeRef = React.useRef(null);
     const setUnitsRef = React.useRef(null);
+    const reauthenticateRef = React.useRef(null);
 
     return (
         <BottomSheetModalProvider>
@@ -82,7 +51,7 @@ export default function HomeScreen() {
                         }}>Settings</Text>
                     </View>
                     <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</Text>
-                    <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                    <Pressable onPress={() => reauthenticateRef.current.present()} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
                         <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Personal Info</Text>
                         <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
                              viewBox="0 0 24 24" strokeWidth={3}
@@ -127,6 +96,7 @@ export default function HomeScreen() {
             </View>
             <SetTheme setThemeRef={setThemeRef}/>
             <SetUnits setUnitsRef={setUnitsRef}/>
+            <Reauthenticate reauthenticateRef={reauthenticateRef}/>
         </BottomSheetModalProvider>
     );
 }

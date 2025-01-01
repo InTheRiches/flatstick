@@ -57,9 +57,8 @@ export default function SearchUsers({}) {
                 onChangeText={updateUsername}
             />
             {profiles.length === 0 && <Text style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</Text>}
-            <ScrollView keyboardShouldPersistTaps={true} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
+            <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                 {profiles.length > 0 && profiles.map((profile, index) => {
-                    console.log(profile.id)
                     return (
                         <Pressable key={"user-" + index} style={({pressed}) => [{
                             padding: 8,
@@ -77,7 +76,7 @@ export default function SearchUsers({}) {
                                           clipRule="evenodd"/>
                                 </Svg>
                                 <View style={{marginLeft: 6}}>
-                                    <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.username}</Text>
+                                    <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</Text>
                                     <Text style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</Text>
                                 </View>
                             </View>

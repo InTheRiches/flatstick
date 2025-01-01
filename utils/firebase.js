@@ -24,17 +24,46 @@ const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
-// TODO improve this search functionality: https://medium.com/google-cloud/firebase-search-a-bigger-boat-c85695546d02
 async function getProfilesByUsername(username) {
-    const profilesRef = collection(firestore, "users");
-    const q = query(profilesRef, where("username", ">=", username), where("username", "<=", username + "\uf8ff"));
-    const querySnapshot = await getDocs(q);
-    const profiles = [];
-    querySnapshot.forEach((doc) => {
-        profiles.push({...doc.data(), id: doc.id});
-    });
+    let firstName, lastName;
+    if (username.includes(" ")) {
+        [firstName, lastName] = username.split(" ");
+    } else {
+        firstName = username;
+        lastName = "";
+    }
 
-    return profiles;
+    const profilesRef = collection(firestore, "users");
+    let q;
+    if (lastName === "") {
+        q = query(
+            profilesRef,
+            where("firstName", ">=", firstName),
+            where("firstName", "<=", firstName + "\uf8ff"),
+        );
+    } else {
+        q = query(
+            profilesRef,
+            where("firstName", ">=", firstName),
+            where("firstName", "<=", firstName + "\uf8ff"),
+            where("lastName", ">=", lastName),
+            where("lastName", "<=", lastName + "\uf8ff"),
+        );
+    }
+    try {
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) return [];
+
+        const profiles = [];
+        querySnapshot.forEach((doc) => {
+            profiles.push({ ...doc.data(), id: doc.id });
+        });
+
+        return profiles;
+    } catch (e) {
+        console.error("Error fetching profiles: " + e);
+        return [];
+    }
 }
 
 export {firestore, auth, getApp, getAuth, getProfilesByUsername};

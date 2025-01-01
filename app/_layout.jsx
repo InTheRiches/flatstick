@@ -51,11 +51,12 @@ export default function RootLayout() {
                   }}/>
                   <Stack.Screen name={"sessions/index"}/>
                   <Stack.Screen name={"sessions/individual/index"}/>
-                  <Stack.Screen name={"statsettings/index"} options={{
+                  <Stack.Screen name={"settings/stats/index"} options={{
                     presentation: 'modal',
                     animation: "slide_from_bottom",
                     animationDuration: 150,
                   }}/>
+                  <Stack.Screen name={"settings/user/index"}/>
                   <Stack.Screen name={"compare/putters/index"} />
                   <Stack.Screen name={"compare/users/search/index"} />
                   <Stack.Screen name={"compare/users/index"} />

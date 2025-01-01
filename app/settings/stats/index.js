@@ -1,8 +1,8 @@
 import {Pressable, Switch, Text, View} from "react-native";
-import useColors from "../../hooks/useColors";
+import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
-import {FilterPutters} from "../../components/tabs/stats/settings/popups";
-import {useAppContext} from "../../contexts/AppCtx";
+import {FilterPutters} from "../../../components/tabs/stats/settings/popups";
+import {useAppContext} from "../../../contexts/AppCtx";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
 
