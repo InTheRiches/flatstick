@@ -1,5 +1,5 @@
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
-import {BackHandler, Text, View} from "react-native";
+import {BackHandler, Pressable, Text, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import React, {useEffect, useRef, useState} from "react";
@@ -65,7 +65,7 @@ export default function EditPutters() {
     }
 
     return (
-        <View style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
+        <Pressable onPress={(event) => setEditing(false)} style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
             <GestureDetector gesture={gesture}>
                 <View style={{marginLeft: -10, paddingHorizontal: 10}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
@@ -79,7 +79,10 @@ export default function EditPutters() {
                 <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Putters</Text>
                 {
                     putters.length < 4 ? (
-                        <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => newPutterRef.current.present()} title={"New"}></PrimaryButton>
+                        <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => {
+                            setEditing(false);
+                            newPutterRef.current.present()
+                        }} title={"New"}></PrimaryButton>
                     ) : (
                         <View style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 16, marginLeft: 8, borderColor: colors.button.disabled.border, borderWidth: 1, backgroundColor: colors.button.disabled.background}}>
                             <Text style={{color: colors.text.secondary}}>At Max Putters</Text>
@@ -95,6 +98,6 @@ export default function EditPutters() {
                 }
             </View>
             <NewPutterModal newPutterRef={newPutterRef}></NewPutterModal>
-        </View>
+        </Pressable>
     )
 }

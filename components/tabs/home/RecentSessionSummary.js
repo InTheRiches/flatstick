@@ -1,14 +1,16 @@
 import React from "react";
 import useColors from "../../../hooks/useColors";
-import {Text, useColorScheme, View} from "react-native";
+import {Pressable, Text, useColorScheme, View} from "react-native";
 import {roundTo} from "../../../utils/roundTo";
 import {useAppContext} from "@/contexts/AppCtx";
+import {useRouter} from "expo-router";
 
 export function RecentSessionSummary({unfinished}) {
     const {puttSessions, userData} = useAppContext();
 
     const colors = useColors();
     const colorScheme = useColorScheme();
+    const router = useRouter();
 
     let date;
     if (puttSessions[0] !== null && puttSessions[0] !== undefined)
@@ -47,16 +49,15 @@ export function RecentSessionSummary({unfinished}) {
 
     switch(puttSessions[0].type) {
         case "real-simulation":
-            return getRealSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished);
+            return getRealSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished, router);
         case "round-simulation":
-            return getHoleSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished);
+            return getHoleSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished, router);
     }
 }
 
-function getHoleSimulation(userData, colors, colorScheme, date, recentSession, unfinished) {
+function getHoleSimulation(userData, colors, colorScheme, date, recentSession, unfinished, router) {
     return (
-        <View
-            style={{
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
                 paddingTop: 8,
@@ -91,18 +92,8 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, u
                 </View>
                 <View style={{flex: 1}}>
                     <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
-                    <Text
-                        style={{
-                            textAlign: "right",
-                            color: colors.text.primary,
-                            fontSize: 24
-                        }}>Simulation</Text>
-                    <Text style={{
-                        textAlign: "right",
-                        color: colors.text.primary,
-                        fontSize: 24,
-                        marginTop: -8
-                    }}>Summary</Text>
+                    <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24}}>Simulation</Text>
+                    <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -8}}>Summary</Text>
                 </View>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
@@ -117,13 +108,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, u
                 </View>
                 <View>
                     <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                    <Text
-                        style={{
-                            textAlign: "left",
-                            color: colors.text.primary,
-                            fontSize: 18,
-                            fontWeight: "bold"
-                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
+                    <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: "bold"}}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
                 </View>
                 <View>
                     <Text style={{textAlign: "left", color: colors.text.secondary}}>SG</Text>
@@ -145,13 +130,13 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, u
                     }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                 </View>
             </View>
-        </View>
+        </Pressable>
     );
 }
 
-function getRealSimulation(userData, colors, colorScheme, date, recentSession, unfinished) {
+function getRealSimulation(userData, colors, colorScheme, date, recentSession, unfinished, router) {
     return (
-        <View
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})}
             style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
@@ -244,6 +229,6 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, u
                     }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                 </View>
             </View>
-        </View>
+        </Pressable>
     );
 }
