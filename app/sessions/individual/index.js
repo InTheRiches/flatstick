@@ -31,7 +31,6 @@ export default function IndividualSession({}) {
     }, []);
 
     const formatTimestamp = () => {
-        console.log(Object.keys(session));
         const date = new Date(session.startedAtTimestamp);
         const options = { month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true };
         return date.toLocaleString('en-US', options);

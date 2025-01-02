@@ -7,7 +7,7 @@ import useColors from "../../../../../hooks/useColors";
 import CustomBackdrop from "../../../../general/popups/CustomBackdrop";
 
 export function FilterPutters({filterPuttersRef}) {
-    const {putters, userData, updateData, setUserData} = useAppContext()
+    const {putters, userData, updateData} = useAppContext()
     const colors = useColors();
 
     return (
@@ -37,9 +37,9 @@ function Putter({putter, index, filteringPutter, setFilteringPutter, reference})
         <Pressable
             style={{flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: colors.background.secondary, borderRadius: 12, justifyContent: "space-between"}}
             onPress={() => {
-                reference.current.dismiss();
                 if (filteringPutter !== index)
                     setFilteringPutter(index);
+                reference.current.dismiss();
             }}>
             <Text style={{color: colors.text.primary, fontSize: 16}}>{putter.type === "default" ? "All Putters" : putter.name}</Text>
             {

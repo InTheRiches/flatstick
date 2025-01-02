@@ -27,8 +27,11 @@ export default function StatSettings({}) {
         <View style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                 <Pressable onPress={() => {
-                    if (initialData !== userData.preferences)
-                        updateStats();
+                    if (initialData !== userData.preferences) {
+                        updateStats().catch(e => {
+                            console.log("Error overall updating stats: " + e)
+                        });
+                    }
                     navigation.goBack()
                 }} style={{padding: 4, paddingLeft: 0}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}

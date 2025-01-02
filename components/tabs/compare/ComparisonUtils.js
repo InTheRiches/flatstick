@@ -35,8 +35,6 @@ function compareStats(stats1, stats2) {
     const score1 = calculateWeightedScore(stats1);
     const score2 = calculateWeightedScore(stats2);
 
-    console.log(score1 - score2);
-
     if (score1 - score2 > 0.1) {
         return 1;
     } else if (score1 - score2 < -0.1) {

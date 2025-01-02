@@ -223,7 +223,6 @@ export default function RealSimulation() {
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
-            console.log("redirecting")
             router.push({
                 pathname: `/`,
             });

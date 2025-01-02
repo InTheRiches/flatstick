@@ -49,7 +49,6 @@ export default function Stats({}) {
 
     const statsToUse = userData.preferences.filteringPutter !== 0 ? putters[userData.preferences.filteringPutter].stats : currentStats.averagePerformance;
 
-
     const tabs = [
         {
             id: 1,

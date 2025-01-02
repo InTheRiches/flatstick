@@ -383,7 +383,7 @@ export function AppProvider({children}) {
 
         const newPuttSessions = await refreshData();
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
-        const newPutters = putters.slice(1).map((putter) => {
+        const newPutters = JSON.parse(JSON.stringify(putters)).slice(1).map((putter) => {
             putter.stats = createSimpleStats();
             return putter;
         });
@@ -395,8 +395,11 @@ export function AppProvider({children}) {
             const averaging = newStats.averagePerformance.rounds < 5 && (session.type === "round-simulation" || session.type === "real-simulation") && session.holes === 18;
             if (averaging) newStats.averagePerformance.rounds++;
 
-            if (session.putter !== "default")
-                newPutters.find((putter) => putter.type === session.putter).stats.rounds += session.holes / 18;
+            if (session.putter !== "default") {
+                const putter = newPutters.find((putter) => putter.type === session.putter);
+                if (putter !== undefined)
+                    putter.stats.rounds += session.holes / 18;
+            }
 
             session.putts.forEach((putt) => {
                 let {distance, distanceMissed, misReadLine, misReadSlope, misHit, xDistance, yDistance, puttBreak} = putt;
@@ -434,10 +437,13 @@ export function AppProvider({children}) {
                     // TODO if the putter no longer exists (was deleted), then we should just use the default putter
                     // TODO The stack only uses the last five sessions, maybe we should do the same
                     if (session.putter !== "default") {
-                        updateSimpleStats(userData, newPutters.find((putter) => putter.type === session.putter).stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts}, category);
+                        const putter = newPutters.find((putter) => putter.type === session.putter);
+
+                        if (putter !== undefined)
+                            updateSimpleStats(userData, putter.stats, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts}, category);
                     }
                 } catch (error) {
-                    console.error("Error updating stats:", error);
+                    console.error("Error averaging in updating stats:", error);
                 }
 
                 if (distanceMissed === 0) {
@@ -528,13 +534,17 @@ export function AppProvider({children}) {
             });
 
             if (session.putter !== "default") {
-                const puttStats = newPutters.find((putter) => putter.type === session.putter).stats;
-                if (puttStats.strokesGained.overall === 0) {
+                const putter = newPutters.find((putter) => putter.type === session.putter);
+                if (putter !== undefined) {
+                    const puttStats = putter.stats;
+
+                    if (puttStats.strokesGained.overall === 0) {
+                        puttStats.strokesGained.overall += 29 - session.totalPutts;
+                        return;
+                    }
                     puttStats.strokesGained.overall += 29 - session.totalPutts;
-                    return;
+                    puttStats.strokesGained.overall /= 2;
                 }
-                puttStats.strokesGained.overall += 29 - session.totalPutts;
-                puttStats.strokesGained.overall /= 2;
             }
         });
 
@@ -595,8 +605,17 @@ export function AppProvider({children}) {
         await updateData({totalPutts: totalPutts, strokesGained: strokesGained["overall"]});
         await updateStats(newStats, true)
 
+        console.log(5)
+
+        const cleanedPutters = [];
+
         newPutters.forEach((putter) => {
-            if (putter.stats["rounds"] === 0) return;
+            if (putter.stats["rounds"] === 0) {
+                // the newPutters contains non refined stats, so we need to get the default refined stats and replac eit
+                putter.stats = createSimpleRefinedStats();
+                cleanedPutters.push(putter);
+                return;
+            }
 
             const allPutts = putter.stats["rounds"] * 18;
             // if we are not counting mishits, then we need to remove them from the total putts
@@ -622,6 +641,8 @@ export function AppProvider({children}) {
                 return roundTo(val / putter.stats.puttsByDistance[idx], 1);
             });
 
+            cleanedPutters.push(putter);
+
             const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/putters/${putter.type}`);
             runTransaction(firestore, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);
@@ -634,6 +655,8 @@ export function AppProvider({children}) {
                 console.error("Set putter transaction failed:", error);
             });
         });
+
+        setPutters([{type: "default", name: "No Putter", stats: newStats.averagePerformance}, ...cleanedPutters]);
 
         console.log("refreshed")
 
