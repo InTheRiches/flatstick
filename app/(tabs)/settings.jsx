@@ -8,10 +8,13 @@ import Svg, {Path} from "react-native-svg";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import {Reauthenticate, SetTheme, SetUnits} from "../../components/tabs/settings/popups/";
 import {useRouter} from "expo-router";
+import DangerButton from "../../components/general/buttons/DangerButton";
+import {useSession} from "../../contexts/AppCtx";
 
 export default function HomeScreen() {
     const colors = useColors();
     const {userData} = useAppContext();
+    const {signOut} = useSession();
     const router = useRouter();
 
     const [reminders, setReminders] = useState(userData.preferences.reminders);
@@ -101,6 +104,15 @@ export default function HomeScreen() {
                             <Text style={{color: colors.text.link, opacity: unitsPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.units === 0 ? "Imperial" : "Metric"}</Text>
                         </Pressable>
                     </Pressable>
+                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>ACCOUNT ACTIONS</Text>
+                    <View style={{flexDirection: "row", gap: 12}}>
+                        <PrimaryButton onPress={signOut} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
+                            <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</Text>
+                        </PrimaryButton>
+                        <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
+                            <Text style={{color: colors.button.danger.text, fontSize: 16, fontWeight: 500}}>Delete Account</Text>
+                        </DangerButton>
+                    </View>
                 </ScrollView>
             </View>
             <SetTheme setThemeRef={setThemeRef}/>
