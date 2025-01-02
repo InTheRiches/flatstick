@@ -24,14 +24,18 @@ export const SGByBreakSlope = ({statsToUse}) => {
 };
 
 function createStrokesGainedByBreak(currentStats) {
+    console.log(currentStats);
     // copy the object
     const mySlopes = currentStats.strokesGained.slopes;
 
     let max = -999;
 
+    console.log(mySlopes);
+
     // find the highest value, and take all of those out of that (as a percent)
     for (let slope of ["downhill", "neutral", "uphill"]) {
         for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
+            console.log(mySlopes[slope][brek]);
             if (mySlopes[slope][brek]+1 > max) {
                 max = mySlopes[slope][brek]+1;
             }

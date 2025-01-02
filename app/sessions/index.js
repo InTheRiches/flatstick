@@ -19,15 +19,12 @@ export default function Sessions({}) {
         <View style={{backgroundColor: colors.background.primary, flex: 1}}>
             <View style={{flexDirection: "row", alignItems: "center", marginBottom: 12}}>
                 <Text style={{textAlign: "center", width: "100%", color: colors.text.primary, fontSize: 24, fontWeight: 600}}>Your Sessions</Text>
-                <Pressable onPress={() => navigation.goBack()} style={{position: "absolute", left: 0, marginLeft: 24}}>
-                    <View style={{flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start"}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}
-                             stroke={colors.text.primary} width={20} height={20}>
-                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                  d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
-                        </Svg>
-                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, marginLeft: 8}}>Back</Text>
-                    </View>
+                <Pressable onPress={() => navigation.goBack()} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>
+                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                         stroke={colors.text.primary} width={24} height={24}>
+                        <Path strokeLinecap="round" strokeLinejoin="round"
+                              d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
+                    </Svg>
                 </Pressable>
             </View>
             <View style={{flexDirection: "row", borderBottomWidth: 1, borderColor: colors.border.default, paddingLeft: 12, paddingVertical: 10, borderTopWidth: 1}}>

@@ -2,37 +2,27 @@ import {useAppContext} from "../../../../../contexts/AppCtx";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Pressable, Text} from "react-native";
 import Svg, {Path} from "react-native-svg";
-import React, {useState} from "react";
+import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import CustomBackdrop from "../../../../general/popups/CustomBackdrop";
 
 export function FilterPutters({filterPuttersRef}) {
     const {putters, userData, updateData, setUserData} = useAppContext()
     const colors = useColors();
-    const [open, setOpen] = useState(false);
-
-    const close = () => {
-        updateData({...userData});
-    }
 
     return (
-        <BottomSheetModal onChange={() => {
-            if (open) {
-                close();
-            }
-            setOpen(!open);
-        }}
+        <BottomSheetModal
               backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={filterPuttersRef} animatedIndex={animatedIndex} style={style}/>}
               enableDismissOnClose={true}
               stackBehavior={"replace"}
               ref={filterPuttersRef}
-                          handleIndicatorStyle={{backgroundColor: colors.text.primary}}handleIndicatorStyle={{backgroundColor: colors.text.primary}}
+              handleIndicatorStyle={{backgroundColor: colors.text.primary}}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
                 <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>
                 {
                     putters.map((putter, index) => {
-                        return <Putter filteringPutter={userData.preferences.filteringPutter} setFilteringPutter={(newPutter) => setUserData({preferences: {...userData.preferences, filteringPutter: newPutter}})} putter={putter} index={index} key={"puu-" + index}/>
+                        return <Putter filteringPutter={userData.preferences.filteringPutter} reference={filterPuttersRef} setFilteringPutter={(newPutter) => updateData({preferences: {...userData.preferences, filteringPutter: newPutter}})} putter={putter} index={index} key={"puu-" + index}/>
                     })
                 }
             </BottomSheetView>
@@ -40,13 +30,14 @@ export function FilterPutters({filterPuttersRef}) {
     );
 }
 
-function Putter({putter, index, filteringPutter, setFilteringPutter}) {
+function Putter({putter, index, filteringPutter, setFilteringPutter, reference}) {
     const colors = useColors();
 
     return (
         <Pressable
             style={{flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: colors.background.secondary, borderRadius: 12, justifyContent: "space-between"}}
             onPress={() => {
+                reference.current.dismiss();
                 if (filteringPutter !== index)
                     setFilteringPutter(index);
             }}>

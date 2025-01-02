@@ -57,6 +57,7 @@ const AppContext = createContext({
     newSession: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
     deleteSession: () => Promise.resolve(),
+    deletePutter: () => {},
 });
 
 const AuthContext = createContext({
@@ -145,8 +146,17 @@ export function AppProvider({children}) {
         setPutters(prev => [...prev, {
             type: id,
             name: type,
-            stats: createSimpleStats()
+            stats: createSimpleRefinedStats()
         }]);
+    }
+
+    const deletePutter = (type) => {
+        // delete the document
+        deleteDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + type)).catch((error) => {
+            console.log(error);
+        });
+        // remove the putter from the putters array
+        setPutters(prev => prev.filter(putter => putter.type !== type));
     }
 
     // Initialize user data and sessions
@@ -694,8 +704,9 @@ export function AppProvider({children}) {
         newPutter,
         newSession,
         getPreviousStats,
+        deletePutter,
         deleteSession
-    }), [userData, puttSessions, currentStats, updateData, setStat, putters, getPreviousStats, previousStats]);
+    }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats]);
 
     const authContextValue = useMemo(() => ({
         signIn,

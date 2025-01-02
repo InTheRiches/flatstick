@@ -70,10 +70,10 @@ export function NewPutterModal({newPutterRef}) {
                     style={{
                         marginHorizontal: 24,
                         padding: 12,
-                        backgroundColor: putterInvalid ? colors.input.invalid.background : colors.input.background,
+                        backgroundColor: putterInvalid ? colors.input.invalid.background : putterFocused ? colors.input.focused.background : colors.input.background,
                         borderRadius: 10,
                         borderWidth: 1,
-                        borderColor: putterInvalid ? colors.input.invalid.border : colors.input.border,
+                        borderColor: putterFocused ? putterInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : putterInvalid ? colors.input.invalid.border : colors.input.border,
                         color: putterInvalid ? colors.input.invalid.text : colors.input.text,
                         fontSize: 16,
                         marginBottom: 12,
