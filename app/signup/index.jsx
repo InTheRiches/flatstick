@@ -305,7 +305,6 @@ function Done({nextTab}) {
     );
 }
 
-// TODO PREVENT DUPLICATE USERNAMES
 function Signup({errorCode, setErrorCode, setState, state, create}) {
     const colors = useColors();
 

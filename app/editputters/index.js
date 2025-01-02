@@ -9,7 +9,6 @@ import {useAppContext} from "../../contexts/AppCtx";
 import {useNavigation} from "expo-router";
 import {NewPutterModal, PutterSelector} from "../../components/editputters";
 
-// TODO REMEMBER THAT WHEN YOU DELETE A PUTTER, YOU NEED TO CHECK TO SEE IF THE FILTERING PUTTER OR THE SELECTED PUTTER ARE OUT OF BOUNDS, and CHANGE THEM IF SO
 // TODO add brand / model, not just name?
 export default function EditPutters() {
     const colors = useColors();

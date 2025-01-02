@@ -434,7 +434,6 @@ export function AppProvider({children}) {
                         updateSimpleStats(userData, newStats.averagePerformance, {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts}, category);
                     }
 
-                    // TODO if the putter no longer exists (was deleted), then we should just use the default putter
                     // TODO The stack only uses the last five sessions, maybe we should do the same
                     if (session.putter !== "default") {
                         const putter = newPutters.find((putter) => putter.type === session.putter);
