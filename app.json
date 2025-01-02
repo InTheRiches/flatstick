@@ -14,16 +14,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "bundleIdentifier": "com.intheriches.puttlab",
-      "supportsTablet": true
+      "bundleIdentifier": "com.puttless",
+      "supportsTablet": true,
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.intheriches.puttlab",
-      "softwareKeyboardLayoutMode": "pan"
+      "package": "com.puttless",
+      "softwareKeyboardLayoutMode": "pan",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +38,8 @@
         "expo-font",
         {}
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true

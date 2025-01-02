@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "737663000705",
+    "project_id": "puttperfect-e6438",
+    "storage_bucket": "puttperfect-e6438.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737663000705:android:4fd3d6a4ff1419e202ed80",
+        "android_client_info": {
+          "package_name": "com.puttless"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "737663000705-qe2isnf7bpp6jeivdsh9s3sb4c6vnje0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.puttless",
+            "certificate_hash": "87c0133c9c3fa924690a9e8685eadddfcb16ab1f"
+          }
+        },
+        {
+          "client_id": "737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6WWVOyLuOT3tHas31vjZXYL5_BpZ_yZI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

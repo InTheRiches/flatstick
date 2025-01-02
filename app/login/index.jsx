@@ -1,12 +1,10 @@
 import {Pressable, Text, TextInput, View} from "react-native";
 import {useState} from "react";
 import {SvgGoogle} from "@/assets/svg/SvgComponents";
-import {getAuth} from "../../utils/firebase";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {useSession} from "../../contexts/AppCtx";
-import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 
 const initialState = {
@@ -38,8 +36,6 @@ export default function Login() {
     const login = () => {
         if (state.invalid) return;
 
-        const auth = getAuth();
-
         // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
@@ -66,6 +62,9 @@ export default function Login() {
         if (errorCode !== "") setErrorCode("");
     }
 
+    const googleSignIn = () => {
+    }
+
     return (loading ? <Loading/> :
             <View style={{
                 backgroundColor: colors.background.primary,
@@ -79,14 +78,14 @@ export default function Login() {
                 <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 600, marginBottom: 30}}>Sign in to your account</Text>
                 <Text style={{color: colors.text.primary, fontSize: 16, marginBottom: 8}} secondary={true}>Login with:</Text>
                 <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12,}}>
-                    <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
-                        <SvgGoogle fill={colors.button.secondary.text}
+                    <PrimaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
+                        <SvgGoogle fill={colors.button.primary.text}
                                    style={{width: 24, height: 24}}></SvgGoogle>
-                    </SecondaryButton>
-                    <SecondaryButton style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
-                        <SvgGoogle fill={colors.button.secondary.text}
+                    </PrimaryButton>
+                    <PrimaryButton onPress={googleSignIn} style={{ flex: 1, borderRadius: 8, paddingVertical: 10}}>
+                        <SvgGoogle fill={colors.button.primary.text}
                                    style={{width: 24, height: 24}}></SvgGoogle>
-                    </SecondaryButton>
+                    </PrimaryButton>
                 </View>
                 <View style={{width: "100%", flexDirection: "row", gap: 10}}>
                     <View style={{
@@ -177,7 +176,7 @@ export default function Login() {
                 {errorCode === "auth/invalid-credential" &&
                     <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                         and try again.</Text>}
-                <PrimaryButton onPress={() => {
+                <PrimaryButton title={"Login"} onPress={() => {
                     if (state.invalidEmail) return;
                     login();
                 }} style={{
