@@ -30,12 +30,12 @@ export default function UserSettings({}) {
 
     const updateFirstName = (newName) => {
         setFirstName(newName);
-        setFirstNameInvalid(newName.length === 0)
+        setFirstNameInvalid(newName.length === 0 || newName.includes(" "));
     }
 
     const updateLastName = (newName) => {
         setLastName(newName);
-        setLastNameInvalid(newName.length === 0)
+        setLastNameInvalid(newName.length === 0 || newName.includes(" "))
     }
 
     const updateEmailAddress = (newEmail) => {
@@ -113,7 +113,7 @@ export default function UserSettings({}) {
                 }}>!</Text>}
             </View>
             {firstNameInvalid &&
-                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a first name!</Text>}
+                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : "Don't include any spaces!"}</Text>}
             <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>LAST NAME</Text>
             <View style={{flexDirection: "row"}}>
                 <TextInput
@@ -147,7 +147,7 @@ export default function UserSettings({}) {
                 }}>!</Text>}
             </View>
             {lastNameInvalid &&
-                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a last name!</Text>}
+                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</Text>}
             <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>EMAIL ADDRESS</Text>
             <View style={{flexDirection: "row"}}>
                 <TextInput

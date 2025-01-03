@@ -29,9 +29,10 @@ export const NewRound = ({newSessionRef}) => {
                     style={style}
                 />
             );
-        },
-        []
+        }, []
     );
+
+
 
     // renders
     return (<BottomSheetModal ref={newSessionRef} bottomSheetPosition={bottomSheetPosition} enablePanDownToClose={true} backdropComponent={myBackdrop} handleIndicatorStyle={{backgroundColor: colors.text.primary}} backgroundStyle={{backgroundColor: colors.background.primary}}>

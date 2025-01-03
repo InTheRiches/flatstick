@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 import useColors from "../../../../hooks/useColors";
-import {Text, TextInput, View} from "react-native";
+import {Text, View} from "react-native";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import {EmailAuthProvider, getAuth, reauthenticateWithCredential,} from 'firebase/auth'
@@ -29,8 +29,9 @@ export function Reauthenticate({reauthenticateRef}) {
             password
         )
         reauthenticateWithCredential(auth.currentUser, credential).then(() => {
-            reauthenticateRef.current.dismiss();
             router.push({pathname: "/settings/user"})
+            reauthenticateRef.current.dismiss();
+            setPassword("");
         }).catch((error) => {
             setPasswordInvalid(true);
         });
@@ -38,17 +39,17 @@ export function Reauthenticate({reauthenticateRef}) {
 
     return (
         <BottomSheetModal
-                          backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={reauthenticateRef} animatedIndex={animatedIndex} style={style}/>}
-                          enableDismissOnClose={true}
-                          handleIndicatorStyle={{backgroundColor: colors.text.primary}}
-                          stackBehavior={"replace"}
-                          ref={reauthenticateRef}
-                          backgroundStyle={{backgroundColor: colors.background.primary}}>
-            <BottomSheetView style={{paddingBottom: 24, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
+              backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={reauthenticateRef} animatedIndex={animatedIndex} style={style}/>}
+              enableDismissOnClose={true}
+              handleIndicatorStyle={{backgroundColor: colors.text.primary}}
+              ref={reauthenticateRef}
+              keyboardBlurBehavior={"restore"}
+              backgroundStyle={{backgroundColor: colors.background.primary}}>
+            <BottomSheetView style={{paddingBottom: 64, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
                 <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Re-Authenticate</Text>
                 <Text style={{color: colors.text.secondary, fontWeight: 600}}>PASSWORD</Text>
                 <View style={{flexDirection: "row", gap: 10}}>
-                    <TextInput
+                    <BottomSheetTextInput
                         style={{
                             flex: 1,
                             borderWidth: 1,
