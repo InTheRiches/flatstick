@@ -12,7 +12,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
     let difference = 0;
 
     if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
-        difference = currentStats.averagePerformance.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
+        difference = currentStats.strokesGained.overall - previousStats[0].strokesGained.overall;
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>

@@ -10,6 +10,12 @@ export function DataTable({stats1, stats2, type}) {
 
     const distanceUnit = userData.preferences.units === 0 ? "ft" : "m";
     const styles = {
+        worseData: {
+            flex: 1,
+            color: "#dc3545",
+            textAlign: "center",
+            fontSize: 16
+        },
         normalData: {
             flex: 1,
             color: colors.text.primary,
@@ -18,16 +24,15 @@ export function DataTable({stats1, stats2, type}) {
         },
         betterData: {
             flex: 1,
-            color: colors.text.primary,
+            color: "#28a745",
             textAlign: "center",
             fontWeight: 600,
-            textDecorationLine: "underline",
             fontSize: 16
         }
     }
 
     const getStyle = (value1, value2, isBetter) => {
-        return isBetter(value1, value2) ? styles.betterData : styles.normalData;
+        return isBetter(value1, value2) ? styles.betterData : styles.worseData;
     };
 
     const isBetterStrokesGained = (value1, value2) => value1 > value2;
@@ -109,6 +114,12 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
 
     const distanceUnit = userData.preferences.units === 0 ? "ft" : "m";
     const styles = {
+        worseData: {
+            flex: 1,
+            color: "#dc3545",
+            textAlign: "center",
+            fontSize: 16
+        },
         normalData: {
             flex: 1,
             color: colors.text.primary,
@@ -117,7 +128,7 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
         },
         betterData: {
             flex: 1,
-            color: colors.text.primary,
+            color: "#28a745",
             textAlign: "center",
             fontWeight: 600,
             textDecorationLine: "underline",
@@ -126,7 +137,7 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
     }
 
     const getStyle = (value1, value2, isBetter) => {
-        return isBetter(value1, value2) ? styles.betterData : styles.normalData;
+        return isBetter(value1, value2) ? styles.betterData : styles.worseData;
     };
 
     const isBetterStrokesGained = (value1, value2) => value1 > value2;

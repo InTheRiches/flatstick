@@ -30,14 +30,6 @@ const initializeSlopeAndBreak = () => ({
     made: 0
 })
 
-const initializeStats = () => ({
-    averagePerformance: createSimpleStats(),
-    distanceOne: createCategory(),
-    distanceTwo: createCategory(),
-    distanceThree: createCategory(),
-    distanceFour: createCategory()
-});
-
 const initializePutters = (putters) => {
     return JSON.parse(JSON.stringify(putters)).slice(1).map((putter) => {
         putter.stats = createSimpleStats();
@@ -59,4 +51,4 @@ const categorizeDistance = (distance, units) => {
     }
 };
 
-export {initializeStats, categorizeDistance, initializePutters};
+export {categorizeDistance, initializePutters};

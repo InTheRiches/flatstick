@@ -13,7 +13,9 @@ export const OverviewTab = ({statsToUse}) => {
     let difference = 0;
 
     if (previousStats !== undefined && previousStats.length > 0)
-        difference = statsToUse.strokesGained.overall - previousStats[0].averagePerformance.strokesGained.overall;
+        difference = statsToUse.strokesGained.overall - previousStats[0].strokesGained.overall;
+
+    console.log(statsToUse)
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 32}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>

@@ -24,14 +24,13 @@ export default function CompareUsers({}) {
         const userDocRef = doc(firestore, `users/${id}/stats/current`);
         getDoc(userDocRef).then(async (doc) => {
             if (doc.exists()) {
-                const data = doc.data();
-                setUsersStats(data.averagePerformance);
+                setUsersStats(doc.data());
                 setLoading(false);
             }
         });
     }, []);
 
-    const betterPutter = compareStats(currentStats.averagePerformance, usersStats);
+    const betterPutter = compareStats(currentStats, usersStats);
 
     return (
         <ScrollView style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
@@ -77,7 +76,7 @@ export default function CompareUsers({}) {
                     </Svg>
                 </View>
             </View>
-            <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>COMPARISON</Text>
+            <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>COMPARISON</Text>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
                 {loading ?
                     <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Loading...</Text> :
@@ -90,15 +89,15 @@ export default function CompareUsers({}) {
                 <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{auth.currentUser.displayName}</Text>
                 <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</Text>
             </View>
-            <DataTable stats1={currentStats.averagePerformance} stats2={usersStats} type={"users"}/>
+            <DataTable stats1={currentStats} stats2={usersStats} type={"users"}/>
             <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</Text>
-            <MiniDataTable stats1={currentStats.averagePerformance} stats2={usersStats} type={"users"} distance={0}/>
+            <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={0}/>
             <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</Text>
-            <MiniDataTable stats1={currentStats.averagePerformance} stats2={usersStats} type={"users"} distance={1}/>
+            <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={1}/>
             <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</Text>
-            <MiniDataTable stats1={currentStats.averagePerformance} stats2={usersStats} type={"users"} distance={2}/>
+            <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={2}/>
             <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</Text>
-            <MiniDataTable stats1={currentStats.averagePerformance} stats2={usersStats} type={"users"} distance={3}/>
+            <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={3}/>
         </ScrollView>
     )
 }

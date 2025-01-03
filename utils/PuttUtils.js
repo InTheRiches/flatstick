@@ -227,75 +227,6 @@ const calculateStats = (puttsCopy, width, height) => {
     return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1)};
 };
 
-const dataSlopes = [
-    "downhill",
-    "neutral",
-    "uphill"
-]
-
-const dataBreaks = [
-    "rightToLeft",
-    "straight",
-    "leftToRight"
-]
-
-const dataDistances = [
-    "distanceOne",
-    "distanceTwo",
-    "distanceThree",
-    "distanceFour"
-]
-
-function sumMisses(userData, data, distance, slope, breakType) {
-    let totalMisses = [0, 0, 0, 0, 0, 0, 0, 0];
-    let missDistances = [0, 0, 0, 0, 0, 0, 0, 0];
-    let totalPutts = 0;
-
-    // Get all distances if 'all' is specified, otherwise just the specific one
-    const distances = distance === -1 ? Object.keys(data).slice(1) : dataDistances[distance];
-
-    distances.forEach(distanceKey => {
-        if (distanceKey === "averagePerformance") return;
-        // Check if the distance exists
-        if (!data[distanceKey])
-            return;
-
-        const slopeData = data[distanceKey].slopeAndBreakDistribution;
-        const slopes = slope === -1 ? Object.keys(slopeData) : [dataSlopes[slope]];
-        slopes.forEach(slopeKey => {
-            // Check if the slope exists
-            if (slopeData[slopeKey]) {
-                const breakData = slopeData[slopeKey];
-
-                // Get all break types if 'all' is specified, otherwise just the specific one
-                const breakTypes = breakType === -1 ? Object.keys(breakData) : [dataBreaks[breakType]];
-
-                breakTypes.forEach(breakKey => {
-                    // Check if the break type exists
-                    if (breakData[breakKey]) {
-                        const misses = breakData[breakKey].misses;
-                        const distances = breakData[breakKey].missDistances;
-
-                        // Add the misses to the totalMisses array
-                        totalMisses = totalMisses.map((val, idx) => val + misses[idx]);
-
-                        // calculate the average miss distance of each miss location
-                        missDistances = missDistances.map((val, idx) => {
-                            let newVal = val + distances[idx];
-                            // if the miss location is 0 or the total misses is 0, return the new value, as nothing changed, so you dont want to divide in half
-                            return val === 0 || distances[idx] === 0 ? newVal : newVal / 2;
-                        });
-
-                        totalPutts += breakData[breakKey].putts;
-                    }
-                });
-            }
-        });
-    });
-
-    return [totalPutts, totalMisses, missDistances];
-}
-
 function formatFeetAndInches(feet) {
     if (feet === 0) return `0' 0"`
 
@@ -314,40 +245,6 @@ function formatFeetAndInches(feet) {
         result += ` ${inchesPart}"`;
     }
     return result;
-}
-
-function filterMissDistribution(userData, currentStats, distance, slope, brek) {
-    const [totalPutts, merged, missDistances] = sumMisses(userData, currentStats, distance, slope, brek);
-
-    // Calculate missDistribution
-    const missDistribution = merged.map((value) => value / totalPutts);
-
-    const maxPercentage = Math.max(...missDistribution) + 0.01;
-
-    // if missDistribution is empty (which means full of NaN), return an empty object
-    if (missDistribution.every(isNaN)) {
-        return {
-            "Long": 0,
-            "Long Right": 0,
-            "Right": 0,
-            "Short Right": 0,
-            "Short": 0,
-            "Short Left": 0,
-            "Left": 0,
-            "Long Left": 0,
-        };
-    }
-
-    return {
-        "Long": [missDistribution[0] / maxPercentage,  roundTo(missDistribution[0]*100, 0) + "%", formatFeetAndInches(missDistances[0])],
-        "Long Right": [missDistribution[1] / maxPercentage, roundTo(missDistribution[1]*100, 0) + "%", formatFeetAndInches(missDistances[1])],
-        "Right": [missDistribution[2] / maxPercentage, roundTo(missDistribution[2]*100, 0) + "%", formatFeetAndInches(missDistances[2])],
-        "Short Right": [missDistribution[3] / maxPercentage, roundTo(missDistribution[3]*100, 0) + "%", formatFeetAndInches(missDistances[3])],
-        "Short": [missDistribution[4] / maxPercentage, roundTo(missDistribution[4]*100, 0) + "%", formatFeetAndInches(missDistances[4])],
-        "Short Left": [missDistribution[5] / maxPercentage, roundTo(missDistribution[5]*100, 0) + "%", formatFeetAndInches(missDistances[5])],
-        "Left": [missDistribution[6] / maxPercentage, roundTo(missDistribution[6]*100, 0) + "%", formatFeetAndInches(missDistances[6])],
-        "Long Left": [missDistribution[7] / maxPercentage, roundTo(missDistribution[7]*100, 0) + "%", formatFeetAndInches(missDistances[7])],
-    };
 }
 
 function cleanPuttsAHole(averagePerformance) {
@@ -662,4 +559,4 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats["puttsMishits"] += misHit ? 1 : 0;
 }
 
-export { calculateDistanceMissedMeters, createSimpleStats, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, filterMissDistribution, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { calculateDistanceMissedMeters, createSimpleStats, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

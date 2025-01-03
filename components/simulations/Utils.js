@@ -11,7 +11,7 @@ const dataBreaks = [
 ]
 
 function createRollProbabilities(currentStats) {
-    const { strokesGained } = currentStats.averagePerformance;
+    const { strokesGained } = currentStats;
 
     // Assign weights based on user stats
     const weights = [];
@@ -36,7 +36,7 @@ function createRollProbabilities(currentStats) {
 }
 
 function createDistanceProbabilities(currentStats) {
-    const { strokesGained } = currentStats.averagePerformance;
+    const { strokesGained } = currentStats;
 
     // Assign weights based on user stats
     const weights = [];

@@ -13,12 +13,12 @@ import {
     setDoc
 } from "firebase/firestore";
 import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
-import {createSimpleRefinedStats} from "@/utils/PuttUtils";
+import {createSimpleRefinedStats, createSimpleStats} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {getAuth} from "@/utils/firebase";
 import {Appearance} from "react-native";
-import {initializePutters, initializeStats} from "@/utils/stats/statsHelpers";
+import {initializePutters} from "@/utils/stats/statsHelpers";
 import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
 
@@ -100,6 +100,7 @@ export function AppProvider({children}) {
     const signOut = async () => {
         try {
             await auth.signOut();
+            Appearance.setColorScheme(null);
             setSession(null);
         } catch (error) {
             console.error("Error during sign-out:", error);
@@ -185,7 +186,9 @@ export function AppProvider({children}) {
         if (!auth.currentUser) return;
 
         getAllStats().then(async (updatedStats) => {
-            let localPutters = [{type: "default", name: "No Putter", stats: updatedStats.averagePerformance}];
+            console.log("updatedStats", updatedStats);
+
+            let localPutters = [{type: "default", name: "No Putter", stats: updatedStats}];
 
             const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
             try {
@@ -203,9 +206,7 @@ export function AppProvider({children}) {
                 console.error("Error refreshing putters:", error);
             }
 
-            setPutters(localPutters);
-
-            let localGrips = [{type: "default", name: "No Grip", stats: updatedStats.averagePerformance}];
+            let localGrips = [{type: "default", name: "No Grip", stats: updatedStats}];
 
             const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
             try {
@@ -224,6 +225,7 @@ export function AppProvider({children}) {
             }
 
             setGrips(localGrips);
+            setPutters(localPutters);
         });
 
         refreshData();
@@ -311,7 +313,7 @@ export function AppProvider({children}) {
     // Update statistics
     // TODO keep track of misreads (speed and line) by slope/break & distance
     const refreshStats = async () => {
-        const newStats = initializeStats();
+        const newStats = createSimpleStats();
 
         const newPuttSessions = await refreshData();
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
@@ -321,7 +323,8 @@ export function AppProvider({children}) {
 
         newPuttSessions.forEach(session => processSession(session, newStats, newPutters, userData));
 
-        finalizeStats(newStats, strokesGained);
+        if (newStats.rounds > 0)
+            finalizeStats(newStats, strokesGained);
 
         setCurrentStats(newStats);
 
@@ -338,6 +341,10 @@ export function AppProvider({children}) {
         let updatedStats = currentStats;
         if (Object.keys(currentStats).length === 0) {
             const document = await getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/current`));
+
+            if (!document.exists()) {
+                return createSimpleRefinedStats();
+            }
 
             setCurrentStats(document.data());
             updatedStats = document.data();
