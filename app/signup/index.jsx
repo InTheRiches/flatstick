@@ -94,7 +94,7 @@ export default function CreateAccount() {
                     preferences: {
                         countMishits: false,
                         filteringPutter: 0,
-                        selectedPutters: 0,
+                        selectedPutter: 0,
                         theme: 0,
                         units: 0,
                         reminders: false,
