@@ -65,17 +65,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                         <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>?</Text>
                     </SecondaryButton>}
                     {
-                        colorScheme === "dark" ? (
-                            <SecondaryButton onPress={onPress} style={{
-                                borderRadius: 30,
-                                width: 32,
-                                aspectRatio: 1,
-                                justifyContent: "center",
-                                alignItems: "center"
-                            }}>
-                                <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>+</Text>
-                            </SecondaryButton>
-                        ) : (
+                        colorScheme === "light" ? (
                             <PrimaryButton onPress={onPress} style={{
                                 borderRadius: 30,
                                 width: 32,
@@ -85,6 +75,16 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                             }}>
                                 <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
                             </PrimaryButton>
+                        ) : (
+                            <SecondaryButton onPress={onPress} style={{
+                                borderRadius: 30,
+                                width: 32,
+                                aspectRatio: 1,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>+</Text>
+                            </SecondaryButton>
                         )
                     }
                 </View>
