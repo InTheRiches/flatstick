@@ -76,7 +76,7 @@ const initialState = {
 export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
-    const {newSession, putters, userData, currentStats} = useAppContext();
+    const {newSession, putters, userData, currentStats, grips} = useAppContext();
 
     const auth = getAuth();
     const router = useRouter();
@@ -240,6 +240,7 @@ export default function RoundSimulation() {
             madePercent: madePercent,
             type: "round-simulation",
             putter: putters[userData.preferences.selectedPutter].type,
+            grip: grips[userData.preferences.selectedGrip].type,
             puttCounts: puttCounts,
             leftRightBias: leftRightBias,
             shortPastBias: shortPastBias,

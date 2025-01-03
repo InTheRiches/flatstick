@@ -45,6 +45,7 @@ const AppContext = createContext({
     puttSessions: [],
     currentStats: {},
     putters: [],
+    grips: [],
     previousStats: [],
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
@@ -58,6 +59,8 @@ const AppContext = createContext({
     getPreviousStats: () => Promise.resolve(),
     deleteSession: () => Promise.resolve(),
     deletePutter: () => {},
+    newGrip: () => Promise.resolve(),
+    deleteGrip: () => {},
 });
 
 const AuthContext = createContext({
@@ -82,6 +85,7 @@ export function AppProvider({children}) {
     const [session, setSession] = useState(null);
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
+    const [grips, setGrips] = useState([]);
     const [previousStats, setPreviousStats] = useState([]);
     const auth = getAuth();
     const firestore = getFirestore();
@@ -137,7 +141,7 @@ export function AppProvider({children}) {
         return () => unsubscribe();
     }, []);
 
-    const newPutter = (type) => {
+    const newPutter = (name) => {
         const id = type.toLowerCase().replace(/\s/g, "-");
         setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleRefinedStats()).catch((error) => {
             console.log(error);
@@ -159,6 +163,28 @@ export function AppProvider({children}) {
         setPutters(prev => prev.filter(putter => putter.type !== type));
     }
 
+    const newGrip = (name) => {
+        const id = name.toLowerCase().replace(/\s/g, "-");
+        setDoc(doc(firestore, `users/${auth.currentUser.uid}/grips/` + id), createSimpleRefinedStats()).catch((error) => {
+            console.log(error);
+        });
+
+        setGrips(prev => [...prev, {
+            type: id,
+            name: name,
+            stats: createSimpleRefinedStats()
+        }]);
+    }
+
+    const deleteGrip = (type) => {
+        // delete the document
+        deleteDoc(doc(firestore, `users/${auth.currentUser.uid}/grips/` + type)).catch((error) => {
+            console.log(error);
+        });
+        // remove the putter from the putters array
+        setGrips(prev => prev.filter(grip => grip.type !== type));
+    }
+
     // Initialize user data and sessions
     const initialize = () => {
         if (!auth.currentUser) return;
@@ -166,9 +192,9 @@ export function AppProvider({children}) {
         getAllStats().then(async (updatedStats) => {
             let localPutters = [{type: "default", name: "No Putter", stats: updatedStats.averagePerformance}];
 
-            const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
+            const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
             try {
-                const querySnapshot = await getDocs(sessionQuery);
+                const querySnapshot = await getDocs(putterSessionQuery);
 
                 if (querySnapshot.docs.length !== 0)
                     localPutters = [...localPutters, ...querySnapshot.docs.map((doc) => {
@@ -183,6 +209,26 @@ export function AppProvider({children}) {
             }
 
             setPutters(localPutters);
+
+            let localGrips = [{type: "default", name: "No Grip", stats: updatedStats.averagePerformance}];
+
+            const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
+            try {
+                const querySnapshot = await getDocs(gripSessionQuery);
+
+                if (querySnapshot.docs.length !== 0)
+                    localGrips = [...localGrips, ...querySnapshot.docs.map((doc) => {
+                        return {
+                            type: doc.id,
+                            name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
+                            stats: doc.data()
+                        }
+                    })];
+            } catch (error) {
+                console.error("Error refreshing grips:", error);
+            }
+
+            setGrips(localGrips);
         });
 
         refreshData();
@@ -210,6 +256,7 @@ export function AppProvider({children}) {
         }
     };
 
+    // an internal function to update the stats inside firebase
     const updateStats = async (newData, replace = false) => {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         getDoc(userDocRef).then(async (doc) => {
@@ -267,6 +314,7 @@ export function AppProvider({children}) {
     };
 
     // Update statistics
+    // TODO keep track of missreads (speed and line) by slope/break & distance
     const refreshStats = async () => {
         const createCategory = () => {
             return {
@@ -715,6 +763,7 @@ export function AppProvider({children}) {
         puttSessions,
         currentStats,
         putters,
+        grips,
         previousStats,
         initialize,
         refreshData,
@@ -727,8 +776,10 @@ export function AppProvider({children}) {
         newSession,
         getPreviousStats,
         deletePutter,
-        deleteSession
-    }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats]);
+        deleteSession,
+        newGrip,
+        deleteGrip,
+    }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats, grips]);
 
     const authContextValue = useMemo(() => ({
         signIn,

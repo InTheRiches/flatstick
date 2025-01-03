@@ -6,21 +6,21 @@ import {PrimaryButton} from "../general/buttons/PrimaryButton";
 import useColors from "@/hooks/useColors";
 import {useAppContext} from "@/contexts/AppCtx";
 
-export function NewPutterModal({newPutterRef}) {
+export function NewGripModal({newGripRef}) {
     const colors = useColors();
 
-    const [putterName, setPutterName] = useState("");
-    const [putterFocused, setPutterFocused] = useState(false);
-    const [putterInvalid, setPutterInvalid] = useState(false);
+    const [gripName, setGripName] = useState("");
+    const [gripFocused, setGripFocused] = useState(false);
+    const [gripInvalid, setGripInvalid] = useState(false);
     const [open, setOpen] = useState(false);
-    const {newPutter, putters} = useAppContext();
+    const {newGrip, grips} = useAppContext();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
             return (
                 <CustomBackdrop
                     open={open}
-                    reference={newPutterRef}
+                    reference={newGripRef}
                     animatedIndex={animatedIndex}
                     style={style}
                 />
@@ -29,26 +29,26 @@ export function NewPutterModal({newPutterRef}) {
         [open]
     );
 
-    const updatePutterName = (name) => {
+    const updateGripName = (name) => {
         if (name.length < 4) {
-            setPutterInvalid(true);
+            setGripInvalid(true);
             return;
         }
-        // if that name is already taken, setPutterInvalid(true)
-        for (const putter of putters) {
-            if (putter.name === name) {
-                setPutterInvalid(true);
+        // if that name is already taken, setGripInvalid(true)
+        for (const grip of grips) {
+            if (grip.name === name) {
+                setGripInvalid(true);
                 return;
             }
         }
 
-        setPutterInvalid(false);
-        setPutterName(name);
+        setGripInvalid(false);
+        setGripName(name);
     }
 
     return (
         <BottomSheetModal
-            ref={newPutterRef}
+            ref={newGripRef}
             backdropComponent={myBackdrop}
             android_keyboardInputMode={"adjustPan"}
             keyboardBlurBehavior={"restore"}
@@ -63,41 +63,41 @@ export function NewPutterModal({newPutterRef}) {
                             fontWeight: 500,
                             color: colors.text.primary,
                         }}>
-                        New Putter
+                        New Grip Style
                     </Text>
                 </View>
                 <BottomSheetTextInput
                     style={{
                         marginHorizontal: 24,
                         padding: 12,
-                        backgroundColor: putterInvalid ? colors.input.invalid.background : putterFocused ? colors.input.focused.background : colors.input.background,
+                        backgroundColor: gripInvalid ? colors.input.invalid.background : gripFocused ? colors.input.focused.background : colors.input.background,
                         borderRadius: 10,
                         borderWidth: 1,
-                        borderColor: putterFocused ? putterInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : putterInvalid ? colors.input.invalid.border : colors.input.border,
-                        color: putterInvalid ? colors.input.invalid.text : colors.input.text,
+                        borderColor: gripFocused ? gripInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : gripInvalid ? colors.input.invalid.border : colors.input.border,
+                        color: gripInvalid ? colors.input.invalid.text : colors.input.text,
                         fontSize: 16,
                         marginBottom: 12,
                     }}
-                    placeholder={"Putter name..."}
+                    placeholder={"Grip style name..."}
                     placeholderTextColor={colors.text.secondary}
-                    onChangeText={updatePutterName}
-                    onFocus={() => setPutterFocused(true)}
-                    onBlur={() => setPutterFocused(false)}
+                    onChangeText={updateGripName}
+                    onFocus={() => setGripFocused(true)}
+                    onBlur={() => setGripFocused(false)}
                 />
                 <PrimaryButton
                     title={"Create"}
                     onPress={() => {
-                        if (putterInvalid) return;
+                        if (gripInvalid) return;
 
-                        newPutter(putterName);
+                        newGrip(gripName);
 
                         Keyboard.dismiss();
 
                         setTimeout(() => {
-                            newPutterRef.current.forceClose();
+                            newGripRef.current.forceClose();
                         }, 400);
                     }}
-                    disabled={putterInvalid}
+                    disabled={gripInvalid}
                     style={{
                         borderRadius: 10,
                         paddingVertical: 10,

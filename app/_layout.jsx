@@ -49,6 +49,10 @@ export default function RootLayout() {
                     presentation: 'modal',
                     animation: "slide_from_bottom",
                   }}/>
+                  <Stack.Screen name={"editgrips/index"} options={{
+                    presentation: 'modal',
+                    animation: "slide_from_bottom",
+                  }}/>
                   <Stack.Screen name={"sessions/index"}/>
                   <Stack.Screen name={"sessions/individual/index"}/>
                   <Stack.Screen name={"settings/stats/index"} options={{

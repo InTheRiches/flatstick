@@ -98,6 +98,8 @@ export default function CreateAccount() {
                         theme: 0,
                         units: 0,
                         reminders: false,
+                        selectedGrip: 0,
+                        filteringGrip: 0,
                     }
                 }).catch((error) => {
                         console.log(error);

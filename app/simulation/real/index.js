@@ -73,7 +73,7 @@ const slopes = {
 export default function RealSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
-    const {newSession, putters, userData} = useAppContext();
+    const {newSession, putters, userData, grips} = useAppContext();
 
     const auth = getAuth();
     const router = useRouter();
@@ -213,6 +213,7 @@ export default function RealSimulation() {
             madePercent: madePercent,
             type: "real-simulation",
             putter: putters[userData.preferences.selectedPutter].type,
+            grip: grips[userData.preferences.selectedGrip].type,
             puttCounts: puttCounts,
             shortPastBias: shortPastBias,
             leftRightBias: leftRightBias,

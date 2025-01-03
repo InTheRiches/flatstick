@@ -6,6 +6,7 @@ import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {Session} from "../../components/sessions";
 
+// TODO add a fixed back button to the bottom
 export default function Sessions({}) {
     const {puttSessions} = useAppContext();
     const colors = useColors();
