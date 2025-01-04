@@ -9,25 +9,7 @@ import {PuttsAHoleTab} from "../../components/tabs/stats/putts";
 import {MadePuttsTab} from "../../components/tabs/stats/made";
 import Svg, {Path} from "react-native-svg";
 import {useRouter} from "expo-router";
-
-const slopes = [
-    "Downhill",
-    "Neutral",
-    'Uphill'
-]
-
-const breaks = [
-    "Right to Left",
-    "Straight",
-    "Left to Right"
-]
-
-const distances = [
-    "<6 ft",
-    "6-12 ft",
-    "12-20 ft",
-    "20+ ft"
-]
+import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -70,6 +52,13 @@ export default function Stats({}) {
             title: "Made Putts",
             content: useMemo(() => {
                 return <MadePuttsTab statsToUse={statsToUse}/>
+            }, [statsToUse])
+        },
+        {
+            id: 5,
+            title: "Misreads",
+            content: useMemo(() => {
+                return <MisreadTab statsToUse={statsToUse}/>
             }, [statsToUse])
         }
     ]

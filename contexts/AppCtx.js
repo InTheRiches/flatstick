@@ -310,7 +310,6 @@ export function AppProvider({children}) {
     };
 
     // Update statistics
-    // TODO keep track of misreads (speed and line) by slope/break & distance
     const refreshStats = async () => {
         const newStats = createSimpleStats();
 
