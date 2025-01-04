@@ -242,7 +242,6 @@ export function AppProvider({children}) {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}`);
         try {
             // update the userData state with the new partial data
-
             await runTransaction(firestore, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) throw new Error("Document does not exist!");
@@ -263,7 +262,7 @@ export function AppProvider({children}) {
                 });
                 return;
             }
-            // if has been over
+
             try {
                 await runTransaction(firestore, async (transaction) => {
                     if (replace) {

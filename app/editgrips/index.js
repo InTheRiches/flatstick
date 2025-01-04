@@ -74,7 +74,7 @@ export default function EditGrips() {
                 </View>
             </GestureDetector>
             <View style={{flexDirection: "row", marginTop: 12, justifyContent: "space-between", alignItems: "center", width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 10}}>
-                <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Grip Styles</Text>
+                <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Grip Methods</Text>
                 {
                     grips.length < 4 ? (
                         <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => {
@@ -83,7 +83,7 @@ export default function EditGrips() {
                         }} title={"New"}></PrimaryButton>
                     ) : (
                         <View style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 16, marginLeft: 8, borderColor: colors.button.disabled.border, borderWidth: 1, backgroundColor: colors.button.disabled.background}}>
-                            <Text style={{color: colors.text.secondary}}>At Max Grip Styles</Text>
+                            <Text style={{color: colors.text.secondary}}>At Max Grip Methods</Text>
                         </View>
                     )
                 }

@@ -63,7 +63,7 @@ export function NewGripModal({newGripRef}) {
                             fontWeight: 500,
                             color: colors.text.primary,
                         }}>
-                        New Grip Style
+                        New Grip Method
                     </Text>
                 </View>
                 <BottomSheetTextInput
@@ -78,7 +78,7 @@ export function NewGripModal({newGripRef}) {
                         fontSize: 16,
                         marginBottom: 12,
                     }}
-                    placeholder={"Grip style name..."}
+                    placeholder={"Grip Method name..."}
                     placeholderTextColor={colors.text.secondary}
                     onChangeText={updateGripName}
                     onFocus={() => setGripFocused(true)}

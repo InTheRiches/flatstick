@@ -224,10 +224,10 @@ export const NewRound = ({newSessionRef}) => {
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,
-                    }}>Grip Style</Text>
+                    }}>Grip Method</Text>
                     <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{flexDirection: "row", borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
                         <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips.length > 0 ? grips[userData.preferences.selectedGrip].name : "No Grip Style"}</Text>
+                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips.length > 0 ? grips[userData.preferences.selectedGrip].name : "No Grip Method"}</Text>
                         </View>
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editgrips"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
