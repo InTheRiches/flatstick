@@ -1,6 +1,6 @@
 import {roundTo} from "../roundTo";
 import {cleanAverageStrokesGained} from "../StrokesGainedUtils";
-import {cleanMadePutts, cleanPuttsAHole, createSimpleRefinedStats} from "../PuttUtils";
+import {cleanMadePutts, cleanMisreads, cleanPuttsAHole, createSimpleRefinedStats} from "../PuttUtils";
 import {doc, runTransaction} from "firebase/firestore";
 import {auth, firestore} from "@/utils/firebase";
 
@@ -16,6 +16,7 @@ const finalizeStats = (newStats, strokesGained) => {
     newStats.strokesGained = cleanAverageStrokesGained(newStats, strokesGained.overall);
     newStats.puttsAHole = cleanPuttsAHole(newStats);
     newStats.madePutts = cleanMadePutts(newStats);
+    newStats.misreads = cleanMisreads(newStats)
     newStats.avgMissDistance = newStats.avgMissDistance.map((val, idx) => {
         if (newStats.puttsByDistance[idx] === 0) return 0;
         return roundTo(val / newStats.puttsByDistance[idx], 1);
@@ -33,29 +34,12 @@ const finalizePutters = (setPutters, newStats, newPutters, strokesGained) => {
             return;
         }
 
-        const allPutts = putter.stats.rounds * 18;
         // if we are not counting mishits, then we need to remove them from the total putts
         if (putter.stats.totalMishits === 0) {
             putter.stats.totalPutts -= putter.stats.puttsMishits;
         }
 
-        putter.stats.avgMiss = roundTo(putter.stats.avgMiss / allPutts, 1);
-        putter.stats.totalDistance = roundTo(putter.stats.totalDistance / putter.stats.rounds, 1);
-        putter.stats.puttsMisread = roundTo(putter.stats.puttsMisread / putter.stats.rounds, 1);
-        putter.stats.onePutts = roundTo(putter.stats.onePutts / putter.stats.rounds, 1);
-        putter.stats.twoPutts = roundTo(putter.stats.twoPutts / putter.stats.rounds, 1);
-        putter.stats.threePutts = roundTo(putter.stats.threePutts / putter.stats.rounds, 1);
-        putter.stats.leftRightBias = roundTo(putter.stats.leftRightBias / (putter.stats.rounds * 18), 2);
-        putter.stats.shortPastBias = roundTo(putter.stats.shortPastBias / (putter.stats.rounds * 18), 2);
-
-        putter.stats.strokesGained = cleanAverageStrokesGained(putter.stats);
-        putter.stats.puttsAHole = cleanPuttsAHole(putter.stats);
-        putter.stats.madePutts = cleanMadePutts(putter.stats);
-
-        putter.stats.avgMissDistance = putter.stats.avgMissDistance.map((val, idx) => {
-            if (putter.stats.puttsByDistance[idx] === 0) return 0;
-            return roundTo(val / putter.stats.puttsByDistance[idx], 1);
-        });
+        finalizeStats(putter.stats, strokesGained);
 
         cleanedPutters.push(putter);
 

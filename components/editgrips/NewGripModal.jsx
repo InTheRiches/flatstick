@@ -12,14 +12,13 @@ export function NewGripModal({newGripRef}) {
     const [gripName, setGripName] = useState("");
     const [gripFocused, setGripFocused] = useState(false);
     const [gripInvalid, setGripInvalid] = useState(false);
-    const [open, setOpen] = useState(false);
     const {newGrip, grips} = useAppContext();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
             return (
                 <CustomBackdrop
-                    open={open}
+                    open={false}
                     reference={newGripRef}
                     animatedIndex={animatedIndex}
                     style={style}
@@ -78,7 +77,7 @@ export function NewGripModal({newGripRef}) {
                         fontSize: 16,
                         marginBottom: 12,
                     }}
-                    placeholder={"Grip Method name..."}
+                    placeholder={"Grip method name..."}
                     placeholderTextColor={colors.text.secondary}
                     onChangeText={updateGripName}
                     onFocus={() => setGripFocused(true)}

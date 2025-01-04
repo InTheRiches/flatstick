@@ -304,6 +304,44 @@ const createSimpleStats = () => {
         totalDistance: 0,
         puttsMisread: 0,
         puttsMishits: 0,
+        misreads: {
+            misreadLineByDistance: [0, 0, 0, 0],
+            misreadSlopeByDistance: [0, 0, 0, 0],
+            misreadLineBySlope: {
+                downhill: {
+                    straight: [0,0], // misreads, putts
+                    leftToRight: [0,0],
+                    rightToLeft: [0,0]
+                },
+                neutral: {
+                    straight: [0,0],
+                    leftToRight: [0,0],
+                    rightToLeft: [0,0]
+                },
+                uphill: {
+                    straight: [0,0],
+                    leftToRight: [0,0],
+                    rightToLeft: [0,0]
+                }
+            },
+            misreadSlopeBySlope: {
+                downhill: {
+                    straight: [0,0], // misreads, putts
+                    leftToRight: [0,0],
+                    rightToLeft: [0,0]
+                },
+                neutral: {
+                    straight: [0,0],
+                    leftToRight: [0,0],
+                    rightToLeft: [0,0]
+                },
+                uphill: {
+                    straight: [0,0],
+                    leftToRight: [0,0],
+                    rightToLeft: [0,0]
+                }
+            }
+        },
         strokesGained: {
             overall: 0,
             distance: [0, 0, 0, 0],
@@ -386,6 +424,44 @@ const createSimpleRefinedStats = () => {
         totalDistance: 0,
         puttsMisread: 0,
         puttsMishits: 0,
+        misreads: {
+            misreadLineByDistance: [0, 0, 0, 0],
+            misreadSlopeByDistance: [0, 0, 0, 0],
+            misreadLineBySlope: {
+                downhill: {
+                    straight: 0, // misreads, putts
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            },
+            misreadSlopeBySlope: {
+                downhill: {
+                    straight: 0, // misreads, putts
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            }
+        },
         strokesGained: {
             overall: 0,
             distance: [0, 0, 0, 0],
@@ -456,6 +532,69 @@ const createSimpleRefinedStats = () => {
     }
 }
 
+function cleanMisreads(averagePerformance) {
+    const refinedMisreads = {
+            misreadLineByDistance: [0, 0, 0, 0],
+            misreadSlopeByDistance: [0, 0, 0, 0],
+            misreadLineBySlope: {
+                downhill: {
+                    straight: 0, // misreads, putts
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            },
+            misreadSlopeBySlope: {
+                downhill: {
+                    straight: 0, // misreads, putts
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                neutral: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                },
+                uphill: {
+                    straight: 0,
+                    leftToRight: 0,
+                    rightToLeft: 0
+                }
+            }
+        };
+
+    refinedMisreads.misreadLineByDistance = averagePerformance.misreads.misreadLineByDistance.map((val, idx) => {
+        if (averagePerformance.puttsByDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.puttsByDistance[idx], 2);
+    });
+
+    refinedMisreads.misreadSlopeByDistance = averagePerformance.misreads.misreadSlopeByDistance.map((val, idx) => {
+        if (averagePerformance.puttsByDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.puttsByDistance[idx], 2);
+    });
+
+    // handle the slopes
+    for (const slope of ["uphill", "neutral", "downhill"]) {
+        for (const breakType of ["straight", "leftToRight", "rightToLeft"]) {
+            if (averagePerformance.misreads.misreadLineBySlope[slope][breakType][1] !== 0)
+                refinedMisreads.misreadLineBySlope[slope][breakType] = roundTo(averagePerformance.misreads.misreadLineBySlope[slope][breakType][0] / averagePerformance.misreads.misreadLineBySlope[slope][breakType][1], 2);
+            if (averagePerformance.misreads.misreadSlopeBySlope[slope][breakType][1] !== 0)
+                refinedMisreads.misreadSlopeBySlope[slope][breakType] = roundTo(averagePerformance.misreads.misreadSlopeBySlope[slope][breakType][0] / averagePerformance.misreads.misreadSlopeBySlope[slope][breakType][1], 2);
+        }
+    }
+
+    return refinedMisreads;
+}
+
 function cleanMadePutts(averagePerformance) {
     const refinedMadePutts = {
         distance: [0, 0, 0, 0],
@@ -510,11 +649,13 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         "uphill"
     ]
 
+    const distanceIndex = category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3;
+
     if (totalPutts === 1) {
         simpleStats.onePutts++;
         simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
 
-        simpleStats.madePutts.distance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3]++;
+        simpleStats.madePutts.distance[distanceIndex]++;
     }
     else if (totalPutts === 2) simpleStats["twoPutts"]++;
     else simpleStats["threePutts"]++;
@@ -524,6 +665,16 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     if (misReadLine || misReadSlope) {
         simpleStats.puttsAHole.misreadPuttsAHole += totalPutts;
         simpleStats.puttsAHole.misreadHoles++;
+    }
+
+    if (misReadLine) {
+        simpleStats.misreads.misreadLineByDistance[distanceIndex]++;
+        simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+    }
+
+    if (misReadSlope) {
+        simpleStats.misreads.misreadSlopeByDistance[distanceIndex]++;
+        simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
     }
 
     if (misHit) {
@@ -537,18 +688,18 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     const strokesGained = calculateBaselineStrokesGained(convertUnits(distance, userData.preferences.units, 0)) - totalPutts;
 
     if ((misHit && userData.preferences.countMishits) || !misHit) {
-        simpleStats.puttsByDistance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3]++;
+        simpleStats.puttsByDistance[distanceIndex]++;
 
-        simpleStats.puttsAHole.distance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3] += totalPutts;
+        simpleStats.puttsAHole.distance[distanceIndex] += totalPutts;
 
         simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += putt.totalPutts;
         simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
-        simpleStats.strokesGained.distance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3] += strokesGained;
+        simpleStats.strokesGained.distance[distanceIndex] += strokesGained;
         simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += strokesGained;
         simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 
         simpleStats.avgMiss += distanceMissed;
-        simpleStats.avgMissDistance[category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3] += distanceMissed;
+        simpleStats.avgMissDistance[distanceIndex] += distanceMissed;
     }
 
     simpleStats.leftRightBias += xDistance;
@@ -557,6 +708,9 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats["totalDistance"] += distance;
     simpleStats["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
     simpleStats["puttsMishits"] += misHit ? 1 : 0;
+
+    simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+    simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 }
 
-export { calculateDistanceMissedMeters, createSimpleStats, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { calculateDistanceMissedMeters, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
