@@ -25,7 +25,7 @@ export function NewGripModal({newGripRef}) {
                 />
             );
         },
-        [open]
+        []
     );
 
     const updateGripName = (name) => {
