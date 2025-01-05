@@ -72,6 +72,15 @@ export default function HomeScreen() {
                                   d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
                         </Svg>
                     </Pressable>
+                    <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Your Grip Methods</Text>
+                        <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24" strokeWidth={3}
+                             stroke={colors.text.primary}>
+                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                  d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                        </Svg>
+                    </Pressable>
                     <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>NOTIFICATIONS</Text>
                     <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
                         <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Practice Reminders</Text>
