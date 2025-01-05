@@ -29,13 +29,13 @@ export default function UserSettings({}) {
     let nameErrorCode = "";
 
     const updateFirstName = (newName) => {
-        setFirstName(newName);
-        setFirstNameInvalid(newName.length === 0 || newName.includes(" "));
+        setFirstName(newName.trim());
+        setFirstNameInvalid(newName.length === 0 || newName.trim().includes(" "));
     }
 
     const updateLastName = (newName) => {
-        setLastName(newName);
-        setLastNameInvalid(newName.length === 0 || newName.includes(" "))
+        setLastName(newName.trim());
+        setLastNameInvalid(newName.length === 0 || newName.trim().includes(" "))
     }
 
     const updateEmailAddress = (newEmail) => {
