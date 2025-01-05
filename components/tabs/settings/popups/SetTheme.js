@@ -18,7 +18,7 @@ export function SetTheme({setThemeRef}) {
     const setTheme = (theme) => {
         setUserData({preferences: {...userData.preferences, theme: theme}})
 
-        Appearance.setColorScheme(theme === 0 ? null : theme === 1 ? "dark" : "light");
+        Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
     }
 
     return (

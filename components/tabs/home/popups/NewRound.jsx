@@ -32,7 +32,7 @@ export const NewRound = ({newSessionRef}) => {
         }, []
     );
 
-
+    // console.log(userData.preferences, putters, grips);
 
     // renders
     return (<BottomSheetModal ref={newSessionRef} bottomSheetPosition={bottomSheetPosition} enablePanDownToClose={true} backdropComponent={myBackdrop} handleIndicatorStyle={{backgroundColor: colors.text.primary}} backgroundStyle={{backgroundColor: colors.background.primary}}>

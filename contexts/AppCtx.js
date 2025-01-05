@@ -100,7 +100,7 @@ export function AppProvider({children}) {
     const signOut = async () => {
         try {
             await auth.signOut();
-            Appearance.setColorScheme(null);
+            Appearance.setColorScheme(Appearance.getNativeColorScheme());
             setSession(null);
         } catch (error) {
             console.error("Error during sign-out:", error);
@@ -186,7 +186,6 @@ export function AppProvider({children}) {
         if (!auth.currentUser) return;
 
         getAllStats().then(async (updatedStats) => {
-            console.log("updatedStats", updatedStats);
 
             let localPutters = [{type: "default", name: "No Putter", stats: updatedStats}];
 
@@ -228,7 +227,11 @@ export function AppProvider({children}) {
             setPutters(localPutters);
         });
 
-        refreshData();
+        refreshData().then(({puttSessions, newData}) => {
+            const theme = newData.preferences.theme;
+
+            Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
+        });
 
         getPreviousStats();
     };
@@ -279,14 +282,12 @@ export function AppProvider({children}) {
 
     // Refresh user data and sessions
     const refreshData = async () => {
+        let newData = {};
         const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
         try {
             const data = await getDoc(docRef);
+            newData = data.data();
             setUserData(data.data());
-
-            const theme = data.data().preferences.theme;
-
-            Appearance.setColorScheme(theme === 0 ? null : theme === 1 ? "dark" : "light");
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }
@@ -301,19 +302,19 @@ export function AppProvider({children}) {
                 })
             });
             setPuttSessions(sessions);
-            return sessions;
+            return {sessions, userData: newData};
         } catch (error) {
             console.error("Error refreshing sessions:", error);
         }
 
-        return [];
+        return {};
     };
 
     // Update statistics
     const refreshStats = async () => {
         const newStats = createSimpleStats();
 
-        const newPuttSessions = await refreshData();
+        const newPuttSessions = await refreshData().puttSessions;
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
         const newPutters = initializePutters(putters);
 
