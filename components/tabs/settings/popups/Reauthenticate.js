@@ -5,7 +5,7 @@ import useColors from "../../../../hooks/useColors";
 import {Text, View} from "react-native";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
-import {EmailAuthProvider, getAuth, reauthenticateWithCredential,} from 'firebase/auth'
+import {EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth'
 import {useRouter} from "expo-router";
 
 export function Reauthenticate({reauthenticateRef}) {

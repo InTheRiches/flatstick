@@ -15,8 +15,6 @@ export const OverviewTab = ({statsToUse}) => {
     if (previousStats !== undefined && previousStats.length > 0)
         difference = statsToUse.strokesGained.overall - previousStats[0].strokesGained.overall;
 
-    console.log(statsToUse)
-
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 32}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>

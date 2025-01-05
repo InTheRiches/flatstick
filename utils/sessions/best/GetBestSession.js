@@ -7,7 +7,6 @@ export const getBestSession = async () => {
     const firestore = getFirestore();
     const auth = getAuth();
 
-    console.log("getting best session");
     const bestSessionRef = doc(firestore, `users/${auth.currentUser.uid}/bestSession/bestSession`);
     const bestSessionDoc = await getDoc(bestSessionRef);
 
