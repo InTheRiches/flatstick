@@ -12,8 +12,8 @@ export default function ComparePutters({}) {
     const {userData, putters} = useAppContext();
     const navigation = useNavigation();
 
-    const [firstPutter, setFirstPutter] = useState(0);
-    const [secondPutter, setSecondPutter] = useState(0);
+    const [firstPutter, setFirstPutter] = useState(-1);
+    const [secondPutter, setSecondPutter] = useState(-1);
 
     const [isOnePressed, setIsOnePressed] = useState(false);
     const [isTwoPressed, setIsTwoPressed] = useState(false);
@@ -21,7 +21,10 @@ export default function ComparePutters({}) {
     const firstPutterRef = useRef(null);
     const secondPutterRef = useRef(null);
 
-    const betterPutter = compareStats(putters[firstPutter].stats, putters[secondPutter].stats);
+    let betterPutter = 0;
+    if (firstPutter !== -1 && secondPutter !== -1) {
+        betterPutter = compareStats(putters[firstPutter].stats, putters[secondPutter].stats)
+    }
 
     return (
         <ScrollView style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
@@ -44,7 +47,7 @@ export default function ComparePutters({}) {
                     onPressIn={() => setIsOnePressed(true)}
                     onPressOut={() => setIsOnePressed(false)}
                     onPress={() => firstPutterRef.current.present()} style={{padding: 7}}>
-                    <Text style={{color: colors.text.link, opacity: isOnePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{firstPutter === 0 ? "N/A" : putters[firstPutter].name}</Text>
+                    <Text style={{color: colors.text.link, opacity: isOnePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{firstPutter === -1 ? "N/A" : firstPutter === 0 ? "All Putters" : putters[firstPutter].name}</Text>
                 </Pressable>
             </View>
             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
@@ -53,16 +56,16 @@ export default function ComparePutters({}) {
                     onPressIn={() => setIsTwoPressed(true)}
                     onPressOut={() => setIsTwoPressed(false)}
                     onPress={() => secondPutterRef.current.present()} style={{padding: 7}}>
-                    <Text style={{color: colors.text.link, opacity: isTwoPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{secondPutter === 0 ? "N/A" : putters[secondPutter].name}</Text>
+                    <Text style={{color: colors.text.link, opacity: isTwoPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{secondPutter === -1 ? "N/A" : secondPutter === 0 ? "All Putters" : putters[secondPutter].name}</Text>
                 </Pressable>
             </View>
             <SelectPutter setSelectedPutter={setFirstPutter} selectedPutter={firstPutter} filterPuttersRef={firstPutterRef}/>
             <SelectPutter setSelectedPutter={setSecondPutter} selectedPutter={secondPutter} filterPuttersRef={secondPutterRef}/>
             {
-                firstPutter !== 0 && secondPutter !== 0 && <>
+                firstPutter !== -1 && secondPutter !== -1 && <>
                     <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>RESULT</Text>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
-                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? putters[firstPutter].name : putters[secondPutter].name}</Text> putts better.</Text>
+                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? firstPutter === 0 ? "the average" : putters[firstPutter].name : secondPutter === 0 ? "the average" : putters[secondPutter].name}</Text> putts better.</Text>
                     </View>
                     <Text style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</Text>
                     <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>

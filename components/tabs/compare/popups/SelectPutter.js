@@ -21,8 +21,8 @@ export function SelectPutter({filterPuttersRef, selectedPutter, setSelectedPutte
             <BottomSheetView style={{paddingBottom: 12, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
                 <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>
                 {
-                    putters.slice(1).map((putter, index) => {
-                        return <Putter selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter} putter={putter} index={index+1} key={"puu-" + index} reference={filterPuttersRef}/>
+                    putters.map((putter, index) => {
+                        return <Putter selectedPutter={selectedPutter} setSelectedPutter={setSelectedPutter} putter={putter} index={index} key={"puu-" + index} reference={filterPuttersRef}/>
                     })
                 }
             </BottomSheetView>

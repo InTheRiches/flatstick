@@ -97,6 +97,7 @@ function calculateSingleStrokesGained(totalPutts, distance) {
 }
 
 function calculateTotalStrokesGained(userData, sessions) {
+    if (sessions.length === 0) return 0;
     let overallPutts = 0;
     let overallRounds = 0;
 
