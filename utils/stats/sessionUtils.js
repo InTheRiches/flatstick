@@ -14,7 +14,7 @@ const statSlopes = [
     "uphill"
 ]
 
-export const updateCategoryStats = (putt, session, newStats, userData, newPutters, averaging) => {
+export const updateCategoryStats = (putt, session, newStats, userData, newPutters, newGrips, averaging) => {
     const { units: sessionUnits } = session;
     const { units: preferredUnits } = userData.preferences;
 
@@ -50,9 +50,21 @@ export const updateCategoryStats = (putt, session, newStats, userData, newPutter
             );
         }
     }
+
+    if (session.grip !== "default") {
+        const grip = newGrips.find((g) => g.type === session.grip);
+        if (grip) {
+            updateSimpleStats(
+                userData,
+                grip.stats,
+                { distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts: putt.totalPutts },
+                category
+            );
+        }
+    }
 };
 
-const processSession = (session, newStats, newPutters, userData) => {
+const processSession = (session, newStats, newPutters, newGrips, userData) => {
     const averaging = newStats.rounds < 5 &&
         (session.type === "round-simulation" || session.type === "real-simulation") &&
         session.holes === 18;
@@ -60,27 +72,35 @@ const processSession = (session, newStats, newPutters, userData) => {
 
     if (session.putter !== "default") {
         const putter = newPutters.find((putter) => putter.type === session.putter);
-        if (putter !== undefined)
+        if (putter !== undefined) {
             putter.stats.rounds += session.holes / 18;
+
+            if (putter.stats.strokesGained.overall === 0) {
+                putter.stats.strokesGained.overall += 29 - session.totalPutts;
+                return;
+            }
+            putter.stats.strokesGained.overall += 29 - session.totalPutts;
+            putter.stats.strokesGained.overall /= 2;
+        }
+    }
+
+    if (session.grip !== "default") {
+        const grip = newGrips.find((grip) => grip.type === session.grip);
+        if (grip !== undefined) {
+            grip.stats.rounds += session.holes / 18;
+
+            if (grip.stats.strokesGained.overall === 0) {
+                grip.stats.strokesGained.overall += 29 - session.totalPutts;
+                return;
+            }
+            grip.stats.strokesGained.overall += 29 - session.totalPutts;
+            grip.stats.strokesGained.overall /= 2;
+        }
     }
 
     session.putts.forEach(putt => {
-        updateCategoryStats(putt, session, newStats, userData, newPutters, averaging);
+        updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);
     });
-
-    if (session.putter !== "default") {
-        const putter = newPutters.find((putter) => putter.type === session.putter);
-        if (putter !== undefined) {
-            const puttStats = putter.stats;
-
-            if (puttStats.strokesGained.overall === 0) {
-                puttStats.strokesGained.overall += 29 - session.totalPutts;
-                return;
-            }
-            puttStats.strokesGained.overall += 29 - session.totalPutts;
-            puttStats.strokesGained.overall /= 2;
-        }
-    }
 };
 
 export { processSession };

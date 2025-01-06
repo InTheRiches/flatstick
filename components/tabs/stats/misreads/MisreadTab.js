@@ -13,7 +13,7 @@ export function MisreadTab({statsToUse}) {
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Break Misreads by Distance</Text>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Line Misreads by Distance</Text>
             <View style={{alignItems: "center"}}>
                 <BreakMisreadsByDistance statsToUse={statsToUse}/>
             </View>
@@ -21,7 +21,7 @@ export function MisreadTab({statsToUse}) {
             <View style={{alignItems: "center"}}>
                 <SlopeMisreadsByDistance statsToUse={statsToUse}/>
             </View>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Break Misreads by Break/Slope</Text>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Line Misreads by Break/Slope</Text>
             <BreakMisreadsByBreakSlope statsToUse={statsToUse}></BreakMisreadsByBreakSlope>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Slope Misreads by Break/Slope</Text>
             <SlopeMisreadsByBreakSlope statsToUse={statsToUse}></SlopeMisreadsByBreakSlope>

@@ -59,4 +59,40 @@ const finalizePutters = (setPutters, newStats, newPutters, strokesGained) => {
     setPutters([{type: "default", name: "No Putter", stats: newStats}, ...cleanedPutters]);
 }
 
-export {finalizeStats, finalizePutters};
+const finalizeGrips = (setGrips, newStats, newGrips, strokesGained) => {
+    const cleanedGrips = [];
+
+    newGrips.forEach((grip) => {
+        if (grip.stats.rounds === 0) {
+            // the newPutters contains non refined stats, so we need to get the default refined stats and replac eit
+            grip.stats = createSimpleRefinedStats();
+            cleanedGrips.push(grip);
+            return;
+        }
+
+        // if we are not counting mishits, then we need to remove them from the total putts
+        if (grip.stats.totalMishits === 0) {
+            grip.stats.totalPutts -= grip.stats.puttsMishits;
+        }
+
+        finalizeStats(grip.stats, strokesGained);
+
+        cleanedGrips.push(grip);
+
+        const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/grips/${grip.type}`);
+        runTransaction(firestore, async (transaction) => {
+            const userDoc = await transaction.get(userDocRef);
+            if (!userDoc.exists()) {
+                console.error("Grip " + grip.type + " Document does not exist!");
+                return;
+            }
+            transaction.update(userDocRef, grip.stats);
+        }).catch(error => {
+            console.error("Set grip transaction failed:", error);
+        });
+    });
+
+    setGrips([{type: "default", name: "No Grip Method", stats: newStats}, ...cleanedGrips]);
+}
+
+export {finalizeStats, finalizePutters, finalizeGrips};

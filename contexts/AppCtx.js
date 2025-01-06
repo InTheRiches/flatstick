@@ -18,9 +18,9 @@ import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {getAuth} from "@/utils/firebase";
 import {Appearance} from "react-native";
-import {initializePutters} from "@/utils/stats/statsHelpers";
+import {initializeGrips, initializePutters} from "@/utils/stats/statsHelpers";
 import {processSession} from "@/utils/stats/sessionUtils";
-import {finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
+import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
 
 const breaks = [
     "leftToRight",
@@ -132,7 +132,6 @@ export function AppProvider({children}) {
             } else {
                 setSession(null);
             }
-            setLoading(false);
         });
         return () => unsubscribe();
     }, []);
@@ -185,8 +184,9 @@ export function AppProvider({children}) {
     const initialize = () => {
         if (!auth.currentUser) return;
 
-        getAllStats().then(async (updatedStats) => {
+        console.log("Initializing user data and sessions...");
 
+        getAllStats().then(async (updatedStats) => {
             let localPutters = [{type: "default", name: "No Putter", stats: updatedStats}];
 
             const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
@@ -225,15 +225,18 @@ export function AppProvider({children}) {
 
             setGrips(localGrips);
             setPutters(localPutters);
+
+            refreshData().then(({sessions, newData}) => {
+                const theme = newData.preferences.theme;
+
+                Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
+
+                getPreviousStats().then(() => {
+                    console.log("Initialization complete!");
+                    setLoading(false);
+                })
+            });
         });
-
-        refreshData().then(({puttSessions, newData}) => {
-            const theme = newData.preferences.theme;
-
-            Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
-        });
-
-        getPreviousStats();
     };
 
     // Update user data
@@ -301,8 +304,9 @@ export function AppProvider({children}) {
                     ...doc.data()
                 })
             });
+
             setPuttSessions(sessions);
-            return {sessions, userData: newData};
+            return {sessions, newData};
         } catch (error) {
             console.error("Error refreshing sessions:", error);
         }
@@ -314,23 +318,25 @@ export function AppProvider({children}) {
     const refreshStats = async () => {
         const newStats = createSimpleStats();
 
-        const newPuttSessions = await refreshData().puttSessions;
+        const newPuttSessions = (await refreshData()).sessions;
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
         const newPutters = initializePutters(putters);
+        const newGrips = initializeGrips(grips);
 
-        let totalPutts = 0;
-
-        newPuttSessions.forEach(session => processSession(session, newStats, newPutters, userData));
+        newPuttSessions.forEach(session => processSession(session, newStats, newPutters, newGrips, userData));
 
         if (newStats.rounds > 0)
             finalizeStats(newStats, strokesGained);
 
         setCurrentStats(newStats);
 
+        // TODO implement this
+        let totalPutts = 0;
         await updateData({totalPutts: totalPutts, strokesGained: strokesGained["overall"]});
         await updateStats(newStats, true)
 
         finalizePutters(setPutters, newStats, newPutters, strokesGained);
+        finalizeGrips(setGrips, newStats, newGrips, strokesGained);
 
         return newStats;
     };

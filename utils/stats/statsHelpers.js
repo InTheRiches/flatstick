@@ -37,6 +37,13 @@ const initializePutters = (putters) => {
     });
 }
 
+const initializeGrips = (grips) => {
+    return JSON.parse(JSON.stringify(grips)).slice(1).map((grip) => {
+        grip.stats = createSimpleStats();
+        return grip;
+    });
+}
+
 const categorizeDistance = (distance, units) => {
     if (units === 0) {
         if (distance < 6) return "distanceOne";
@@ -51,4 +58,4 @@ const categorizeDistance = (distance, units) => {
     }
 };
 
-export {categorizeDistance, initializePutters};
+export {categorizeDistance, initializeGrips, initializePutters};
