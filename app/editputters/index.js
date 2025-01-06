@@ -13,7 +13,7 @@ import {NewPutterModal, PutterSelector} from "../../components/editputters";
 export default function EditPutters() {
     const colors = useColors();
     const newPutterRef = useRef(null);
-    const {putters, userData, updateData, setUserData, deletePutter} = useAppContext();
+    const {putters, userData, nonPersistentData, setNonPersistentData, updateData, setUserData, deletePutter} = useAppContext();
     const navigation = useNavigation();
     const [selectedPutter, setPutter] = useState(userData.preferences.selectedPutter);
     const [editing, setEditing] = useState(false);
@@ -56,10 +56,10 @@ export default function EditPutters() {
             setSelectedPutter(selectedPutter - 1);
         }
 
-        if (userData.preferences.filteringPutter === id) {
-            setUserData({...userData, preferences: {...userData.preferences, filteringPutter: 0}});
-        } else if (userData.preferences.filteringPutter > id) {
-            setUserData({...userData, preferences: {...userData.preferences, filteringPutter: userData.preferences.filteringPutter - 1}});
+        if (nonPersistentData.filtering.putter === id) {
+            setNonPersistentData({...nonPersistentData, filtering: {...nonPersistentData.filtering, putter: 0}});
+        } else if (nonPersistentData.filtering.putter > id) {
+            setNonPersistentData({...nonPersistentData, filtering: {...nonPersistentData.filtering, putter: nonPersistentData.filtering.putter - 1}});
         }
     }
 

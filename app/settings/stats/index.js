@@ -1,21 +1,23 @@
 import {Pressable, Switch, Text, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
-import {FilterPutters} from "../../../components/tabs/stats/settings/popups";
+import {FilterGrips, FilterPutters} from "../../../components/tabs/stats/settings/popups";
 import {useAppContext} from "../../../contexts/AppCtx";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
 
 export default function StatSettings({}) {
     const colors = useColors();
-    const {putters, userData, updateData, updateStats} = useAppContext();
+    const {putters, grips, userData, updateData, updateStats, nonPersistentData} = useAppContext();
 
     const [initialData, setInitialData] = useState(userData.preferences);
 
     const [misHits, setMisHits] = useState(userData.preferences.countMishits);
     const filterPuttersRef = useRef(null);
+    const filterGripsRef = useRef(null);
     const navigation = useNavigation();
-    const [isPressed, setIsPressed] = useState(false);
+    const [isPuttersPressed, setIsPuttersPressed] = useState(false);
+    const [isGripsPressed, setIsGripsPressed] = useState(false);
 
     const toggleMisHits = () => {
         updateData({...userData, preferences: {...userData.preferences, countMishits: !misHits}});
@@ -53,16 +55,26 @@ export default function StatSettings({}) {
                     value={misHits}
                 />
             </View>
-            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
                 <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Filter Putters</Text>
                 <Pressable
-                    onPressIn={() => setIsPressed(true)}
-                    onPressOut={() => setIsPressed(false)}
+                    onPressIn={() => setIsPuttersPressed(true)}
+                    onPressOut={() => setIsPuttersPressed(false)}
                     onPress={() => filterPuttersRef.current.present()} style={{padding: 7}}>
-                    <Text style={{color: colors.text.link, opacity: isPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.filteringPutter === 0 ? "All" : putters[userData.preferences.filteringPutter].name}</Text>
+                    <Text style={{color: colors.text.link, opacity: isPuttersPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{nonPersistentData.filtering.putter === 0 ? "All" : putters[nonPersistentData.filtering.putter].name}</Text>
+                </Pressable>
+            </View>
+            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Filter Grips</Text>
+                <Pressable
+                    onPressIn={() => setIsGripsPressed(true)}
+                    onPressOut={() => setIsGripsPressed(false)}
+                    onPress={() => filterGripsRef.current.present()} style={{padding: 7}}>
+                    <Text style={{color: colors.text.link, opacity: isGripsPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{nonPersistentData.filtering.grip === 0 ? "All" : grips[nonPersistentData.filtering.grip].name}</Text>
                 </Pressable>
             </View>
             <FilterPutters filterPuttersRef={filterPuttersRef}/>
+            <FilterGrips filterGripsRef={filterGripsRef}/>
         </View>
     )
 }

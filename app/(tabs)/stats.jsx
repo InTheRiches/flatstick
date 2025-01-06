@@ -1,7 +1,7 @@
 import {Dimensions, FlatList, Pressable, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {useAppContext} from "../../contexts/AppCtx";
-import React, {useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Toggleable} from "../../components/general/buttons/Toggleable";
 import {StrokesGainedTab} from "../../components/tabs/stats/sg";
 import {OverviewTab} from "../../components/tabs/stats/overview";
@@ -21,9 +21,16 @@ export default function Stats({}) {
     const listRef = useRef(null);
     const scrollViewRef = useRef(null);
 
-    const {currentStats, puttSessions, putters, userData} = useAppContext();
+    const {currentStats, puttSessions, putters, grips, userData, nonPersistentData, calculateSpecificStats} = useAppContext();
 
-    const statsToUse = userData.preferences.filteringPutter !== 0 ? putters[userData.preferences.filteringPutter].stats : currentStats;
+    const [statsToUse, setStatsToUse] = useState(currentStats);
+
+    useEffect(() => {
+        setStatsToUse(
+            nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
+                nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
+                    nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats)
+    }, [nonPersistentData]);
 
     const tabs = [
         {

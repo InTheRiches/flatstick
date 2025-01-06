@@ -42,6 +42,8 @@ const AppContext = createContext({
     putters: [],
     grips: [],
     previousStats: [],
+    nonPersistentData: {},
+    setNonPersistentData: () => {},
     initialize: () => Promise.resolve(),
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
@@ -56,6 +58,7 @@ const AppContext = createContext({
     deletePutter: () => {},
     newGrip: () => Promise.resolve(),
     deleteGrip: () => {},
+    calculateSpecificStats: () => {},
 });
 
 const AuthContext = createContext({
@@ -82,6 +85,12 @@ export function AppProvider({children}) {
     const [putters, setPutters] = useState([]);
     const [grips, setGrips] = useState([]);
     const [previousStats, setPreviousStats] = useState([]);
+    const [nonPersistentData, setNonPersistentData] = useState({
+        filtering: {
+            putter: 0,
+            grip: 0,
+        }
+    });
     const auth = getAuth();
     const firestore = getFirestore();
 
@@ -137,14 +146,14 @@ export function AppProvider({children}) {
     }, []);
 
     const newPutter = (name) => {
-        const id = type.toLowerCase().replace(/\s/g, "-");
+        const id = name.toLowerCase().replace(/\s/g, "-");
         setDoc(doc(firestore, `users/${auth.currentUser.uid}/putters/` + id), createSimpleRefinedStats()).catch((error) => {
             console.log(error);
         });
 
         setPutters(prev => [...prev, {
             type: id,
-            name: type,
+            name: name,
             stats: createSimpleRefinedStats()
         }]);
     }
@@ -314,6 +323,32 @@ export function AppProvider({children}) {
         return {};
     };
 
+    /**
+     * Calculate the specific statistics for the user based on their filtering preferences
+     *
+     * @returns {{stats: {onePutts: number, twoPutts: number, threePutts: number, avgMiss: number, avgMissDistance: number[], puttsByDistance: number[], totalDistance: number, puttsMisread: number, puttsMishits: number, misreads: {misreadLineByDistance: number[], misreadSlopeByDistance: number[], misreadLineBySlope: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}, misreadSlopeBySlope: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, strokesGained: {overall: number, distance: number[], slopes: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, puttsAHole: {distance: number[], puttsAHole: number, normalHoles: number, puttsAHoleWhenMishit: number, mishitHoles: number, misreadPuttsAHole: number, misreadHoles: number, slopes: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, madePutts: {distance: number[], slopes: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, leftRightBias: number, shortPastBias: number, rounds: number}}}
+     */
+    const calculateSpecificStats = () => {
+        const stats = createSimpleStats();
+        const filteredPuttSessions = puttSessions
+            .filter(session =>
+                (nonPersistentData.filtering.putter === 0 || session.putter === putters[nonPersistentData.filtering.putter].type) &&
+                (nonPersistentData.filtering.grip === 0 || session.grip === grips[nonPersistentData.filtering.grip].type)
+            );
+        const strokesGained = calculateTotalStrokesGained(userData, filteredPuttSessions);
+        const newPutters = initializePutters(putters);
+        const newGrips = initializeGrips(grips);
+
+        filteredPuttSessions.forEach(session => processSession(session, stats, newPutters, newGrips, userData));
+
+        if (stats.rounds > 0)
+            finalizeStats(stats, strokesGained);
+        else
+            return createSimpleRefinedStats();
+
+        return stats;
+    }
+
     // Update statistics
     const refreshStats = async () => {
         const newStats = createSimpleStats();
@@ -400,6 +435,8 @@ export function AppProvider({children}) {
         putters,
         grips,
         previousStats,
+        nonPersistentData,
+        setNonPersistentData,
         initialize,
         refreshData,
         updateData,
@@ -414,7 +451,8 @@ export function AppProvider({children}) {
         deleteSession,
         newGrip,
         deleteGrip,
-    }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats, grips]);
+        calculateSpecificStats
+    }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats, grips, nonPersistentData]);
 
     const authContextValue = useMemo(() => ({
         signIn,

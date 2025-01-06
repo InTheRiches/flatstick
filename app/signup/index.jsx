@@ -93,13 +93,11 @@ export default function CreateAccount() {
                     strokesGained: 0,
                     preferences: {
                         countMishits: false,
-                        filteringPutter: 0,
                         selectedPutter: 0,
                         theme: 0,
                         units: 0,
                         reminders: false,
                         selectedGrip: 0,
-                        filteringGrip: 0,
                     }
                 }).catch((error) => {
                         console.log(error);

@@ -6,23 +6,23 @@ import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import CustomBackdrop from "../../../../general/popups/CustomBackdrop";
 
-export function FilterPutters({filterPuttersRef}) {
-    const {putters, nonPersistentData, setNonPersistentData} = useAppContext()
+export function FilterGrips({filterGripsRef}) {
+    const {grips, nonPersistentData, setNonPersistentData} = useAppContext()
     const colors = useColors();
 
     return (
         <BottomSheetModal
-              backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={filterPuttersRef} animatedIndex={animatedIndex} style={style}/>}
+              backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={filterGripsRef} animatedIndex={animatedIndex} style={style}/>}
               enableDismissOnClose={true}
               stackBehavior={"replace"}
-              ref={filterPuttersRef}
+              ref={filterGripsRef}
               handleIndicatorStyle={{backgroundColor: colors.text.primary}}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
-                <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>
+                <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Grip</Text>
                 {
-                    putters.map((putter, index) => {
-                        return <Putter filteringPutter={nonPersistentData.filtering.putter} reference={filterPuttersRef} setFilteringPutter={(newPutter) => setNonPersistentData({filtering: {...nonPersistentData.filtering, putter: newPutter}})} putter={putter} index={index} key={"puu-" + index}/>
+                    grips.map((grip, index) => {
+                        return <Putter filteringGrip={nonPersistentData.filtering.grip} reference={filterGripsRef} setFilteringGrip={(newGrip) => setNonPersistentData({filtering: {...nonPersistentData.filtering, grip: newGrip}})} grip={grip} index={index} key={"puu-" + index}/>
                     })
                 }
             </BottomSheetView>
@@ -30,7 +30,7 @@ export function FilterPutters({filterPuttersRef}) {
     );
 }
 
-function Putter({putter, index, filteringPutter, setFilteringPutter, reference}) {
+function Putter({grip, index, filteringGrip, setFilteringGrip, reference}) {
     const colors = useColors();
 
     return (
@@ -38,12 +38,12 @@ function Putter({putter, index, filteringPutter, setFilteringPutter, reference})
             style={{flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: colors.background.secondary, borderRadius: 12, justifyContent: "space-between"}}
             onPress={() => {
                 reference.current.dismiss();
-                if (filteringPutter !== index)
-                    setFilteringPutter(index);
+                if (filteringGrip !== index)
+                    setFilteringGrip(index);
             }}>
-            <Text style={{color: colors.text.primary, fontSize: 16}}>{putter.type === "default" ? "All Putters" : putter.name}</Text>
+            <Text style={{color: colors.text.primary, fontSize: 16}}>{grip.type === "default" ? "All Grips" : grip.name}</Text>
             {
-                filteringPutter === index &&
+                filteringGrip === index &&
                 <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                 </Svg>
