@@ -21,6 +21,7 @@ import {
     updatePuttsCopy
 } from '../../../utils/PuttUtils';
 import {GreenVisual} from "../../../components/simulations/real";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 const initialState = {
     confirmLeave: false,
@@ -231,10 +232,10 @@ export default function RealSimulation() {
     }
 
     return (loading ? <Loading/> :
-        <View style={{backgroundColor: colors.background.primary, flexGrow: 1}}>
-            <View style={{
+        <View style={{flex: 1}}>
+            <SafeAreaView style={{
                 width: "100%",
-                flexGrow: 1,
+                flex: 1,
                 paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -353,7 +354,7 @@ export default function RealSimulation() {
                                         else totalPuttsRef.current.present()
                                     }}></PrimaryButton>}
                 </View>
-            </View>
+            </SafeAreaView>
             <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                         totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
             <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}

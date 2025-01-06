@@ -28,6 +28,7 @@ import {
     generateTargetedDistance,
     pickWeightedRandom
 } from "../../../components/simulations/Utils";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
 const breaks = [
@@ -262,10 +263,10 @@ export default function RoundSimulation() {
     }
 
     return (loading ? <Loading/> :
-        <View style={{flexGrow: 1, backgroundColor: colors.background.primary}}>
-            <View style={{
+        <View style={{flex: 1}}>
+            <SafeAreaView style={{
                 width: "100%",
-                flexGrow: 1,
+                flex: 1,
                 paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -380,7 +381,7 @@ export default function RoundSimulation() {
                                         else totalPuttsRef.current.present()
                                     }}></PrimaryButton>}
                 </View>
-            </View>
+            </SafeAreaView>
             <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                         totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
             <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}

@@ -10,6 +10,7 @@ import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 const initialState = {
     skill: -1,
@@ -119,10 +120,8 @@ export default function CreateAccount() {
     }
 
     return (loading ? <Loading/> :
-            <View style={{
-                backgroundColor: colors.background.primary,
-                width: "100%",
-                height: "100%",
+            <SafeAreaView style={{
+                flex: 1,
                 paddingHorizontal: 24,
                 justifyContent: "center",
                 alignContent: "center",
@@ -165,7 +164,7 @@ export default function CreateAccount() {
                     <Text style={{color: colors.text.primary, textAlign: "center"}}>Already have an account? Click <Text
                         style={{color: colors.text.link}}>here</Text> to login.</Text>
                 </Pressable>}
-            </View>
+            </SafeAreaView>
     )
 }
 

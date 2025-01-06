@@ -8,6 +8,7 @@ import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
 import {useNavigation} from "expo-router";
 import {NewPutterModal, PutterSelector} from "../../components/editputters";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 // TODO add brand / model, not just name?
 export default function EditPutters() {
@@ -59,44 +60,48 @@ export default function EditPutters() {
         if (nonPersistentData.filtering.putter === id) {
             setNonPersistentData({...nonPersistentData, filtering: {...nonPersistentData.filtering, putter: 0}});
         } else if (nonPersistentData.filtering.putter > id) {
-            setNonPersistentData({...nonPersistentData, filtering: {...nonPersistentData.filtering, putter: nonPersistentData.filtering.putter - 1}});
+            setNonPersistentData({...nonPersistentData, filtering: {...nonPersistentData.filtering, putter: 0}});
         }
     }
 
     return (
-        <Pressable onPress={(event) => setEditing(false)} style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
-            <GestureDetector gesture={gesture}>
-                <View style={{marginLeft: -10, paddingHorizontal: 10}}>
-                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
-                         stroke={colors.text.primary} width={24} height={24}>
-                        <Path strokeLinecap="round" strokeLinejoin="round"
-                              d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
-                    </Svg>
-                </View>
-            </GestureDetector>
-            <View style={{flexDirection: "row", marginTop: 12, justifyContent: "space-between", alignItems: "center", width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 10}}>
-                <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Putters</Text>
-                {
-                    putters.length < 4 ? (
-                        <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => {
-                            setEditing(false);
-                            newPutterRef.current.present()
-                        }} title={"New"}></PrimaryButton>
-                    ) : (
-                        <View style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 16, marginLeft: 8, borderColor: colors.button.disabled.border, borderWidth: 1, backgroundColor: colors.button.disabled.background}}>
-                            <Text style={{color: colors.text.secondary}}>At Max Putters</Text>
+        <>
+            <SafeAreaView style={{flex: 1}}>
+                <Pressable onPress={(event) => setEditing(false)} style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
+                    <GestureDetector gesture={gesture}>
+                        <View style={{marginLeft: -10, paddingHorizontal: 10}}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                                 stroke={colors.text.primary} width={24} height={24}>
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
+                            </Svg>
                         </View>
-                    )
-                }
-            </View>
-            <View style={{marginTop: 16, width: "100%", paddingBottom: 12}}>
-                { (putters !== undefined && putters.length !== 0) &&
-                    putters.map((putter, index) => {
-                        return <PutterSelector key={"putt_" + putter.type} id={index} name={putter.name} stats={putter.stats} selectedPutter={selectedPutter} onDelete={onDelete} editing={editing} setEditing={setEditing} setSelectedPutter={setSelectedPutter}></PutterSelector>
-                    })
-                }
-            </View>
-            <NewPutterModal newPutterRef={newPutterRef}></NewPutterModal>
-        </Pressable>
+                    </GestureDetector>
+                    <View style={{flexDirection: "row", marginTop: 12, justifyContent: "space-between", alignItems: "center", width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 10}}>
+                        <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Putters</Text>
+                        {
+                            putters.length < 4 ? (
+                                <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => {
+                                    setEditing(false);
+                                    newPutterRef.current.present()
+                                }} title={"New"}></PrimaryButton>
+                            ) : (
+                                <View style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 16, marginLeft: 8, borderColor: colors.button.disabled.border, borderWidth: 1, backgroundColor: colors.button.disabled.background}}>
+                                    <Text style={{color: colors.text.secondary}}>At Max Putters</Text>
+                                </View>
+                            )
+                        }
+                    </View>
+                    <View style={{marginTop: 16, width: "100%", paddingBottom: 12}}>
+                        { (putters !== undefined && putters.length !== 0) &&
+                            putters.map((putter, index) => {
+                                return <PutterSelector key={"putt_" + putter.type} id={index} name={putter.name} stats={putter.stats} selectedPutter={selectedPutter} onDelete={onDelete} editing={editing} setEditing={setEditing} setSelectedPutter={setSelectedPutter}></PutterSelector>
+                            })
+                        }
+                    </View>
+                </Pressable>
+                <NewPutterModal newPutterRef={newPutterRef}></NewPutterModal>
+            </SafeAreaView>
+        </>
     )
 }

@@ -7,6 +7,7 @@ import {useNavigation} from "expo-router";
 import {auth} from "../../../utils/firebase";
 import {updateEmail, updateProfile} from "firebase/auth";
 import Loading from "../../../components/general/popups/Loading";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 export default function UserSettings({}) {
     const colors = useColors();
@@ -69,7 +70,7 @@ export default function UserSettings({}) {
     }
 
     return loading ? <Loading></Loading> : (
-        <View style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
+        <SafeAreaView style={{flex: 1, paddingHorizontal: 24}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                 <Pressable onPress={save} style={{padding: 4, paddingLeft: 0, opacity: emailInvalid || firstNameInvalid || lastNameInvalid ? 0.25 : 1}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
@@ -184,6 +185,6 @@ export default function UserSettings({}) {
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
             {emailErrorCode === "auth/email-already-in-use" &&
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}
-        </View>
+        </SafeAreaView>
     )
 }

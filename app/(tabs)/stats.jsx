@@ -10,6 +10,7 @@ import {MadePuttsTab} from "../../components/tabs/stats/made";
 import Svg, {Path} from "react-native-svg";
 import {useRouter} from "expo-router";
 import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -88,25 +89,22 @@ export default function Stats({}) {
     }
 
     return puttSessions.length === 0 ? (
-        <View style={{
-            backgroundColor: colors.background.primary,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.border.default,
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 32
-        }}>
-            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</Text>
-            <Text style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</Text>
-        </View>
+        <SafeAreaView style={{flex: 1, backgroundColor: 'transparent'}}>
+            <View style={{
+                backgroundColor: colors.background.primary,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border.default,
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingHorizontal: 32
+            }}>
+                <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</Text>
+                <Text style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</Text>
+            </View>
+        </SafeAreaView>
     ) : (
-        <View style={{
-            backgroundColor: colors.background.primary,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.border.default,
-            flex: 1
-        }}>
+        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary, borderBottomColor: colors.border.default, borderBottomWidth: 1}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
                 <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "/settings/stats"})}>
@@ -144,6 +142,6 @@ export default function Stats({}) {
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item}) => item.content}
             />
-        </View>
+        </SafeAreaView>
     )
 }

@@ -1,14 +1,7 @@
-import React, { useEffect, useMemo } from "react";
-import { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
-import Animated, {
-    Extrapolate,
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from "react-native-reanimated";
+import React, {useMemo} from "react";
+import Animated, {Extrapolate, interpolate, useAnimatedStyle,} from "react-native-reanimated";
 import useColors from "@/hooks/useColors";
-import { Pressable } from "react-native";
+import {Pressable} from "react-native";
 
 export default function CustomBackdrop({ reference, animatedIndex, style }) {
   const colors = useColors();
@@ -18,7 +11,7 @@ export default function CustomBackdrop({ reference, animatedIndex, style }) {
         opacity: interpolate(
             animatedIndex.value,
             [-1, 0],
-            [0, 1],
+            [0,1],
             Extrapolate.CLAMP
         ),
     }));

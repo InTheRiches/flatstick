@@ -5,8 +5,6 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
 import {Platform, StatusBar, useColorScheme} from "react-native";
 import useColors from "@/hooks/useColors";
-
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
 import * as SystemUI from "expo-system-ui";
@@ -28,47 +26,45 @@ export default function RootLayout() {
   SystemUI.setBackgroundColorAsync(colors.background.primary);
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
-      <AppProvider>
-          <StatusBar backgroundColor={colors.background.primary} style={{flex: 1}}/>
-          <GestureHandlerRootView>
-            <BottomSheetModalProvider>
-              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <Stack screenOptions={{
-                      headerShown: false,
-                    }}>
-                  <Stack.Screen name="(tabs)"/>
-                  <Stack.Screen name={"simulation/pressure/index"}/>
-                  <Stack.Screen name={"simulation/pressure/setup/index"}/>
-                  <Stack.Screen name={"simulation/round/index"}/>
-                  <Stack.Screen name={"simulation/round/recap/index"}/>
-                  <Stack.Screen name={"simulation/real/index"}/>
-                  <Stack.Screen name="+not-found"/>
-                  <Stack.Screen name={"editputters/index"} options={{
-                    presentation: 'modal',
-                    animation: "slide_from_bottom",
-                    animationDuration: 150,
-                  }}/>
-                  <Stack.Screen name={"editgrips/index"} options={{
-                    presentation: 'modal',
-                    animation: "slide_from_bottom",
-                  }}/>
-                  <Stack.Screen name={"sessions/index"}/>
-                  <Stack.Screen name={"sessions/individual/index"}/>
-                  <Stack.Screen name={"settings/stats/index"} options={{
-                    presentation: 'modal',
-                    animation: "slide_from_bottom",
-                    animationDuration: 150,
-                  }}/>
-                  <Stack.Screen name={"settings/user/index"}/>
-                  <Stack.Screen name={"compare/putters/index"} />
-                  <Stack.Screen name={"compare/users/search/index"} />
-                  <Stack.Screen name={"compare/users/index"} />
-                </Stack>
-              </ThemeProvider>
-            </BottomSheetModalProvider>
-          </GestureHandlerRootView>
-      </AppProvider>
-    </SafeAreaView>
+    <AppProvider>
+      <StatusBar backgroundColor={'transparent'} translucent={true} />
+      <GestureHandlerRootView>
+        <BottomSheetModalProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack screenOptions={{
+                  headerShown: false,
+                }}>
+              <Stack.Screen name="(tabs)"/>
+              <Stack.Screen name={"simulation/pressure/index"}/>
+              <Stack.Screen name={"simulation/pressure/setup/index"}/>
+              <Stack.Screen name={"simulation/round/index"}/>
+              <Stack.Screen name={"simulation/round/recap/index"}/>
+              <Stack.Screen name={"simulation/real/index"}/>
+              <Stack.Screen name="+not-found"/>
+              <Stack.Screen name={"editputters/index"} options={{
+                presentation: 'modal',
+                animation: "slide_from_bottom",
+                animationDuration: 150,
+              }}/>
+              <Stack.Screen name={"editgrips/index"} options={{
+                presentation: 'modal',
+                animation: "slide_from_bottom",
+              }}/>
+              <Stack.Screen name={"sessions/index"}/>
+              <Stack.Screen name={"sessions/individual/index"}/>
+              <Stack.Screen name={"settings/stats/index"} options={{
+                presentation: 'modal',
+                animation: "slide_from_bottom",
+                animationDuration: 150,
+              }}/>
+              <Stack.Screen name={"settings/user/index"}/>
+              <Stack.Screen name={"compare/putters/index"} />
+              <Stack.Screen name={"compare/users/search/index"} />
+              <Stack.Screen name={"compare/users/index"} />
+            </Stack>
+          </ThemeProvider>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+    </AppProvider>
   );
 }
