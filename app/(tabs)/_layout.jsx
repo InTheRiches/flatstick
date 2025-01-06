@@ -1,46 +1,36 @@
 import {Redirect, Tabs} from 'expo-router';
-import React from 'react';
+import React, {useState} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
-import {Text} from "react-native";
-import {getAuth} from "../../utils/firebase"
 import useColors from "@/hooks/useColors";
 import {useSession} from "@/contexts/AppCtx";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
+import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 
 export default function TabLayout() {
     const colors = useColors();
-
     const {session, isLoading} = useSession();
+    const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
 
-    // You can keep the splash screen open, or render a loading screen like we do here.
-    if (isLoading) {
-        return <Text>Loading...</Text>;
-    }
-
-    // Only require authentication within the (app) group's layout as users
-    // need to be able to access the (auth) group and sign in again.
-    if (!session) {
-        // On web, static rendering will stop here as the user is not authenticated
-        // in the headless Node process that the pages are rendered in.
+    if (!session && !isLoading) {
         // TODO FIGURE OUT IF YOU WANT TO REDIRECT TO SIGN UP OR SIGN IN
         return <Redirect href="/signup"/>;
     }
 
-    const auth = getAuth();
-
-    if (auth.currentUser !== null) {
-        if (auth.currentUser.displayName === null) {
-            return <Redirect href="/signup/finish"/>
-        }
-    }
-
     return (
         <GestureHandlerRootView>
-            <Tabs screenOptions={{
+            {visible && (
+                <AnimatedBootSplash
+                    ready={!isLoading}
+                    onAnimationEnd={() => {
+                        setVisible(false);
+                    }}
+                />
+            )}
+            {!isLoading && <Tabs screenOptions={{
                 tabBarActiveTintColor: colors.text.primary,
                 tabBarActiveBackgroundColor: colors.background.primary,
                 tabBarInactiveBackgroundColor: colors.background.primary,
@@ -81,7 +71,9 @@ export default function TabLayout() {
                     options={{
                         title: 'Compare',
                         tabBarIcon: ({color, focused}) => (
-                            <Svg stroke={focused ? colors.text.primary : colors.border.default} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} width={24} height={24}>
+                            <Svg stroke={focused ? colors.text.primary : colors.border.default}
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 strokeWidth={1.5} width={24} height={24}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"
                                       d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
                             </Svg>
@@ -105,8 +97,7 @@ export default function TabLayout() {
                         ),
                     }}
                 />
-            </Tabs>
+            </Tabs>}
         </GestureHandlerRootView>
-    )
-        ;
+    );
 }

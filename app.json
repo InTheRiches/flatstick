@@ -8,11 +8,6 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "bundleIdentifier": "com.puttless",
       "supportsTablet": true,
@@ -39,7 +34,8 @@
         {}
       ],
       "expo-secure-store",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }]
     ],
     "experiments": {
       "typedRoutes": true

@@ -14,7 +14,6 @@ import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 export default function RootLayout() {
   const colors = useColors();
-
   const colorScheme = useColorScheme();
 
   configureReanimatedLogger({
@@ -48,6 +47,7 @@ export default function RootLayout() {
                   <Stack.Screen name={"editputters/index"} options={{
                     presentation: 'modal',
                     animation: "slide_from_bottom",
+                    animationDuration: 150,
                   }}/>
                   <Stack.Screen name={"editgrips/index"} options={{
                     presentation: 'modal',
