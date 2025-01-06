@@ -3,7 +3,6 @@ import useColors from "@/hooks/useColors";
 import {NewRealRound, NewRound} from "@/components/tabs/home/popups";
 import {ScrollView, View} from "react-native";
 import {Header, PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/home";
-import PressureInfo from "@/components/general/popups/info/PressureInfo";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 export default function HomeScreen() {
@@ -11,7 +10,6 @@ export default function HomeScreen() {
 
     const newSessionRef = useRef(null);
     const newRealRoundRef = useRef(null);
-    const pressureInfoRef = useRef(null);
 
     return (
         <BottomSheetModalProvider>
@@ -30,11 +28,10 @@ export default function HomeScreen() {
                     <Header></Header>
                     <RecentSessionSummary unfinished={false}></RecentSessionSummary>
                     <SeeAllSessions/>
-                    <PracticeModes newRealRoundRef={newRealRoundRef} newSessionRef={newSessionRef} pressureInfoRef={pressureInfoRef}></PracticeModes>
+                    <PracticeModes newRealRoundRef={newRealRoundRef} newSessionRef={newSessionRef}></PracticeModes>
                 </ScrollView>
                 <NewRound newSessionRef={newSessionRef}></NewRound>
                 <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
-                <PressureInfo pressureInfoRef={pressureInfoRef}></PressureInfo>
             </View>
         </BottomSheetModalProvider>
     );

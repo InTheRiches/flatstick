@@ -9,7 +9,7 @@ import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
 // TODO make the arrow face right, but when expanded face forward right
 export function PracticeMode({name, description, onPress, onInfo, time, distance, focus}) {
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(true);
     const colors = useColors();
     const colorScheme = useColorScheme();
 
