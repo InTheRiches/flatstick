@@ -75,8 +75,8 @@ class AbstractChart<
   };
 
   calcHeight = (val: number, data: number[], height: number) => {
-    const min = this.props.minNumber ? this.props.minNumber : Math.min(...data);
-    const max = this.props.maxNumber ? this.props.maxNumber : Math.max(...data);
+    const min = this.props.minNumber !== undefined ? this.props.minNumber : Math.min(...data);
+    const max = this.props.maxNumber !== undefined ? this.props.maxNumber : Math.max(...data);
 
     if (min < 0 && max > 0) {
       return height * (val / this.calcScaler(data));
