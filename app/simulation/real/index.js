@@ -226,7 +226,11 @@ export default function RealSimulation() {
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
             router.push({
-                pathname: `/`,
+                pathname: `/sessions/individual`,
+                params: {
+                    jsonSession: JSON.stringify(data),
+                    recap: "true"
+                }
             });
         });
     }

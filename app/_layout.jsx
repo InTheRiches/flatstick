@@ -38,7 +38,6 @@ export default function RootLayout() {
               <Stack.Screen name={"simulation/pressure/index"}/>
               <Stack.Screen name={"simulation/pressure/setup/index"}/>
               <Stack.Screen name={"simulation/round/index"}/>
-              <Stack.Screen name={"simulation/round/recap/index"}/>
               <Stack.Screen name={"simulation/real/index"}/>
               <Stack.Screen name="+not-found"/>
               <Stack.Screen name={"editputters/index"} options={{
