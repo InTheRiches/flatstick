@@ -5,6 +5,7 @@ import {useNavigation} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {Session} from "../../components/sessions";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 // TODO add a fixed back button to the bottom
 export default function Sessions({}) {
@@ -17,7 +18,7 @@ export default function Sessions({}) {
     );
 
     return (
-        <View style={{backgroundColor: colors.background.primary, flex: 1}}>
+        <SafeAreaView style={{flex: 1}}>
             <View style={{flexDirection: "row", alignItems: "center", marginBottom: 12}}>
                 <Text style={{textAlign: "center", width: "100%", color: colors.text.primary, fontSize: 24, fontWeight: 600}}>Your Sessions</Text>
                 <Pressable onPress={() => navigation.goBack()} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>
@@ -39,6 +40,6 @@ export default function Sessions({}) {
                 renderItem={renderItem}
                 keyExtractor={(item, index) => "session_" + index}
             />
-        </View>
+        </SafeAreaView>
     )
 }

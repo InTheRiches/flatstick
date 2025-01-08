@@ -1,4 +1,4 @@
-import {Text, View} from "react-native";
+import {Image, Text, View} from "react-native";
 import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -27,7 +27,7 @@ export const LeftRightBias = ({session}) => {
             <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
                 <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
-                <View style={{width: 24, height: 24, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: "white"}}></View>
+                <Image style={{width: 24, height: 24}} source={require("../../../assets/images/golf-hole.png")}></Image>
                 <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
                 <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
                 <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>

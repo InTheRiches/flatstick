@@ -112,25 +112,28 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                             aspectRatio: "1",
                             height: undefined
                         }}/>
-                    <View style={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                        position: "absolute",
-                        left: width / 2 - (width / 20),
-                        top: height / 2 - (width / 20),
-                        width: width / 10 + 1,
-                        height: width / 10 + 1,
-                        borderRadius: 24,
-                        backgroundColor: center ? colors.checkmark.background : colors.checkmark.bare.background
-                    }}>
-                        <Svg width={24} height={24}
-                             stroke={center ? colors.checkmark.color : colors.checkmark.bare.color}
-                             xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" strokeWidth="3">
-                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                  d="m4.5 12.75 6 6 9-13.5"/>
-                        </Svg>
-                    </View>
+                    <Image style={{position: "absolute", height: width / 10 + 1, width: width / 10 + 1,}} source={require("../../assets/images/golf-hole-borderless.png")}></Image>
+                    { center &&
+                        <View style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            position: "absolute",
+                            left: width / 2 - (width / 20),
+                            top: height / 2 - (width / 20),
+                            width: width / 10 + 1,
+                            height: width / 10 + 1,
+                            borderRadius: 24,
+                            backgroundColor: colors.checkmark.background
+                        }}>
+                            <Svg width={24} height={24}
+                                 stroke={colors.checkmark.color}
+                                 xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" strokeWidth="3">
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="m4.5 12.75 6 6 9-13.5"/>
+                            </Svg>
+                        </View>
+                    }
                     {point.x !== undefined && center !== true ? (
                         <Image source={require('@/assets/images/golf-ball.png')} style={{
                             position: "absolute",

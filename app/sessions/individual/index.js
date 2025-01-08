@@ -11,6 +11,7 @@ import {MissDistributionDiagram} from "../../../components/simulations/recap";
 import Loading from "../../../components/general/popups/Loading";
 import {getBestSession} from "../../../utils/sessions/best";
 import {convertUnits} from "../../../utils/Conversions";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 export default function IndividualSession({}) {
     const colors = useColors();
@@ -37,7 +38,7 @@ export default function IndividualSession({}) {
     };
 
     return loading ? <Loading></Loading> : (
-        <View style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1, backgroundColor: colors.background.primary}}>
+        <SafeAreaView style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1}}>
             <View>
                 <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                     <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>18 Hole Simulation</Text>
@@ -135,6 +136,6 @@ export default function IndividualSession({}) {
                     </Svg>
                 </SecondaryButton>}
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
