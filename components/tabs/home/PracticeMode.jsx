@@ -7,7 +7,6 @@ import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "r
 import {CollapsableContainer} from "./CollapsableContainer";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
-// TODO make the arrow face right, but when expanded face forward right
 export function PracticeMode({name, description, onPress, onInfo, time, distance, focus}) {
     const [expanded, setExpanded] = useState(true);
     const colors = useColors();

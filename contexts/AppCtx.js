@@ -37,7 +37,6 @@ const slopes = [
     "uphill"
 ]
 
-// TODO seperate the practices from the sessions, and make two separate folders for them in Firestore
 const AppContext = createContext({
     userData: {},
     puttSessions: [],

@@ -4,7 +4,7 @@ import {useAppContext} from "../../../contexts/AppCtx";
 import {roundTo} from "../../../utils/roundTo";
 import {formatFeetAndInches} from "../../../utils/PuttUtils";
 
-export function DataTable({stats1, stats2, type}) {
+export function DataTable({stats1, stats2}) {
     const colors = useColors();
     const {userData} = useAppContext();
 
@@ -42,6 +42,7 @@ export function DataTable({stats1, stats2, type}) {
     const isBetterMisreadMishits = (value1, value2) => value1 < value2;
     const isBetterOnePutts = (value1, value2) => value1 > value2;
     const isBetterThreePutts = (value1, value2) => value1 < value2;
+    const isBetterMisreadPercentage = (value1, value2) => value1 < value2;
 
     return (
         <View style={{marginTop: 8}}>
@@ -70,15 +71,21 @@ export function DataTable({stats1, stats2, type}) {
                 <Text style={getStyle(stats1.shortPastBias, stats2.shortPastBias, isBetterBias)}>{userData.preferences.units === 0 ? formatFeetAndInches(Math.abs(stats1.shortPastBias)) : Math.abs(stats1.shortPastBias) + " m"} {stats1.shortPastBias < 0 ? "short" : "long"}</Text>
                 <Text style={getStyle(stats2.shortPastBias, stats1.shortPastBias, isBetterBias)}>{userData.preferences.units === 0 ? formatFeetAndInches(Math.abs(stats2.shortPastBias)) : Math.abs(stats2.shortPastBias) + " m"} {stats2.shortPastBias < 0 ? "short" : "long"}</Text>
             </View>
-            {
-                type !== "putters" && (
-                    <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
-                        <Text style={{flex: 1, color: colors.text.primary}}>Misread a Round</Text>
-                        <Text style={getStyle(stats1.puttsMisread, stats2.puttsMisread, isBetterMisreadMishits)}>{stats1.puttsMisread}</Text>
-                        <Text style={getStyle(stats2.puttsMisread, stats1.puttsMisread, isBetterMisreadMishits)}>{stats2.puttsMisread}</Text>
-                    </View>
-                )
-            }
+            <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
+                <Text style={{flex: 1, color: colors.text.primary}}>Misread a Round</Text>
+                <Text style={getStyle(stats1.puttsMisread, stats2.puttsMisread, isBetterMisreadMishits)}>{stats1.puttsMisread}</Text>
+                <Text style={getStyle(stats2.puttsMisread, stats1.puttsMisread, isBetterMisreadMishits)}>{stats2.puttsMisread}</Text>
+            </View>
+            <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
+                <Text style={{flex: 1, color: colors.text.primary}}>Line Misread %</Text>
+                <Text style={getStyle(stats1.misreads.misreadLinePercentage, stats2.misreads.misreadLinePercentage, isBetterMisreadPercentage)}>{stats1.misreads.misreadLinePercentage}</Text>
+                <Text style={getStyle(stats2.misreads.misreadLinePercentage, stats1.misreads.misreadLinePercentage, isBetterMisreadPercentage)}>{stats2.misreads.misreadLinePercentage}</Text>
+            </View>
+            <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
+                <Text style={{flex: 1, color: colors.text.primary}}>Slope Misread %</Text>
+                <Text style={getStyle(stats1.misreads.misreadSlopePercentage, stats2.misreads.misreadSlopePercentage, isBetterMisreadPercentage)}>{stats1.misreads.misreadSlopePercentage}</Text>
+                <Text style={getStyle(stats2.misreads.misreadSlopePercentage, stats1.misreads.misreadSlopePercentage, isBetterMisreadPercentage)}>{stats2.misreads.misreadSlopePercentage}</Text>
+            </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <Text style={{flex: 1, color: colors.text.primary}}>Mishits a Round</Text>
                 <Text style={getStyle(stats1.puttsMishits, stats2.puttsMishits, isBetterMisreadMishits)}>{stats1.puttsMishits}</Text>
@@ -108,7 +115,7 @@ export function DataTable({stats1, stats2, type}) {
     )
 }
 
-export function MiniDataTable({stats1, stats2, type, distance}) {
+export function MiniDataTable({stats1, stats2, distance}) {
     const colors = useColors();
     const {userData} = useAppContext();
 
@@ -144,6 +151,7 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
     const isBetterAvgMiss = (value1, value2) => value1 < value2;
     const isBetterMakePercentage = (value1, value2) => value1 > value2;
     const isBetterThreePutts = (value1, value2) => value1 < value2;
+    const isBetterMisreadPercentage = (value1, value2) => value1 < value2;
 
     return (
         <View style={{marginTop: 8}}>
@@ -166,6 +174,16 @@ export function MiniDataTable({stats1, stats2, type, distance}) {
                 <Text style={{flex: 1, color: colors.text.primary}}>Putts a hole</Text>
                 <Text style={getStyle(stats1.puttsAHole.distance[distance], stats2.puttsAHole.distance[distance], isBetterThreePutts)}>{stats1.puttsAHole.distance[distance]}</Text>
                 <Text style={getStyle(stats2.puttsAHole.distance[distance], stats1.puttsAHole.distance[distance], isBetterThreePutts)}>{stats2.puttsAHole.distance[distance]}</Text>
+            </View>
+            <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
+                <Text style={{flex: 1, color: colors.text.primary}}>Line Misread %</Text>
+                <Text style={getStyle(stats1.misreads.misreadLineByDistance[distance], stats2.misreads.misreadLineByDistance[distance], isBetterMisreadPercentage)}>{stats1.misreads.misreadLineByDistance[distance]}</Text>
+                <Text style={getStyle(stats2.misreads.misreadLineByDistance[distance], stats1.misreads.misreadLineByDistance[distance], isBetterMisreadPercentage)}>{stats2.misreads.misreadLineByDistance[distance]}</Text>
+            </View>
+            <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
+                <Text style={{flex: 1, color: colors.text.primary}}>Slope Misread %</Text>
+                <Text style={getStyle(stats1.misreads.misreadSlopeByDistance[distance], stats2.misreads.misreadSlopeByDistance[distance], isBetterMisreadPercentage)}>{stats1.misreads.misreadSlopeByDistance[distance]}</Text>
+                <Text style={getStyle(stats2.misreads.misreadSlopeByDistance[distance], stats1.misreads.misreadSlopeByDistance[distance], isBetterMisreadPercentage)}>{stats2.misreads.misreadSlopeByDistance[distance]}</Text>
             </View>
         </View>
     )

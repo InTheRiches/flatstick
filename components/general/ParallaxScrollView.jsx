@@ -1,14 +1,8 @@
 import {StyleSheet, useColorScheme, View} from 'react-native';
-import Animated, {
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useScrollViewOffset,
-} from 'react-native-reanimated';
+import Animated, {interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset,} from 'react-native-reanimated';
 
 const HEADER_HEIGHT = 250;
 
-// TODO DOES THIS ALLOW THE DRAG TO RELOAD?
 export default function ParallaxScrollView({
   children,
   headerImage,

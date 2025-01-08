@@ -90,7 +90,7 @@ export const LightTheme = {
     },
   },
   checkmark: {
-    background: '#40C2FF', // TODO FIND A DIFFERENT COLOR FOR THIS, ESPECIALLY FOR THE PUTTING GREEN AS IT DOESNT CONTRAST WELL
+    background: '#40C2FF',
     color: 'white',
     bare: {
       color: '#D9D9D9',
@@ -205,7 +205,7 @@ export const DarkTheme = {
     },
   },
   checkmark: {
-    background: '#40C2FF', // TODO FIND A DIFFERENT COLOR FOR THIS, ESPECIALLY FOR THE PUTTING GREEN AS IT DOESNT CONTRAST WELL
+    background: '#40C2FF',
     color: 'white',
     bare: {
       color: '#D9D9D9',

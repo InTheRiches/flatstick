@@ -1,4 +1,3 @@
-// TODO make the text red when negative
 import {Dimensions, View} from "react-native";
 import {roundTo} from "../../../../../utils/roundTo";
 import {RadarChart} from "../../";

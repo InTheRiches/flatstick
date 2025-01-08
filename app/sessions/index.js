@@ -8,7 +8,6 @@ import {Session} from "../../components/sessions";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 
-// TODO add a fixed back button to the bottom
 export default function Sessions({}) {
     const {puttSessions} = useAppContext();
     const colors = useColors();

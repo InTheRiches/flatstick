@@ -307,6 +307,8 @@ const createSimpleStats = () => {
         misreads: {
             misreadLineByDistance: [0, 0, 0, 0],
             misreadSlopeByDistance: [0, 0, 0, 0],
+            misreadLinePercentage: 0,
+            misreadSlopePercentage: 0,
             misreadLineBySlope: {
                 downhill: {
                     straight: [0,0], // misreads, putts
@@ -427,6 +429,8 @@ const createSimpleRefinedStats = () => {
         misreads: {
             misreadLineByDistance: [0, 0, 0, 0],
             misreadSlopeByDistance: [0, 0, 0, 0],
+            misreadLinePercentage: 0,
+            misreadSlopePercentage: 0,
             misreadLineBySlope: {
                 downhill: {
                     straight: 0, // misreads, putts
@@ -536,6 +540,8 @@ function cleanMisreads(averagePerformance) {
     const refinedMisreads = {
             misreadLineByDistance: [0, 0, 0, 0],
             misreadSlopeByDistance: [0, 0, 0, 0],
+            misreadLinePercentage: 0,
+            misreadSlopePercentage: 0,
             misreadLineBySlope: {
                 downhill: {
                     straight: 0, // misreads, putts
@@ -581,6 +587,9 @@ function cleanMisreads(averagePerformance) {
         if (averagePerformance.puttsByDistance[idx] === 0) return 0;
         return roundTo(val / averagePerformance.puttsByDistance[idx], 2);
     });
+
+    refinedMisreads.misreadSlopePercentage = roundTo(averagePerformance.misreads.misreadSlopePercentage / (averagePerformance.rounds * 18), 2);
+    refinedMisreads.misreadLinePercentage = roundTo(averagePerformance.misreads.misreadSlopePercentage / (averagePerformance.rounds * 18), 2);
 
     // handle the slopes
     for (const slope of ["uphill", "neutral", "downhill"]) {
@@ -633,7 +642,6 @@ function cleanMadePutts(averagePerformance) {
     return refinedMadePutts;
 }
 
-// TODO add misreads by distance, and make it show up in the comparison page
 function updateSimpleStats(userData, simpleStats, putt, category) {
     const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts} = putt;
 
@@ -670,11 +678,13 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     if (misReadLine) {
         simpleStats.misreads.misreadLineByDistance[distanceIndex]++;
         simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+        simpleStats.misreads.misreadLinePercentage++;
     }
 
     if (misReadSlope) {
         simpleStats.misreads.misreadSlopeByDistance[distanceIndex]++;
         simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+        simpleStats.misreads.misreadSlopePercentage++;
     }
 
     if (misHit) {

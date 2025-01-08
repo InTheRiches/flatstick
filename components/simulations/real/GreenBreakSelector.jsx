@@ -17,7 +17,6 @@ const angleImages = {
     999: require("@/assets/images/breakSelector/neutral.png"),
 }
 
-// TODO MAKE THE ARROW GREEN IMAGE, MAKE THE ARROWS CENTERED, AS THEY RIGHT KNOW MOVE AROUND A LITTLE WHEN THEY ROTATE
 export function GreenBreakSelector({theta, setTheta}) {
     const adjustTheta = (newTheta) => {
         setTheta(newTheta);
