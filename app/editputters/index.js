@@ -10,7 +10,6 @@ import {useNavigation} from "expo-router";
 import {NewPutterModal, PutterSelector} from "../../components/editputters";
 import {SafeAreaView} from "react-native-safe-area-context";
 
-// TODO add brand / model, not just name?
 export default function EditPutters() {
     const colors = useColors();
     const newPutterRef = useRef(null);

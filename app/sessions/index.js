@@ -6,6 +6,7 @@ import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {Session} from "../../components/sessions";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 
 // TODO add a fixed back button to the bottom
 export default function Sessions({}) {
@@ -21,7 +22,7 @@ export default function Sessions({}) {
         <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", alignItems: "center", marginBottom: 12}}>
                 <Text style={{textAlign: "center", width: "100%", color: colors.text.primary, fontSize: 24, fontWeight: 600}}>Your Sessions</Text>
-                <Pressable onPress={() => navigation.goBack()} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>
+                <Pressable onPress={navigation.goBack} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
                          stroke={colors.text.primary} width={24} height={24}>
                         <Path strokeLinecap="round" strokeLinejoin="round"
@@ -40,6 +41,9 @@ export default function Sessions({}) {
                 renderItem={renderItem}
                 keyExtractor={(item, index) => "session_" + index}
             />
+            <View style={{paddingHorizontal: 32, marginBottom: 16, position: "absolute", bottom: 0, right: 0, left: 0}}>
+                <SecondaryButton title={"Back"} onPress={navigation.goBack} style={{borderRadius: 12, width: "100%", paddingVertical: 10}}/>
+            </View>
         </SafeAreaView>
     )
 }
