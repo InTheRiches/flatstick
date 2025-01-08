@@ -5,6 +5,7 @@ import {useRouter} from "expo-router";
 import {useAppContext} from "../../contexts/AppCtx";
 import Svg, {G, Path, Polygon} from "react-native-svg";
 import React from "react";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 export default function Compare({}) {
     const colors = useColors();
@@ -12,7 +13,7 @@ export default function Compare({}) {
     const {putters, grips} = useAppContext();
 
     return (
-        <View style={{backgroundColor: colors.background.primary, flex: 1, alignItems: "center", paddingHorizontal: 24, justifyContent: "center"}}>
+        <SafeAreaView style={{flex: 1, alignItems: "center", paddingHorizontal: 24, justifyContent: "center", backgroundColor: colors.background.primary}}>
             <Text style={{fontSize: 20, color: colors.text.primary, marginBottom: 24, fontWeight: 600}}>Compare Your Stats</Text>
             <View style={{flexDirection: "row", gap: 16, marginBottom: 16}}>
                 <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1}}
@@ -59,6 +60,6 @@ export default function Compare({}) {
                         methods to determine which one is fit for you.</Text>
                 </PrimaryButton>
             </View>
-        </View>
+        </SafeAreaView>
     )
 }

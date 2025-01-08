@@ -34,7 +34,7 @@ export default function CompareUsers({}) {
     const betterPutter = compareStats(currentStats, usersStats);
 
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
             <ScrollView style={{flex: 1, paddingHorizontal: 24}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {

@@ -18,7 +18,7 @@ export default function Sessions({}) {
     );
 
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", alignItems: "center", marginBottom: 12}}>
                 <Text style={{textAlign: "center", width: "100%", color: colors.text.primary, fontSize: 24, fontWeight: 600}}>Your Sessions</Text>
                 <Pressable onPress={() => navigation.goBack()} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>

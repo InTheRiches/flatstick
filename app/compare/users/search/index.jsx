@@ -30,7 +30,7 @@ export default function SearchUsers({}) {
     };
 
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{paddingBottom: 25, paddingHorizontal: 24, gap: 12, flex: 1, width: "100%", backgroundColor: colors.background.primary}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {

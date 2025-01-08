@@ -17,10 +17,13 @@ import {createSimpleRefinedStats, createSimpleStats} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {getAuth} from "@/utils/firebase";
-import {Appearance} from "react-native";
+import {Appearance, Platform} from "react-native";
 import {initializeGrips, initializePutters} from "@/utils/stats/statsHelpers";
 import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
+import * as NavigationBar from "expo-navigation-bar";
+import * as SystemUI from "expo-system-ui";
+import {DarkTheme, LightTheme} from "@/constants/ModularColors";
 
 const breaks = [
     "leftToRight",
@@ -239,6 +242,11 @@ export function AppProvider({children}) {
                 const theme = newData.preferences.theme;
 
                 Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
+
+                if (Platform.OS === "android" || Platform.OS === "default")
+                    NavigationBar.setBackgroundColorAsync(theme === 0 ? Appearance.getNativeColorScheme() === "light" ? LightTheme.background.primary : DarkTheme.background.primary : theme === 1 ? DarkTheme.background.primary : LightTheme.background.primary);
+
+                SystemUI.setBackgroundColorAsync(theme === 0 ? Appearance.getNativeColorScheme() === "light" ? LightTheme.background.primary : DarkTheme.background.primary : theme === 1 ? DarkTheme.background.primary : LightTheme.background.primary);
 
                 getPreviousStats().then(() => {
                     console.log("Initialization complete!");

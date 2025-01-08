@@ -1,33 +1,24 @@
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Appearance, Pressable, Text} from "react-native";
 import Svg, {Path} from "react-native-svg";
-import React, {useState} from "react";
+import React from "react";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import useColors from "../../../../hooks/useColors";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 
 export function SetTheme({setThemeRef}) {
-    const {userData, updateData, setUserData} = useAppContext()
+    const {userData, updateData} = useAppContext()
     const colors = useColors();
-    const [open, setOpen] = useState(false);
-
-    const close = () => {
-        updateData({...userData});
-    }
 
     const setTheme = (theme) => {
-        setUserData({preferences: {...userData.preferences, theme: theme}})
+        setThemeRef.current.dismiss();
+        updateData({preferences: {...userData.preferences, theme: theme}})
 
         Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
     }
 
     return (
-        <BottomSheetModal onChange={() => {
-            if (open) {
-                close();
-            }
-            setOpen(!open);
-        }}
+        <BottomSheetModal
               backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={setThemeRef} animatedIndex={animatedIndex} style={style}/>}
               enableDismissOnClose={true}
               handleIndicatorStyle={{backgroundColor: colors.text.primary}}

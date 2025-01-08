@@ -28,7 +28,7 @@ export default function StatSettings({}) {
 
     return (
         <>
-            <SafeAreaView style={{flex: 1, paddingHorizontal: 24}}>
+            <SafeAreaView style={{flex: 1, paddingHorizontal: 24, backgroundColor: colors.background.primary}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
                         if (initialData !== userData.preferences) {

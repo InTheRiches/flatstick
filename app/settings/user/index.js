@@ -70,7 +70,7 @@ export default function UserSettings({}) {
     }
 
     return loading ? <Loading></Loading> : (
-        <SafeAreaView style={{flex: 1, paddingHorizontal: 24}}>
+        <SafeAreaView style={{flex: 1, paddingHorizontal: 24, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                 <Pressable onPress={save} style={{padding: 4, paddingLeft: 0, opacity: emailInvalid || firstNameInvalid || lastNameInvalid ? 0.25 : 1}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}

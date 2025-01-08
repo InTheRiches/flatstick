@@ -38,7 +38,7 @@ export default function IndividualSession({}) {
     };
 
     return loading ? <Loading></Loading> : (
-        <SafeAreaView style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1}}>
+        <SafeAreaView style={{paddingHorizontal: 24, justifyContent: "space-between", flex: 1, backgroundColor: colors.background.primary}}>
             <View>
                 <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                     <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>18 Hole Simulation</Text>

@@ -65,7 +65,7 @@ export default function EditGrips() {
 
     return (
         <>
-            <SafeAreaView style={{flex: 1}}>
+            <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
                 <Pressable onPress={(event) => setEditing(false)} style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
                     <GestureDetector gesture={gesture}>
                         <View style={{marginLeft: -10, paddingHorizontal: 10}}>

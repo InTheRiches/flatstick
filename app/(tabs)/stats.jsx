@@ -104,7 +104,7 @@ export default function Stats({}) {
             </View>
         </SafeAreaView>
     ) : (
-        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary, borderBottomColor: colors.border.default, borderBottomWidth: 1}}>
+        <SafeAreaView style={{flex: 1, borderBottomColor: colors.border.default, borderBottomWidth: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
                 <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "/settings/stats"})}>

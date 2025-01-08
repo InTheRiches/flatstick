@@ -1,4 +1,3 @@
-import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -7,7 +6,6 @@ import {Platform, StatusBar, useColorScheme} from "react-native";
 import useColors from "@/hooks/useColors";
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
-import * as SystemUI from "expo-system-ui";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 export default function RootLayout() {
@@ -19,18 +17,17 @@ export default function RootLayout() {
     strict: false, // Reanimated runs in strict mode by default
   });
 
-  // TODO FIND A WAY TO CHANGE THE STATUS BAR COLOR WHEN A MODAL IS OPEN
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
-  SystemUI.setBackgroundColorAsync(colors.background.primary);
+  // SystemUI.setBackgroundColorAsync(colors.background.primary);
+  // console.log("Setting system UI color to", colors.background.primary);
 
   return (
-    <AppProvider>
-      <StatusBar backgroundColor={'transparent'} translucent={true} />
-      <GestureHandlerRootView>
-        <BottomSheetModalProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AppProvider>
+        <StatusBar backgroundColor={'transparent'} translucent={true} />
+        <GestureHandlerRootView>
+          <BottomSheetModalProvider>
             <Stack screenOptions={{
                   headerShown: false,
                 }}>
@@ -62,9 +59,8 @@ export default function RootLayout() {
               <Stack.Screen name={"compare/users/search/index"} />
               <Stack.Screen name={"compare/users/index"} />
             </Stack>
-          </ThemeProvider>
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
-    </AppProvider>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </AppProvider>
   );
 }
