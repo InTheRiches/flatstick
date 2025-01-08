@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text} from 'react-native';
 
 const ElapsedTimeClock = ({ startTime }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -22,20 +22,23 @@ const ElapsedTimeClock = ({ startTime }) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const formattedHours = hours > 0 ? `${hours.toString().padStart(2, '0')}:` : '';
+    const formattedMinutes = minutes > 0 ? `${minutes.toString().padStart(2, '0')}:` : (hours > 0 ? '00:' : '');
+    const formattedSeconds = secs.toString().padStart(2, '0');
+
+    return `${formattedHours}${formattedMinutes}${formattedSeconds}`;
   };
 
   return (
-    <Text style={styles.text}>Elapsed Time: {formatTime(elapsedTime)}</Text>
+    <Text style={styles.text}>{formatTime(elapsedTime)}</Text>
   );
 };
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: 500
   },
 });
 

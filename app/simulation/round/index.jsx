@@ -29,6 +29,7 @@ import {
     pickWeightedRandom
 } from "../../../components/simulations/Utils";
 import {SafeAreaView} from "react-native-safe-area-context";
+import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
 const breaks = [
@@ -275,6 +276,9 @@ export default function RoundSimulation() {
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                         <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
+                        <View style={{position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center", marginVertical: "auto"}}>
+                            <ElapsedTimeClock startTime={startTime}></ElapsedTimeClock>
+                        </View>
                         <Pressable onPress={() => confirmExitRef.current.present()}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  strokeWidth={1.5}
