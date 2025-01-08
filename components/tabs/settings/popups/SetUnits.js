@@ -1,7 +1,7 @@
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Pressable, Text} from "react-native";
 import Svg, {Path} from "react-native-svg";
-import React, {useState} from "react";
+import React from "react";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import useColors from "../../../../hooks/useColors";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
@@ -9,23 +9,14 @@ import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 export function SetUnits({setUnitsRef}) {
     const {userData, updateData, setUserData} = useAppContext()
     const colors = useColors();
-    const [open, setOpen] = useState(false);
-
-    const close = () => {
-        updateData({...userData});
-    }
 
     const setUnits = (units) => {
-        setUserData({preferences: {...userData.preferences, units: units}})
+        setUnitsRef.current.dismiss();
+        updateData({preferences: {...userData.preferences, units: units}});
     }
 
     return (
-        <BottomSheetModal onChange={() => {
-            if (open) {
-                close();
-            }
-            setOpen(!open);
-        }}
+        <BottomSheetModal
               backdropComponent={({animatedIndex, style}) => <CustomBackdrop reference={setUnitsRef} animatedIndex={animatedIndex} style={style}/>}
               enableDismissOnClose={true}
               stackBehavior={"replace"}
