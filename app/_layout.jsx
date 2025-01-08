@@ -58,6 +58,7 @@ export default function RootLayout() {
               }}/>
               <Stack.Screen name={"settings/user/index"}/>
               <Stack.Screen name={"compare/putters/index"} />
+              <Stack.Screen name={"compare/grips/index"} />
               <Stack.Screen name={"compare/users/search/index"} />
               <Stack.Screen name={"compare/users/index"} />
             </Stack>
