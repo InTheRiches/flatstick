@@ -1,5 +1,5 @@
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
-import {Appearance, Pressable, Text} from "react-native";
+import {Appearance, Platform, Pressable, Text} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {useAppContext} from "../../../../contexts/AppCtx";
@@ -14,7 +14,9 @@ export function SetTheme({setThemeRef}) {
         setThemeRef.current.dismiss();
         updateData({preferences: {...userData.preferences, theme: theme}})
 
-        Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
+        const nativeColor = Platform.OS === "android" ? Appearance.getNativeColorScheme() : null;
+
+        Appearance.setColorScheme(theme === 0 ? nativeColor : theme === 1 ? "dark" : "light");
     }
 
     return (

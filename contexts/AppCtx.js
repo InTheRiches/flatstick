@@ -82,7 +82,7 @@ export function AppProvider({children}) {
     const [userData, setUserData] = useState({});
     const [puttSessions, setPuttSessions] = useState([]);
     const [currentStats, setCurrentStats] = useState({});
-    const [session, setSession] = useState(null);
+    const [session, setSession] = useState("");
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
     const [grips, setGrips] = useState([]);
@@ -111,7 +111,10 @@ export function AppProvider({children}) {
     const signOut = async () => {
         try {
             await auth.signOut();
-            Appearance.setColorScheme(Appearance.getNativeColorScheme());
+
+            const nativeColor = Platform.OS === "android" ? Appearance.getNativeColorScheme() : null;
+            Appearance.setColorScheme(nativeColor);
+
             setSession(null);
         } catch (error) {
             console.error("Error during sign-out:", error);
@@ -141,6 +144,7 @@ export function AppProvider({children}) {
                 setSession(token);
                 initialize();
             } else {
+                console.log("no user")
                 setSession(null);
             }
         });
@@ -193,7 +197,11 @@ export function AppProvider({children}) {
 
     // Initialize user data and sessions
     const initialize = () => {
-        if (!auth.currentUser) return;
+        if (!auth.currentUser) {
+            console.log("No user signed in!");
+            setLoading(false);
+            return;
+        }
 
         console.log("Initializing user data and sessions...");
 

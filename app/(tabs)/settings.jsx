@@ -29,7 +29,7 @@ export default function HomeScreen() {
 
     return (
         <BottomSheetModalProvider>
-            <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
+            <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
                 <View style={{
                     overflow: "hidden",
                     flexDirection: "column",

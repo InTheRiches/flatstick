@@ -89,9 +89,8 @@ export default function Stats({}) {
     }
 
     return puttSessions.length === 0 ? (
-        <SafeAreaView style={{flex: 1, backgroundColor: 'transparent'}}>
+        <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{
-                backgroundColor: colors.background.primary,
                 borderBottomWidth: 1,
                 borderBottomColor: colors.border.default,
                 flex: 1,
@@ -104,7 +103,7 @@ export default function Stats({}) {
             </View>
         </SafeAreaView>
     ) : (
-        <SafeAreaView style={{flex: 1, borderBottomColor: colors.border.default, borderBottomWidth: 1, backgroundColor: colors.background.primary}}>
+        <SafeAreaView edges={["top"]} style={{flex: 1, borderBottomColor: colors.border.default, borderBottomWidth: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
                 <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "/settings/stats"})}>

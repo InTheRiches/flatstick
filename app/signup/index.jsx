@@ -60,6 +60,7 @@ export default function CreateAccount() {
         }));
     }
 
+    // TOdo give new users a blank stats file
     const createAccount = () => {
         if (state.invalid) return;
 
