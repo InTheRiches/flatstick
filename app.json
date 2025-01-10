@@ -20,7 +20,6 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.puttless",
-      "softwareKeyboardLayoutMode": "pan",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -36,7 +35,8 @@
       ],
       "expo-secure-store",
       "@react-native-google-signin/google-signin",
-      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }]
+      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }],
+      ["./android-manifest-launch-mode-plugin"]
     ],
     "experiments": {
       "typedRoutes": true

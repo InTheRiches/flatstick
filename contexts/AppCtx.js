@@ -25,18 +25,6 @@ import * as NavigationBar from "expo-navigation-bar";
 import * as SystemUI from "expo-system-ui";
 import {DarkTheme, LightTheme} from "@/constants/ModularColors";
 
-const breaks = [
-    "leftToRight",
-    "rightToLeft",
-    "straight",
-]
-
-const slopes = [
-    "downhill",
-    "neutral",
-    "uphill"
-]
-
 const AppContext = createContext({
     userData: {},
     puttSessions: [],
