@@ -14,14 +14,14 @@ export default function UserSettings({}) {
     const navigation = useNavigation();
     const {updateData, userData} = useAppContext();
 
+    const [emailFocused, setEmailFocused] = useState(false);
+    const [emailInvalid, setEmailInvalid] = useState(false);
     const [firstNameFocused, setFirstNameFocused] = useState(false);
     const [lastNameFocused, setLastNameFocused] = useState(false);
-    const [emailFocused, setEmailFocused] = useState(false);
-    const [firstNameInvalid, setFirstNameInvalid] = useState(false);
-    const [lastNameInvalid, setLastNameInvalid] = useState(false);
-    const [emailInvalid, setEmailInvalid] = useState(false);
     const [firstName, setFirstName] = useState(userData.firstName);
     const [lastName, setLastName] = useState(userData.lastName);
+    const [firstNameInvalid, setFirstNameInvalid] = useState(false);
+    const [lastNameInvalid, setLastNameInvalid] = useState(false);
     const [email, setEmail] = useState(auth.currentUser.email);
 
     const [loading, setLoading] = useState(false);
