@@ -8,6 +8,12 @@ import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import {SafeAreaView} from "react-native-safe-area-context";
 import ResetPassword from "../../components/signin/ResetPassword";
+import {
+    GoogleSignin,
+    isErrorWithCode,
+    isSuccessResponse,
+    statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 const initialState = {
     password: "",
@@ -22,11 +28,14 @@ const initialState = {
 export default function Login() {
     const colors = useColors();
     const router = useRouter();
-    const {signIn} = useSession();
+    const {signIn, googleSignIn} = useSession();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
     const [errorCode, setErrorCode] = useState("");
+
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [userInfo, setUserInfo] = useState({});
 
     const resetPasswordRef = useRef();
 
@@ -43,9 +52,7 @@ export default function Login() {
         // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
-        signIn(state.email, state.password).then(() => {
-            router.push({pathname: "/"});
-        }).catch((error) => {
+        signIn(state.email, state.password).catch((error) => {
             setErrorCode(error.code)
             setLoading(false);
         });
@@ -66,7 +73,31 @@ export default function Login() {
         if (errorCode !== "") setErrorCode("");
     }
 
-    const googleSignIn = () => {
+    const google = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+            if (isSuccessResponse(response)) {
+                setUserInfo(response.data);
+                googleSignIn(response.data)
+            } else {
+                console.log("Sign in failed");
+            }
+        } catch (error) {
+            console.log("Error", error)
+            if (isErrorWithCode(error)) {
+                switch (error.code) {
+                    case statusCodes.IN_PROGRESS:
+                        // operation (eg. sign in) already in progress
+                        break;
+                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                        // Android only, play services not available or outdated
+                        break;
+                    default:
+                    // some other error happened
+                }
+            } else{}
+        }
     }
 
     const inputsLayout = (event) => {
@@ -105,7 +136,8 @@ export default function Login() {
                     <Text style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Sign in to 19thGreen</Text>
                     <Text style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome back! Please sign in to continue</Text>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
-                        <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}>
+                        <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
+                                    onPress={google}>
                             <Svg xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                 <Defs>
@@ -121,7 +153,8 @@ export default function Login() {
                                 <Path clipPath="url(#b)" fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/>
                             </Svg>
                         </Pressable>
-                        <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}>
+                        <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
+                                   onPress={google}>
                             <Svg xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                 <Defs>

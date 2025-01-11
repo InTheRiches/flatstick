@@ -16,7 +16,7 @@ export default function TabLayout() {
     const isKeyboardVisible = useKeyboardVisible();
 
     if (session === null) {
-        // TODO FIGURE OUT IF YOU WANT TO REDIRECT TO SIGN UP OR SIGN IN
+        console.log("Redirecting to sign up");
         return <Redirect href="/signup"/>;
     }
 

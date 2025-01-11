@@ -11,6 +11,8 @@ import useColors from "../../hooks/useColors";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from "@react-native-google-signin/google-signin";
+import {useAppContext, useSession} from "../../contexts/AppCtx";
 
 const initialState = {
     skill: -1,
@@ -30,6 +32,9 @@ export default function CreateAccount() {
 
     const db = getFirestore();
     const router = useRouter();
+
+    const {googleSignIn} = useSession();
+    const {updateStats} = useAppContext();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
@@ -109,14 +114,12 @@ export default function CreateAccount() {
         validatePassword(password);
     }
 
-    // TOdo give new users a blank stats file
     const createAccount = () => {
         if (state.invalid) return;
         if (invalidPassword || invalidEmail || firstNameInvalid || lastNameInvalid || firstName.length === 0 || lastName.length === 0) return;
 
         const auth = getAuth();
 
-        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
         createUserWithEmailAndPassword(auth, state.email, state.password)
@@ -127,10 +130,7 @@ export default function CreateAccount() {
 
                 updateProfile(user, {
                     displayName: firstName.trim() + " " + lastName.trim()
-                }).then(() => {
-
                 }).catch((error) => {
-
                 });
 
                 setDoc(doc(db, `users/${user.uid}`), {
@@ -152,8 +152,10 @@ export default function CreateAccount() {
                         reminders: false,
                         selectedGrip: 0,
                     }
+                }).then(() => {
+                    updateStats()
                 }).catch((error) => {
-                        console.log(error);
+                    console.log(error);
                 });
 
                 router.push({pathname: `/`});
@@ -166,6 +168,34 @@ export default function CreateAccount() {
 
                 setLoading(false);
             });
+    }
+
+    const googleSignUp = async () => {
+        setLoading(true);
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+            if (isSuccessResponse(response)) {
+                googleSignIn(response.data)
+            } else {
+                console.log("Sign in failed");
+            }
+        } catch (error) {
+            console.log("Error", error)
+            setLoading(false);
+            if (isErrorWithCode(error)) {
+                switch (error.code) {
+                    case statusCodes.IN_PROGRESS:
+                        // operation (eg. sign in) already in progress
+                        break;
+                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                        // Android only, play services not available or outdated
+                        break;
+                    default:
+                    // some other error happened
+                }
+            } else{}
+        }
     }
 
     const inputsLayout = (event) => {
@@ -199,7 +229,8 @@ export default function CreateAccount() {
                     <Text style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</Text>
                     <Text style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome! Please fill in the details to get started.</Text>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
-                        <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}>
+                        <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
+                            onPress={googleSignUp}>
                             <Svg xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                 <Defs>

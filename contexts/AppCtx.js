@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
-import {signInWithEmailAndPassword} from "firebase/auth";
+import {GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword} from "firebase/auth";
 import {
     collection,
     deleteDoc,
@@ -24,6 +24,8 @@ import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/final
 import * as NavigationBar from "expo-navigation-bar";
 import * as SystemUI from "expo-system-ui";
 import {DarkTheme, LightTheme} from "@/constants/ModularColors";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import {useRouter} from "expo-router";
 
 const AppContext = createContext({
     userData: {},
@@ -54,6 +56,7 @@ const AppContext = createContext({
 const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
+    googleSignIn: () => {},
     session: null,
     isLoading: false,
 });
@@ -83,6 +86,7 @@ export function AppProvider({children}) {
     });
     const auth = getAuth();
     const firestore = getFirestore();
+    const router = useRouter();
 
     // Firebase authentication functions
     const signIn = async (email, password) => {
@@ -90,15 +94,50 @@ export function AppProvider({children}) {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const token = await userCredential.user.getIdToken();
             setSession(token || null);
+
+            router.push({pathname: "/"});
         } catch (error) {
             console.error("Error during sign-in:", error);
             throw error;
         }
     };
 
+    const googleSignIn = (user) => {
+        const credential = GoogleAuthProvider.credential(user.idToken);
+
+        signInWithCredential(getAuth(), credential).then((userCredential) => {
+            console.log(userCredential.operationType);
+            setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
+                date: new Date().toISOString(),
+                totalPutts: 0,
+                sessions: 0,
+                firstName: user.givenName,
+                lastName: user.familyName,
+                strokesGained: 0,
+                preferences: {
+                    countMishits: false,
+                    selectedPutter: 0,
+                    theme: 0,
+                    units: 0,
+                    reminders: false,
+                    selectedGrip: 0,
+                }
+            }).then(() => {
+                userCredential.user.getIdToken().then((token) => {
+                    setSession(token || null);
+                    router.push({pathname: `/`});
+                });
+                refreshStats();
+            }).catch((error) => {
+                console.log(error);
+            });
+        }).catch(console.log);
+    }
+
     const signOut = async () => {
         try {
             await auth.signOut();
+            await GoogleSignin.signOut();
 
             setSession(null);
         } catch (error) {
@@ -400,7 +439,13 @@ export function AppProvider({children}) {
 
     const newSession = async (file, data) => {
         await setDoc(doc(firestore, file, generatePushID()), data)
-        const newStats = await refreshStats();
+        let newStats;
+        try {
+            newStats = await refreshStats();
+        } catch (error) {
+            console.error("Error updating stats:", error);
+            return false;
+        }
 
         const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`));
         getDocs(sessionQuery).then((querySnapshot) => {
@@ -451,12 +496,13 @@ export function AppProvider({children}) {
         deleteSession,
         newGrip,
         deleteGrip,
-        calculateSpecificStats
+        calculateSpecificStats,
     }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats, grips, nonPersistentData]);
 
     const authContextValue = useMemo(() => ({
         signIn,
         signOut,
+        googleSignIn,
         session,
         isLoading,
     }), [signIn, signOut, session, isLoading]);

@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "737663000705-qe2isnf7bpp6jeivdsh9s3sb4c6vnje0.apps.googleusercontent.com",
+          "client_id": "737663000705-ca9vcm3s0m9jfqs39jen7gqf7cnov8ga.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.puttless",
-            "certificate_hash": "87c0133c9c3fa924690a9e8685eadddfcb16ab1f"
+            "certificate_hash": "ed1241597223ef530c1245ac5175c8ba0e7a652a"
           }
         },
         {
@@ -37,6 +37,13 @@
             {
               "client_id": "737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "737663000705-onbcj1cfdt9sskflhi6k0q88c1mg9648.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.puttless"
+              }
             }
           ]
         }

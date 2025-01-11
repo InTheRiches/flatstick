@@ -88,7 +88,7 @@ export default function Stats({}) {
         });
     }
 
-    return puttSessions.length === 0 ? (
+    return puttSessions.length === 0 || currentStats.rounds < 1 ? (
         <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{
                 borderBottomWidth: 1,
