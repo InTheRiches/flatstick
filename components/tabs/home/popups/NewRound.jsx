@@ -231,7 +231,7 @@ export const NewRound = ({newSessionRef}) => {
                     }}>Grip Method</Text>
                     <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{flexDirection: "row", borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
                         <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips.length > 0 ? grips[userData.preferences.selectedGrip].name : "No Grip Method"}</Text>
+                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips[userData.preferences.selectedGrip].name}</Text>
                         </View>
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editgrips"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
@@ -250,14 +250,20 @@ export const NewRound = ({newSessionRef}) => {
                         marginBottom: 4,
                     }}>Putter</Text>
                     <Pressable onPress={() => router.push({pathname: "/editputters"})} style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
-                        <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
-                        <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
-                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[userData.preferences.selectedPutter].name : "Default Putter"}</Text>
-                            <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                                <Text style={{color: colors.text.secondary, width: "35%"}}>Sessions: 3</Text>
-                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[userData.preferences.selectedPutter].stats.strokesGained.overall : 0}</Text>
-                            </View>
-                        </View>
+                        {   userData.preferences.selectedPutter === 0 ? (
+                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters[userData.preferences.selectedPutter].name}</Text>
+                        ) : (
+                            <>
+                                <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
+                                <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
+                                    <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters[userData.preferences.selectedPutter].name}</Text>
+                                    <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
+                                        <Text style={{color: colors.text.secondary, width: "35%"}}>Rounds: {putters[userData.preferences.selectedPutter].stats.rounds}</Text>
+                                        <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters[userData.preferences.selectedPutter].stats.strokesGained.overall}</Text>
+                                    </View>
+                                </View>
+                            </>
+                        )}
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editputters"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke={colors.button.secondary.text} width={24} height={24}>

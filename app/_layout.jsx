@@ -2,15 +2,21 @@ import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
-import {Platform, StatusBar, useColorScheme} from "react-native";
+import {Platform, StatusBar} from "react-native";
 import useColors from "@/hooks/useColors";
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import * as SystemUI from "expo-system-ui";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import React from "react";
 
 export default function RootLayout() {
   const colors = useColors();
-  const colorScheme = useColorScheme();
+
+  GoogleSignin.configure({
+    webClientId: '737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com',
+  });
 
   configureReanimatedLogger({
     level: ReanimatedLogLevel.warn,
@@ -20,7 +26,7 @@ export default function RootLayout() {
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
-  // SystemUI.setBackgroundColorAsync(colors.background.primary);
+  SystemUI.setBackgroundColorAsync(colors.background.primary);
   // console.log("Setting system UI color to", colors.background.primary);
 
   return (

@@ -71,7 +71,7 @@ export function PutterSelector({id, name, stats, selectedPutter, setSelectedPutt
                 <View style={{flexDirection: "column", flex: 1}}>
                     <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
                     <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                        <Text style={{color: colors.text.secondary, width: "40%"}}>Sessions: 3</Text>
+                        <Text style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</Text>
                         <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
                     </View>
                 </View>

@@ -68,11 +68,14 @@ export function GripSelector({id, name, stats, selectedGrip, setSelectedGrip, ed
                 marginBottom: 12,
                 alignItems: "center"}}>
                 <View style={{flexDirection: "column", flex: 1}}>
-                    <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
-                    <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                        <Text style={{color: colors.text.secondary, width: "40%"}}>Sessions: 3</Text>
-                        <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
-                    </View>
+                    <Text style={{fontSize: id !== 0 ? 16 : 18, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
+                    {   id !== 0 && (
+                            <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
+                                <Text style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</Text>
+                                <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
+                            </View>
+                        )
+                    }
                 </View>
                 <Svg style={{opacity: selectedGrip === id && !editing ? 1 : 0}} width={30} height={30} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>

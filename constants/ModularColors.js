@@ -2,6 +2,7 @@ export const LightTheme = {
   text: {
     primary: '#111827',
     secondary: '#687076',
+    placeholder: '#b0b0b0',
     link: '#42aaf5',
   },
   background: {
@@ -76,6 +77,11 @@ export const LightTheme = {
       background: 'white',
       border: '#63B6FF',
     },
+    disabled: {
+      background: '#d5d5d5',
+      border: '#9d9d9d',
+      text: '#5d5d5d',
+    }
   },
   putting: {
     grid: {
@@ -117,6 +123,7 @@ export const DarkTheme = {
   text: {
     primary: '#fff',
     secondary: '#9ba1a6',
+    placeholder: '#969696',
     link: '#42aaf5',
   },
   background: {
