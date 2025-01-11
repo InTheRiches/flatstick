@@ -100,9 +100,6 @@ export function AppProvider({children}) {
         try {
             await auth.signOut();
 
-            const nativeColor = Platform.OS === "android" ? Appearance.getNativeColorScheme() : null;
-            Appearance.setColorScheme(nativeColor);
-
             setSession(null);
         } catch (error) {
             console.error("Error during sign-out:", error);

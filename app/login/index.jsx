@@ -1,5 +1,5 @@
-import {Keyboard, PixelRatio, Pressable, ScrollView, Text, TextInput, View} from "react-native";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import {PixelRatio, Pressable, ScrollView, Text, TextInput, View} from "react-native";
+import React, {useCallback, useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
@@ -81,15 +81,15 @@ export default function Login() {
         setKeyboardVisible(visible);
     }, []);
 
-    useEffect(() => {
-        console.log("updating")
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => updateKeyboardVisibility(true));
-        const keyboardHidListener = Keyboard.addListener('keyboardDidHide', () => updateKeyboardVisibility(false));
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardHidListener.remove();
-        }
-    }, []);
+    // useEffect(() => {
+    //     console.log("updating")
+    //     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => updateKeyboardVisibility(true));
+    //     const keyboardHidListener = Keyboard.addListener('keyboardDidHide', () => updateKeyboardVisibility(false));
+    //     return () => {
+    //         keyboardDidShowListener.remove();
+    //         keyboardHidListener.remove();
+    //     }
+    // }, []);
 
     return (loading ? <Loading/> :
         <>
@@ -254,14 +254,10 @@ export default function Login() {
                         <Text style={{color: colors.text.primary, textAlign: "center"}}>Don't have an account? Click here to signup.</Text>
                     </Pressable>
 
-                    <Pressable onPress={() => resetPasswordRef.current.present()} style={({pressed}) => [{
-                        marginTop: 32,
-                        elevation: pressed ? 0 : 1,
-                        borderRadius: 12,
-                        backgroundColor: colors.background.secondary,
-                        paddingVertical: 10
-                    }]}>
-                        <Text style={{color: colors.text.primary, textAlign: "center"}}>Forgot your password? Click here to reset it.</Text>
+                    <Pressable onPress={() => resetPasswordRef.current.present()} style={{
+                        marginTop: 24,
+                    }}>
+                        <Text style={{color: colors.text.link, textAlign: "center"}}>Forgot your password? Click here to reset it.</Text>
                     </Pressable>
                 </ScrollView>
             </SafeAreaView>

@@ -2,7 +2,7 @@ import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
-import {Platform, StatusBar, useColorScheme} from "react-native";
+import {Platform, StatusBar} from "react-native";
 import useColors from "@/hooks/useColors";
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
@@ -11,7 +11,6 @@ import * as SystemUI from "expo-system-ui";
 
 export default function RootLayout() {
   const colors = useColors();
-  const colorScheme = useColorScheme();
 
   configureReanimatedLogger({
     level: ReanimatedLogLevel.warn,

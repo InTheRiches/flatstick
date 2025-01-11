@@ -20,7 +20,7 @@ export default function HomeScreen() {
 
     const [reminders, setReminders] = useState(userData.preferences.reminders);
 
-    const [themePressed, setThemePressed] = useState(false);
+    // const [themePressed, setThemePressed] = useState(false);
     const [unitsPressed, setUnitsPressed] = useState(false);
 
     const setThemeRef = React.useRef(null);
@@ -94,16 +94,16 @@ export default function HomeScreen() {
                             />
                         </Pressable>
                         <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>INTERFACE</Text>
-                        <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight:18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>App Theme</Text>
-                            <Pressable
-                                onPress={() => setThemeRef.current.present()}
-                                onPressIn={() => setThemePressed(true)}
-                                onPressOut={() => setThemePressed(false)}
-                                style={{padding: 7}}>
-                                <Text style={{color: colors.text.link, opacity: themePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.theme === 0 ? "Auto-Detect" : userData.preferences.theme === 1 ? "Dark" : "Light"}</Text>
-                            </Pressable>
-                        </Pressable>
+                        {/*<Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight:18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>*/}
+                        {/*    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>App Theme</Text>*/}
+                        {/*    <Pressable*/}
+                        {/*        onPress={() => setThemeRef.current.present()}*/}
+                        {/*        onPressIn={() => setThemePressed(true)}*/}
+                        {/*        onPressOut={() => setThemePressed(false)}*/}
+                        {/*        style={{padding: 7}}>*/}
+                        {/*        <Text style={{color: colors.text.link, opacity: themePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.theme === 0 ? "Auto-Detect" : userData.preferences.theme === 1 ? "Dark" : "Light"}</Text>*/}
+                        {/*    </Pressable>*/}
+                        {/*</Pressable>*/}
                         <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Units</Text>
                             <Pressable

@@ -15,10 +15,12 @@ export default function ResetPassword({resetPasswordRef}) {
     const [loading, setLoading] = useState(false);
     const [done, setDone] = useState(false);
 
+    const [error, setError] = useState("");
+
     const updateEmail = (text) => {
-        console.log(text);
         setEmail(text);
         setEmailInvalid(!text.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/));
+        if (error.length !== 0) setError("");
     }
 
     const submit = () => {
@@ -35,6 +37,10 @@ export default function ResetPassword({resetPasswordRef}) {
                 setLoading(false);
                 setEmail("");
             }, 3000);
+        }).catch((error) => {
+            setError(error.message);
+            setLoading(false);
+            setEmailFocused(false);
         });
     }
 
@@ -85,7 +91,7 @@ export default function ResetPassword({resetPasswordRef}) {
                                         color: emailInvalid ? colors.input.invalid.text : colors.input.text,
                                         backgroundColor: emailInvalid ? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
                                     }}
-
+                                    defaultValue={email}
                                     onFocus={() => setEmailFocused(true)}
                                     onBlur={() => setEmailFocused(false)}
                                     onChangeText={(text) => updateEmail(text)}
@@ -112,6 +118,8 @@ export default function ResetPassword({resetPasswordRef}) {
                             </View>
                             {emailInvalid &&
                                 <Text style={{color: colors.input.invalid.text, marginTop: -6}}>Enter a valid email!</Text>}
+                            {error &&
+                                <Text style={{color: colors.input.invalid.text, marginTop: -6}}>There is no account with that email!</Text>}
                         </>
                     )
                 }
