@@ -111,8 +111,8 @@ export function AppProvider({children}) {
                 date: new Date().toISOString(),
                 totalPutts: 0,
                 sessions: 0,
-                firstName: user.givenName,
-                lastName: user.familyName,
+                firstName: user.user.givenName,
+                lastName: user.user.familyName,
                 strokesGained: 0,
                 preferences: {
                     countMishits: false,

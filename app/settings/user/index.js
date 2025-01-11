@@ -8,6 +8,7 @@ import {auth} from "../../../utils/firebase";
 import {updateEmail, updateProfile} from "firebase/auth";
 import Loading from "../../../components/general/popups/Loading";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
 
 export default function UserSettings({}) {
     const colors = useColors();
@@ -29,6 +30,8 @@ export default function UserSettings({}) {
     let emailErrorCode = "";
     let nameErrorCode = "";
 
+    const isGoogle = GoogleSignin.getCurrentUser() !== null;
+
     const updateFirstName = (newName) => {
         setFirstName(newName.trim());
         setFirstNameInvalid(newName.length === 0 || newName.trim().includes(" "));
@@ -47,6 +50,10 @@ export default function UserSettings({}) {
 
     const save = () => {
         if (firstNameInvalid || lastNameInvalid || emailInvalid) return;
+        if (firstName === userData.firstName && lastName === userData.lastName && email === auth.currentUser.email) {
+            navigation.goBack();
+            return;
+        }
 
         setLoading(true);
 
@@ -55,6 +62,10 @@ export default function UserSettings({}) {
         // Save changes to the database
         updateProfile(auth.currentUser, {displayName: firstName + " " + lastName})
             .then(() => {
+                if (isGoogle) {
+                    navigation.goBack();
+                    return;
+                }
                 updateEmail(auth.currentUser, email)
                     .then(() => {
                         navigation.goBack();
@@ -155,19 +166,29 @@ export default function UserSettings({}) {
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: emailFocused ? emailInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : emailInvalid ? colors.input.invalid.border : colors.input.border,
+                        borderColor: isGoogle ? colors.input.disabled.border : emailFocused ? emailInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : emailInvalid ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: emailInvalid? colors.input.invalid.text : colors.input.text,
-                        backgroundColor: emailInvalid? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
+                        color: isGoogle ? colors.input.disabled.text : emailInvalid? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: isGoogle ? colors.input.disabled.background : emailInvalid? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
                     }}
                     onFocus={() => setEmailFocused(true)}
                     value={email}
                     onBlur={() => setEmailFocused(false)}
                     onChangeText={(text) => updateEmailAddress(text)}
+                    editable={!isGoogle}
+                    caretHidden={isGoogle}
                 />
+                {
+                    isGoogle &&
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                             stroke={colors.input.disabled.text} style={{position: "absolute", right: 12, top: 7.5, width: 24, height: 24}}>
+                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                        </Svg>
+                }
                 {emailInvalid && <Text style={{
                     position: "absolute",
                     right: 12,
@@ -181,6 +202,10 @@ export default function UserSettings({}) {
                     fontSize: 16
                 }}>!</Text>}
             </View>
+            { isGoogle && (
+                    <Text style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with google.</Text>
+                )
+            }
             {emailInvalid && emailErrorCode !== "auth/email-already-in-use" &&
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
             {emailErrorCode === "auth/email-already-in-use" &&

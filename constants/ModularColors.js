@@ -77,6 +77,11 @@ export const LightTheme = {
       background: 'white',
       border: '#63B6FF',
     },
+    disabled: {
+      background: '#d5d5d5',
+      border: '#9d9d9d',
+      text: '#5d5d5d',
+    }
   },
   putting: {
     grid: {

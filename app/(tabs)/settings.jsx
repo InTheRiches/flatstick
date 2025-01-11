@@ -11,6 +11,7 @@ import {useRouter} from "expo-router";
 import DangerButton from "../../components/general/buttons/DangerButton";
 import {useSession} from "../../contexts/AppCtx";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -55,7 +56,11 @@ export default function HomeScreen() {
                             }}>Settings</Text>
                         </View>
                         <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</Text>
-                        <Pressable onPress={() => reauthenticateRef.current.present()} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                        <Pressable onPress={() => {
+                            if (GoogleSignin.getCurrentUser() !== null) {
+                                router.push({pathname: "/settings/user"})
+                            } else reauthenticateRef.current.present()
+                        }} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
                             <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Personal Info</Text>
                             <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" strokeWidth={3}
