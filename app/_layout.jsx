@@ -7,6 +7,7 @@ import useColors from "@/hooks/useColors";
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import * as SystemUI from "expo-system-ui";
 
 export default function RootLayout() {
   const colors = useColors();
@@ -20,7 +21,7 @@ export default function RootLayout() {
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
-  // SystemUI.setBackgroundColorAsync(colors.background.primary);
+  SystemUI.setBackgroundColorAsync(colors.background.primary);
   // console.log("Setting system UI color to", colors.background.primary);
 
   return (

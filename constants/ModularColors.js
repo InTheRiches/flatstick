@@ -2,6 +2,7 @@ export const LightTheme = {
   text: {
     primary: '#111827',
     secondary: '#687076',
+    placeholder: '#b0b0b0',
     link: '#42aaf5',
   },
   background: {
@@ -117,6 +118,7 @@ export const DarkTheme = {
   text: {
     primary: '#fff',
     secondary: '#9ba1a6',
+    placeholder: '#969696',
     link: '#42aaf5',
   },
   background: {

@@ -333,16 +333,16 @@ export function AppProvider({children}) {
      */
     const calculateSpecificStats = () => {
         const stats = createSimpleStats();
-        const filteredPuttSessions = puttSessions
+        const filteredSessions = puttSessions
             .filter(session =>
                 (nonPersistentData.filtering.putter === 0 || session.putter === putters[nonPersistentData.filtering.putter].type) &&
                 (nonPersistentData.filtering.grip === 0 || session.grip === grips[nonPersistentData.filtering.grip].type)
             );
-        const strokesGained = calculateTotalStrokesGained(userData, filteredPuttSessions);
+        const strokesGained = calculateTotalStrokesGained(userData, filteredSessions);
         const newPutters = initializePutters(putters);
         const newGrips = initializeGrips(grips);
 
-        filteredPuttSessions.forEach(session => processSession(session, stats, newPutters, newGrips, userData));
+        filteredSessions.forEach(session => processSession(session, stats, newPutters, newGrips, userData));
 
         if (stats.rounds > 0)
             finalizeStats(stats, strokesGained);
