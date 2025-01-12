@@ -106,30 +106,39 @@ export function AppProvider({children}) {
         const credential = GoogleAuthProvider.credential(user.idToken);
 
         signInWithCredential(getAuth(), credential).then((userCredential) => {
-            console.log(userCredential.operationType);
-            setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
-                date: new Date().toISOString(),
-                totalPutts: 0,
-                sessions: 0,
-                firstName: user.user.givenName,
-                lastName: user.user.familyName,
-                strokesGained: 0,
-                preferences: {
-                    countMishits: false,
-                    selectedPutter: 0,
-                    theme: 0,
-                    units: 0,
-                    reminders: false,
-                    selectedGrip: 0,
+            getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((doc) => {
+                if (doc.exists()) {
+                    userCredential.user.getIdToken().then((token) => {
+                        setSession(token || null);
+                        router.push({pathname: `/`});
+                    });
+                    refreshStats();
+                    return;
                 }
-            }).then(() => {
-                userCredential.user.getIdToken().then((token) => {
-                    setSession(token || null);
-                    router.push({pathname: `/`});
+                setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
+                    date: new Date().toISOString(),
+                    totalPutts: 0,
+                    sessions: 0,
+                    firstName: user.user.givenName,
+                    lastName: user.user.familyName,
+                    strokesGained: 0,
+                    preferences: {
+                        countMishits: false,
+                        selectedPutter: 0,
+                        theme: 0,
+                        units: 0,
+                        reminders: false,
+                        selectedGrip: 0,
+                    }
+                }).then(() => {
+                    userCredential.user.getIdToken().then((token) => {
+                        setSession(token || null);
+                        router.push({pathname: `/`});
+                    });
+                    refreshStats();
+                }).catch((error) => {
+                    console.log(error);
                 });
-                refreshStats();
-            }).catch((error) => {
-                console.log(error);
             });
         }).catch(console.log);
     }
