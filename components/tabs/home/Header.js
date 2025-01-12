@@ -11,7 +11,7 @@ export function Header() {
             paddingTop: 2,
             paddingBottom: 10,
         }}>
-            <Image source={require('@/assets/branding/Flatstick.png')} style={{height: 30, width: 130}}/>
+            <Image source={require('@/assets/branding/Flatstick.png')} style={{aspectRatio: 1920/375, width: 150}}/>
         </View>
     )
 }
