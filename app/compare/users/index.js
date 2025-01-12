@@ -50,7 +50,7 @@ export default function CompareUsers({}) {
                 </View>
                 <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER</Text>
                 <View style={{
-                    padding: 8,
+                    padding: 6,
                     backgroundColor: colors.background.secondary,
                     borderRadius: 14,
                     marginBottom: 8,
@@ -65,7 +65,7 @@ export default function CompareUsers({}) {
                                   clipRule="evenodd"/>
                         </Svg>
                         <View style={{marginLeft: 6}}>
-                            <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 500, marginBottom: 4}}>{profile.firstName + " " + profile.lastName}</Text>
+                            <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500, marginBottom: 4}}>{profile.firstName + " " + profile.lastName}</Text>
                         </View>
                     </View>
                 </View>
