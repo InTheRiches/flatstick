@@ -13,24 +13,25 @@ export const ShortPastBias = ({session}) => {
         setVerticalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    const shortPastBias = convertUnits(session.shortPastBias, session.units, userData.preferences.units);
+    const shortPastBias = Math.min(1.89, convertUnits(session.shortPastBias, session.units, userData.preferences.units));
 
     let left = shortPastBias / (userData.preferences.units === 0 ? 2 : 1) * (verticalBiasWidth/2 + (shortPastBias > 0 ? 25 : 0));
     left = left + (verticalBiasWidth/2);
 
-    if (Math.abs(shortPastBias) < (userData.preferences.units === 0 ? 0.2 : 0.1)) {
-        left = (verticalBiasWidth/2) + 2.5;
-    }
+    // if (Math.abs(shortPastBias) < (userData.preferences.units === 0 ? 0.2 : 0.1)) {
+    //     left = (verticalBiasWidth/2) + 2.5;
+    // }
 
     return (
         <>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Short / Past Bias</Text>
             <View onLayout={onVertiLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
-                <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
-                <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
+                <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
+                <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>
                 <Image style={{width: 24, height: 24}} source={require("../../../assets/images/golf-hole.png")}></Image>
-                <View style={{flex: 1, height: 2, backgroundColor: colors.text.primary}}></View>
-                <View style={{width: 2, height: 32, backgroundColor: colors.text.primary}}></View>
+                <View style={{flex: 0.5, height: 3, backgroundColor: "#4BB543"}}></View>
+                <View style={{flex: 0.5, height: 3, backgroundColor: colors.button.danger.background}}></View>
+                <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
