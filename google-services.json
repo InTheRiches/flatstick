@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:737663000705:android:4fd3d6a4ff1419e202ed80",
+        "mobilesdk_app_id": "1:737663000705:android:fcfab5719b7dadd702ed80",
         "android_client_info": {
-          "package_name": "com.puttless"
+          "package_name": "com.intheriches.flatstick"
         }
       },
       "oauth_client": [
         {
-          "client_id": "737663000705-ca9vcm3s0m9jfqs39jen7gqf7cnov8ga.apps.googleusercontent.com",
+          "client_id": "737663000705-gkpghql5c45tbbko9vfalgaa9u1afjcc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.puttless",
-            "certificate_hash": "ed1241597223ef530c1245ac5175c8ba0e7a652a"
+            "package_name": "com.intheriches.flatstick",
+            "certificate_hash": "3223976002dd11849343e51492367f6e0a5d3e3c"
           }
         },
         {

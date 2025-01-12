@@ -1,25 +1,25 @@
 {
   "expo": {
-    "name": "19thGreen",
-    "slug": "19thgreen",
+    "name": "Flatstick",
+    "slug": "putt-perfect",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/branding/appicon/adaptive_icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.19thgreen",
+      "bundleIdentifier": "com.puttless",
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive_icon.png",
+        "foregroundImage": "./assets/branding/appicon/adaptive_icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.19thgreen",
+      "package": "com.intheriches.flatstick",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -49,6 +49,6 @@
         "projectId": "5be751a1-abea-409b-adde-2a402e979c5c"
       }
     },
-    "owner": "19thgreen"
+    "owner": "puttlab"
   }
 }

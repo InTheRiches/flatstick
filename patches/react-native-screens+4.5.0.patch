@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
+index 75453fa..0d5aa4d 100644
+--- a/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
++++ b/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
+@@ -147,6 +147,7 @@ class ScreenStack(
+             // animation logic start
+             if (stackAnimation != null) {
+                 if (shouldUseOpenAnimation) {
++                    System.out.println("StackAnimation.SLIDE_FROM_BOTTOM: " + R.anim.rns_slide_in_from_bottom + " " + R.anim.rns_no_animation_medium)
+                     when (stackAnimation) {
+                         StackAnimation.DEFAULT ->
+                             it.setCustomAnimations(
