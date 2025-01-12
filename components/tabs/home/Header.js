@@ -1,6 +1,6 @@
 import useColors from "../../../hooks/useColors";
 import {getAuth} from "firebase/auth";
-import {Text, View} from "react-native";
+import {Image, View} from "react-native";
 import React from "react";
 
 export function Header() {
@@ -10,21 +10,14 @@ export function Header() {
 
     return (
         <View style={{
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             flexDirection: "row",
             width: "100%",
             paddingTop: 2,
             paddingBottom: 10,
         }}>
-            <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0}}>
-                <Text style={{color: colors.text.secondary, fontSize: 16}}>Welcome Back,</Text>
-                <Text style={{
-                    fontSize: 24,
-                    fontWeight: 500,
-                    color: colors.text.primary
-                }}>{auth.currentUser.displayName}</Text>
-            </View>
+            <Image source={require('@/assets/branding/19thGreen.png')} style={{height: 30, width: 130}}/>
             {/*<PrimaryButton onPress={() => {*/}
 
             {/*}} style={{borderRadius: 30, aspectRatio: 1, height: 42}}>*/}

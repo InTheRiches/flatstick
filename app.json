@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#000000",
+    "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.puttless",
