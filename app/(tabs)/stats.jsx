@@ -31,7 +31,7 @@ export default function Stats({}) {
             nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
                 nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
                     nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats)
-    }, [nonPersistentData]);
+    }, [nonPersistentData, currentStats]);
 
     const tabs = [
         {
@@ -88,7 +88,7 @@ export default function Stats({}) {
         });
     }
 
-    return puttSessions.length === 0 || currentStats.rounds < 1 ? (
+    return puttSessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1 ? (
         <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{
                 borderBottomWidth: 1,

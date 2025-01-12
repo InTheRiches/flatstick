@@ -39,7 +39,8 @@ export default function TabLayout() {
                     borderTopWidth: 0,
                     paddingBottom: 0,
                     maxHeight: isKeyboardVisible ? 0 : 48,
-                }
+                },
+                lazy: true,
             }}>
                 <Tabs.Screen
                     name="index"
