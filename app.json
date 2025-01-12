@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "putt-perfect",
-    "slug": "putt-perfect",
+    "name": "19thGreen",
+    "slug": "19thgreen",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,16 +10,16 @@
     "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.puttless",
+      "bundleIdentifier": "com.19thgreen",
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/adaptive_icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.puttless",
+      "package": "com.19thgreen",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -49,6 +49,6 @@
         "projectId": "5be751a1-abea-409b-adde-2a402e979c5c"
       }
     },
-    "owner": "puttlab"
+    "owner": "19thgreen"
   }
 }
