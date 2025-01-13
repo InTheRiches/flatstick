@@ -171,7 +171,15 @@ export function AppProvider({children}) {
 
     // Monitor authentication state changes
     useEffect(() => {
+        alert("Monitoring authentication state changes!");
+        setTimeout(() => {
+            setLoading(false);
+            setSession(null);
+            alert("No user signed in! timeout");
+        }, 10000);
+
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            alert("User state changed!");
             if (user) {
                 const token = await user.getIdToken();
                 setSession(token);
@@ -184,10 +192,11 @@ export function AppProvider({children}) {
                 console.log("no user")
                 setSession(null);
                 setLoading(false);
+                alert("No user signed in!");
             }
         });
         return () => unsubscribe();
-    }, []);
+    }, [auth]);
 
     const newPutter = (name) => {
         const id = name.toLowerCase().replace(/\s/g, "-");
