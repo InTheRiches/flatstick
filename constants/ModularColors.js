@@ -36,8 +36,8 @@ export const LightTheme = {
       depressed: '#1c1c1c',
     },
     disabled: {
-      background: '#f1f2f3',
-      border: '#D1D1D1',
+      background: '#d5d5d5',
+      border: '#9d9d9d',
       text: '#C4C4C4',
     },
     danger: {

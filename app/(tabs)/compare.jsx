@@ -17,9 +17,11 @@ export default function Compare({}) {
             <Text style={{
                 fontSize: 24,
                 fontWeight: 500,
-                color: colors.text.primary
+                color: colors.text.primary,
+                textAlign: "left",
+                width: "100%"
             }}>Compare Your Stats</Text>
-            <View style={{flexDirection: "row", gap: 16, marginBottom: 16}}>
+            <View style={{flexDirection: "row", gap: 16, marginBottom: 16, marginTop: 24}}>
                 <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1}}
                                onPress={() => router.push({pathname: "/compare/users/search"})}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.primary} width={40}
@@ -33,10 +35,10 @@ export default function Compare({}) {
                 </PrimaryButton>
             </View>
             <View style={{flexDirection: "row", gap: 16}}>
-                <PrimaryButton disabled={putters.length < 2} onPress={() => {
+                <PrimaryButton onPress={() => {
                     if (putters.length < 2) return;
                     router.push({pathname: "/compare/putters"})
-                }} style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
+                }} style={{borderRadius: 12, paddingVertical: 12, opacity: (grips.length > 2) ? 1: 0.5, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width={40} height={40} fill={colors.text.primary}>
                         <G>
                             <Path d="M415.309,397.207l-48.659-14.684c-11.135-3.355-18.738-13.613-18.738-25.231v-52.328l24.402-50.14   l-59.232-29.664l-26.453,54.3c-3.267,6.733-4.98,14.136-4.98,21.634V357.1c0,10.918-8.842,19.776-19.776,19.776H57.324   c-20.549,0-37.195,16.654-37.195,37.194v49.971c0,20.548,13.951,32.27,37.195,37.211C112.533,508.517,210.164,512,236.313,512   c26.156,0,123.788-3.483,178.996-10.748c23.252-4.941,37.195-16.663,37.195-37.211v-29.64   C452.504,413.869,438.473,403.032,415.309,397.207z"/>
@@ -48,10 +50,10 @@ export default function Compare({}) {
                     <Text style={{color: colors.text.secondary, fontSize: 14, textAlign: "center"}}>Compare your putters
                         to determine which one is best for you.</Text>
                 </PrimaryButton>
-                <PrimaryButton disabled={grips.length < 2} onPress={() => {
+                <PrimaryButton onPress={() => {
                     if (grips.length < 2) return;
                     router.push({pathname: "/compare/grips"})
-                }} style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
+                }} style={{borderRadius: 12, opacity: (grips.length > 2) ? 1: 0.5, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                          fill={colors.text.primary} width={40}
                          height={40}>

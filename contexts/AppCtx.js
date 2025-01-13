@@ -172,6 +172,7 @@ export function AppProvider({children}) {
     // Monitor authentication state changes
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            alert("Auth state changed!");
             if (user) {
                 alert("User signed in!");
                 const token = await user.getIdToken();
@@ -183,8 +184,10 @@ export function AppProvider({children}) {
                     alert("Error initializing user data! " + error);
                 }
             } else {
+                alert("No user");
                 setSession(null);
                 router.push({pathname: "/signup"});
+                alert("No user after re route");
             }
         });
         return () => unsubscribe();

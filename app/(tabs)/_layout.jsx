@@ -15,20 +15,6 @@ export default function TabLayout() {
     const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
 
-    // useEffect(() => {
-    //     alert("Checking session: " + session);
-    //     if (session === null) {
-    //         alert("Redirecting to sign up");
-    //     }
-    // }, [session]);
-    //
-    // useEffect(() => {
-    //     alert("Loading changed: " + isLoading);
-    //     if (!isLoading && session===null) {
-    //         alert("Should redirect to sign up");
-    //     }
-    // }, [isLoading]);
-
     return (
         <GestureHandlerRootView>
             {visible && (
