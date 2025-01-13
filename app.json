@@ -17,6 +17,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/branding/appicon/adaptive_icon.png",
+        "monochromeImage": "./assets/branding/appicon/ic_launcher_monochrome.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.intheriches.flatstick",
