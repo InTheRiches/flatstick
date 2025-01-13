@@ -33,7 +33,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
             backgroundColor: colors.background.secondary,
             flexDirection: "row",
             borderRadius: 16,
-            elevation: 4,
+            elevation: 0,
             overflow: "hidden",
             gap: 8
         }}>

@@ -247,7 +247,7 @@ export default function RealSimulation() {
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
+                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 18}}>/{holes}</Text></Text>
                         <Pressable onPress={() => confirmExitRef.current.present()}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  strokeWidth={1.5}

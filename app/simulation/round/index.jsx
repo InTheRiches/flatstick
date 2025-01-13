@@ -275,7 +275,7 @@ export default function RoundSimulation() {
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 14}}>/{holes}</Text></Text>
+                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 18}}>/{holes}</Text></Text>
                         <View style={{position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center", marginVertical: "auto"}}>
                             <ElapsedTimeClock startTime={startTime}></ElapsedTimeClock>
                         </View>

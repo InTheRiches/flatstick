@@ -12,7 +12,7 @@ export function GreenVisual({distance, puttBreak, slope, imageSource}) {
             backgroundColor: colors.background.secondary,
             flexDirection: "column",
             borderRadius: 16,
-            elevation: 4,
+            elevation: 0,
             overflow: "hidden"
         }}>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>

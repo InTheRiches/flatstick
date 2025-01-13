@@ -33,11 +33,12 @@ export default function RootLayout() {
 
   return (
       <AppProvider>
-        <StatusBar backgroundColor={'transparent'} translucent={true} />
+        <StatusBar style="dark" barStyle={"light-content"} backgroundColor={'transparent'} translucent={true} />
         <GestureHandlerRootView>
           <BottomSheetModalProvider>
             <Stack screenOptions={{
                   headerShown: false,
+                  navigationBarColor: "#FFFFFF",
                 }}>
               <Stack.Screen name="(tabs)"/>
               <Stack.Screen name={"simulation/pressure/index"}/>
