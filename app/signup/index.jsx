@@ -180,6 +180,7 @@ export default function CreateAccount() {
                 googleSignIn(response.data)
             } else {
                 console.log("Sign in failed");
+                setLoading(false);
             }
         } catch (error) {
             console.log("Error", error)

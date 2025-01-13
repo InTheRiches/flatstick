@@ -37,8 +37,8 @@ export default function TabLayout() {
                 <AnimatedBootSplash
                     ready={!isLoading}
                     onAnimationEnd={() => {
-                        setVisible(false);
                         alert("Animation ended");
+                        setVisible(false);
                     }}
                 />
             )}

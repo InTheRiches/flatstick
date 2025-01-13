@@ -57,7 +57,7 @@ const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
     googleSignIn: () => {},
-    session: null,
+    session: {},
     isLoading: false,
 });
 
@@ -171,7 +171,6 @@ export function AppProvider({children}) {
 
     // Monitor authentication state changes
     useEffect(() => {
-        alert("Monitoring authentication state changes!");
         setTimeout(() => {
             setLoading(false);
             setSession(null);
@@ -179,7 +178,6 @@ export function AppProvider({children}) {
         }, 10000);
 
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            alert("User state changed!");
             if (user) {
                 const token = await user.getIdToken();
                 setSession(token);
@@ -189,10 +187,8 @@ export function AppProvider({children}) {
                     alert("Error initializing user data! " + error);
                 }
             } else {
-                console.log("no user")
                 setSession(null);
                 setLoading(false);
-                alert("No user signed in!");
             }
         });
         return () => unsubscribe();
