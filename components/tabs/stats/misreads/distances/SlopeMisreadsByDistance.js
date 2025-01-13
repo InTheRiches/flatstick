@@ -7,7 +7,7 @@ import {useAppContext} from "../../../../../contexts/AppCtx";
 export const SlopeMisreadsByDistance = ({statsToUse}) => {
     const colors = useColors();
     const {userData} = useAppContext();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     return (
         <BarChart

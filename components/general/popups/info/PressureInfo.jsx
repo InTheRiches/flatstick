@@ -11,7 +11,7 @@ import {useRouter} from "expo-router";
 export default function PressureInfo({pressureInfoRef}) {
     const colors = useColors();
     const router = useRouter();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     const snapPoints = useMemo(() => ["100%"], []);
 

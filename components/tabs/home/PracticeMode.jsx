@@ -10,7 +10,7 @@ import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 export function PracticeMode({name, description, onPress, onInfo, time, distance, focus}) {
     const [expanded, setExpanded] = useState(true);
     const colors = useColors();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     const [rotation, setRotation] = useState(0);
     const animatedHeight = useSharedValue(-90);

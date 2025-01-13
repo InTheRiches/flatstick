@@ -5,7 +5,7 @@ import {MakeByBreakSlope, MakeByDistance} from "./graphs";
 
 export const MadePuttsTab = ({statsToUse}) => {
     const colors = useColors();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     const {width} = Dimensions.get("screen")
 

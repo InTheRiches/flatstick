@@ -2,7 +2,7 @@ import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
-import {Platform, StatusBar} from "react-native";
+import {Appearance, Platform, StatusBar} from "react-native";
 import useColors from "@/hooks/useColors";
 import {AppProvider} from "@/contexts/AppCtx";
 import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
@@ -13,6 +13,8 @@ import React from "react";
 
 export default function RootLayout() {
   const colors = useColors();
+
+  Appearance.setColorScheme("light");
 
   GoogleSignin.configure({
     webClientId: '737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com',

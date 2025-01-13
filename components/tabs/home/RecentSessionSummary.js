@@ -9,7 +9,7 @@ export function RecentSessionSummary({unfinished}) {
     const {puttSessions, userData} = useAppContext();
 
     const colors = useColors();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
     const router = useRouter();
 
     let date;

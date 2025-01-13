@@ -10,7 +10,7 @@ export function RadarChart({
                                        data,
                                        options,
                                    }) {
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
     const colors = useColors();
 
     const boxSize = graphSize * 3.2;

@@ -9,7 +9,7 @@ import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
 export function SubmitModal({submitRef, submit, cancel}) {
     const colors = useColors();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {

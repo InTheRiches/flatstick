@@ -6,7 +6,7 @@ import React from "react";
 export function Session({session}) {
     const colors = useColors();
     const router = useRouter();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     const condensedType = {
         "real-simulation": "Round",

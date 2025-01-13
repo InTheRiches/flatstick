@@ -5,7 +5,7 @@ import {PuttsByBreakSlope, PuttsByDistance} from "./graphs";
 
 export const PuttsAHoleTab = ({statsToUse}) => {
     const colors = useColors();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
 
     const {width} = Dimensions.get("screen");
 

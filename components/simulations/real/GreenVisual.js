@@ -8,7 +8,7 @@ import {useAppContext} from "../../../contexts/AppCtx";
 
 export function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
-    const colorScheme = useColorScheme();
+    const colorScheme = "light";
     const {userData} = useAppContext();
 
     const validateDistance = (text) => {

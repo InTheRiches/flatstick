@@ -13,8 +13,12 @@ export default function Compare({}) {
     const {putters, grips} = useAppContext();
 
     return (
-        <SafeAreaView edges={["top"]} style={{flex: 1, alignItems: "center", paddingHorizontal: 24, justifyContent: "center", backgroundColor: colors.background.primary, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
-            <Text style={{fontSize: 20, color: colors.text.primary, marginBottom: 24, fontWeight: 600}}>Compare Your Stats</Text>
+        <SafeAreaView edges={["top"]} style={{flex: 1, alignItems: "center", paddingHorizontal: 24, backgroundColor: colors.background.primary, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
+            <Text style={{
+                fontSize: 24,
+                fontWeight: 500,
+                color: colors.text.primary
+            }}>Compare Your Stats</Text>
             <View style={{flexDirection: "row", gap: 16, marginBottom: 16}}>
                 <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1}}
                                onPress={() => router.push({pathname: "/compare/users/search"})}>
