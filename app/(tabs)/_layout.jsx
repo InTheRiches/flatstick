@@ -1,5 +1,5 @@
-import {Redirect, Tabs} from 'expo-router';
-import React, {useEffect, useState} from 'react';
+import {Tabs, useRouter} from 'expo-router';
+import React, {useState} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
@@ -14,22 +14,25 @@ export default function TabLayout() {
     const {session, isLoading} = useSession();
     const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
+    const router = useRouter();
 
-    useEffect(() => {
-        alert("Checking session: " + session);
-        if (session === null) {
-            alert("Redirecting to sign up");
-            console.log("Redirecting to sign up");
-            return <Redirect href="/signup"/>;
-        }
-    }, [session]);
+    // useEffect(() => {
+    //     alert("Checking session: " + session);
+    //     if (session === null) {
+    //         alert("Redirecting to sign up");
+    //     }
+    // }, [session]);
+    //
+    // useEffect(() => {
+    //     alert("Loading changed: " + isLoading);
+    //     if (!isLoading && session===null) {
+    //         alert("Should redirect to sign up");
+    //     }
+    // }, [isLoading]);
 
-    useEffect(() => {
-        alert("Loading changed: " + isLoading);
-        if (!isLoading && session===null) {
-            alert("Should redirect to sign up");
-        }
-    }, [isLoading]);
+    if (session === null) {
+        router.push({pathname: "/signup"});
+    }
 
     return (
         <GestureHandlerRootView>
@@ -37,7 +40,6 @@ export default function TabLayout() {
                 <AnimatedBootSplash
                     ready={!isLoading}
                     onAnimationEnd={() => {
-                        alert("Animation ended");
                         setVisible(false);
                     }}
                 />

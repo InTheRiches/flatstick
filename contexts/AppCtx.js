@@ -171,12 +171,6 @@ export function AppProvider({children}) {
 
     // Monitor authentication state changes
     useEffect(() => {
-        setTimeout(() => {
-            setLoading(false);
-            setSession(null);
-            alert("No user signed in! timeout");
-        }, 10000);
-
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const token = await user.getIdToken();
@@ -188,7 +182,6 @@ export function AppProvider({children}) {
                 }
             } else {
                 setSession(null);
-                setLoading(false);
             }
         });
         return () => unsubscribe();
