@@ -26,6 +26,9 @@ export default function TabLayout() {
 
     useEffect(() => {
         alert("Loading changed: " + isLoading);
+        if (!isLoading && session===null) {
+            alert("Should redirect to sign up");
+        }
     }, [isLoading]);
 
     return (
@@ -35,6 +38,7 @@ export default function TabLayout() {
                     ready={!isLoading}
                     onAnimationEnd={() => {
                         setVisible(false);
+                        alert("Animation ended");
                     }}
                 />
             )}

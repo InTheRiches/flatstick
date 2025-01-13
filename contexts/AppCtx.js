@@ -528,7 +528,7 @@ export function AppProvider({children}) {
         googleSignIn,
         session,
         isLoading,
-    }), [signIn, signOut, session, isLoading]);
+    }), [session, isLoading]);
 
 
     return (
