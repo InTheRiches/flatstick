@@ -57,7 +57,7 @@ const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
     googleSignIn: () => {},
-    session: "",
+    session: {},
     isLoading: false,
 });
 
@@ -73,7 +73,7 @@ export function AppProvider({children}) {
     const [userData, setUserData] = useState({});
     const [puttSessions, setPuttSessions] = useState([]);
     const [currentStats, setCurrentStats] = useState({});
-    const [session, setSession] = useState("");
+    const [session, setSession] = useState({});
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
     const [grips, setGrips] = useState([]);
@@ -186,7 +186,9 @@ export function AppProvider({children}) {
             } else {
                 alert("No user");
                 setSession(null);
-                router.push({pathname: "/signup"});
+                router.dismissAll();
+                router.replace('/signup');
+                router.replace('/signup');
                 alert("No user after re route");
             }
         });
