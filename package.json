@@ -48,6 +48,7 @@
     "paths-js": "^0.4.11",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-error-boundary": "^5.0.0",
     "react-native": "0.76.2",
     "react-native-bootsplash": "^6.3.2",
     "react-native-element-dropdown": "^2.12.2",
