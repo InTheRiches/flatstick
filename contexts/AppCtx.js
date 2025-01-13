@@ -57,7 +57,7 @@ const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
     googleSignIn: () => {},
-    session: {},
+    session: "",
     isLoading: false,
 });
 
@@ -173,7 +173,9 @@ export function AppProvider({children}) {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
+                alert("User signed in!");
                 const token = await user.getIdToken();
+                alert("Token: " + token);
                 setSession(token);
                 try {
                     initialize();
@@ -182,6 +184,7 @@ export function AppProvider({children}) {
                 }
             } else {
                 setSession(null);
+                router.push({pathname: "/signup"});
             }
         });
         return () => unsubscribe();

@@ -1,4 +1,4 @@
-import {Tabs, useRouter} from 'expo-router';
+import {Tabs} from 'expo-router';
 import React, {useState} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
@@ -11,10 +11,9 @@ import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 
 export default function TabLayout() {
     const colors = useColors();
-    const {session, isLoading} = useSession();
+    const {isLoading} = useSession();
     const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
-    const router = useRouter();
 
     // useEffect(() => {
     //     alert("Checking session: " + session);
@@ -29,10 +28,6 @@ export default function TabLayout() {
     //         alert("Should redirect to sign up");
     //     }
     // }, [isLoading]);
-
-    if (session === null) {
-        router.push({pathname: "/signup"});
-    }
 
     return (
         <GestureHandlerRootView>
