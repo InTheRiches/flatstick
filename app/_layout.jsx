@@ -14,8 +14,6 @@ import React from "react";
 export default function RootLayout() {
   const colors = useColors();
 
-  Appearance.setColorScheme("light");
-
   GoogleSignin.configure({
     webClientId: '737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com',
   });
@@ -28,8 +26,8 @@ export default function RootLayout() {
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
-  SystemUI.setBackgroundColorAsync(colors.background.primary);
-  // console.log("Setting system UI color to", colors.background.primary);
+  SystemUI.setBackgroundColorAsync("#FFFFFF");
+  Appearance.setColorScheme("light");
 
   return (
       <AppProvider>
@@ -38,7 +36,7 @@ export default function RootLayout() {
           <BottomSheetModalProvider>
             <Stack screenOptions={{
                   headerShown: false,
-                  navigationBarColor: "#FFFFFF",
+                  navigationBarColor: colors.background.primary,
                 }}>
               <Stack.Screen name="(tabs)"/>
               <Stack.Screen name={"simulation/pressure/index"}/>

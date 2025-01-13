@@ -175,10 +175,15 @@ export function AppProvider({children}) {
             if (user) {
                 const token = await user.getIdToken();
                 setSession(token);
-                initialize();
+                try {
+                    initialize();
+                } catch(error) {
+                    alert("Error initializing user data! " + error);
+                }
             } else {
                 console.log("no user")
                 setSession(null);
+                setLoading(false);
             }
         });
         return () => unsubscribe();
