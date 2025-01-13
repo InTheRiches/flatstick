@@ -28,6 +28,7 @@ const initialState = {
 
 // TODO make sure this separates all out into different components
 export default function CreateAccount() {
+    alert("CreateAccount");
     const colors = useColors();
 
     const db = getFirestore();

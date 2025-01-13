@@ -1,5 +1,5 @@
 import {Redirect, Tabs} from 'expo-router';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
@@ -15,10 +15,18 @@ export default function TabLayout() {
     const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
 
-    if (session === null) {
-        console.log("Redirecting to sign up");
-        return <Redirect href="/signup"/>;
-    }
+    useEffect(() => {
+        alert("Checking session: " + session);
+        if (session === null) {
+            alert("Redirecting to sign up");
+            console.log("Redirecting to sign up");
+            return <Redirect href="/signup"/>;
+        }
+    }, [session]);
+
+    useEffect(() => {
+        alert("Loading changed: " + isLoading);
+    }, [isLoading]);
 
     return (
         <GestureHandlerRootView>
