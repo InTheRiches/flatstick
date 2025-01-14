@@ -11,6 +11,7 @@ import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import React, {useEffect} from "react";
 import {ErrorBoundary} from "react-error-boundary";
 import {auth} from "@/utils/firebase";
+import {runOnJS} from "react-native-reanimated";
 
 export default function RootLayout() {
   const colors = useColors();
@@ -37,13 +38,14 @@ export default function RootLayout() {
   // Monitor authentication state changes
   useEffect(() => {
     alert("Use effect!");
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       alert("Auth state changed!");
       if (user) {
         alert("User signed in!");
-        const token = await user.getIdToken();
-        alert("Token: " + token);
-        setSession(token);
+        user.getIdToken().then((token) => {
+          alert("Token: " + token);
+          setSession(token);
+        });
         try {
           initialize();
         } catch(error) {
@@ -51,12 +53,8 @@ export default function RootLayout() {
         }
       }
       else {
-        noUser();
+        runOnJS(noUser)();
       }
-      //   alert("No user");
-      //   setSession(null);
-      //   return <Redirect href={"/signup"} />;
-      // }
     });
     return () => unsubscribe();
   }, []);

@@ -1,5 +1,5 @@
-import {Redirect, Tabs} from 'expo-router';
-import React, {useState} from 'react';
+import {Tabs, useRouter} from 'expo-router';
+import React, {useEffect, useState} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
@@ -14,6 +14,11 @@ export default function TabLayout() {
     const {isLoading} = useSession();
     const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
+    const router = useRouter();
+
+    useEffect(() => {
+        alert("Loading Use effect! " + isLoading);
+    }, [isLoading]);
 
     return (
         <GestureHandlerRootView>
@@ -22,7 +27,7 @@ export default function TabLayout() {
                     ready={!isLoading}
                     onAnimationEnd={() => {
                         setVisible(false);
-                        return <Redirect href={"/signup"} />;
+                        router.push({pathname: "/signup"});
                     }}
                 />
             )}
