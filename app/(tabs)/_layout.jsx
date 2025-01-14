@@ -1,4 +1,4 @@
-import {Tabs} from 'expo-router';
+import {Redirect, Tabs} from 'expo-router';
 import React, {useState} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
@@ -22,6 +22,7 @@ export default function TabLayout() {
                     ready={!isLoading}
                     onAnimationEnd={() => {
                         setVisible(false);
+                        return <Redirect href={"/signup"} />;
                     }}
                 />
             )}

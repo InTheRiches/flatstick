@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, useContext, useMemo, useState} from 'react';
 import {GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword} from "firebase/auth";
 import {
     collection,
@@ -25,7 +25,7 @@ import * as NavigationBar from "expo-navigation-bar";
 import * as SystemUI from "expo-system-ui";
 import {DarkTheme, LightTheme} from "@/constants/ModularColors";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import {Redirect, useRouter} from "expo-router";
+import {useRouter} from "expo-router";
 
 const AppContext = createContext({
     userData: {},
@@ -57,6 +57,8 @@ const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
     googleSignIn: () => {},
+    setSession: () => {},
+    setLoading: () => {},
     session: {},
     isLoading: false,
 });
@@ -168,29 +170,6 @@ export function AppProvider({children}) {
         }
         return [];
     }, [puttSessions]);
-
-    // Monitor authentication state changes
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            alert("Auth state changed!");
-            if (user) {
-                alert("User signed in!");
-                const token = await user.getIdToken();
-                alert("Token: " + token);
-                setSession(token);
-                try {
-                    initialize();
-                } catch(error) {
-                    alert("Error initializing user data! " + error);
-                }
-            } else {
-                alert("No user");
-                setSession(null);
-                return <Redirect href={"/signup"} />;
-            }
-        });
-        return () => unsubscribe();
-    }, []);
 
     const newPutter = (name) => {
         const id = name.toLowerCase().replace(/\s/g, "-");
@@ -520,6 +499,8 @@ export function AppProvider({children}) {
         signIn,
         signOut,
         googleSignIn,
+        setSession,
+        setLoading,
         session,
         isLoading,
     }), [session, isLoading]);
