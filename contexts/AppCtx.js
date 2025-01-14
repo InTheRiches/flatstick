@@ -25,7 +25,7 @@ import * as NavigationBar from "expo-navigation-bar";
 import * as SystemUI from "expo-system-ui";
 import {DarkTheme, LightTheme} from "@/constants/ModularColors";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import {useRouter} from "expo-router";
+import {Redirect, useRouter} from "expo-router";
 
 const AppContext = createContext({
     userData: {},
@@ -186,14 +186,11 @@ export function AppProvider({children}) {
             } else {
                 alert("No user");
                 setSession(null);
-                router.dismissAll();
-                router.replace('/signup');
-                router.replace('/signup');
-                alert("No user after re route");
+                return <Redirect href={"/signup"} />;
             }
         });
         return () => unsubscribe();
-    }, [auth]);
+    }, []);
 
     const newPutter = (name) => {
         const id = name.toLowerCase().replace(/\s/g, "-");

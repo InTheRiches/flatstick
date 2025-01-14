@@ -19,11 +19,6 @@ export default function RootLayout() {
     webClientId: '737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com',
   });
 
-  configureReanimatedLogger({
-    level: ReanimatedLogLevel.warn,
-    strict: false, // Reanimated runs in strict mode by default
-  });
-
   if (Platform.OS === "android" || Platform.OS === "default")
     NavigationBar.setBackgroundColorAsync(colors.background.primary);
 
