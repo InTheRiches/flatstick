@@ -1,19 +1,22 @@
-import {Stack} from 'expo-router';
+import {Redirect, Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
 import {Appearance, Platform, StatusBar} from "react-native";
 import useColors from "@/hooks/useColors";
-import {AppProvider} from "@/contexts/AppCtx";
-import {configureReanimatedLogger, ReanimatedLogLevel} from "react-native-reanimated";
+import {AppProvider, useAppContext, useSession} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import * as SystemUI from "expo-system-ui";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import React from "react";
+import React, {useEffect} from "react";
 import {ErrorBoundary} from "react-error-boundary";
+import {auth} from "@/utils/firebase";
 
 export default function RootLayout() {
   const colors = useColors();
+
+  const {setSession} = useSession();
+  const {initialize} = useAppContext();
 
   GoogleSignin.configure({
     webClientId: '737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com',
@@ -24,6 +27,29 @@ export default function RootLayout() {
 
   SystemUI.setBackgroundColorAsync("#FFFFFF");
   Appearance.setColorScheme("light");
+
+  // Monitor authentication state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      alert("Auth state changed!");
+      if (user) {
+        alert("User signed in!");
+        const token = await user.getIdToken();
+        alert("Token: " + token);
+        setSession(token);
+        try {
+          initialize();
+        } catch(error) {
+          alert("Error initializing user data! " + error);
+        }
+      } else {
+        alert("No user");
+        setSession(null);
+        return <Redirect href={"/signup"} />;
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   function fallbackRender({ error, resetErrorBoundary }) {
     // Call resetErrorBoundary() to reset the error boundary and retry the render.
