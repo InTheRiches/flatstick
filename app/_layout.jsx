@@ -8,15 +8,15 @@ import {AppProvider, useAppContext, useSession} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import * as SystemUI from "expo-system-ui";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {ErrorBoundary} from "react-error-boundary";
 import {auth} from "@/utils/firebase";
-import {runOnJS} from "react-native-reanimated";
 
 export default function RootLayout() {
   const colors = useColors();
+  const [loading, setLoading] = useState(true);
 
-  const {setSession, setLoading} = useSession();
+  const {setSession} = useSession();
   const {initialize} = useAppContext();
 
   GoogleSignin.configure({
@@ -28,22 +28,13 @@ export default function RootLayout() {
 
   SystemUI.setBackgroundColorAsync("#FFFFFF");
   Appearance.setColorScheme("light");
-
-  const noUser = () => {
-      alert("No user");
-      setSession(null);
-      setLoading(false);
-  }
-
   // Monitor authentication state changes
   useEffect(() => {
     alert("Use effect!");
     const unsubscribe = auth.onAuthStateChanged((user) => {
       alert("Auth state changed!");
       if (user) {
-        alert("User signed in!");
         user.getIdToken().then((token) => {
-          alert("Token: " + token);
           setSession(token);
         });
         try {
@@ -53,11 +44,18 @@ export default function RootLayout() {
         }
       }
       else {
-        runOnJS(noUser)();
+        alert("No user");
+        setSession(null);
+        setLoading(false);
       }
     });
+
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    alert("Loading Use effect! " + loading);
+  }, [loading]);
 
   function fallbackRender({ error, resetErrorBoundary }) {
     // Call resetErrorBoundary() to reset the error boundary and retry the render.
