@@ -48,7 +48,6 @@ export default function HomeScreen() {
                             paddingTop: 2,
                             paddingBottom: 10,
                         }}>
-                            <Text style={{color: colors.text.secondary, fontSize: 16}}>Edit Your</Text>
                             <Text style={{
                                 fontSize: 24,
                                 fontWeight: 500,

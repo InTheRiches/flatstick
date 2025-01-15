@@ -17,13 +17,9 @@ import {createSimpleRefinedStats, createSimpleStats} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {getAuth} from "@/utils/firebase";
-import {Appearance, Platform} from "react-native";
 import {initializeGrips, initializePutters} from "@/utils/stats/statsHelpers";
 import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
-import * as NavigationBar from "expo-navigation-bar";
-import * as SystemUI from "expo-system-ui";
-import {DarkTheme, LightTheme} from "@/constants/ModularColors";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {useRouter} from "expo-router";
 
@@ -36,7 +32,7 @@ const AppContext = createContext({
     previousStats: [],
     nonPersistentData: {},
     setNonPersistentData: () => {},
-    initialize: () => Promise.resolve(),
+    initialize: () => {},
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
     setUserData: () => {},
@@ -60,7 +56,7 @@ const AuthContext = createContext({
     setSession: () => {},
     setLoading: () => {},
     session: {},
-    isLoading: false,
+    isLoading: true,
 });
 
 // Hook to access AppContext
@@ -114,7 +110,6 @@ export function AppProvider({children}) {
                         setSession(token || null);
                         router.push({pathname: `/`});
                     });
-                    refreshStats();
                     return;
                 }
                 setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
@@ -151,6 +146,7 @@ export function AppProvider({children}) {
             await GoogleSignin.signOut();
 
             setSession(null);
+            router.push({pathname: "/login"});
         } catch (error) {
             console.error("Error during sign-out:", error);
         }
@@ -217,13 +213,12 @@ export function AppProvider({children}) {
 
     // Initialize user data and sessions
     const initialize = () => {
+        console.log("Initializing user data and sessions...");
         if (!auth.currentUser) {
             console.log("No user signed in!");
             setLoading(false);
             return;
         }
-
-        console.log("Initializing user data and sessions...");
 
         getAllStats().then(async (updatedStats) => {
             let localPutters = [{type: "default", name: "No Putter", stats: updatedStats}];
@@ -266,21 +261,14 @@ export function AppProvider({children}) {
             setPutters(localPutters);
 
             refreshData().then(({sessions, newData}) => {
-                const theme = newData.preferences.theme;
-
-                Appearance.setColorScheme(theme === 0 ? Appearance.getNativeColorScheme() : theme === 1 ? "dark" : "light");
-
-                if (Platform.OS === "android" || Platform.OS === "default")
-                    NavigationBar.setBackgroundColorAsync(theme === 0 ? Appearance.getNativeColorScheme() === "light" ? LightTheme.background.primary : DarkTheme.background.primary : theme === 1 ? DarkTheme.background.primary : LightTheme.background.primary);
-
-                SystemUI.setBackgroundColorAsync(theme === 0 ? Appearance.getNativeColorScheme() === "light" ? LightTheme.background.primary : DarkTheme.background.primary : theme === 1 ? DarkTheme.background.primary : LightTheme.background.primary);
-
                 getPreviousStats().then(() => {
                     console.log("Initialization complete!");
                     setLoading(false);
                 })
             });
         });
+
+        return "hey";
     };
 
     // Update user data
@@ -363,7 +351,7 @@ export function AppProvider({children}) {
      *
      * @returns {{stats: {onePutts: number, twoPutts: number, threePutts: number, avgMiss: number, avgMissDistance: number[], puttsByDistance: number[], totalDistance: number, puttsMisread: number, puttsMishits: number, misreads: {misreadLineByDistance: number[], misreadSlopeByDistance: number[], misreadLineBySlope: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}, misreadSlopeBySlope: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, strokesGained: {overall: number, distance: number[], slopes: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, puttsAHole: {distance: number[], puttsAHole: number, normalHoles: number, puttsAHoleWhenMishit: number, mishitHoles: number, misreadPuttsAHole: number, misreadHoles: number, slopes: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, madePutts: {distance: number[], slopes: {downhill: {straight: number[], leftToRight: number[], rightToLeft: number[]}, neutral: {straight: number[], leftToRight: number[], rightToLeft: number[]}, uphill: {straight: number[], leftToRight: number[], rightToLeft: number[]}}}, leftRightBias: number, shortPastBias: number, rounds: number}}}
      */
-    const calculateSpecificStats = () => {
+    const calculateSpecificStats = (userData) => {
         const stats = createSimpleStats();
         const filteredSessions = puttSessions
             .filter(session =>

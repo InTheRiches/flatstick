@@ -1,8 +1,8 @@
-import {Stack} from 'expo-router';
+import {Stack, useNavigation, useRouter} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
-import {Appearance, Platform, StatusBar} from "react-native";
+import {Appearance, Platform, StatusBar, Text, View} from "react-native";
 import useColors from "@/hooks/useColors";
 import {AppProvider, useAppContext, useSession} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
@@ -12,12 +12,11 @@ import React, {useEffect} from "react";
 import {ErrorBoundary} from "react-error-boundary";
 import {auth} from "@/utils/firebase";
 import {runOnJS} from "react-native-reanimated";
+import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
+import RootInitializer from "@/app/RootInitializer";
 
 export default function RootLayout() {
   const colors = useColors();
-
-  const {setSession, setLoading} = useSession();
-  const {initialize} = useAppContext();
 
   GoogleSignin.configure({
     webClientId: '737663000705-j570rogkqu8e103nv214rjq52lt01ldg.apps.googleusercontent.com',
@@ -29,43 +28,13 @@ export default function RootLayout() {
   SystemUI.setBackgroundColorAsync("#FFFFFF");
   Appearance.setColorScheme("light");
 
-  const noUser = () => {
-      alert("No user");
-      setSession(null);
-      setLoading(false);
-  }
-
-  // Monitor authentication state changes
-  useEffect(() => {
-    alert("Use effect!");
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      alert("Auth state changed!");
-      if (user) {
-        alert("User signed in!");
-        user.getIdToken().then((token) => {
-          alert("Token: " + token);
-          setSession(token);
-        });
-        try {
-          initialize();
-        } catch(error) {
-          alert("Error initializing user data! " + error);
-        }
-      }
-      else {
-        runOnJS(noUser)();
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
   function fallbackRender({ error, resetErrorBoundary }) {
     // Call resetErrorBoundary() to reset the error boundary and retry the render.
     return (
-        <div role="alert">
-          <p>Something went wrong:</p>
-          <pre style={{ color: "red" }}>{error.message}</pre>
-        </div>
+        <View>
+          <Text>Something went wrong:</Text>
+          <Text style={{ color: "red" }}>{error.message}</Text>
+        </View>
     );
   }
 
@@ -78,6 +47,7 @@ export default function RootLayout() {
       >
         <AppProvider>
           <StatusBar style="dark" barStyle={"light-content"} backgroundColor={'transparent'} translucent={true} />
+          <RootInitializer/>
           <GestureHandlerRootView>
             <BottomSheetModalProvider>
               <Stack screenOptions={{

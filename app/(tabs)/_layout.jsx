@@ -12,25 +12,10 @@ import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 export default function TabLayout() {
     const colors = useColors();
     const {isLoading} = useSession();
-    const [visible, setVisible] = useState(true);
     const isKeyboardVisible = useKeyboardVisible();
-    const router = useRouter();
-
-    useEffect(() => {
-        alert("Loading Use effect! " + isLoading);
-    }, [isLoading]);
 
     return (
         <GestureHandlerRootView>
-            {visible && (
-                <AnimatedBootSplash
-                    ready={!isLoading}
-                    onAnimationEnd={() => {
-                        setVisible(false);
-                        router.push({pathname: "/signup"});
-                    }}
-                />
-            )}
             {!isLoading && <Tabs screenOptions={{
                 tabBarActiveTintColor: colors.text.primary,
                 tabBarActiveBackgroundColor: colors.background.primary,
@@ -47,7 +32,7 @@ export default function TabLayout() {
                     name="index"
                     options={{
                         title: 'Home',
-                        tabBarIcon: ({color, focused}) => (
+                        tabBarIcon: ({focused}) => (
                             <SvgHome stroke={focused ? colors.text.primary : colors.border.default}
                                      fill={focused ? colors.text.primary : colors.border.default} width={20}
                                      height={20}/>
