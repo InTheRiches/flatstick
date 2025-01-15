@@ -8,7 +8,7 @@ import {useLocalSearchParams, useNavigation} from "expo-router";
 import {doc, getDoc} from "firebase/firestore";
 import {auth, firestore} from "../../../utils/firebase";
 import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
-import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "../../../components/general/ScreenWrapper";
 
 export default function CompareUsers({}) {
     const colors = useColors();
@@ -34,7 +34,7 @@ export default function CompareUsers({}) {
     const betterPutter = compareStats(currentStats, usersStats);
 
     return (
-        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
+        <ScreenWrapper>
             <ScrollView style={{flex: 1, paddingHorizontal: 24}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
@@ -92,6 +92,6 @@ export default function CompareUsers({}) {
                 <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</Text>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={3}/>
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     )
 }

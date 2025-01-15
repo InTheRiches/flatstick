@@ -11,6 +11,7 @@ import Svg, {Path} from "react-native-svg";
 import {useRouter} from "expo-router";
 import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -72,8 +73,8 @@ export default function Stats({}) {
     ]
 
     const scrollTo = async (i) => {
-        setTab(i);
         listRef.current.scrollToIndex({index: i});
+        setTab(i);
     }
 
     const {width} = Dimensions.get("screen")
@@ -89,7 +90,7 @@ export default function Stats({}) {
     }
 
     return puttSessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1 ? (
-        <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
+        <ScreenWrapper>
             <View style={{
                 borderBottomWidth: 1,
                 borderBottomColor: colors.border.default,
@@ -101,7 +102,7 @@ export default function Stats({}) {
                 <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</Text>
                 <Text style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</Text>
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     ) : (
         <SafeAreaView edges={["top"]} style={{flex: 1, borderBottomColor: colors.border.default, borderBottomWidth: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>

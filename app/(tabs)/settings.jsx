@@ -10,8 +10,8 @@ import {Reauthenticate, SetTheme, SetUnits} from "../../components/tabs/settings
 import {useRouter} from "expo-router";
 import DangerButton from "../../components/general/buttons/DangerButton";
 import {useSession} from "../../contexts/AppCtx";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -30,7 +30,7 @@ export default function HomeScreen() {
 
     return (
         <BottomSheetModalProvider>
-            <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
+            <ScreenWrapper>
                 <View style={{
                     overflow: "hidden",
                     flexDirection: "column",
@@ -129,7 +129,7 @@ export default function HomeScreen() {
                         </View>
                     </ScrollView>
                 </View>
-            </SafeAreaView>
+            </ScreenWrapper>
             <SetTheme setThemeRef={setThemeRef}/>
             <SetUnits setUnitsRef={setUnitsRef}/>
             <Reauthenticate reauthenticateRef={reauthenticateRef}/>

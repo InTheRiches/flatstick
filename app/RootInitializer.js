@@ -11,8 +11,6 @@ export default function RootInitializer({}) {
     const {initialize} = useAppContext();
     const router = useRouter();
 
-
-
     // Monitor authentication state changes
     useEffect(() => {
         console.log("RootInitializer mounted");

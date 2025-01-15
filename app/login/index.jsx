@@ -6,7 +6,6 @@ import useColors from "../../hooks/useColors";
 import {useSession} from "../../contexts/AppCtx";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
-import {SafeAreaView} from "react-native-safe-area-context";
 import ResetPassword from "../../components/signin/ResetPassword";
 import {
     GoogleSignin,
@@ -14,6 +13,7 @@ import {
     isSuccessResponse,
     statusCodes,
 } from '@react-native-google-signin/google-signin';
+import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 const initialState = {
     password: "",
@@ -33,9 +33,6 @@ export default function Login() {
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
     const [errorCode, setErrorCode] = useState("");
-
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [userInfo, setUserInfo] = useState({});
 
     const resetPasswordRef = useRef();
 
@@ -78,7 +75,6 @@ export default function Login() {
             await GoogleSignin.hasPlayServices();
             const response = await GoogleSignin.signIn();
             if (isSuccessResponse(response)) {
-                setUserInfo(response.data);
                 googleSignIn(response.data)
             } else {
                 console.log("Sign in failed");
@@ -124,13 +120,11 @@ export default function Login() {
 
     return (loading ? <Loading/> :
         <>
-            <SafeAreaView style={{
-                flex: 1,
+            <ScreenWrapper style={{
                 paddingHorizontal: 24,
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",
-                backgroundColor: colors.background.primary
             }}>
                 <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center", paddingBottom: keyboardVisible ? inputsHeight : 0, width: "100%"}}>
                     <Text style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Sign in to Flatstick</Text>
@@ -293,7 +287,7 @@ export default function Login() {
                         <Text style={{color: colors.text.link, textAlign: "center"}}>Forgot your password? Click here to reset it.</Text>
                     </Pressable>
                 </ScrollView>
-            </SafeAreaView>
+            </ScreenWrapper>
             <ResetPassword resetPasswordRef={resetPasswordRef}></ResetPassword>
         </>
     )

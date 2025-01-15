@@ -5,7 +5,7 @@ import {useRouter} from "expo-router";
 import {useAppContext} from "../../contexts/AppCtx";
 import Svg, {G, Path, Polygon} from "react-native-svg";
 import React from "react";
-import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 export default function Compare({}) {
     const colors = useColors();
@@ -13,7 +13,7 @@ export default function Compare({}) {
     const {putters, grips} = useAppContext();
 
     return (
-        <SafeAreaView edges={["top"]} style={{flex: 1, alignItems: "center", paddingHorizontal: 24, backgroundColor: colors.background.primary, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
+        <ScreenWrapper style={{alignItems: "center", paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
             <Text style={{
                 fontSize: 24,
                 fontWeight: 500,
@@ -38,7 +38,7 @@ export default function Compare({}) {
                 <PrimaryButton onPress={() => {
                     if (putters.length < 2) return;
                     router.push({pathname: "/compare/putters"})
-                }} style={{borderRadius: 12, paddingVertical: 12, opacity: (grips.length > 2) ? 1: 0.5, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
+                }} disabled={putters.length <= 2} style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width={40} height={40} fill={colors.text.primary}>
                         <G>
                             <Path d="M415.309,397.207l-48.659-14.684c-11.135-3.355-18.738-13.613-18.738-25.231v-52.328l24.402-50.14   l-59.232-29.664l-26.453,54.3c-3.267,6.733-4.98,14.136-4.98,21.634V357.1c0,10.918-8.842,19.776-19.776,19.776H57.324   c-20.549,0-37.195,16.654-37.195,37.194v49.971c0,20.548,13.951,32.27,37.195,37.211C112.533,508.517,210.164,512,236.313,512   c26.156,0,123.788-3.483,178.996-10.748c23.252-4.941,37.195-16.663,37.195-37.211v-29.64   C452.504,413.869,438.473,403.032,415.309,397.207z"/>
@@ -53,7 +53,7 @@ export default function Compare({}) {
                 <PrimaryButton onPress={() => {
                     if (grips.length < 2) return;
                     router.push({pathname: "/compare/grips"})
-                }} style={{borderRadius: 12, opacity: (grips.length > 2) ? 1: 0.5, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
+                }} disabled={grips.length <= 2} style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                          fill={colors.text.primary} width={40}
                          height={40}>
@@ -66,6 +66,6 @@ export default function Compare({}) {
                         methods to determine which one is fit for you.</Text>
                 </PrimaryButton>
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     )
 }

@@ -4,7 +4,7 @@ import useColors from "../../../../hooks/useColors";
 import {auth, getProfilesByUsername} from "../../../../utils/firebase";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
-import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 
 export default function SearchUsers({}) {
     const colors = useColors();
@@ -30,8 +30,8 @@ export default function SearchUsers({}) {
     };
 
     return (
-        <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
-            <View style={{paddingBottom: 25, paddingHorizontal: 24, gap: 12, flex: 1, width: "100%", backgroundColor: colors.background.primary}}>
+        <ScreenWrapper>
+            <View style={{paddingBottom: 25, paddingHorizontal: 24, gap: 12, width: "100%"}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
                         navigation.goBack()
@@ -95,6 +95,6 @@ export default function SearchUsers({}) {
                     })}
                 </ScrollView>
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     )
 }

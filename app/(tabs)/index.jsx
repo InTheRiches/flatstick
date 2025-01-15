@@ -4,7 +4,8 @@ import {NewRealRound, NewRound} from "@/components/tabs/home/popups";
 import {ScrollView, View} from "react-native";
 import {Header, PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/home";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
-import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "@/components/general/ScreenWrapper";
+import {InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -14,7 +15,7 @@ export default function HomeScreen() {
 
     return (
         <BottomSheetModalProvider>
-            <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: colors.background.primary}}>
+            <ScreenWrapper>
                 <View style={{
                     height: "100%",
                     flex: 1,
@@ -26,13 +27,19 @@ export default function HomeScreen() {
                     paddingHorizontal: 20,
                 }}>
                     <ScrollView showsVerticalScrollIndicator={false}>
+                        <InterstitialAd
+                            unitId={__DEV__ ? TestIds.INTERSTITIAL : ""}
+                            onAdLoaded={() => {
+                                console.log('Ad loaded');
+                            }}
+                            />
                         <Header></Header>
                         <RecentSessionSummary unfinished={false}></RecentSessionSummary>
                         <SeeAllSessions/>
                         <PracticeModes newRealRoundRef={newRealRoundRef} newSessionRef={newSessionRef}></PracticeModes>
                     </ScrollView>
                 </View>
-            </SafeAreaView>
+            </ScreenWrapper>
             <NewRound newSessionRef={newSessionRef}></NewRound>
             <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
         </BottomSheetModalProvider>

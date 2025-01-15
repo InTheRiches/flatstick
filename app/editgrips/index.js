@@ -8,7 +8,7 @@ import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
 import {useNavigation} from "expo-router";
 import {GripSelector, NewGripModal} from "../../components/editgrips";
-import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 export default function EditGrips() {
     const colors = useColors();
@@ -65,8 +65,8 @@ export default function EditGrips() {
 
     return (
         <>
-            <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
-                <Pressable onPress={(event) => setEditing(false)} style={{backgroundColor: colors.background.primary, flex: 1, paddingHorizontal: 24}}>
+            <ScreenWrapper>
+                <Pressable onPress={(event) => setEditing(false)} style={{paddingHorizontal: 24}}>
                     <GestureDetector gesture={gesture}>
                         <View style={{marginLeft: -10, paddingHorizontal: 10}}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
@@ -99,7 +99,7 @@ export default function EditGrips() {
                         }
                     </View>
                 </Pressable>
-            </SafeAreaView>
+            </ScreenWrapper>
             <NewGripModal newGripRef={newGripRef}></NewGripModal>
         </>
     )

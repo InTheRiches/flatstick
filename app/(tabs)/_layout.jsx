@@ -1,5 +1,5 @@
-import {Tabs, useRouter} from 'expo-router';
-import React, {useEffect, useState} from 'react';
+import {Tabs} from 'expo-router';
+import React from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
@@ -7,7 +7,6 @@ import {useSession} from "@/contexts/AppCtx";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
-import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 
 export default function TabLayout() {
     const colors = useColors();

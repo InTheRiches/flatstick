@@ -18,9 +18,9 @@ export const LeftRightBias = ({session}) => {
     let left = leftRightBias / (userData.preferences.units === 0 ? 2 : 1) * (horizontalBiasWidth/2 + (leftRightBias > 0 ? 25 : 0));
     left = left + (horizontalBiasWidth/2);
 
-    // if (Math.abs(leftRightBias) < (userData.preferences.units === 0 ? 0.2 : 0.1)) {
-    //     left = (horizontalBiasWidth/2) + 2.5;
-    // }
+    if (Math.abs(leftRightBias) < 0.1) {
+        left = (horizontalBiasWidth/2) + 2.5;
+    }
     return (
         <>
             <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Left to Right Bias</Text>

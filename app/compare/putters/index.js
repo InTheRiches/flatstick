@@ -6,7 +6,7 @@ import Svg, {Path} from "react-native-svg";
 import {SelectPutter} from "../../../components/tabs/compare/popups";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
 import {useNavigation} from "expo-router";
-import {SafeAreaView} from "react-native-safe-area-context";
+import ScreenWrapper from "../../../components/general/ScreenWrapper";
 
 export default function ComparePutters({}) {
     const colors = useColors();
@@ -29,7 +29,7 @@ export default function ComparePutters({}) {
 
     return (
         <>
-            <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
+            <ScreenWrapper>
                 <ScrollView style={{flex: 1, paddingHorizontal: 24}}>
                     <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                         <Pressable onPress={() => {
@@ -86,7 +86,7 @@ export default function ComparePutters({}) {
                         </>
                     }
                 </ScrollView>
-            </SafeAreaView>
+            </ScreenWrapper>
             <SelectPutter setSelectedPutter={setFirstPutter} selectedPutter={firstPutter} filterPuttersRef={firstPutterRef}/>
             <SelectPutter setSelectedPutter={setSecondPutter} selectedPutter={secondPutter} filterPuttersRef={secondPutterRef}/>
         </>
