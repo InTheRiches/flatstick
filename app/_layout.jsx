@@ -1,4 +1,4 @@
-import {Stack, useNavigation, useRouter} from 'expo-router';
+import {Stack} from 'expo-router';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -8,11 +8,8 @@ import {AppProvider, useAppContext, useSession} from "@/contexts/AppCtx";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import * as SystemUI from "expo-system-ui";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import React, {useEffect} from "react";
+import React from "react";
 import {ErrorBoundary} from "react-error-boundary";
-import {auth} from "@/utils/firebase";
-import {runOnJS} from "react-native-reanimated";
-import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 import RootInitializer from "@/app/RootInitializer";
 
 export default function RootLayout() {
