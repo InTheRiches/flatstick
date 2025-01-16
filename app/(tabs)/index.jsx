@@ -5,7 +5,6 @@ import {ScrollView, View} from "react-native";
 import {Header, PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/home";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "@/components/general/ScreenWrapper";
-import {InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -27,12 +26,6 @@ export default function HomeScreen() {
                     paddingHorizontal: 20,
                 }}>
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        <InterstitialAd
-                            unitId={__DEV__ ? TestIds.INTERSTITIAL : ""}
-                            onAdLoaded={() => {
-                                console.log('Ad loaded');
-                            }}
-                            />
                         <Header></Header>
                         <RecentSessionSummary unfinished={false}></RecentSessionSummary>
                         <SeeAllSessions/>

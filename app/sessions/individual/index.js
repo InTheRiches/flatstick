@@ -12,6 +12,7 @@ import Loading from "../../../components/general/popups/Loading";
 import {getBestSession} from "../../../utils/sessions/best";
 import {convertUnits} from "../../../utils/Conversions";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 
 export default function IndividualSession({}) {
     const colors = useColors();
@@ -21,6 +22,27 @@ export default function IndividualSession({}) {
     const {jsonSession, recap} = useLocalSearchParams();
     const session = JSON.parse(jsonSession);
     const isRecap = recap === "true";
+
+    const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : TestIds.INTERSTITIAL;
+
+    const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+
+    useEffect(() => {
+        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            interstitial.show();
+            console.log("Interstitial loaded");
+        });
+
+        if (isRecap) {
+            // Start loading the interstitial straight away
+            interstitial.load();
+        }
+
+        // Unsubscribe from events on unmount
+        return () => {
+            unsubscribeLoaded();
+        };
+    }, []);
 
     const [loading, setLoading] = useState(false);
     const [bestSession, setBestSession] = useState({strokesGained: "~"});

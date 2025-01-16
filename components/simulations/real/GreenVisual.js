@@ -1,4 +1,4 @@
-import {Platform, Text, TextInput, useColorScheme, View} from "react-native";
+import {Platform, Text, TextInput, View} from "react-native";
 import {GreenBreakSelector} from "./GreenBreakSelector";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
@@ -107,6 +107,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                             <TextInput style={{
                                 flex: 1,
                                 fontSize: 20,
+                                paddingVertical: 0,
                                 fontWeight: "bold",
                                 color: colors.text.primary,
                                 backgroundColor: colorScheme === "light" ? "transparent" : distanceInvalid ? "#6D3232" : colors.background.primary,

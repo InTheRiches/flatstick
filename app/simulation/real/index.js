@@ -22,6 +22,7 @@ import {
 } from '../../../utils/PuttUtils';
 import {GreenVisual} from "../../../components/simulations/real";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 
 const initialState = {
     confirmLeave: false,
@@ -71,6 +72,9 @@ const slopes = {
     999: "Neutral",
 }
 
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : TestIds.INTERSTITIAL;
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+
 export default function RealSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
@@ -85,6 +89,7 @@ export default function RealSimulation() {
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
     const confirmExitRef = useRef(null);
+    const [adLoaded, setAdLoaded] = useState(false);
 
     // keep track of the time this session started at
     const [startTime, setStartTime] = useState(new Date().getTime());
@@ -124,12 +129,21 @@ export default function RealSimulation() {
             return true;
         };
 
+        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+        });
+
+        interstitial.load();
+
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
             onBackPress
         );
 
-        return () => backHandler.remove();
+        return () => {
+            unsubscribeLoaded();
+            backHandler.remove();
+        }
     }, []);
 
     const pushHole = (totalPutts, largeMissDistance) => {
@@ -159,6 +173,11 @@ export default function RealSimulation() {
         }
 
         if (!largeMiss && point.x === undefined) return;
+
+        if (hole === 8 && adLoaded) {
+            interstitial.show();
+            setAdLoaded(false);
+        }
 
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 

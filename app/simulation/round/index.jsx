@@ -30,6 +30,7 @@ import {
 } from "../../../components/simulations/Utils";
 import {SafeAreaView} from "react-native-safe-area-context";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
+import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
 const breaks = [
@@ -74,6 +75,9 @@ const initialState = {
     currentPutts: 2,
 }
 
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : TestIds.INTERSTITIAL;
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
 export default function RoundSimulation() {
     const colors = useColors();
@@ -89,6 +93,8 @@ export default function RoundSimulation() {
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
     const confirmExitRef = useRef(null);
+
+    const [adLoaded, setAdLoaded] = useState(false);
 
     const [startTime, setStartTime] = useState(new Date().getTime());
 
@@ -133,12 +139,22 @@ export default function RoundSimulation() {
             return true;
         };
 
+        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+            console.log("Ad loaded");
+        });
+
+        interstitial.load();
+
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
             onBackPress
         );
 
-        return () => backHandler.remove();
+        return () => {
+            unsubscribeLoaded();
+            backHandler.remove();
+        }
     }, []);
 
     const pushHole = (totalPutts, largeMissDistance) => {
@@ -179,6 +195,11 @@ export default function RoundSimulation() {
         }
 
         if (!largeMiss && point.x === undefined) return;
+
+        if (hole === 8 && adLoaded) {
+            interstitial.show();
+            setAdLoaded(false);
+        }
 
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
