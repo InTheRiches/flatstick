@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, Switch, Text, View} from 'react-native';
+import {Pressable, ScrollView, Text, View} from 'react-native';
 
 import React, {useState} from 'react';
 import useColors from "@/hooks/useColors";
@@ -37,7 +37,7 @@ export default function HomeScreen() {
                     alignContent: "center",
                     borderBottomWidth: 1,
                     borderBottomColor: colors.border.default,
-                    paddingHorizontal: 20,
+                    paddingHorizontal: 24,
                     flex: 1
                 }}>
                     <ScrollView keyboardShouldPersistTaps={'handled'}>
@@ -45,7 +45,6 @@ export default function HomeScreen() {
                             flexDirection: "col",
                             alignItems: "flex-start",
                             flex: 0,
-                            paddingTop: 2,
                             paddingBottom: 10,
                         }}>
                             <Text style={{
@@ -86,17 +85,17 @@ export default function HomeScreen() {
                                       d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
                             </Svg>
                         </Pressable>
-                        <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>NOTIFICATIONS</Text>
-                        <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Practice Reminders</Text>
-                            <Switch
-                                trackColor={{false: colors.switch.track, true: colors.switch.active.track}}
-                                thumbColor={reminders ? colors.switch.active.thumb : colors.switch.thumb}
-                                ios_backgroundColor="#3e3e3e"
-                                onValueChange={() => setReminders(!reminders)}
-                                value={reminders}
-                            />
-                        </Pressable>
+                        {/*<Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>NOTIFICATIONS</Text>*/}
+                        {/*<Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>*/}
+                        {/*    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Practice Reminders</Text>*/}
+                        {/*    <Switch*/}
+                        {/*        trackColor={{false: colors.switch.track, true: colors.switch.active.track}}*/}
+                        {/*        thumbColor={reminders ? colors.switch.active.thumb : colors.switch.thumb}*/}
+                        {/*        ios_backgroundColor="#3e3e3e"*/}
+                        {/*        onValueChange={() => setReminders(!reminders)}*/}
+                        {/*        value={reminders}*/}
+                        {/*    />*/}
+                        {/*</Pressable>*/}
                         <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>INTERFACE</Text>
                         {/*<Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight:18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>*/}
                         {/*    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>App Theme</Text>*/}
