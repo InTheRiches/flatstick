@@ -45,7 +45,9 @@
       "expo-secure-store",
       ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }],
       ["./android-manifest-launch-mode-plugin"],
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      "@react-native-firebase/app",
+      "@react-native-firebase/analytics"
     ],
     "experiments": {
       "typedRoutes": true

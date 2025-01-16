@@ -4,6 +4,7 @@ import {useRouter} from "expo-router";
 import {useAppContext, useSession} from "../contexts/AppCtx";
 import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 import NetInfo from '@react-native-community/netinfo';
+import analytics from '@react-native-firebase/analytics';
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
@@ -24,6 +25,8 @@ export default function RootInitializer({}) {
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
+                analytics().logLogin({method: "app"});
+
                 user.getIdToken().then((token) => {
                     setSession(token);
                     initialize();
