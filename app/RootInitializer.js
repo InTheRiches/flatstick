@@ -3,6 +3,7 @@ import {auth} from "../utils/firebase";
 import {useRouter} from "expo-router";
 import {useAppContext, useSession} from "../contexts/AppCtx";
 import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
+import NetInfo from '@react-native-community/netinfo';
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
@@ -13,23 +14,29 @@ export default function RootInitializer({}) {
 
     // Monitor authentication state changes
     useEffect(() => {
-        console.log("RootInitializer mounted");
+        const unsubscribeNetInfo = NetInfo.addEventListener(state => {
+            console.log('Connection type', state.type);
+            console.log('Is connected?', state.isConnected);
+            if (!state.isConnected) {
+                router.push({pathname: "/offline"});
+            }
+        });
+
         const unsubscribe = auth.onAuthStateChanged((user) => {
-            console.log("auth state change")
             if (user) {
-                console.log("User found");
                 user.getIdToken().then((token) => {
                     setSession(token);
                     initialize();
-                    console.log("Initializing user data");
                 });
             }
             else {
-                console.log("No user found");
                 setLocalLoading(false);
             }
         });
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+            unsubscribeNetInfo();
+        }
     }, []);
 
     return visible ? (
