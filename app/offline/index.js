@@ -1,8 +1,7 @@
 import ScreenWrapper from "../../components/general/ScreenWrapper";
-import {Text, View} from "react-native";
+import {BackHandler, Text, View} from "react-native";
 import React, {useEffect} from "react";
 import useColors from "../../hooks/useColors";
-import {useRoute} from "@react-navigation/native";
 import NetInfo from "@react-native-community/netinfo";
 import {useNavigation} from "expo-router";
 
@@ -17,8 +16,19 @@ export default function Offline() {
                 navigation.goBack();
             }
         });
+
+        const onBackPress = () => {
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            onBackPress
+        );
+
         return () => {
             unsubscribeNetInfo();
+            backHandler.remove();
         }
     }, []);
 

@@ -8,24 +8,32 @@ import {OverviewTab} from "../../components/tabs/stats/overview";
 import {PuttsAHoleTab} from "../../components/tabs/stats/putts";
 import {MadePuttsTab} from "../../components/tabs/stats/made";
 import Svg, {Path} from "react-native-svg";
-import {useRouter} from "expo-router";
+import {useNavigation, useRouter} from "expo-router";
 import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
-import {SafeAreaView} from "react-native-safe-area-context";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import Loading from "../../components/general/popups/Loading";
 
 export default function Stats({}) {
     const colors = useColors();
     const router = useRouter();
+    const navigation = useNavigation()
+
+    const {currentStats, puttSessions, putters, grips, userData, nonPersistentData, calculateSpecificStats} = useAppContext();
+    const {width} = Dimensions.get("screen")
 
     const [tab, setTab] = useState(0);
     const [isUserScrolling, setIsUserScrolling] = useState(false);
+    const [statsToUse, setStatsToUse] = useState(currentStats);
+    const [isReady, setIsReady] = useState(false)
 
     const listRef = useRef(null);
     const scrollViewRef = useRef(null);
 
-    const {currentStats, puttSessions, putters, grips, userData, nonPersistentData, calculateSpecificStats} = useAppContext();
-
-    const [statsToUse, setStatsToUse] = useState(currentStats);
+    useEffect(() => {
+        navigation.addListener('transitionEnd', () => {
+            setIsReady(true);
+        });
+    }, []);
 
     useEffect(() => {
         setStatsToUse(
@@ -76,8 +84,6 @@ export default function Stats({}) {
         listRef.current.scrollToIndex({index: i});
         setTab(i);
     }
-
-    const {width} = Dimensions.get("screen")
     const handleScroll = (event) => {
         if (isUserScrolling) {
             setTab(Math.round(event.nativeEvent.contentOffset.x / width));
@@ -88,6 +94,9 @@ export default function Stats({}) {
             viewPosition: 0.5,
         });
     }
+
+    if (!isReady)
+        return <Loading />
 
     return puttSessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1 ? (
         <ScreenWrapper>
@@ -104,7 +113,7 @@ export default function Stats({}) {
             </View>
         </ScreenWrapper>
     ) : (
-        <SafeAreaView edges={["top"]} style={{flex: 1, borderBottomColor: colors.border.default, borderBottomWidth: 1, backgroundColor: colors.background.primary}}>
+        <ScreenWrapper style={{borderBottomColor: colors.border.default, borderBottomWidth: 1}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
                 <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "/settings/stats"})}>
@@ -139,9 +148,10 @@ export default function Stats({}) {
                 horizontal={true}
                 onScrollBeginDrag={() => setIsUserScrolling(true)}
                 pagingEnabled={true}
+                removeClippedSubviews={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item}) => item.content}
             />
-        </SafeAreaView>
+        </ScreenWrapper>
     )
 }

@@ -133,18 +133,18 @@ export default function RoundSimulation() {
     }, []);
 
     useEffect(() => {
-        const onBackPress = () => {
-            confirmExitRef.current.present();
-
-            return true;
-        };
-
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
             console.log("Ad loaded");
         });
 
         interstitial.load();
+
+        const onBackPress = () => {
+            confirmExitRef.current.present();
+
+            return true;
+        };
 
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
