@@ -113,7 +113,7 @@ export default function Stats({}) {
             </View>
         </ScreenWrapper>
     ) : (
-        <ScreenWrapper style={{borderBottomColor: colors.border.default, borderBottomWidth: 1}}>
+        <SafeAreaView edges={["top"]} style={{flex: 1, borderBottomColor: colors.border.default, borderBottomWidth: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
                 <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "/settings/stats"})}>
@@ -148,10 +148,9 @@ export default function Stats({}) {
                 horizontal={true}
                 onScrollBeginDrag={() => setIsUserScrolling(true)}
                 pagingEnabled={true}
-                removeClippedSubviews={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item}) => item.content}
             />
-        </ScreenWrapper>
+        </SafeAreaView>
     )
 }
