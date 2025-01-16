@@ -19,7 +19,7 @@ export function PrimaryButton({
             borderStyle: "solid",
             borderWidth: 1,
             borderColor: colors.button.primary.border,
-            opacity: disabled ? 0.5 : 1,
+            opacity: disabled ? 0.75 : 1,
             overflow: "hidden",
             alignSelf: "center"
         },
@@ -35,7 +35,7 @@ export function PrimaryButton({
         <Pressable
             onPressIn={onPressIn}
             onPressOut={onPressOut}
-            style={({pressed}) => [{backgroundColor: !disabled && pressed ? colors.button.primary.depressed : colors.button.primary.background, opacity: disabled ? 0.5 : 1}, Object.keys(style).length !== 0 ? [styles.bareButton, style] : styles.button]}
+            style={({pressed}) => [{backgroundColor: !disabled && pressed ? colors.button.primary.depressed : colors.button.primary.background, opacity: disabled ? 0.75 : 1}, Object.keys(style).length !== 0 ? [styles.bareButton, style] : styles.button]}
             onPress={onPress} {...rest}>
             {React.Children.count(children) > 0 ? children : <Text style={{
                 color: disabled ? colors.button.disabled.text : colors.button.primary.text,

@@ -88,24 +88,19 @@ export function AppProvider({children}) {
 
     // Firebase authentication functions
     const signIn = async (email, password) => {
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const token = await userCredential.user.getIdToken();
-            setSession(token || null);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const token = await userCredential.user.getIdToken();
+        setSession(token || null);
 
-            router.push({pathname: "/"});
-        } catch (error) {
-            console.error("Error during sign-in:", error);
-            throw error;
-        }
+        router.push({pathname: "/"});
     };
 
     const googleSignIn = (user) => {
         const credential = GoogleAuthProvider.credential(user.idToken);
 
         signInWithCredential(getAuth(), credential).then((userCredential) => {
-            getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((doc) => {
-                if (doc.exists()) {
+            getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((newDoc) => {
+                if (newDoc.exists()) {
                     userCredential.user.getIdToken().then((token) => {
                         setSession(token || null);
                         router.push({pathname: `/`});
@@ -136,6 +131,8 @@ export function AppProvider({children}) {
                 }).catch((error) => {
                     console.log(error);
                 });
+            }).catch((error) => {
+                console.log(error);
             });
         }).catch(console.log);
     }

@@ -12,21 +12,46 @@ import DangerButton from "../../components/general/buttons/DangerButton";
 import {useSession} from "../../contexts/AppCtx";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import {auth} from "../../utils/firebase";
+import {deleteUser} from "firebase/auth";
+import Loading from "../../components/general/popups/Loading";
 
 export default function HomeScreen() {
     const colors = useColors();
-    const {userData} = useAppContext();
+    const {userData, updateData} = useAppContext();
     const {signOut} = useSession();
     const router = useRouter();
 
-    const [reminders, setReminders] = useState(userData.preferences.reminders);
+    // const [reminders, setReminders] = useState(userData.preferences.reminders);
 
     // const [themePressed, setThemePressed] = useState(false);
     const [unitsPressed, setUnitsPressed] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const setThemeRef = React.useRef(null);
     const setUnitsRef = React.useRef(null);
     const reauthenticateRef = React.useRef(null);
+
+    const deleteAccount = async () => {
+        await updateData({ deleted: true });
+
+        const currentUser = auth.currentUser;
+
+        await signOut();
+
+        deleteUser(currentUser).then(() => {
+            // User deleted.
+            console.log("User deleted");
+        }).catch((error) => {
+            // An error ocurred
+            // ...
+            console.log(error);
+        });
+    }
+
+    if (loading) {
+        return <Loading/>
+    }
 
     return (
         <BottomSheetModalProvider>
@@ -122,7 +147,7 @@ export default function HomeScreen() {
                             <PrimaryButton onPress={signOut} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
                                 <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</Text>
                             </PrimaryButton>
-                            <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
+                            <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={deleteAccount}>
                                 <Text style={{color: colors.button.danger.text, fontSize: 16, fontWeight: 500}}>Delete Account</Text>
                             </DangerButton>
                         </View>

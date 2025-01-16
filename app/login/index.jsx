@@ -46,7 +46,7 @@ export default function Login() {
     const login = () => {
         if (state.invalid) return;
 
-        // MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
+        // TODO MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
         signIn(state.email, state.password).catch((error) => {
@@ -71,15 +71,18 @@ export default function Login() {
     }
 
     const google = async () => {
+        setLoading(true);
         try {
             await GoogleSignin.hasPlayServices();
             const response = await GoogleSignin.signIn();
             if (isSuccessResponse(response)) {
-                googleSignIn(response.data)
+                googleSignIn(response.data);
             } else {
                 console.log("Sign in failed");
+                setLoading(false);
             }
         } catch (error) {
+            setLoading(false);
             console.log("Error", error)
             if (isErrorWithCode(error)) {
                 switch (error.code) {
@@ -118,7 +121,8 @@ export default function Login() {
     //     }
     // }, []);
 
-    return (loading ? <Loading/> :
+    // TODO this translucent does jack squat because there is nothing underneath it
+    return (loading ? <Loading translucent={true}/> :
         <>
             <ScreenWrapper style={{
                 paddingHorizontal: 24,
@@ -189,13 +193,13 @@ export default function Login() {
                                 style={{
                                     flex: 1,
                                     borderWidth: 1,
-                                    borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.border : colors.input.border,
+                                    borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.border : colors.input.border,
                                     borderRadius: 10,
                                     paddingVertical: 10,
                                     paddingHorizontal: 14,
                                     fontSize: 16,
-                                    color: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.text : colors.input.text,
-                                    backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" ? colors.input.invalid.background : state.emailFocused ? colors.input.focused.background : colors.input.background
+                                    color: state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.text : colors.input.text,
+                                    backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.background : state.emailFocused ? colors.input.focused.background : colors.input.background
                                 }}
                                 onFocus={() => updateField("emailFocused", true)}
                                 value={state.email}
@@ -204,20 +208,20 @@ export default function Login() {
                                 onBlur={() => updateField("emailFocused", false)}
                                 onChangeText={(text) => validateEmail(text)}
                             />
-                            {(state.invalidEmail || errorCode === "auth/invalid-credential") && <Text style={{
+                            {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password") && <Text style={{
                                 position: "absolute",
                                 right: 12,
-                                top: 7.5,
+                                top: 10,
                                 color: "white",
                                 backgroundColor: "#EF4444",
                                 borderRadius: 50,
                                 aspectRatio: 1,
-                                width: 22,
+                                width: 28,
                                 textAlign: "center",
-                                fontSize: 16
+                                fontSize: 20
                             }}>!</Text>}
                         </View>
-                        {errorCode === "auth/invalid-credential" ?
+                        {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ?
                             <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                                 and try again.</Text>
                             : state.invalidEmail &&
@@ -229,13 +233,13 @@ export default function Login() {
                                 style={{
                                     flex: 1,
                                     borderWidth: 1,
-                                    borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" ? colors.input.invalid.focusedBorder : colors.input.focused.border : errorCode === "auth/invalid-credential" ? colors.input.invalid.border : colors.input.border,
+                                    borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.focusedBorder : colors.input.focused.border : errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.border : colors.input.border,
                                     borderRadius: 10,
                                     paddingVertical: 10,
                                     paddingHorizontal: 14,
                                     fontSize: 16,
-                                    color: errorCode === "auth/invalid-credential" ? colors.input.invalid.text : colors.input.text,
-                                    backgroundColor: errorCode === "auth/invalid-credential" ? colors.input.invalid.background : state.passwordFocused ? colors.input.focused.background : colors.input.background
+                                    color: errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.text : colors.input.text,
+                                    backgroundColor: errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.background : state.passwordFocused ? colors.input.focused.background : colors.input.background
                                 }}
                                 onFocus={() => updateField("passwordFocused", true)}
                                 onBlur={() => updateField("passwordFocused", false)}
@@ -245,20 +249,20 @@ export default function Login() {
                                 placeholderTextColor={colors.text.placeholder}
                                 onChangeText={(text) => updatePassword(text)}
                             />
-                            {errorCode === "auth/invalid-credential" && <Text style={{
+                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" && <Text style={{
                                 position: "absolute",
                                 right: 12,
-                                top: 7.5,
+                                top: 10,
                                 color: "white",
                                 backgroundColor: "#EF4444",
                                 borderRadius: 50,
                                 aspectRatio: 1,
-                                width: 22,
+                                width: 28,
                                 textAlign: "center",
-                                fontSize: 16
+                                fontSize: 20
                             }}>!</Text>}
                         </View>
-                        {errorCode === "auth/invalid-credential" &&
+                        {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" &&
                             <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                                 and try again.</Text>}
                     </View>

@@ -1,7 +1,7 @@
-import {View, ActivityIndicator} from "react-native";
+import {ActivityIndicator, View} from "react-native";
 import useColors from "@/hooks/useColors";
 
-export default function Loading({}) {
+export default function Loading({translucent = false}) {
     const colors = useColors();
 
     return (
@@ -11,7 +11,8 @@ export default function Loading({}) {
             flexDirection: "flow",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: colors.background.primary
+            backgroundColor: colors.background.primary,
+            opacity: translucent ? 0.5 : 1
         }}>
             <ActivityIndicator size="large"/>
         </View>
