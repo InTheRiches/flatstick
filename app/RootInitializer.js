@@ -16,6 +16,8 @@ export default function RootInitializer({}) {
     useEffect(() => {
         const unsubscribeNetInfo = NetInfo.addEventListener(state => {
             if (!state.isConnected) {
+                if (localLoading) setLocalLoading(false);
+                alert("No internet connection. Please connect to the internet to continue.");
                 router.push({pathname: "/offline"});
             }
         });
