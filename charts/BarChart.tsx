@@ -261,13 +261,6 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             flatColor: flatColor,
             data: this.props.data.datasets
           })}
-          <Rect
-            width="100%"
-            height={height}
-            rx={borderRadius}
-            ry={borderRadius}
-            fill="url(#backgroundGradient)"
-          />
           <G>
             {withInnerLines
               ? this.renderHorizontalLines({

@@ -1,9 +1,9 @@
 import Pie from "paths-js/pie";
 import React from "react";
-import { View, ViewStyle } from "react-native";
-import { G, Path, Rect, Svg, Text } from "react-native-svg";
+import {View, ViewStyle} from "react-native";
+import {G, Path, Rect, Svg, Text} from "react-native-svg";
 
-import AbstractChart, { AbstractChartProps } from "./AbstractChart";
+import AbstractChart, {AbstractChartProps} from "./AbstractChart";
 
 export interface PieChartProps extends AbstractChartProps {
   data: Array<any>;
@@ -104,7 +104,6 @@ class PieChart extends AbstractChart<PieChartProps, PieChartState> {
         </G>
       );
     });
-
     return (
       <View
         style={{
