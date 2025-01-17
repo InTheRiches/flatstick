@@ -41,14 +41,14 @@ export const LightTheme = {
       text: '#C4C4C4',
     },
     danger: {
-      background: '#DC2626',
-      border: '#DC2626',
+      background: 'rgba(255,0,0,0.75)',
+      border: 'rgba(255,0,0,0.75)',
       text: '#FFFFFF',
       depressed: '#e04343',
       disabled: {
-        background: '#ffa3a3',
-        border: '#FEE2E2',
-        text: '#FFFFFF',
+        background: 'rgb(255,255,255)',
+        border: '#a1a1a1',
+        text: '#111827',
       },
     },
     radio: {

@@ -24,7 +24,6 @@ const initialState = {
     invalid: false,
 }
 
-// TODO make sure this separates all out into different components
 export default function CreateAccount() {
     const colors = useColors();
 

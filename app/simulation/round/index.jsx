@@ -320,6 +320,8 @@ export default function RoundSimulation() {
                         paddingLeft: 10,
                         paddingVertical: 8,
                         borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: misHit ? colors.button.danger.border : colors.button.danger.disabled.border,
                         backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
                         alignSelf: "center",
                         flexDirection: "row",
@@ -333,9 +335,9 @@ export default function RoundSimulation() {
                                  height={20} stroke={colors.button.danger.text}>
                                 <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                             </Svg> :
-                            <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                            <SvgClose width={20} height={20} stroke={misHit ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                         }
-                        <Text style={{color: 'white', marginLeft: 8}}>Mishit</Text>
+                        <Text style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</Text>
                     </Pressable>
                     <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
                         <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
@@ -344,6 +346,8 @@ export default function RoundSimulation() {
                             paddingLeft: 10,
                             paddingVertical: 8,
                             borderRadius: 8,
+                            borderWidth: 1,
+                            borderColor: misReadSlope ? colors.button.danger.border : colors.button.danger.disabled.border,
                             backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
                             alignSelf: "center",
                             flexDirection: "row",
@@ -357,9 +361,9 @@ export default function RoundSimulation() {
                                      height={20} stroke={colors.button.danger.text}>
                                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                 </Svg> :
-                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                <SvgClose width={20} height={20} stroke={misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: 'white', marginLeft: 8}}>Misread Slope</Text>
+                            <Text style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</Text>
                         </Pressable>
                         <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
                             marginBottom: 4,
@@ -367,6 +371,8 @@ export default function RoundSimulation() {
                             paddingLeft: 10,
                             paddingVertical: 8,
                             borderRadius: 8,
+                            borderWidth: 1,
+                            borderColor: misReadLine ? colors.button.danger.border : colors.button.danger.disabled.border,
                             backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
                             alignSelf: "center",
                             flexDirection: "row",
@@ -380,9 +386,9 @@ export default function RoundSimulation() {
                                      height={20} stroke={colors.button.danger.text}>
                                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                 </Svg> :
-                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                <SvgClose width={20} height={20} stroke={misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: 'white', marginLeft: 8}}>Misread Line</Text>
+                            <Text style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</Text>
                         </Pressable>
                     </View>
                 </View>

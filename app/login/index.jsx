@@ -24,7 +24,6 @@ const initialState = {
     invalidEmail: false
 }
 
-// TODO add username validation (like length and stuff)
 export default function Login() {
     const colors = useColors();
     const router = useRouter();
