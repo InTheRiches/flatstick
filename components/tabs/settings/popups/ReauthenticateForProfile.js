@@ -8,7 +8,7 @@ import Svg, {Path} from "react-native-svg";
 import {EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth'
 import {useRouter} from "expo-router";
 
-export function Reauthenticate({reauthenticateRef}) {
+export function ReauthenticateForProfile({reauthenticateRef}) {
     const colors = useColors();
     const [password, setPassword] = useState("");
     const [passwordInvalid, setPasswordInvalid] = useState(false);
