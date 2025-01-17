@@ -22,8 +22,8 @@ export const LeftRightBias = ({session}) => {
         left = (horizontalBiasWidth/2) + 2.5;
     }
     return (
-        <>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Left to Right Bias</Text>
+        <View style={{backgroundColor: colors.background.secondary, marginTop: 20, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Left to Right Bias</Text>
             <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>
@@ -44,6 +44,6 @@ export const LeftRightBias = ({session}) => {
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>Right</Text>
             </View>
-        </>
+        </View>
     )
 }

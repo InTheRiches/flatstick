@@ -1,6 +1,6 @@
 import React, {memo} from "react";
 import {BarChart} from "../../../../../charts";
-import {Dimensions, useColorScheme} from "react-native";
+import {Dimensions} from "react-native";
 import useColors from "../../../../../hooks/useColors";
 import {useAppContext} from "../../../../../contexts/AppCtx";
 
@@ -29,9 +29,6 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
             autoShiftLabels
             showValuesOnTopOfBars={true}
             chartConfig={{
-                backgroundColor: colors.background.primary,
-                backgroundGradientFrom: colors.background.primary,
-                backgroundGradientTo: colors.background.primary,
                 decimalPlaces: 0,
 
                 fillShadowGradientFromOpacity: colorScheme === "light" ? 0.4 : 0.5,

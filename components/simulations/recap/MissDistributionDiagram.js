@@ -11,7 +11,6 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
             backgroundColor: colors.background.secondary,
             flexDirection: "column",
             borderRadius: alone ? 16 : 0,
-            elevation: alone ? 2 : 0
         }}>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
                 <Image source={units === 0 ? require("@/assets/images/recapBackground.png") : require("@/assets/images/recapBackgroundMetric.png")} style={{

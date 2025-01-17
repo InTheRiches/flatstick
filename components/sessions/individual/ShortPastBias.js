@@ -23,8 +23,8 @@ export const ShortPastBias = ({session}) => {
     }
 
     return (
-        <>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Short / Past Bias</Text>
+        <View style={{backgroundColor: colors.background.secondary, marginTop: 20, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
+            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Short / Past Bias</Text>
             <View onLayout={onVertiLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>
@@ -44,6 +44,6 @@ export const ShortPastBias = ({session}) => {
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Short</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>Past</Text>
             </View>
-        </>
+        </View>
     )
 }

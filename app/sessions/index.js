@@ -40,7 +40,7 @@ export default function Sessions({}) {
                 renderItem={renderItem}
                 keyExtractor={(item, index) => "session_" + index}
             />
-            <View style={{paddingHorizontal: 32, marginBottom: 16, position: "absolute", bottom: 0, right: 0, left: 0}}>
+            <View style={{paddingHorizontal: 48, marginBottom: 16, position: "absolute", bottom: 0, right: 0, left: 0}}>
                 <SecondaryButton title={"Back"} onPress={navigation.goBack} style={{borderRadius: 12, width: "100%", paddingVertical: 10}}/>
             </View>
         </SafeAreaView>
