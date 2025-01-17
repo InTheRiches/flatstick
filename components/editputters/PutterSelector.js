@@ -1,5 +1,5 @@
 import useColors from "../../hooks/useColors";
-import {Animated, Image, Pressable, Text, View} from "react-native";
+import {Animated, Pressable, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
 import Svg, {Path} from "react-native-svg";
@@ -67,13 +67,15 @@ export function PutterSelector({id, name, stats, selectedPutter, setSelectedPutt
                 paddingVertical: 10,
                 marginBottom: 12,
                 alignItems: "center"}}>
-                <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                 <View style={{flexDirection: "column", flex: 1}}>
-                    <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
-                    <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                        <Text style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</Text>
-                        <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
-                    </View>
+                    <Text style={{fontSize: id !== 0 ? 16 : 18, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
+                    {   id !== 0 && (
+                        <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
+                            <Text style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</Text>
+                            <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
+                        </View>
+                    )
+                    }
                 </View>
                 <Svg style={{opacity: selectedPutter === id && !editing ? 1 : 0}} width={30} height={30} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>

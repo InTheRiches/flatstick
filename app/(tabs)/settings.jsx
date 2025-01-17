@@ -6,7 +6,12 @@ import {useAppContext} from "@/contexts/AppCtx";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
-import {Reauthenticate, SetTheme, SetUnits} from "../../components/tabs/settings/popups/";
+import {
+    ReauthenticateForDeletion,
+    ReauthenticateForProfile,
+    SetTheme,
+    SetUnits
+} from "../../components/tabs/settings/popups/";
 import {useRouter} from "expo-router";
 import DangerButton from "../../components/general/buttons/DangerButton";
 import {useSession} from "../../contexts/AppCtx";
@@ -15,6 +20,7 @@ import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {auth} from "../../utils/firebase";
 import {deleteUser} from "firebase/auth";
 import Loading from "../../components/general/popups/Loading";
+import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -31,6 +37,12 @@ export default function HomeScreen() {
     const setThemeRef = React.useRef(null);
     const setUnitsRef = React.useRef(null);
     const reauthenticateRef = React.useRef(null);
+    const reauthenticateDeletionRef = React.useRef(null);
+    const confirmDeleteRef = React.useRef(null);
+
+    if (loading) {
+        return <Loading/>
+    }
 
     const deleteAccount = async () => {
         await updateData({ deleted: true });
@@ -47,10 +59,6 @@ export default function HomeScreen() {
             // ...
             console.log(error);
         });
-    }
-
-    if (loading) {
-        return <Loading/>
     }
 
     return (
@@ -147,7 +155,11 @@ export default function HomeScreen() {
                             <PrimaryButton onPress={signOut} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
                                 <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</Text>
                             </PrimaryButton>
-                            <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={deleteAccount}>
+                            <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={() => {
+                                if (GoogleSignin.getCurrentUser() !== null) {
+                                    confirmDeleteRef.current.present();
+                                } else reauthenticateDeletionRef.current.present();
+                            }}>
                                 <Text style={{color: colors.button.danger.text, fontSize: 16, fontWeight: 500}}>Delete Account</Text>
                             </DangerButton>
                         </View>
@@ -156,7 +168,9 @@ export default function HomeScreen() {
             </ScreenWrapper>
             <SetTheme setThemeRef={setThemeRef}/>
             <SetUnits setUnitsRef={setUnitsRef}/>
-            <Reauthenticate reauthenticateRef={reauthenticateRef}/>
+            <ReauthenticateForProfile reauthenticateRef={reauthenticateRef}/>
+            <ReauthenticateForDeletion reauthenticateRef={reauthenticateDeletionRef}/>
+            <ConfirmDelete onDelete={deleteAccount} cancel={() => confirmDeleteRef.current.dismiss()} confirmDeleteRef={confirmDeleteRef}/>
         </BottomSheetModalProvider>
     );
 }

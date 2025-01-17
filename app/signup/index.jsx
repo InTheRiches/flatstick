@@ -131,13 +131,9 @@ export default function CreateAccount() {
                 });
 
                 setDoc(doc(db, `users/${user.uid}`), {
-                    skill: state.skill,
-                    frequency: state.frequency,
-                    putts: state.putts,
                     date: new Date().toISOString(),
                     totalPutts: 0,
                     sessions: 0,
-                    stats: {},
                     firstName: firstName.trim(),
                     lastName: firstName.trim(),
                     strokesGained: 0,

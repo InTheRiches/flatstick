@@ -1,4 +1,4 @@
-import {Pressable, Text, useColorScheme, View} from "react-native";
+import {Pressable, Text, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
 import {useState} from "react";
@@ -12,8 +12,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
     const colors = useColors();
     const colorScheme = "light";
 
-    const [rotation, setRotation] = useState(0);
-    const animatedHeight = useSharedValue(-90);
+    const animatedHeight = useSharedValue(0);
 
     const config = {
         duration: 200,
@@ -21,12 +20,12 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
     };
 
     const chevronStyle = useAnimatedStyle(() => {
-        animatedHeight.value = expanded ? withTiming(rotation, config) : withTiming(-90, config);
+        animatedHeight.value = expanded ? withTiming(0, config) : withTiming(-90, config);
 
         return {
             transform: [{rotate: animatedHeight.value + "deg"}],
         };
-    }, [expanded, rotation]);
+    }, [expanded]);
 
     return (
         <View style={{

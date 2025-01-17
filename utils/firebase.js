@@ -57,6 +57,8 @@ async function getProfilesByUsername(username) {
 
         const profiles = [];
         querySnapshot.forEach((doc) => {
+            if (doc.data().deleted !== undefined && doc.data().deleted) return;
+
             profiles.push({ ...doc.data(), id: doc.id });
         });
 
