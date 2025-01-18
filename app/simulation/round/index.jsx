@@ -218,7 +218,11 @@ export default function RoundSimulation() {
                 // this is a number 0-3, which is the ranges of distances
                 updateField("distance", generateTargetedDistance(distanceTarget.distance, userData.preferences.units));
             } else {
-                updateField("puttBreak", generateBreak());
+                let generatedBreak = generateBreak();
+                while (generatedBreak[0] === puttBreak[0] && generatedBreak[1] === puttBreak[1]) {
+                    generatedBreak = generateBreak();
+                }
+                updateField("puttBreak", generatedBreak);
                 updateField("distance", generateDistance(difficulty, userData.preferences.units));
             }
             updateField("hole", hole + 1);

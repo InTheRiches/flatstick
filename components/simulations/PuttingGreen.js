@@ -63,12 +63,11 @@ export function PuttingGreen({updateField, width, height, point, center}) {
     };
 
     return (
-        <View>
+        <View style={{flex: 1}}>
             <View style={{
                 alignSelf: "center",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                width: "100%"
             }}>
                 {userData.preferences.units === 0 ? (
                     <>

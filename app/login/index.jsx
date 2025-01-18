@@ -78,11 +78,11 @@ export default function Login() {
                 googleSignIn(response.data);
             } else {
                 console.log("Sign in failed");
+                alert("Sign in failed, unable to sign in with Google");
                 setLoading(false);
             }
         } catch (error) {
             setLoading(false);
-            console.log("Error", error)
             if (isErrorWithCode(error)) {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
@@ -90,11 +90,15 @@ export default function Login() {
                         break;
                     case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
                         // Android only, play services not available or outdated
+                        alert("Play services not available or outdated");
                         break;
                     default:
+                        alert("An error occurred while trying to sign in with Google");
                     // some other error happened
                 }
-            } else{}
+            } else {
+                alert("An error occurred while trying to sign in with Google.");
+            }
         }
     }
 
