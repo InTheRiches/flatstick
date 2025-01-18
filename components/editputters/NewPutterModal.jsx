@@ -1,6 +1,6 @@
-import {Keyboard, Text, View} from "react-native";
+import {Keyboard, Text, TextInput, View} from "react-native";
 import React, {useCallback, useState} from "react";
-import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
+import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../general/popups/CustomBackdrop";
 import {PrimaryButton} from "../general/buttons/PrimaryButton";
 import useColors from "@/hooks/useColors";
@@ -66,7 +66,7 @@ export function NewPutterModal({newPutterRef}) {
                         New Putter
                     </Text>
                 </View>
-                <BottomSheetTextInput
+                <TextInput
                     style={{
                         marginHorizontal: 24,
                         padding: 12,
