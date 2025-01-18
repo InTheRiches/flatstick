@@ -296,7 +296,6 @@ export default function RoundSimulation() {
                 paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
                 flexDirection: "column",
                 justifyContent: "space-between",
-                marginBottom: 20
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>

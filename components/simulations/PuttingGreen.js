@@ -68,6 +68,7 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                 alignSelf: "center",
                 flexDirection: "row",
                 justifyContent: "space-between",
+                width: "100%"
             }}>
                 {userData.preferences.units === 0 ? (
                     <>
@@ -99,7 +100,8 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                           alignSelf: "center",
                           alignItems: "center",
                           justifyContent: "center",
-                          width: "100%"
+                          width: "100%",
+                          flex: 1
                       }}>
                     <Image
                         source={userData.preferences.units === 0 ? require('@/assets/images/putting-grid.png') : require('@/assets/images/putting-grid-metric.png')}
@@ -109,7 +111,7 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                             borderColor: colors.putting.grid.border,
                             width: puttingGreenWidth,
                             aspectRatio: "1",
-                            height: undefined
+                            height: "100%",
                         }}/>
                     <Image style={{position: "absolute", height: width / 10 + 1, width: width / 10 + 1,}} source={require("../../assets/images/golf-hole-borderless.png")}></Image>
                     { center &&
