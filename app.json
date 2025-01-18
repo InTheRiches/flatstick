@@ -2,7 +2,7 @@
   "expo": {
     "name": "Flatstick",
     "slug": "putt-perfect",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/branding/appicon/adaptive_icon.png",
     "scheme": "myapp",
@@ -23,7 +23,8 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.intheriches.flatstick",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 2
     },
     "web": {
       "bundler": "metro",
