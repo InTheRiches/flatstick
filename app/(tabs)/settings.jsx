@@ -1,6 +1,6 @@
 import {Pressable, ScrollView, Text, View} from 'react-native';
 
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
 import {useAppContext} from "@/contexts/AppCtx";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
@@ -21,6 +21,9 @@ import {auth} from "../../utils/firebase";
 import {deleteUser} from "firebase/auth";
 import Loading from "../../components/general/popups/Loading";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
 export default function HomeScreen() {
     const colors = useColors();
@@ -39,6 +42,11 @@ export default function HomeScreen() {
     const reauthenticateRef = React.useRef(null);
     const reauthenticateDeletionRef = React.useRef(null);
     const confirmDeleteRef = React.useRef(null);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     if (loading) {
         return <Loading/>
@@ -164,6 +172,9 @@ export default function HomeScreen() {
                             </DangerButton>
                         </View>
                     </ScrollView>
+                </View>
+                <View style={{position: "absolute", bottom: 0}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
                 </View>
             </ScreenWrapper>
             <SetTheme setThemeRef={setThemeRef}/>

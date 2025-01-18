@@ -75,7 +75,7 @@ const initialState = {
     currentPutts: 2,
 }
 
-const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : TestIds.INTERSTITIAL;
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/1702380355";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE

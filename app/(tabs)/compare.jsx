@@ -4,13 +4,21 @@ import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useRouter} from "expo-router";
 import {useAppContext} from "../../contexts/AppCtx";
 import Svg, {G, Path, Polygon} from "react-native-svg";
-import React from "react";
+import React, {useRef} from "react";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/3548415690";
 
 export default function Compare({}) {
     const colors = useColors();
     const router = useRouter();
     const {putters, grips} = useAppContext();
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     return (
         <ScreenWrapper style={{alignItems: "center", paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
@@ -65,6 +73,9 @@ export default function Compare({}) {
                     <Text style={{color: colors.text.secondary, fontSize: 14, textAlign: "center"}}>Compare your grip
                         methods to determine which one is fit for you.</Text>
                 </PrimaryButton>
+            </View>
+            <View style={{position: "absolute", bottom: 0}}>
+                <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
             </View>
         </ScreenWrapper>
     )

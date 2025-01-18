@@ -23,7 +23,7 @@ export default function IndividualSession({}) {
     const session = JSON.parse(jsonSession);
     const isRecap = recap === "true";
 
-    const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : TestIds.INTERSTITIAL;
+    const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/8364755969";
 
     const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
