@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useRef} from "react";
 import CustomBackdrop from "../../general/popups/CustomBackdrop";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Image, Text, View} from "react-native";
@@ -6,10 +6,14 @@ import useColors from "../../../hooks/useColors";
 import {roundTo} from "../../../utils/roundTo";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {convertUnits} from "../../../utils/Conversions";
+import {SecondaryButton} from "../../general/buttons/SecondaryButton";
+import Svg, {Path} from "react-native-svg";
+import ViewShot from "react-native-view-shot";
 
 export default function ShareSession({shareSessionRef, session}) {
     const colors = useColors();
     const {userData} = useAppContext();
+    const ref = useRef();
 
     const myBackdrop = useCallback(
         ({ animatedIndex, style }) => {
@@ -42,7 +46,8 @@ export default function ShareSession({shareSessionRef, session}) {
                     }}>
                         Share Session
                     </Text>
-                    <View style={{borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8, marginTop: 10}}>
+                    <ViewShot ref={ref} options={{ fileName: "Your-File-Name", format: "jpg", quality: 0.9 }}>
+                        <View style={{borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8, marginTop: 10}}>
                         <View style={{
                             paddingLeft: 6,
                             paddingRight: 12,
@@ -209,6 +214,23 @@ export default function ShareSession({shareSessionRef, session}) {
                                 }}>{convertUnits(session.totalDistance, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
                             </View>
                         </View>
+                    </View>
+                    </ViewShot>
+                    <View style={{width: "100%", justifyContent: "center", alignItems: "center", gap: 24, flexDirection: "row", marginTop: 12}}>
+                        <SecondaryButton onPress={() => ref.current.capture().then(uri => {console.log("do something with ", uri);})} style={{borderRadius: 50, aspectRatio: 1, height: 48, paddingBottom: 3}}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke={colors.button.secondary.text} width={28} height={28}>
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"/>
+                            </Svg>
+                        </SecondaryButton>
+                        <SecondaryButton style={{borderRadius: 50, aspectRatio: 1, height: 48, paddingBottom: 3}}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke={colors.button.secondary.text} width={28} height={28}>
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                            </Svg>
+                        </SecondaryButton>
                     </View>
                 </View>
             </BottomSheetView>
