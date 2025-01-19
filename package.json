@@ -70,7 +70,8 @@
     "react-native-system-navigation-bar": "^2.6.4",
     "react-native-web": "~0.19.13",
     "expo-image": "~2.0.4",
-    "react-native-view-shot": "~4.0.3"
+    "react-native-view-shot": "~4.0.3",
+    "expo-sharing": "~13.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
