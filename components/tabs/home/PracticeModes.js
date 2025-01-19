@@ -6,7 +6,7 @@ import useColors from "../../../hooks/useColors";
 
 export function PracticeModes({newSessionRef, newRealRoundRef}) {
     const colors = useColors();
-    const {puttSessions, updateStats} = useAppContext();
+    const {puttSessions, updateStats, userData} = useAppContext();
 
     return (
         <View style={{marginTop: puttSessions.length > 0 ? 0 : 24, gap: 12, marginBottom: 18}}>
@@ -15,14 +15,14 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
             <PracticeMode
                 description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                 name={"18 Hole Simulation"}
-                distance={"3 - 40ft"}
+                distance={userData.preferences.units === 0 ? "3 - 40ft" : "1 - 12m"}
                 time={"10 - 20min"}
                 focus={"Adaptability"}
                 onPress={() => newSessionRef.current?.present()}/>
             <PracticeMode
                 description={"Allows you to track your putts from a real round, and keep track of real putts."}
                 name={"Real Round Tracking"}
-                distance={"~ ft"}
+                distance={userData.preferences.units === 0 ? "~ ft" : "~ m"}
                 time={"~ min"}
                 focus={"Realism"}
                 onPress={() => newRealRoundRef.current.present()}/>

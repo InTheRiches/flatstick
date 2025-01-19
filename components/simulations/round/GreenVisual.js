@@ -1,4 +1,5 @@
-import {Image, Platform, Text, View} from "react-native";
+import {Platform, Text, View} from "react-native";
+import {Image} from "expo-image";
 import React from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";

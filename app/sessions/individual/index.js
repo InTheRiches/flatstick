@@ -1,6 +1,6 @@
 import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation} from "expo-router";
-import {Text, View} from "react-native";
+import {BackHandler, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {roundTo} from "../../../utils/roundTo";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
@@ -14,6 +14,9 @@ import {convertUnits} from "../../../utils/Conversions";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/8364755969";
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+
 export default function IndividualSession({}) {
     const colors = useColors();
     const navigation = useNavigation();
@@ -22,10 +25,6 @@ export default function IndividualSession({}) {
     const {jsonSession, recap} = useLocalSearchParams();
     const session = JSON.parse(jsonSession);
     const isRecap = recap === "true";
-
-    const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/8364755969";
-
-    const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
     useEffect(() => {
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
@@ -38,9 +37,20 @@ export default function IndividualSession({}) {
             interstitial.load();
         }
 
+        const onBackPress = () => {
+            if (!isRecap) navigation.goBack();
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            onBackPress
+        );
+
         // Unsubscribe from events on unmount
         return () => {
             unsubscribeLoaded();
+            backHandler.remove();
         };
     }, []);
 
