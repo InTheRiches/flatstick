@@ -38,7 +38,7 @@ export const ShortPastBias = ({session}) => {
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < ((verticalBiasWidth/2) - 40) || left > ((verticalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < (verticalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</Text>
-                <Text style={{position: "absolute", left: left - (shortPastBias > 0 ? 10 : 0), color: colors.text.primary}}>{shortPastBias > 0 ? "+" : ""}{shortPastBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                <Text style={{position: "absolute", left: shortPastBias === 0 ? left : left - 5, color: colors.text.primary}}>{shortPastBias > 0 ? "+" : ""}{shortPastBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Short</Text>

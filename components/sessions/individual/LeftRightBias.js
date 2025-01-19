@@ -38,7 +38,7 @@ export const LeftRightBias = ({session}) => {
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</Text>
                 <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</Text>
-                <Text style={{position: "absolute", left: left - 5, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                <Text style={{position: "absolute", left: leftRightBias === 0 ? left : left - 5, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                 <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</Text>

@@ -222,7 +222,6 @@ const calculateStats = (puttsCopy, width, height) => {
 
     leftRightBias /= puttsCopy.length;
     shortPastBias /= puttsCopy.length;
-    totalDistance /= puttsCopy.length;
 
     return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1)};
 };
