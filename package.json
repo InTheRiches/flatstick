@@ -56,7 +56,6 @@
     "react-native": "0.76.6",
     "react-native-bootsplash": "^6.3.2",
     "react-native-element-dropdown": "^2.12.2",
-    "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-gifted-charts": "^1.4.47",
     "react-native-google-mobile-ads": "^14.8.0",
