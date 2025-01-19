@@ -9,6 +9,7 @@ import {convertUnits} from "../../../utils/Conversions";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import ViewShot from "react-native-view-shot";
+import * as Sharing from "expo-sharing";
 
 export default function ShareSession({shareSessionRef, session}) {
     const colors = useColors();
@@ -26,6 +27,13 @@ export default function ShareSession({shareSessionRef, session}) {
             );
         }, []
     );
+
+    const onShare = () => {
+        ref.current.capture()
+            .then(uri => {
+                Sharing.shareAsync(uri).catch(console.error);
+            }).catch(console.error);
+    }
 
     return (
         <BottomSheetModal
@@ -217,7 +225,7 @@ export default function ShareSession({shareSessionRef, session}) {
                     </View>
                     </ViewShot>
                     <View style={{width: "100%", justifyContent: "center", alignItems: "center", gap: 24, flexDirection: "row", marginTop: 12}}>
-                        <SecondaryButton onPress={() => ref.current.capture().then(uri => {console.log("do something with ", uri);})} style={{borderRadius: 50, aspectRatio: 1, height: 48, paddingBottom: 3}}>
+                        <SecondaryButton onPress={onShare} style={{borderRadius: 50, aspectRatio: 1, height: 48, paddingBottom: 3}}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke={colors.button.secondary.text} width={28} height={28}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"
