@@ -36,7 +36,9 @@
       "expo-router",
       [
         "expo-font",
-        {}
+        {
+          "fonts": ["assets/fonts/Geist[wght].ttf"]
+        }
       ],
       [
         "react-native-google-mobile-ads",

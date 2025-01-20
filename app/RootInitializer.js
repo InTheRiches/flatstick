@@ -4,6 +4,7 @@ import {useRouter} from "expo-router";
 import {useAppContext, useSession} from "../contexts/AppCtx";
 import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 import NetInfo from '@react-native-community/netinfo';
+import {useFonts} from "expo-font";
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
@@ -11,6 +12,9 @@ export default function RootInitializer({}) {
     const {setSession, isLoading} = useSession();
     const {initialize} = useAppContext();
     const router = useRouter();
+    const [loaded, error] = useFonts({
+        'Geist': require('../assets/fonts/Geist[wght].ttf'),
+    });
 
     // Monitor authentication state changes
     useEffect(() => {
@@ -41,7 +45,7 @@ export default function RootInitializer({}) {
 
     return visible ? (
         <AnimatedBootSplash
-            ready={!localLoading || !isLoading}
+            ready={(!localLoading || !isLoading) && loaded}
             onAnimationEnd={() => {
                 setVisible(false);
                 if (!localLoading) {
