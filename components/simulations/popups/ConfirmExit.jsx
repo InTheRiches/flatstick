@@ -1,12 +1,12 @@
-import React, {useCallback, useState} from "react";
-import {Pressable, Text, useColorScheme, View} from "react-native";
+import React, {useCallback} from "react";
+import {Pressable, Text, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
-export function ConfirmExit({ confirmExitRef, end, cancel, partial}) {
+export function ConfirmExit({ confirmExitRef, end, cancel, partial, canPartial = true}) {
     const colors = useColors();
     const colorScheme = "light";
 
@@ -85,15 +85,17 @@ export function ConfirmExit({ confirmExitRef, end, cancel, partial}) {
                     </Pressable>
                     {colorScheme === "light" ?
                         [
+                            (canPartial &&
                             <PrimaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
-                                           style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>,
+                                           style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>),
                             <PrimaryButton key={"primary"} onPress={cancel} title={"Cancel"}
                                            style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>
                         ]
                         :
                         [
-                            <SecondaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
-                                             style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></SecondaryButton>,
+                            (canPartial &&
+                                <SecondaryButton key={"secondary"} onPress={partial} title={"Upload as Partial"}
+                                             style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></SecondaryButton>),
                             <SecondaryButton key={"primary"} onPress={cancel} title={"Cancel"}
                                              style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></SecondaryButton>
                         ]

@@ -289,6 +289,8 @@ export default function RealSimulation() {
                         paddingLeft: 10,
                         paddingVertical: 8,
                         borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: misHit ? colors.button.danger.border : colors.button.danger.disabled.border,
                         backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
                         alignSelf: "center",
                         flexDirection: "row",
@@ -302,9 +304,9 @@ export default function RealSimulation() {
                                  height={20} stroke={colors.button.danger.text}>
                                 <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                             </Svg> :
-                            <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                            <SvgClose width={20} height={20} stroke={misHit ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                         }
-                        <Text style={{color: 'white', marginLeft: 8}}>Mishit</Text>
+                        <Text style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</Text>
                     </Pressable>
                     <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
                         <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
@@ -313,6 +315,8 @@ export default function RealSimulation() {
                             paddingLeft: 10,
                             paddingVertical: 8,
                             borderRadius: 8,
+                            borderWidth: 1,
+                            borderColor: misReadSlope ? colors.button.danger.border : colors.button.danger.disabled.border,
                             backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
                             alignSelf: "center",
                             flexDirection: "row",
@@ -326,9 +330,9 @@ export default function RealSimulation() {
                                      height={20} stroke={colors.button.danger.text}>
                                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                 </Svg> :
-                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                <SvgClose width={20} height={20} stroke={misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: 'white', marginLeft: 8}}>Misread Slope</Text>
+                            <Text style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</Text>
                         </Pressable>
                         <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
                             marginBottom: 4,
@@ -336,6 +340,8 @@ export default function RealSimulation() {
                             paddingLeft: 10,
                             paddingVertical: 8,
                             borderRadius: 8,
+                            borderWidth: 1,
+                            borderColor: misReadLine ? colors.button.danger.border : colors.button.danger.disabled.border,
                             backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
                             alignSelf: "center",
                             flexDirection: "row",
@@ -349,14 +355,14 @@ export default function RealSimulation() {
                                      height={20} stroke={colors.button.danger.text}>
                                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                 </Svg> :
-                                <SvgClose width={20} height={20} stroke={colors.button.danger.text}></SvgClose>
+                                <SvgClose width={20} height={20} stroke={misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: 'white', marginLeft: 8}}>Misread Line</Text>
+                            <Text style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</Text>
                         </Pressable>
                     </View>
                 </View>
                 <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
-                <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 14, gap: 4}}>
+                <View style={{flexDirection: "row", justifyContent: "space-between", gap: 4}}>
                     <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                    title="Back"
                                    disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
@@ -383,7 +389,7 @@ export default function RealSimulation() {
             <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
                           rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
             <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
-            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} partial={() => submit(true)} end={fullReset}></ConfirmExit>
+            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit(true)} end={fullReset}></ConfirmExit>
         </View>
     );
 }
