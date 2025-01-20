@@ -1,10 +1,13 @@
 import {Pressable, ScrollView, Text, TextInput, View} from "react-native";
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import useColors from "../../../../hooks/useColors";
 import {auth, getProfilesByUsername} from "../../../../utils/firebase";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/3548415690";
 
 export default function SearchUsers({}) {
     const colors = useColors();
@@ -13,6 +16,11 @@ export default function SearchUsers({}) {
     const [username, setUsername] = useState("");
     const router = useRouter();
     const navigation = useNavigation();
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     const updateUsername = (text) => {
         // search for profiles that match that name
@@ -94,6 +102,9 @@ export default function SearchUsers({}) {
                         )
                     })}
                 </ScrollView>
+            </View>
+            <View style={{position: "absolute", bottom: 0}}>
+                <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
             </View>
         </ScreenWrapper>
     )

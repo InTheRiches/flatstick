@@ -6,6 +6,9 @@ import {useAppContext} from "../../../contexts/AppCtx";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
 export default function StatSettings({}) {
     const colors = useColors();
@@ -19,6 +22,11 @@ export default function StatSettings({}) {
     const navigation = useNavigation();
     const [isPuttersPressed, setIsPuttersPressed] = useState(false);
     const [isGripsPressed, setIsGripsPressed] = useState(false);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     const toggleMisHits = () => {
         updateData({...userData, preferences: {...userData.preferences, countMishits: !misHits}});
@@ -74,6 +82,9 @@ export default function StatSettings({}) {
                         onPress={() => filterGripsRef.current.present()} style={{padding: 7}}>
                         <Text style={{color: colors.text.link, opacity: isGripsPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{nonPersistentData.filtering.grip === 0 ? "All" : grips[nonPersistentData.filtering.grip].name}</Text>
                     </Pressable>
+                </View>
+                <View style={{position: "absolute", bottom: 0}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
                 </View>
             </SafeAreaView>
             <FilterPutters filterPuttersRef={filterPuttersRef}/>

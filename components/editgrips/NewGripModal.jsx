@@ -85,7 +85,7 @@ export function NewGripModal({newGripRef}) {
                 <PrimaryButton
                     title={"Create"}
                     onPress={() => {
-                        if (gripInvalid) return;
+                        if (gripInvalid || gripName.length < 4) return;
 
                         newGrip(gripName);
 

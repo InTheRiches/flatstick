@@ -87,7 +87,7 @@ export function NewPutterModal({newPutterRef}) {
                 <PrimaryButton
                     title={"Create"}
                     onPress={() => {
-                        if (putterInvalid) return;
+                        if (putterInvalid || putterName.length < 4) return;
 
                         newPutter(putterName);
 

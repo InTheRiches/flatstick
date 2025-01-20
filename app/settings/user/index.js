@@ -1,6 +1,6 @@
 import {Pressable, Text, TextInput, View} from "react-native";
 import useColors from "../../../hooks/useColors";
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {useAppContext} from "../../../contexts/AppCtx";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
@@ -9,6 +9,9 @@ import {updateEmail, updateProfile} from "firebase/auth";
 import Loading from "../../../components/general/popups/Loading";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
 export default function UserSettings({}) {
     const colors = useColors();
@@ -24,8 +27,12 @@ export default function UserSettings({}) {
     const [firstNameInvalid, setFirstNameInvalid] = useState(false);
     const [lastNameInvalid, setLastNameInvalid] = useState(false);
     const [email, setEmail] = useState(auth.currentUser.email);
-
     const [loading, setLoading] = useState(false);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     let emailErrorCode = "";
     let nameErrorCode = "";
@@ -210,6 +217,9 @@ export default function UserSettings({}) {
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
             {emailErrorCode === "auth/email-already-in-use" &&
                 <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}
+            <View style={{position: "absolute", bottom: 0}}>
+                <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+            </View>
         </SafeAreaView>
     )
 }

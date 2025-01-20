@@ -32,7 +32,7 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
                     alignItems: 'center',
                     columnGap: 9,
                     rowGap: 4,
-                    paddingTop: 12
+                    paddingTop: 10
                 }}>
                     {gridData.map((item, index) => {
                         let text = "";
