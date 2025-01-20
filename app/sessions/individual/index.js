@@ -14,6 +14,7 @@ import {convertUnits} from "../../../utils/Conversions";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import ShareSession from "../../../components/sessions/individual/ShareSession";
+import {ConfirmDelete} from "../../../components/sessions/individual/ConfirmDelete";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/8364755969";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
@@ -28,6 +29,7 @@ export default function IndividualSession({}) {
     const isRecap = recap === "true";
 
     const shareSessionRef = useRef();
+    const confirmDeleteRef = useRef();
 
     useEffect(() => {
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
@@ -170,10 +172,7 @@ export default function IndividualSession({}) {
                                      title={isRecap ? "Continue" : "Back"}
                                      style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
                     <SecondaryButton onPress={() => {
-                        setLoading(true);
-                        deleteSession(session.id).then(() => {
-                            navigation.goBack();
-                        });
+                        confirmDeleteRef.current.present();
                     }} style={{aspectRatio: 1, height: 42, borderRadius: 50}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                              stroke={colors.button.secondary.text} width={24} height={24}>
@@ -183,7 +182,13 @@ export default function IndividualSession({}) {
                     </SecondaryButton>
                 </View>
             </ScreenWrapper>
-        <ShareSession shareSessionRef={shareSessionRef} session={session}></ShareSession>
-    </>
+            <ShareSession shareSessionRef={shareSessionRef} session={session}></ShareSession>
+            <ConfirmDelete confirmDeleteRef={confirmDeleteRef} cancel={() => confirmDeleteRef.current.dismiss()} onDelete={() => {
+                setLoading(true);
+                deleteSession(session.id).then(() => {
+                    navigation.goBack();
+                });
+            }}></ConfirmDelete>
+        </>
     )
 }

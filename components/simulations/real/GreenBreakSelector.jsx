@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {Image, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
@@ -33,7 +33,7 @@ export function GreenBreakSelector({theta, setTheta}) {
 
     const onLayout = (event) => {
         const {x, y} = event.nativeEvent.layout;
-
+        console.log(x, y);
         setBaseX(x);
         setBaseY(y);
     };
@@ -46,13 +46,11 @@ export function GreenBreakSelector({theta, setTheta}) {
 
                 setWidth(width);
                 setHeight(height);
+
+                console.log("Component width is: " + px + " and height is: " + py);
             });
         }
     };
-
-    useEffect(() => {
-        measurePosition();
-    }, []);
 
     const pan = Gesture.Pan().onUpdate((event) => {
         let x = event.absoluteX - baseX;
@@ -90,6 +88,7 @@ export function GreenBreakSelector({theta, setTheta}) {
                             opacity: 0,
                         }} // height and width must be non-zero or else onLoad does not fire on Android
                         onLoad={() => {
+                            if (width === 0) measurePosition()
                             setVisibleImageSource(angleImages[theta]);
                         }}
                     />
