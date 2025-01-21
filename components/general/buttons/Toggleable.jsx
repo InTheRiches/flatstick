@@ -3,7 +3,7 @@ import useColors from "@/hooks/useColors";
 import React from 'react';
 import FontText from "../FontText";
 
-export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
+export function Toggleable({onToggle, top = false, toggled, title = 'Save', ...rest}) {
     const colors = useColors();
 
     const styles = StyleSheet.create({
@@ -27,6 +27,7 @@ export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
                <FontText style={{
                    color: toggled ? colors.toggleable.toggled.color : colors.toggleable.color,
                    fontWeight: 500,
+                   marginBottom: top ? 4 : 0,
                }}>{title}</FontText>
            </View>
         </Pressable>

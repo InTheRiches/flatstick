@@ -151,8 +151,8 @@ export default function IndividualSession({}) {
                     </View>
                     <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>1st Putt Distribution</FontText>
                     <MissDistributionDiagram missData={session.missData} holes={session.holes} alone={true} units={userData.preferences.units}></MissDistributionDiagram>
-                    <LeftRightBias session={session}></LeftRightBias>
-                    <ShortPastBias session={session}></ShortPastBias>
+                    <LeftRightBias bias={session.leftRightBias} units={session.units}></LeftRightBias>
+                    <ShortPastBias bias={session.shortPastBias} units={session.units}></ShortPastBias>
                 </View>
                 <View style={{width: "100%", paddingBottom: 24, flexDirection: "row", alignItems: "center", gap: 12}}>
                     <SecondaryButton onPress={() => {

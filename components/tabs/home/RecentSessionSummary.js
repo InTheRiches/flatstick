@@ -5,6 +5,7 @@ import {roundTo} from "../../../utils/roundTo";
 import {useAppContext} from "@/contexts/AppCtx";
 import {useRouter} from "expo-router";
 import FontText from "../../general/FontText";
+import {convertUnits} from "../../../utils/Conversions";
 
 export function RecentSessionSummary({unfinished}) {
     const {puttSessions, userData} = useAppContext();
@@ -130,7 +131,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                    }}>{convertUnits(recentSession.avgMiss, recentSession.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>
@@ -229,7 +230,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                    }}>{convertUnits(recentSession.avgMiss, recentSession.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>

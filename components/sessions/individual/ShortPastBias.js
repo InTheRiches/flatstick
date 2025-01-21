@@ -5,7 +5,7 @@ import {convertUnits} from "../../../utils/Conversions";
 import {useAppContext} from "../../../contexts/AppCtx";
 import FontText from "../../general/FontText";
 
-export const ShortPastBias = ({session}) => {
+export const ShortPastBias = ({bias, units}) => {
     const colors = useColors();
     const {userData} = useAppContext();
     const [verticalBiasWidth, setVerticalBiasWidth] = useState(1);
@@ -14,7 +14,7 @@ export const ShortPastBias = ({session}) => {
         setVerticalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    const shortPastBias = Math.min(1.89, convertUnits(session.shortPastBias, session.units, userData.preferences.units));
+    const shortPastBias = Math.min(1.89, convertUnits(bias, units, userData.preferences.units));
 
     let left = shortPastBias / (userData.preferences.units === 0 ? 2 : 1) * (verticalBiasWidth/2 + (shortPastBias > 0 ? 25 : 0));
     left = left + (verticalBiasWidth/2);

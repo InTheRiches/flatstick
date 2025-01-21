@@ -5,7 +5,7 @@ import {useAppContext} from "../../../contexts/AppCtx";
 import {convertUnits} from "../../../utils/Conversions";
 import FontText from "../../general/FontText";
 
-export const LeftRightBias = ({session}) => {
+export const LeftRightBias = ({bias, units}) => {
     const colors = useColors();
     const {userData} = useAppContext();
     const [horizontalBiasWidth, setHorizontalBiasWidth] = useState(1);
@@ -14,7 +14,7 @@ export const LeftRightBias = ({session}) => {
         setHorizontalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    const leftRightBias = convertUnits(session.leftRightBias, session.units, userData.preferences.units);
+    const leftRightBias = convertUnits(bias, units, userData.preferences.units);
 
     let left = leftRightBias / (userData.preferences.units === 0 ? 2 : 1) * (horizontalBiasWidth/2 + (leftRightBias > 0 ? 25 : 0));
     left = left + (horizontalBiasWidth/2);

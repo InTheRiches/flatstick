@@ -8,12 +8,18 @@ import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 import FontText from "../../../general/FontText";
 
 export function SetUnits({setUnitsRef}) {
-    const {userData, updateData, setUserData} = useAppContext()
+    const {userData, updateData, updateStats} = useAppContext()
     const colors = useColors();
 
     const setUnits = (units) => {
         setUnitsRef.current.dismiss();
-        updateData({preferences: {...userData.preferences, units: units}});
+        try {
+            console.log("updating")
+            updateData({preferences: {...userData.preferences, units: units}}).then(r => updateStats());
+        } catch (e) {
+            console.error(e);
+        }
+
     }
 
     return (

@@ -13,6 +13,7 @@ import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import Loading from "../../components/general/popups/Loading";
 import FontText from "../../components/general/FontText";
+import PlacementTab from "../../components/tabs/stats/placement/PlacementTab";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -40,44 +41,52 @@ export default function Stats({}) {
         setStatsToUse(
             nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
                 nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
-                    nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats)
+                    nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
     }, [nonPersistentData, currentStats]);
 
-    const tabs = [
+    const tabs  = [
         {
             id: 1,
             title: "Overview",
             content: useMemo(() => {
                 return <OverviewTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+                // KEEP CURRENT STATS IN THE DEPS, OR ELSE WHEN UNITS CHANGE IT WILL NOT UPDATE
+            }, [statsToUse, currentStats])
         },
         {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
                 return <StrokesGainedTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
         },
         {
             id: 3,
             title: "Putts / Hole",
             content: useMemo(() => {
                 return <PuttsAHoleTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
         },
         {
             id: 4,
             title: "Made Putts",
             content: useMemo(() => {
                 return <MadePuttsTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
         },
         {
             id: 5,
             title: "Misreads",
             content: useMemo(() => {
                 return <MisreadTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
+        },
+        {
+            id: 6,
+            title: "Placement",
+            content: useMemo(() => {
+                return <PlacementTab statsToUse={statsToUse}/>
+            }, [statsToUse, currentStats])
         }
     ]
 
@@ -132,7 +141,7 @@ export default function Stats({}) {
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item, index}) =>
-                    <Toggleable key={item.id} title={item.title} toggled={tab === index}
+                    <Toggleable top={true} key={item.id} title={item.title} toggled={tab === index}
                        onPress={() => {
                            scrollTo(index);
                        }}/>}
