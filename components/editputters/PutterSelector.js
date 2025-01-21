@@ -1,5 +1,5 @@
 import useColors from "../../hooks/useColors";
-import {Animated, Pressable, Text, View} from "react-native";
+import {Animated, Pressable, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
 import Svg, {Path} from "react-native-svg";
@@ -68,11 +68,11 @@ export function PutterSelector({id, name, stats, selectedPutter, setSelectedPutt
                 marginBottom: 12,
                 alignItems: "center"}}>
                 <View style={{flexDirection: "column", flex: 1}}>
-                    <Text style={{fontSize: id !== 0 ? 16 : 18, color: colors.text.primary, fontWeight: 500}}>{name}</Text>
+                    <FontText style={{fontSize: id !== 0 ? 16 : 18, color: colors.text.primary, fontWeight: 500}}>{name}</FontText>
                     {   id !== 0 && (
                         <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                            <Text style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</Text>
-                            <Text style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</Text>
+                            <FontText style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</FontText>
+                            <FontText style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</FontText>
                         </View>
                     )
                     }

@@ -1,10 +1,11 @@
-import {Keyboard, Text, TextInput, View} from "react-native";
+import {Keyboard, TextInput, View} from "react-native";
 import React, {useCallback, useState} from "react";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../general/popups/CustomBackdrop";
 import {PrimaryButton} from "../general/buttons/PrimaryButton";
 import useColors from "@/hooks/useColors";
 import {useAppContext} from "@/contexts/AppCtx";
+import FontText from "../general/FontText";
 
 export function NewPutterModal({newPutterRef}) {
     const colors = useColors();
@@ -58,13 +59,13 @@ export function NewPutterModal({newPutterRef}) {
                     backgroundColor: colors.background.secondary,
                 }}>
                 <View style={{marginHorizontal: 24, marginBottom: 8}}>
-                    <Text style={{
+                    <FontText style={{
                             fontSize: 20,
                             fontWeight: 500,
                             color: colors.text.primary,
                         }}>
                         New Putter
-                    </Text>
+                    </FontText>
                 </View>
                 <TextInput
                     style={{

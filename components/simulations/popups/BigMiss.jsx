@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Keyboard, Platform, Pressable, Text, View} from "react-native";
+import {Keyboard, Platform, Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
@@ -7,6 +7,7 @@ import ArrowComponent from "@/components/general/icons/ArrowComponent";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 import {useAppContext} from "../../../contexts/AppCtx";
+import FontText from "../../general/FontText";
 
 export function BigMissModal({
                                          updateField, rawLargeMissBy, bigMissRef, nextHole, lastHole, allPutts, hole,
@@ -153,13 +154,13 @@ export function BigMissModal({
                             borderRadius: 50,
                             backgroundColor: colors.button.danger.background,
                         }}>
-                        <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>!</Text>
+                        <FontText style={{color: "white", fontWeight: 600, fontSize: 24}}>!</FontText>
                     </View>
-                    <Text style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left"}}>
+                    <FontText style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left"}}>
                         Miss &gt;{userData.preferences.units === 0 ? "3ft" : "1m"}
-                    </Text>
+                    </FontText>
                 </View>
-                <Text
+                <FontText
                     style={{
                         fontSize: 16,
                         fontWeight: 400,
@@ -170,7 +171,7 @@ export function BigMissModal({
                     }}>
                     Putting for the rough, are we? You might need GPS for the next one.
                     Mark where you missed below.
-                </Text>
+                </FontText>
                 <View style={{flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",}}>
                     <View style={{flexDirection: "column", gap: 12}}>
                         <Pressable
@@ -319,9 +320,9 @@ export function BigMissModal({
                     flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end",
                     marginBottom: 8
                 }}>
-                    <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>
+                    <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>
                         Estimated distance missed ({userData.preferences.units === 0 ? "ft" : "m"}):
-                    </Text>
+                    </FontText>
                     <View style={{
                         flexDirection: "row", gap: 12, marginBottom: 12, alignItems: "center",
                     }}>
@@ -385,9 +386,9 @@ export function BigMissModal({
                 <View style={{
                     flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end"
                 }}>
-                    <Text style={{fontSize: 18, color: colors.text.primary, marginBottom: 10}}>
+                    <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 10}}>
                         Total putts to complete the hole:
-                    </Text>
+                    </FontText>
                     <View style={{flexDirection: "row", gap: 12, marginBottom: 8, alignItems: "center",}}>
                         <PrimaryButton style={{
                             aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0

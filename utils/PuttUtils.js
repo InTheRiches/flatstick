@@ -391,6 +391,7 @@ const createSimpleStats = () => {
             }
         },
         madePutts: {
+            overall: 0,
             distance: [0, 0, 0, 0],
             slopes: {
                 downhill: {
@@ -510,6 +511,7 @@ const createSimpleRefinedStats = () => {
             }
         },
         madePutts: {
+            overall: 0,
             distance: [0, 0, 0, 0],
             slopes: {
                 downhill: {
@@ -605,6 +607,7 @@ function cleanMisreads(averagePerformance) {
 
 function cleanMadePutts(averagePerformance) {
     const refinedMadePutts = {
+        overall: 0,
         distance: [0, 0, 0, 0],
         slopes: {
             downhill: {
@@ -638,6 +641,8 @@ function cleanMadePutts(averagePerformance) {
         }
     }
 
+    refinedMadePutts.overall = roundTo(averagePerformance.madePutts.overall / (averagePerformance.rounds * 18), 2);
+
     return refinedMadePutts;
 }
 
@@ -661,6 +666,7 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     if (totalPutts === 1) {
         simpleStats.onePutts++;
         simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+        simpleStats.madePutts.overall++;
 
         simpleStats.madePutts.distance[distanceIndex]++;
     }

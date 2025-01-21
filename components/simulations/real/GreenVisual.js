@@ -1,10 +1,11 @@
-import {Platform, Text, TextInput, View} from "react-native";
+import {Platform, TextInput, View} from "react-native";
 import {GreenBreakSelector} from "./GreenBreakSelector";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import useColors from "../../../hooks/useColors";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
 import {useAppContext} from "../../../contexts/AppCtx";
+import FontText from "../../general/FontText";
 
 export function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
     const colors = useColors();
@@ -49,8 +50,8 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                     flex: 1,
                     justifyContent: "center"
                 }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</Text>
-                    <Text style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{puttBreak}</Text>
+                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</FontText>
+                    <FontText style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{puttBreak}</FontText>
                 </View>
                 <View style={{
                     flexDirection: "column",
@@ -60,11 +61,11 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                     flex: 1,
                     justifyContent: "center"
                 }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</Text>
-                    <Text style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{slope}</Text>
+                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</FontText>
+                    <FontText style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{slope}</FontText>
                 </View>
                 <View style={{ flex: 1, flexDirection: "column"}}>
-                    <Text style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</Text>
+                    <FontText style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
                     <View style={{
                         flexDirection: "row",
                         gap: 12,
@@ -130,7 +131,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                                                 colors.background.primary :
                                                 colors.border.default,
                                     flex: 1}}>
-                                <Text style={{fontSize: 20, paddingVertical: 2, fontWeight: "bold", textAlign: "center", color: colors.text.primary,}}>{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                                <FontText style={{fontSize: 20, paddingVertical: 2, fontWeight: "bold", textAlign: "center", color: colors.text.primary,}}>{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                             </View>
                         </View>
                         <PrimaryButton

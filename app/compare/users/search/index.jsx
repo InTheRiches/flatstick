@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, Text, TextInput, View} from "react-native";
+import {Pressable, ScrollView, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../../hooks/useColors";
 import {auth, getProfilesByUsername} from "../../../../utils/firebase";
@@ -6,6 +6,7 @@ import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import FontText from "../../../../components/general/FontText";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/3548415690";
 
@@ -50,7 +51,7 @@ export default function SearchUsers({}) {
                                   d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                         </Svg>
                     </Pressable>
-                    <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Find Users</Text>
+                    <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Find Users</FontText>
                 </View>
                 <TextInput
                     placeholder={"Username"}
@@ -66,7 +67,7 @@ export default function SearchUsers({}) {
                     placeholderTextColor={colors.text.secondary}
                     onChangeText={updateUsername}
                 />
-                {profiles.length === 0 && <Text style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</Text>}
+                {profiles.length === 0 && <FontText style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</FontText>}
                 <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
                         return (
@@ -86,8 +87,8 @@ export default function SearchUsers({}) {
                                               clipRule="evenodd"/>
                                     </Svg>
                                     <View style={{marginLeft: 6}}>
-                                        <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</Text>
-                                        <Text style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</Text>
+                                        <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</FontText>
+                                        <FontText style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</FontText>
                                     </View>
                                 </View>
                                 <View style={{backgroundColor: colors.button.secondary.background, alignItems: "center", justifyContent: "center", aspectRatio: 1, borderRadius: 24, paddingHorizontal: 8}}>

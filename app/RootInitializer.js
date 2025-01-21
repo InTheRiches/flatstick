@@ -4,7 +4,18 @@ import {useRouter} from "expo-router";
 import {useAppContext, useSession} from "../contexts/AppCtx";
 import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 import NetInfo from '@react-native-community/netinfo';
-import {useFonts} from "expo-font";
+import {
+    Inter_100Thin,
+    Inter_200ExtraLight,
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+    Inter_900Black,
+    useFonts,
+} from '@expo-google-fonts/inter';
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
@@ -12,8 +23,16 @@ export default function RootInitializer({}) {
     const {setSession, isLoading} = useSession();
     const {initialize} = useAppContext();
     const router = useRouter();
-    const [loaded, error] = useFonts({
-        'Geist': require('../assets/fonts/Geist[wght].ttf'),
+    let [fontsLoaded] = useFonts({
+        Inter_100Thin,
+        Inter_200ExtraLight,
+        Inter_300Light,
+        Inter_400Regular,
+        Inter_500Medium,
+        Inter_600SemiBold,
+        Inter_700Bold,
+        Inter_800ExtraBold,
+        Inter_900Black,
     });
 
     // Monitor authentication state changes
@@ -45,7 +64,7 @@ export default function RootInitializer({}) {
 
     return visible ? (
         <AnimatedBootSplash
-            ready={(!localLoading || !isLoading) && loaded}
+            ready={(!localLoading || !isLoading) && fontsLoaded}
             onAnimationEnd={() => {
                 setVisible(false);
                 if (!localLoading) {

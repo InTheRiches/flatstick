@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, Text, View} from 'react-native';
+import {Pressable, ScrollView, View} from 'react-native';
 
 import React, {useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
@@ -22,6 +22,7 @@ import {deleteUser} from "firebase/auth";
 import Loading from "../../components/general/popups/Loading";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import FontText from "../../components/general/FontText";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
@@ -88,19 +89,19 @@ export default function HomeScreen() {
                             flex: 0,
                             paddingBottom: 10,
                         }}>
-                            <Text style={{
+                            <FontText style={{
                                 fontSize: 24,
                                 fontWeight: 500,
                                 color: colors.text.primary
-                            }}>Settings</Text>
+                            }}>Settings</FontText>
                         </View>
-                        <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</Text>
+                        <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</FontText>
                         <Pressable onPress={() => {
                             if (GoogleSignin.getCurrentUser() !== null) {
                                 router.push({pathname: "/settings/user"})
                             } else reauthenticateRef.current.present()
                         }} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Personal Info</Text>
+                            <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Personal Info</FontText>
                             <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" strokeWidth={3}
                                  stroke={colors.text.primary}>
@@ -109,7 +110,7 @@ export default function HomeScreen() {
                             </Svg>
                         </Pressable>
                         <Pressable onPress={() => router.push({pathname: "/editputters"})} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Your Putters</Text>
+                            <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Your Putters</FontText>
                             <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" strokeWidth={3}
                                  stroke={colors.text.primary}>
@@ -118,7 +119,7 @@ export default function HomeScreen() {
                             </Svg>
                         </Pressable>
                         <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Your Grip Methods</Text>
+                            <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Your Grip Methods</FontText>
                             <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" strokeWidth={3}
                                  stroke={colors.text.primary}>
@@ -137,7 +138,7 @@ export default function HomeScreen() {
                         {/*        value={reminders}*/}
                         {/*    />*/}
                         {/*</Pressable>*/}
-                        <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>INTERFACE</Text>
+                        <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>INTERFACE</FontText>
                         {/*<Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight:18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>*/}
                         {/*    <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>App Theme</Text>*/}
                         {/*    <Pressable*/}
@@ -149,26 +150,26 @@ export default function HomeScreen() {
                         {/*    </Pressable>*/}
                         {/*</Pressable>*/}
                         <Pressable style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 18, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-                            <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Units</Text>
+                            <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Units</FontText>
                             <Pressable
                                 onPressIn={() => setUnitsPressed(true)}
                                 onPressOut={() => setUnitsPressed(false)}
                                 onPress={() => setUnitsRef.current.present()}
                                 style={{padding: 7}}>
-                                <Text style={{color: colors.text.link, opacity: unitsPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.units === 0 ? "Imperial" : "Metric"}</Text>
+                                <FontText style={{color: colors.text.link, opacity: unitsPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{userData.preferences.units === 0 ? "Imperial" : "Metric"}</FontText>
                             </Pressable>
                         </Pressable>
-                        <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>ACCOUNT ACTIONS</Text>
+                        <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>ACCOUNT ACTIONS</FontText>
                         <View style={{flexDirection: "row", gap: 12}}>
                             <PrimaryButton onPress={signOut} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
-                                <Text style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</Text>
+                                <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</FontText>
                             </PrimaryButton>
                             <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={() => {
                                 if (GoogleSignin.getCurrentUser() !== null) {
                                     confirmDeleteRef.current.present();
                                 } else reauthenticateDeletionRef.current.present();
                             }}>
-                                <Text style={{color: colors.button.danger.text, fontSize: 16, fontWeight: 500}}>Delete Account</Text>
+                                <FontText style={{color: colors.button.danger.text, fontSize: 16, fontWeight: 500}}>Delete Account</FontText>
                             </DangerButton>
                         </View>
                     </ScrollView>
@@ -180,7 +181,7 @@ export default function HomeScreen() {
             <SetTheme setThemeRef={setThemeRef}/>
             <SetUnits setUnitsRef={setUnitsRef}/>
             <ReauthenticateForProfile reauthenticateRef={reauthenticateRef}/>
-            <ReauthenticateForDeletion reauthenticateRef={reauthenticateDeletionRef}/>
+            <ReauthenticateForDeletion reauthenticateRef={reauthenticateDeletionRef} confirmDeleteRef={confirmDeleteRef}/>
             <ConfirmDelete onDelete={deleteAccount} cancel={() => confirmDeleteRef.current.dismiss()} confirmDeleteRef={confirmDeleteRef}/>
         </BottomSheetModalProvider>
     );

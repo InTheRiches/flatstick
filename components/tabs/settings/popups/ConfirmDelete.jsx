@@ -1,9 +1,10 @@
 import React, {useCallback} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
+import FontText from "../../../general/FontText";
 
 export function ConfirmDelete({ confirmDeleteRef, cancel, onDelete}) {
     const colors = useColors();
@@ -41,13 +42,13 @@ export function ConfirmDelete({ confirmDeleteRef, cancel, onDelete}) {
                             borderRadius: 50,
                             backgroundColor: colors.button.danger.background,
                         }}>
-                        <Text style={{color: "white", fontWeight: 600, fontSize: 24}}>!</Text>
+                        <FontText style={{color: "white", fontWeight: 600, fontSize: 24}}>!</FontText>
                     </View>
-                    <Text style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left",}}>
+                    <FontText style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left",}}>
                         Delete Account
-                    </Text>
+                    </FontText>
                 </View>
-                <Text
+                <FontText
                     style={{
                         fontSize: 16,
                         fontWeight: 400,
@@ -57,7 +58,7 @@ export function ConfirmDelete({ confirmDeleteRef, cancel, onDelete}) {
                         marginBottom: 16,
                     }}>
                     Are you sure you want to delete your account? This action cannot be undone.
-                </Text>
+                </FontText>
                 <View style={{flexDirection: "column", width: "80%", alignItems: "center", justifyContent: "flex-end"}}>
                     <Pressable onPress={onDelete} style={({pressed}) => [{
                         backgroundColor: pressed ? colors.button.danger.depressed : colors.button.danger.background,
@@ -66,7 +67,7 @@ export function ConfirmDelete({ confirmDeleteRef, cancel, onDelete}) {
                         marginTop: 16,
                         width: "100%"
                     }]}>
-                        <Text style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>Delete Account</Text>
+                        <FontText style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>Delete Account</FontText>
                     </Pressable>
                     <PrimaryButton key={"primary"} onPress={cancel} title={"Cancel"}
                                    style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>

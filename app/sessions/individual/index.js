@@ -1,6 +1,6 @@
 import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation} from "expo-router";
-import {BackHandler, Text, View} from "react-native";
+import {BackHandler, View} from "react-native";
 import React, {useEffect, useRef, useState} from "react";
 import {roundTo} from "../../../utils/roundTo";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
@@ -15,6 +15,7 @@ import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-a
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import ShareSession from "../../../components/sessions/individual/ShareSession";
 import {ConfirmDelete} from "../../../components/sessions/individual/ConfirmDelete";
+import FontText from "../../../components/general/FontText";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/8364755969";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
@@ -79,15 +80,15 @@ export default function IndividualSession({}) {
             <ScreenWrapper style={{paddingHorizontal: 24, justifyContent: "space-between"}}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                        <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</Text>
-                        <Text style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "right"}}>{formatTimestamp()}</Text>
+                        <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
+                        <FontText style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "right"}}>{formatTimestamp()}</FontText>
                     </View>
 
                     <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                         <View style={{alignItems: "center", flex: 0.5}}>
-                            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
-                            <Text style={{color: colors.text.primary, fontSize: session.strokesGained < -10 ? 40 : 48, fontWeight: 600, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</Text>
-                            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(Best: {bestSession.totalPutts && bestSession.strokesGained > 0 ? "+" : ""}{bestSession.strokesGained})</Text>
+                            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</FontText>
+                            <FontText style={{color: colors.text.primary, fontSize: session.strokesGained < -10 ? 40 : 48, fontWeight: 600, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
+                            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(Best: {bestSession.totalPutts && bestSession.strokesGained > 0 ? "+" : ""}{bestSession.strokesGained})</FontText>
                         </View>
                         <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, flex: 1}}>
                             <View style={{
@@ -99,7 +100,7 @@ export default function IndividualSession({}) {
                                 justifyContent: "space-between",
                                 alignItems: "center"
                             }}>
-                                <Text style={{fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: "bold", flex: 1}}>Performance</Text>
+                                <FontText style={{fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: "bold", flex: 1}}>Performance</FontText>
                             </View>
                             <View style={{flexDirection: "row"}}>
                                 <View style={{
@@ -111,17 +112,17 @@ export default function IndividualSession({}) {
                                     paddingTop: 6,
                                     paddingLeft: 12,
                                 }}>
-                                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</Text>
+                                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</FontText>
                                     <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[0]}</Text>
-                                        <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[0]/session.totalPutts) * 100, 0)}%)</Text>
+                                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[0]}</FontText>
+                                        <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[0]/session.totalPutts) * 100, 0)}%)</FontText>
                                     </View>
                                 </View>
                                 <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
-                                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</Text>
+                                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</FontText>
                                     <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{session.puttCounts[1]}</Text>
-                                        <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[1]/session.totalPutts) * 100, 0)}%)</Text>
+                                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{session.puttCounts[1]}</FontText>
+                                        <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[1]/session.totalPutts) * 100, 0)}%)</FontText>
                                     </View>
                                 </View>
                             </View>
@@ -135,20 +136,20 @@ export default function IndividualSession({}) {
                                     paddingTop: 6,
                                     paddingLeft: 12,
                                 }}>
-                                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</Text>
+                                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</FontText>
                                     <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                        <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</Text>
-                                        <Text style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/session.totalPutts) * 100, 0)}%)</Text>
+                                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</FontText>
+                                        <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/session.totalPutts) * 100, 0)}%)</FontText>
                                     </View>
                                 </View>
                                 <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
-                                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                                    <Text style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{convertUnits(session.avgMiss, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
+                                    <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{convertUnits(session.avgMiss, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                                 </View>
                             </View>
                         </View>
                     </View>
-                    <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>1st Putt Distribution</Text>
+                    <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>1st Putt Distribution</FontText>
                     <MissDistributionDiagram missData={session.missData} holes={session.holes} alone={true} units={userData.preferences.units}></MissDistributionDiagram>
                     <LeftRightBias session={session}></LeftRightBias>
                     <ShortPastBias session={session}></ShortPastBias>

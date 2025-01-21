@@ -1,9 +1,10 @@
 import React from "react";
 import useColors from "../../../hooks/useColors";
-import {Pressable, Text, useColorScheme, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {roundTo} from "../../../utils/roundTo";
 import {useAppContext} from "@/contexts/AppCtx";
 import {useRouter} from "expo-router";
+import FontText from "../../general/FontText";
 
 export function RecentSessionSummary({unfinished}) {
     const {puttSessions, userData} = useAppContext();
@@ -32,30 +33,30 @@ export function RecentSessionSummary({unfinished}) {
                     borderBottomRightRadius: unfinished ? 8 : 16,
                     marginBottom: unfinished ? 4 : 0
                 }}>
-                <Text style={{
+                <FontText style={{
                     textAlign: "left",
                     color: colors.text.primary,
                     fontSize: 20,
-                }}>No sessions</Text>
-                <Text style={{
+                }}>No sessions</FontText>
+                <FontText style={{
                     textAlign: "left",
                     color: colors.text.secondary,
                     fontSize: 16,
                     marginTop: 4
-                }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</Text>
+                }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</FontText>
             </View>
         )
     }
 
     switch(puttSessions[0].type) {
         case "real-simulation":
-            return getRealSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished, router);
+            return getRealSimulation(userData, colors, colorScheme, date, puttSessions[0], puttSessions.length, unfinished, router);
         case "round-simulation":
-            return getHoleSimulation(userData, colors, colorScheme, date, puttSessions[0], unfinished, router);
+            return getHoleSimulation(userData, colors, colorScheme, date, puttSessions[0], puttSessions.length, unfinished, router);
     }
 }
 
-function getHoleSimulation(userData, colors, colorScheme, date, recentSession, unfinished, router) {
+function getHoleSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
     return (
         <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{
                 backgroundColor: colors.background.secondary,
@@ -76,65 +77,67 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, u
                 marginBottom: 14
             }}>
                 <View style={{flex: 1}}>
-                    <Text style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
-                        "/" + date.getDate()}</Text>
-                    <Text style={{
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontSize: 24
-                    }}>Previous</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
+                        "/" + date.getDate()}</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 24,
-                        marginTop: -8
-                    }}>Session</Text>
+                        fontWeight: 500,
+                    }}>Previous</FontText>
+                    <FontText style={{
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontSize: 24,
+                        marginTop: -12,
+                        fontWeight: 500,
+                    }}>Session</FontText>
                 </View>
                 <View style={{flex: 1}}>
-                    <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
-                    <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24}}>Simulation</Text>
-                    <Text style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -8}}>Summary</Text>
+                    <FontText style={{textAlign: "right", color: colors.text.primary}}>#{puttSessionsLength}</FontText>
+                    <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24, fontWeight: 500,}}>Simulation</FontText>
+                    <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -12, fontWeight: 500,}}>Summary</FontText>
                 </View>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.difficulty}</Text>
+                    }}>{recentSession.difficulty[0].toUpperCase() + recentSession.difficulty.slice(1)}</FontText>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                    <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: "bold"}}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Made</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: "bold"}}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>SG</Text>
-                    <Text
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>SG</FontText>
+                    <FontText
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</Text>
+                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>
     );
 }
 
-function getRealSimulation(userData, colors, colorScheme, date, recentSession, unfinished, router) {
+function getRealSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
     return (
         <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})}
             style={{
@@ -156,77 +159,77 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, u
                 marginBottom: 14
             }}>
                 <View style={{flex: 1}}>
-                    <Text style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
-                        "/" + date.getDate()}</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
+                        "/" + date.getDate()}</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 24,
                         fontWeight: 500
-                    }}>Previous</Text>
-                    <Text style={{
+                    }}>Previous</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 24,
                         marginTop: -8,
                         fontWeight: 500
-                    }}>Session</Text>
+                    }}>Session</FontText>
                 </View>
                 <View style={{flex: 1}}>
-                    <Text style={{textAlign: "right", color: colors.text.primary}}>#132</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "right", color: colors.text.primary}}>#{puttSessionsLength}</FontText>
+                    <FontText style={{
                         textAlign: "right",
                         color: colors.text.primary,
                         fontSize: 24,
                         fontWeight: 500
-                    }}>{recentSession.holes} Hole Round</Text>
-                    <Text style={{
+                    }}>{recentSession.holes} Hole Round</FontText>
+                    <FontText style={{
                         textAlign: "right",
                         color: colors.text.primary,
                         fontSize: 24,
                         marginTop: -8,
                         fontWeight: 500
-                    }}>Summary</Text>
+                    }}>Summary</FontText>
                 </View>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Holes</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Holes</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.holes}</Text>
+                    }}>{recentSession.holes}</FontText>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Made</Text>
-                    <Text
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Made</FontText>
+                    <FontText
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</Text>
+                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>SG</Text>
-                    <Text
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>SG</FontText>
+                    <FontText
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</Text>
+                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
                 </View>
                 <View>
-                    <Text style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</Text>
-                    <Text style={{
+                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
+                    <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                    }}>{recentSession.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>

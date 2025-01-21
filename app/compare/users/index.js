@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, Text, View} from "react-native";
+import {Pressable, ScrollView, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -9,6 +9,7 @@ import {doc, getDoc} from "firebase/firestore";
 import {auth, firestore} from "../../../utils/firebase";
 import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import FontText from "../../../components/general/FontText";
 
 export default function CompareUsers({}) {
     const colors = useColors();
@@ -46,9 +47,9 @@ export default function CompareUsers({}) {
                                   d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                         </Svg>
                     </Pressable>
-                    <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Compare Users</Text>
+                    <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Compare Users</FontText>
                 </View>
-                <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER</Text>
+                <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER</FontText>
                 <View style={{
                     padding: 6,
                     backgroundColor: colors.background.secondary,
@@ -65,31 +66,31 @@ export default function CompareUsers({}) {
                                   clipRule="evenodd"/>
                         </Svg>
                         <View style={{marginLeft: 6}}>
-                            <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500, marginBottom: 4}}>{profile.firstName + " " + profile.lastName}</Text>
+                            <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500, marginBottom: 4}}>{profile.firstName + " " + profile.lastName}</FontText>
                         </View>
                     </View>
                 </View>
-                <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>COMPARISON</Text>
+                <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>COMPARISON</FontText>
                 <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
                     {loading ?
-                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Loading...</Text> :
-                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? "you" : profile.firstName + " " + profile.lastName}</Text> putt better.</Text>
+                        <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Loading...</FontText> :
+                        <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <FontText style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? "you" : profile.firstName + " " + profile.lastName}</FontText> putt better.</FontText>
                     }
                 </View>
-                <Text style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</Text>
+                <FontText style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</FontText>
                 <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>
-                    <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</Text>
-                    <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{auth.currentUser.displayName}</Text>
-                    <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</Text>
+                    <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</FontText>
+                    <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{auth.currentUser.displayName}</FontText>
+                    <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</FontText>
                 </View>
                 <DataTable stats1={currentStats} stats2={usersStats} type={"users"}/>
-                <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</Text>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</FontText>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={0}/>
-                <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</Text>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={1}/>
-                <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</Text>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={2}/>
-                <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</Text>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={3}/>
             </ScrollView>
         </ScreenWrapper>

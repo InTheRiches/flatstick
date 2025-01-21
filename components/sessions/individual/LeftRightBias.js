@@ -1,8 +1,9 @@
-import {Image, Text, View} from "react-native";
+import {Image, View} from "react-native";
 import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {convertUnits} from "../../../utils/Conversions";
+import FontText from "../../general/FontText";
 
 export const LeftRightBias = ({session}) => {
     const colors = useColors();
@@ -23,7 +24,7 @@ export const LeftRightBias = ({session}) => {
     }
     return (
         <View style={{backgroundColor: colors.background.secondary, marginTop: 20, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Left to Right Bias</Text>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Left to Right Bias</FontText>
             <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>
@@ -35,14 +36,14 @@ export const LeftRightBias = ({session}) => {
                 <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</Text>
-                <Text style={{position: "absolute", left: leftRightBias === 0 ? left : left - 5, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "ft" : "m"}</Text>
+                <FontText style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</FontText>
+                <FontText style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</FontText>
+                <FontText style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</FontText>
+                <FontText style={{position: "absolute", left: leftRightBias === 0 ? left : left - 5, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
             </View>
             <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                <Text style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</Text>
-                <Text style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>Right</Text>
+                <FontText style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</FontText>
+                <FontText style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>Right</FontText>
             </View>
         </View>
     )

@@ -1,5 +1,5 @@
 import {useRouter} from 'expo-router';
-import {Image, Text, View} from 'react-native';
+import {Image, View} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
 import React, {useEffect, useRef, useState} from 'react';
@@ -7,6 +7,7 @@ import Svg, {Path} from 'react-native-svg';
 import useColors from "@/hooks/useColors";
 import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 import {canvas2Polar, normalizeRad} from "react-native-redash";
+import FontText from "../../../../components/general/FontText";
 
 export default function PressurePuttingSetup() {
     const colors = useColors();
@@ -18,8 +19,8 @@ export default function PressurePuttingSetup() {
         <View style={{backgroundColor: colors.background.primary, flexGrow: 1}}>
             <View style={{paddingHorizontal: 24, gap: 24}}>
                 <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, marginBottom: -12}}>
-                    <Text style={{color: colors.text.secondary, fontSize: 16}}>Pressure Putting</Text>
-                    <Text style={{fontSize: 28, fontWeight: 500, color: colors.text.primary}}>Setup</Text>
+                    <FontText style={{color: colors.text.secondary, fontSize: 16}}>Pressure Putting</FontText>
+                    <FontText style={{fontSize: 28, fontWeight: 500, color: colors.text.primary}}>Setup</FontText>
                 </View>
                 <View style={{
                     paddingHorizontal: 12,
@@ -27,13 +28,13 @@ export default function PressurePuttingSetup() {
                     backgroundColor: colors.background.secondary,
                     borderRadius: 16,
                 }}>
-                    <Text style={{color: "#D0C597", fontWeight: "500"}}>STEP 1</Text>
-                    <Text style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
+                    <FontText style={{color: "#D0C597", fontWeight: "500"}}>STEP 1</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
                         Initial Setup
-                    </Text>
-                    <Text style={{marginTop: 2, color: colors.text.primary}}>Find a putt, 5ft long, and place 8
+                    </FontText>
+                    <FontText style={{marginTop: 2, color: colors.text.primary}}>Find a putt, 5ft long, and place 8
                         balls in a circle around the hole.
-                    </Text>
+                    </FontText>
                 </View>
                 <View style={{
                     paddingHorizontal: 12,
@@ -41,13 +42,13 @@ export default function PressurePuttingSetup() {
                     backgroundColor: colors.background.secondary,
                     borderRadius: 16,
                 }}>
-                    <Text style={{color: "#D0C597", fontWeight: "500"}}>STEP 3</Text>
-                    <Text style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
+                    <FontText style={{color: "#D0C597", fontWeight: "500"}}>STEP 3</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
                         Finish Setup
-                    </Text>
-                    <Text style={{marginTop: 2, color: colors.text.primary}}>Add two balls to each end, like the
+                    </FontText>
+                    <FontText style={{marginTop: 2, color: colors.text.primary}}>Add two balls to each end, like the
                         picture. It will look like a hurricane.
-                    </Text>
+                    </FontText>
                 </View>
                 <View style={{
                     paddingHorizontal: 12,
@@ -58,16 +59,16 @@ export default function PressurePuttingSetup() {
                     flexDirection: "row", // Ensures horizontal alignment
                 }}>
                     <View style={{flex: 1, paddingRight: 8}}>
-                        <Text style={{color: "#D0C597", fontWeight: "500"}}>STEP 4</Text>
-                        <Text style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
+                        <FontText style={{color: "#D0C597", fontWeight: "500"}}>STEP 4</FontText>
+                        <FontText style={{fontSize: 20, fontWeight: "500", color: colors.text.primary}}>
                             Identify Break
-                        </Text>
-                        <Text style={{marginTop: 2, color: colors.text.primary}}>
+                        </FontText>
+                        <FontText style={{marginTop: 2, color: colors.text.primary}}>
                             Pick a ball in the initial circle, and rotate the green until it matches the given
                             break. You will
                             start from this ball for the remainder of the simulation. After each putt, move
                             counter-clockwise around the circle.
-                        </Text>
+                        </FontText>
                     </View>
                     <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
                         <ArrowInput theta={theta} setTheta={setTheta}/>
@@ -88,7 +89,7 @@ export default function PressurePuttingSetup() {
                     paddingRight: 8,
                     paddingVertical: 6
                 }}>
-                    <Text style={{color: colors.button.secondary.text, fontSize: 18}}>Continue</Text>
+                    <FontText style={{color: colors.button.secondary.text, fontSize: 18}}>Continue</FontText>
                     <View style={{
                         borderRadius: 30,
                         padding: 6,

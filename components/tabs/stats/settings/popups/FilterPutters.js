@@ -1,10 +1,11 @@
 import {useAppContext} from "../../../../../contexts/AppCtx";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
-import {Pressable, Text} from "react-native";
+import {Pressable} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import CustomBackdrop from "../../../../general/popups/CustomBackdrop";
+import FontText from "../../../../general/FontText";
 
 export function FilterPutters({filterPuttersRef}) {
     const {putters, nonPersistentData, setNonPersistentData} = useAppContext()
@@ -19,7 +20,7 @@ export function FilterPutters({filterPuttersRef}) {
               handleIndicatorStyle={{backgroundColor: colors.text.primary}}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
-                <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</Text>
+                <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Filter By Putter</FontText>
                 {
                     putters.map((putter, index) => {
                         return <Putter filteringPutter={nonPersistentData.filtering.putter} reference={filterPuttersRef} setFilteringPutter={(newPutter) => setNonPersistentData({filtering: {...nonPersistentData.filtering, putter: newPutter}})} putter={putter} index={index} key={"puu-" + index}/>
@@ -41,7 +42,7 @@ function Putter({putter, index, filteringPutter, setFilteringPutter, reference})
                 if (filteringPutter !== index)
                     setFilteringPutter(index);
             }}>
-            <Text style={{color: colors.text.primary, fontSize: 16}}>{putter.type === "default" ? "All Putters" : putter.name}</Text>
+            <FontText style={{color: colors.text.primary, fontSize: 16}}>{putter.type === "default" ? "All Putters" : putter.name}</FontText>
             {
                 filteringPutter === index &&
                 <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">

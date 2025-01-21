@@ -1,10 +1,11 @@
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {useRouter} from "expo-router";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 import useColors from "../../../hooks/useColors";
+import FontText from "../../general/FontText";
 
 export function SeeAllSessions({}) {
     const router = useRouter();
@@ -26,7 +27,7 @@ export function SeeAllSessions({}) {
                 marginTop: 12,
                 marginBottom: 24
             }}>
-                <Text style={{color: colors.button.secondary.text, fontSize: 18}}>See All Sessions</Text>
+                <FontText style={{color: colors.button.secondary.text, fontSize: 18}}>See All Sessions</FontText>
                 <View style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.secondary.text}}>
                     <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
                          viewBox="0 0 24 24" strokeWidth={1.5}

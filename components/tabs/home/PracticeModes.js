@@ -1,8 +1,9 @@
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import {PracticeMode} from "./PracticeMode";
 import React from "react";
 import {useAppContext} from "../../../contexts/AppCtx";
 import useColors from "../../../hooks/useColors";
+import FontText from "../../general/FontText";
 
 export function PracticeModes({newSessionRef, newRealRoundRef}) {
     const colors = useColors();
@@ -10,8 +11,8 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
 
     return (
         <View style={{marginTop: puttSessions.length > 0 ? 0 : 24, gap: 12, marginBottom: 18}}>
-            <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New
-                Practice</Text>
+            <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New
+                Practice</FontText>
             <PracticeMode
                 description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                 name={"18 Hole Simulation"}
@@ -35,7 +36,7 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
                 gap: 12,
                 paddingVertical: 10
             }}>
-                <Text style={{color: colors.text.primary, fontSize: 18}}>More coming soon!</Text>
+                <FontText style={{color: colors.text.primary, fontSize: 18}}>More coming soon!</FontText>
             </View>
         </View>
     )

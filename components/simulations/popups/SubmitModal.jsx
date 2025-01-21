@@ -1,11 +1,12 @@
-import React, {useCallback, useMemo, useState} from "react";
-import {View, Text, Pressable, TextInput, useColorScheme} from "react-native";
+import React, {useCallback} from "react";
+import {View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import Svg, {Path} from "react-native-svg";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
+import FontText from "../../general/FontText";
 
 export function SubmitModal({submitRef, submit, cancel}) {
     const colors = useColors();
@@ -58,18 +59,18 @@ export function SubmitModal({submitRef, submit, cancel}) {
                                 <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                             </Svg>
                         </View>
-                        <Text style={{
+                        <FontText style={{
                             fontSize: 26,
                             fontWeight: 600,
                             color: colors.text.primary,
                             textAlign: "left",
                         }}>
                             Submit Round
-                        </Text>
+                        </FontText>
                     </View>
-                    <Text style={{textAlign: "center", fontSize: 16, marginTop: 8, color: colors.text.secondary}}>Done
+                    <FontText style={{textAlign: "center", fontSize: 16, marginTop: 8, color: colors.text.secondary}}>Done
                         putting? Submit to find out if you should celebrate—or blame the slope, the wind, and your
-                        shoes.</Text>
+                        shoes.</FontText>
                     <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-around", marginTop: 24}}>
                         {colorScheme === "light" ?
                             [
