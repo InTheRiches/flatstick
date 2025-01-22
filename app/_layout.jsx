@@ -13,9 +13,11 @@ import {ErrorBoundary} from "react-error-boundary";
 import RootInitializer from "@/app/RootInitializer";
 import {LightTheme} from "@/constants/ModularColors";
 import mobileAds from "react-native-google-mobile-ads/src";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const colors = useColors();
+  const inset = useSafeAreaInsets();
 
   useEffect(() => {
     (async () => {
@@ -60,33 +62,34 @@ export default function RootLayout() {
         <AppProvider>
           <RootInitializer/>
           <StatusBar barStyle={"dark-content"} backgroundColor={"transparent"} translucent={true}/>
-          <GestureHandlerRootView>
-            <BottomSheetModalProvider>
-              <Stack screenOptions={{
-                headerShown: false,
-                navigationBarColor: colors.background.primary,
-              }}>
-                <Stack.Screen name="(tabs)"/>
-                <Stack.Screen name={"simulation/pressure/index"}/>
-                <Stack.Screen name={"simulation/pressure/setup/index"}/>
-                <Stack.Screen name={"simulation/round/index"}/>
-                <Stack.Screen name={"simulation/real/index"}/>
-                <Stack.Screen name="+not-found"/>
-                <Stack.Screen name={"editputters/index"}/>
-                <Stack.Screen name={"editgrips/index"}/>
-                <Stack.Screen name={"sessions/index"}/>
-                <Stack.Screen name={"sessions/individual/index"}/>
-                <Stack.Screen name={"settings/stats/index"}/>
-                <Stack.Screen name={"settings/user/index"}/>
-                <Stack.Screen name={"compare/putters/index"} />
-                <Stack.Screen name={"compare/grips/index"} />
-                <Stack.Screen name={"compare/users/search/index"} />
-                <Stack.Screen name={"compare/users/index"} />
-                <Stack.Screen name={"offline/index"}/>
-              </Stack>
-            </BottomSheetModalProvider>
-          </GestureHandlerRootView>
-
+          <View style={{paddingBottom: inset.bottom, flex: 1}}>
+            <GestureHandlerRootView>
+              <BottomSheetModalProvider>
+                <Stack screenOptions={{
+                  headerShown: false,
+                  navigationBarColor: colors.background.primary,
+                }}>
+                  <Stack.Screen name="(tabs)"/>
+                  <Stack.Screen name={"simulation/pressure/index"}/>
+                  <Stack.Screen name={"simulation/pressure/setup/index"}/>
+                  <Stack.Screen name={"simulation/round/index"}/>
+                  <Stack.Screen name={"simulation/real/index"}/>
+                  <Stack.Screen name="+not-found"/>
+                  <Stack.Screen name={"editputters/index"}/>
+                  <Stack.Screen name={"editgrips/index"}/>
+                  <Stack.Screen name={"sessions/index"}/>
+                  <Stack.Screen name={"sessions/individual/index"}/>
+                  <Stack.Screen name={"settings/stats/index"}/>
+                  <Stack.Screen name={"settings/user/index"}/>
+                  <Stack.Screen name={"compare/putters/index"} />
+                  <Stack.Screen name={"compare/grips/index"} />
+                  <Stack.Screen name={"compare/users/search/index"} />
+                  <Stack.Screen name={"compare/users/index"} />
+                  <Stack.Screen name={"offline/index"}/>
+                </Stack>
+              </BottomSheetModalProvider>
+            </GestureHandlerRootView>
+          </View>
         </AppProvider>
       </ErrorBoundary>
   );

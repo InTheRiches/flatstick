@@ -5,9 +5,11 @@ import {ScrollView, View} from "react-native";
 import {Header, PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/home";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "@/components/general/ScreenWrapper";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function HomeScreen() {
     const colors = useColors();
+    const insets = useSafeAreaInsets();
 
     const newSessionRef = useRef(null);
     const newRealRoundRef = useRef(null);

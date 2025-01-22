@@ -7,9 +7,11 @@ import {useSession} from "@/contexts/AppCtx";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function TabLayout() {
     const colors = useColors();
+    const insets = useSafeAreaInsets();
     const {isLoading} = useSession();
     const isKeyboardVisible = useKeyboardVisible();
 

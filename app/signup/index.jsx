@@ -332,18 +332,16 @@ export default function CreateAccount() {
                             placeholderTextColor={colors.text.placeholder}
                             placeholder={"Enter your email..."}
                         />
-                        {invalidEmail && <Text style={{
+                        {invalidEmail && <View style={{
                             position: "absolute",
                             right: 12,
                             top: 7.5,
                             color: "white",
                             backgroundColor: "#EF4444",
-                            borderRadius: 50,
+                            borderRadius: 30,
                             aspectRatio: 1,
                             width: 22,
-                            textAlign: "center",
-                            fontSize: 16
-                        }}>!</Text>}
+                        }}><Text style={{textAlign: "center", fontSize: 16}}>!</Text></View>}
                     </View>
                     {invalidEmail && errorCode !== "auth/email-already-in-use" &&
                         <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
@@ -441,15 +439,14 @@ export default function CreateAccount() {
 
 function InvalidRequirement() {
     return (
-        <Text style={{
-            color: "white",
-            backgroundColor: "#EF4444",
-            borderRadius: 50,
-            aspectRatio: 1,
-            width: 18,
-            textAlign: "center",
-            fontSize: 12
-        }}>!</Text>
+        <View style={{backgroundColor: "#EF4444", borderRadius: 50, aspectRatio: 1, width: 18}}>
+            <Text style={{
+                color: "white",
+                textAlign: "center",
+                fontSize: 12
+            }}>!</Text>
+        </View>
+
     )
 }
 

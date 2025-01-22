@@ -31,6 +31,7 @@ import {
 import {SafeAreaView} from "react-native-safe-area-context";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
+import ScreenWrapper from "../../../components/general/ScreenWrapper";
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
 const breaks = [
@@ -290,7 +291,7 @@ export default function RoundSimulation() {
 
     return (loading ? <Loading/> :
         <View style={{flex: 1}}>
-            <SafeAreaView style={{
+            <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,
                 paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
@@ -416,7 +417,7 @@ export default function RoundSimulation() {
                                         else totalPuttsRef.current.present()
                                     }}></PrimaryButton>}
                 </View>
-            </SafeAreaView>
+            </ScreenWrapper>
             <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                         totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
             <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
