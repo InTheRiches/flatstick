@@ -1,5 +1,5 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Platform, Pressable, Text, View} from 'react-native';
+import {BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
@@ -28,10 +28,11 @@ import {
     generateTargetedDistance,
     pickWeightedRandom
 } from "../../../components/simulations/Utils";
-import {SafeAreaView} from "react-native-safe-area-context";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import FontText from "../../../components/general/FontText";
+
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
 const breaks = [
@@ -301,7 +302,7 @@ export default function RoundSimulation() {
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 18}}>/{holes}</Text></Text>
+                        <FontText style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<FontText style={{fontSize: 18}}>/{holes}</FontText></FontText>
                         <View style={{position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center", marginVertical: "auto"}}>
                             <ElapsedTimeClock startTime={startTime}></ElapsedTimeClock>
                         </View>
@@ -342,7 +343,7 @@ export default function RoundSimulation() {
                             </Svg> :
                             <SvgClose width={20} height={20} stroke={misHit ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                         }
-                        <Text style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</Text>
+                        <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</FontText>
                     </Pressable>
                     <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
                         <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
@@ -368,7 +369,7 @@ export default function RoundSimulation() {
                                 </Svg> :
                                 <SvgClose width={20} height={20} stroke={misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</Text>
+                            <FontText style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</FontText>
                         </Pressable>
                         <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
                             marginBottom: 4,
@@ -393,7 +394,7 @@ export default function RoundSimulation() {
                                 </Svg> :
                                 <SvgClose width={20} height={20} stroke={misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</Text>
+                            <FontText style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</FontText>
                         </Pressable>
                     </View>
                 </View>

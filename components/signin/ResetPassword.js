@@ -3,9 +3,10 @@ import React, {useState} from "react";
 import {getAuth, sendPasswordResetEmail} from "firebase/auth";
 import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../general/popups/CustomBackdrop";
-import {ActivityIndicator, Text, View} from "react-native";
+import {ActivityIndicator, View} from "react-native";
 import {SecondaryButton} from "../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
+import FontText from "../general/FontText";
 
 export default function ResetPassword({resetPasswordRef}) {
     const colors = useColors();
@@ -53,7 +54,7 @@ export default function ResetPassword({resetPasswordRef}) {
             keyboardBlurBehavior={"restore"}
             backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 64, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
-                <Text style={{marginTop: 12, fontSize: 22, color: colors.text.primary, fontWeight: 500}}>Reset Password</Text>
+                <FontText style={{marginTop: 12, fontSize: 22, color: colors.text.primary, fontWeight: 500}}>Reset Password</FontText>
                 {   done ? (
                     <View style={{flexDirection: "row", gap: 12}}>
                         <View style={{
@@ -71,13 +72,13 @@ export default function ResetPassword({resetPasswordRef}) {
                                 <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                             </Svg>
                         </View>
-                        <Text style={{color: colors.text.primary, fontSize: 16, marginBottom: 4, flex: 1}}>An email has been sent to <Text style={{fontWeight: 700}}>{email}</Text> with instructions on how to reset your password.</Text>
+                        <FontText style={{color: colors.text.primary, fontSize: 16, marginBottom: 4, flex: 1}}>An email has been sent to <FontText style={{fontWeight: 700}}>{email}</FontText> with instructions on how to reset your password.</FontText>
                     </View>
                 ) : loading ? (
                         <ActivityIndicator size="large"/>
                     ) : (
                         <>
-                            <Text style={{color: colors.text.primary, fontSize: 16, marginBottom: 4}}>Email Address</Text>
+                            <FontText style={{color: colors.text.primary, fontSize: 16, marginBottom: 4}}>Email Address</FontText>
                             <View style={{flexDirection: "row", gap: 10}}>
                                 <BottomSheetTextInput
                                     style={{
@@ -96,7 +97,7 @@ export default function ResetPassword({resetPasswordRef}) {
                                     onBlur={() => setEmailFocused(false)}
                                     onChangeText={(text) => updateEmail(text)}
                                 />
-                                {emailInvalid && <Text style={{
+                                {emailInvalid && <FontText style={{
                                     position: "absolute",
                                     right: 12,
                                     top: 7.5,
@@ -107,7 +108,7 @@ export default function ResetPassword({resetPasswordRef}) {
                                     width: 22,
                                     textAlign: "center",
                                     fontSize: 16
-                                }}>!</Text>}
+                                }}>!</FontText>}
                                 <SecondaryButton style={{aspectRatio: 1, borderRadius: 10}} onPress={submit} disabled={emailInvalid}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={emailInvalid ? colors.button.disabled.text : colors.button.secondary.text} stroke={emailInvalid ? colors.button.disabled.text : colors.button.secondary.text} width={20} height={20} strokeWidth={1}>
                                         <Path fillRule="evenodd"
@@ -117,9 +118,9 @@ export default function ResetPassword({resetPasswordRef}) {
                                 </SecondaryButton>
                             </View>
                             {emailInvalid &&
-                                <Text style={{color: colors.input.invalid.text, marginTop: -6}}>Enter a valid email!</Text>}
+                                <FontText style={{color: colors.input.invalid.text, marginTop: -6}}>Enter a valid email!</FontText>}
                             {error &&
-                                <Text style={{color: colors.input.invalid.text, marginTop: -6}}>There is no account with that email!</Text>}
+                                <FontText style={{color: colors.input.invalid.text, marginTop: -6}}>There is no account with that email!</FontText>}
                         </>
                     )
                 }

@@ -11,6 +11,8 @@ import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from "@react-native-google-signin/google-signin";
 import {useAppContext, useSession} from "../../contexts/AppCtx";
+import FontText from "../../components/general/FontText";
+import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 const initialState = {
     skill: -1,
@@ -193,7 +195,7 @@ export default function CreateAccount() {
     }
 
     return (loading ? <Loading/> :
-            <SafeAreaView style={{
+            <ScreenWrapper style={{
                 flex: 1,
                 paddingHorizontal: 24,
                 justifyContent: "center",
@@ -201,8 +203,8 @@ export default function CreateAccount() {
                 backgroundColor: colors.background.primary
             }}>
                 <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center"}}>
-                    <Text style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</Text>
-                    <Text style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome! Please fill in the details to get started.</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>
+                    <FontText style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome! Please fill in the details to get started.</FontText>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                         <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
                             onPress={googleSignUp}>
@@ -230,7 +232,7 @@ export default function CreateAccount() {
                             marginTop: 12,
                             opacity: 0.1
                         }}></View>
-                        <Text style={{color: colors.text.secondary, fontSize: 16}} secondary={true}>or</Text>
+                        <FontText style={{color: colors.text.secondary, fontSize: 16}} secondary={true}>or</FontText>
                         <View style={{
                             height: 1.5,
                             flex: 1,
@@ -239,7 +241,7 @@ export default function CreateAccount() {
                             opacity: 0.1
                         }}></View>
                     </View>
-                    <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>First Name</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>First Name</FontText>
                     <View style={{flexDirection: "row"}}>
                         <TextInput
                             style={{
@@ -260,7 +262,7 @@ export default function CreateAccount() {
                             placeholderTextColor={colors.text.placeholder}
                             placeholder={"Enter your first name..."}
                         />
-                        {firstNameInvalid && <Text style={{
+                        {firstNameInvalid && <FontText style={{
                             position: "absolute",
                             right: 12,
                             top: 7.5,
@@ -271,11 +273,11 @@ export default function CreateAccount() {
                             width: 22,
                             textAlign: "center",
                             fontSize: 16
-                        }}>!</Text>}
+                        }}>!</FontText>}
                     </View>
                     {firstNameInvalid &&
-                        <Text style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : /^[a-zA-Z\s]*$/.test(firstName) ? "Don't include any spaces!" : "Don't include any special characters!"}</Text>}
-                    <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Last Name</Text>
+                        <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : /^[a-zA-Z\s]*$/.test(firstName) ? "Don't include any spaces!" : "Don't include any special characters!"}</FontText>}
+                    <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Last Name</FontText>
                     <View style={{flexDirection: "row"}}>
                         <TextInput
                             style={{
@@ -296,7 +298,7 @@ export default function CreateAccount() {
                             placeholderTextColor={colors.text.placeholder}
                             placeholder={"Enter your last name..."}
                         />
-                        {lastNameInvalid && <Text style={{
+                        {lastNameInvalid && <FontText style={{
                             position: "absolute",
                             right: 12,
                             top: 7.5,
@@ -307,11 +309,11 @@ export default function CreateAccount() {
                             width: 22,
                             textAlign: "center",
                             fontSize: 16
-                        }}>!</Text>}
+                        }}>!</FontText>}
                     </View>
                     {lastNameInvalid &&
-                        <Text style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</Text>}
-                    <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</Text>
+                        <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</FontText>}
+                    <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</FontText>
                     <View style={{flexDirection: "row"}}>
                         <TextInput
                             style={{
@@ -341,14 +343,14 @@ export default function CreateAccount() {
                             borderRadius: 30,
                             aspectRatio: 1,
                             width: 22,
-                        }}><Text style={{textAlign: "center", fontSize: 16}}>!</Text></View>}
+                        }}><FontText style={{textAlign: "center", fontSize: 16}}>!</FontText></View>}
                     </View>
                     {invalidEmail && errorCode !== "auth/email-already-in-use" &&
-                        <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
+                        <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}
                     {errorCode === "auth/email-already-in-use" &&
-                        <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}
+                        <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</FontText>}
 
-                    <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</FontText>
                     <View style={{flexDirection: "row", marginBottom: 12}}>
                         <TextInput
                             style={{
@@ -370,7 +372,7 @@ export default function CreateAccount() {
                             placeholderTextColor={colors.text.placeholder}
                             placeholder={"Enter a password..."}
                         />
-                        {invalidPassword && <Text style={{
+                        {invalidPassword && <FontText style={{
                             position: "absolute",
                             right: 12,
                             top: 7.5,
@@ -381,36 +383,36 @@ export default function CreateAccount() {
                             width: 22,
                             textAlign: "center",
                             fontSize: 16
-                        }}>!</Text>}
+                        }}>!</FontText>}
                     </View>
-                    <Text style={{
+                    <FontText style={{
                         color: !requirements.invalid ? '#16a34a' : colors.input.invalid.text,
                         marginBottom: 4
                     }}>Password
-                        Requirements:</Text>
+                        Requirements:</FontText>
                     <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                         {requirements.hasLength ? <ValidRequirement/> : <InvalidRequirement/>}
-                        <Text
+                        <FontText
                             style={{color: requirements.hasLength ? '#16a34a' : colors.input.invalid.text}}>At
-                            least 6 characters</Text>
+                            least 6 characters</FontText>
                     </View>
                     <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                         {requirements.hasNumber ? <ValidRequirement/> : <InvalidRequirement/>}
-                        <Text
+                        <FontText
                             style={{color: requirements.hasNumber ? '#16a34a' : colors.input.invalid.text}}>At
-                            least 1 number</Text>
+                            least 1 number</FontText>
                     </View>
                     <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                         {requirements.hasUppercase ? <ValidRequirement/> : <InvalidRequirement/>}
-                        <Text
+                        <FontText
                             style={{color: requirements.hasUppercase ? '#16a34a' : colors.input.invalid.text}}>Contains
-                            an uppercase</Text>
+                            an uppercase</FontText>
                     </View>
                     <View style={{flexDirection: "row", gap: 10, alignContent: "center", marginBottom: 4}}>
                         {requirements.hasLowercase ? <ValidRequirement/> : <InvalidRequirement/>}
-                        <Text
+                        <FontText
                             style={{color: requirements.hasLowercase ? '#16a34a' : colors.input.invalid.text}}>Contains
-                            a lowercase</Text>
+                            a lowercase</FontText>
                     </View>
 
                     <PrimaryButton
@@ -429,24 +431,23 @@ export default function CreateAccount() {
                         backgroundColor: colors.background.secondary,
                         paddingVertical: 10
                     }]}>
-                        <Text style={{color: colors.text.primary, textAlign: "center"}}>Already have an account? Click <Text
-                            style={{color: colors.text.link}}>here</Text> to login.</Text>
+                        <FontText style={{color: colors.text.primary, textAlign: "center"}}>Already have an account? Click <Text
+                            style={{color: colors.text.link}}>here</Text> to login.</FontText>
                     </Pressable>
                 </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     )
 }
 
 function InvalidRequirement() {
     return (
         <View style={{backgroundColor: "#EF4444", borderRadius: 50, aspectRatio: 1, width: 18}}>
-            <Text style={{
+            <FontText style={{
                 color: "white",
                 textAlign: "center",
                 fontSize: 12
-            }}>!</Text>
+            }}>!</FontText>
         </View>
-
     )
 }
 

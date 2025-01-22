@@ -1,8 +1,9 @@
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import useColors from "@/hooks/useColors";
 import React from 'react';
+import FontText from "../FontText";
 
-export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
+export function Toggleable({onToggle, top = false, toggled, title = 'Save', ...rest}) {
     const colors = useColors();
 
     const styles = StyleSheet.create({
@@ -22,11 +23,12 @@ export function Toggleable({onToggle, toggled, title = 'Save', ...rest}) {
         <Pressable
             style={styles.button}
             onPress={onToggle} {...rest}>
-           <View style={{paddingTop: 8, paddingBottom: 12, overflow: "visible"}}>
-               <Text style={{
+           <View style={{paddingVertical: 8, overflow: "visible"}}>
+               <FontText style={{
                    color: toggled ? colors.toggleable.toggled.color : colors.toggleable.color,
                    fontWeight: 500,
-               }}>{title}</Text>
+                   marginBottom: top ? 4 : 0,
+               }}>{title}</FontText>
            </View>
         </Pressable>
     );

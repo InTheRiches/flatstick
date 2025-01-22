@@ -5,6 +5,7 @@ import React from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
+import FontText from "../general/FontText";
 
 export function PuttingGreen({updateField, width, height, point, center}) {
     const colors = useColors();
@@ -73,24 +74,24 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                 {userData.preferences.units === 0 ? (
                     <>
                         <Text></Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</Text>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</FontText>
                         <Text></Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</Text>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</FontText>
                         <Text></Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0ft</Text>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0ft</FontText>
                         <Text></Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</Text>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</FontText>
                         <Text></Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</Text>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</FontText>
                         <Text></Text>
                     </>
                 ) : (
                     <>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1m</Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1/2m</Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0m</Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1/2m</Text>
-                        <Text style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1m</Text>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1m</FontText>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1/2m</FontText>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>0m</FontText>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1/2m</FontText>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1m</FontText>
                     </>
                 )}
             </View>

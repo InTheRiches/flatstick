@@ -1,6 +1,7 @@
-import {Image, Text, View} from "react-native";
+import {Image, View} from "react-native";
 import React from "react";
 import useColors from "../../../hooks/useColors";
+import FontText from "../../general/FontText";
 
 export function MissDistributionDiagram({missData, holes, alone = false, units = 0}) {
     const colors = useColors();
@@ -68,11 +69,11 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
                                 alignItems: 'center',
                                 borderRadius: 5
                             }}>
-                                <Text style={{
+                                <FontText style={{
                                     fontSize: 16,
                                     fontWeight: "bold",
                                     color: index === 7 ? "black" : [5, 9].includes(index) ? "white" : "#0e450b"
-                                }}>{text}</Text>
+                                }}>{text}</FontText>
                             </View>
                         )
                     })}

@@ -1,8 +1,9 @@
 // only 18 hole simulations and real simulations, no other practices
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import {convertUnits} from "../../../../utils/Conversions";
 import {useAppContext} from "../../../../contexts/AppCtx";
+import FontText from "../../../general/FontText";
 
 export const RecentSession = ({recentSession}) => {
     const colors = useColors();
@@ -28,14 +29,14 @@ export const RecentSession = ({recentSession}) => {
                 justifyContent: "space-between",
                 alignItems: "center"
             }}>
-                <Text style={{
+                <FontText style={{
                     fontSize: 16,
                     textAlign: "left",
                     color: colors.text.primary,
                     fontWeight: "bold",
                     flex: 1
-                }}>{formattedName()}</Text>
-                <Text style={{
+                }}>{formattedName()}</FontText>
+                <FontText style={{
                     fontSize: 14,
                     textAlign: "right",
                     color: colors.text.secondary,
@@ -47,7 +48,7 @@ export const RecentSession = ({recentSession}) => {
                         month: '2-digit',
                         day: '2-digit'
                     })}
-                </Text>
+                </FontText>
             </View>
             <View style={{flexDirection: "row"}}>
                 <View style={{
@@ -59,12 +60,12 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12,
                 }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</Text>
-                    <Text style={{
+                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</FontText>
+                    <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
                         fontWeight: "bold",
-                    }}>{recentSession.strokesGained}</Text>
+                    }}>{recentSession.strokesGained}</FontText>
                 </View>
                 <View style={{
                     flexDirection: "column",
@@ -75,12 +76,12 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>{recentSession.type === "round-simulation" ? "Difficulty" : "Total Distance"}</Text>
-                    <Text style={{
+                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>{recentSession.type === "round-simulation" ? "Difficulty" : "Total Distance"}</FontText>
+                    <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
                         fontWeight: "bold",
-                    }}>{recentSession.type === "round-simulation" ? recentSession.difficulty : convertUnits(recentSession.totalDistance, recentSession.units, userData.preferences.units)}</Text>
+                    }}>{recentSession.type === "round-simulation" ? recentSession.difficulty : convertUnits(recentSession.totalDistance, recentSession.units, userData.preferences.units)}</FontText>
                 </View>
                 <View style={{
                     flexDirection: "column",
@@ -89,12 +90,12 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <Text style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Putts</Text>
-                    <Text style={{
+                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Putts</FontText>
+                    <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
                         fontWeight: "bold",
-                    }}>{recentSession.totalPutts}</Text>
+                    }}>{recentSession.totalPutts}</FontText>
                 </View>
             </View>
         </View>

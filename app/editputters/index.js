@@ -1,5 +1,5 @@
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
-import {BackHandler, Pressable, Text, View} from "react-native";
+import {BackHandler, Pressable, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import React, {useEffect, useRef, useState} from "react";
@@ -9,6 +9,7 @@ import {useAppContext} from "../../contexts/AppCtx";
 import {useNavigation} from "expo-router";
 import {NewPutterModal, PutterSelector} from "../../components/editputters";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import FontText from "../../components/general/FontText";
 
 export default function EditPutters() {
     const colors = useColors();
@@ -77,7 +78,7 @@ export default function EditPutters() {
                         </View>
                     </GestureDetector>
                     <View style={{flexDirection: "row", marginTop: 12, justifyContent: "space-between", alignItems: "center", width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 10}}>
-                        <Text style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Putters</Text>
+                        <FontText style={{fontSize: 24, fontWeight: 600, color: colors.text.primary}}>Your Putters</FontText>
                         {
                             putters.length < 4 ? (
                                 <PrimaryButton style={{ borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8}} onPress={() => {
@@ -86,7 +87,7 @@ export default function EditPutters() {
                                 }} title={"New"}></PrimaryButton>
                             ) : (
                                 <View style={{borderRadius: 10, paddingVertical: 8, paddingHorizontal: 16, marginLeft: 8, borderColor: colors.button.disabled.border, borderWidth: 1, backgroundColor: colors.button.disabled.background}}>
-                                    <Text style={{color: colors.text.secondary}}>At Max Putters</Text>
+                                    <FontText style={{color: colors.text.secondary}}>At Max Putters</FontText>
                                 </View>
                             )
                         }

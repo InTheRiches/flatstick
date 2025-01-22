@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from "react";
-import {Image, Pressable, Text, View} from "react-native";
+import {Image, Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
@@ -8,6 +8,7 @@ import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {useAppContext} from "@/contexts/AppCtx";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
+import FontText from "../../../general/FontText";
 
 export function NewRealRound({newRealRoundRef}) {
     const colors = useColors();
@@ -40,10 +41,10 @@ export function NewRealRound({newRealRoundRef}) {
                 paddingBottom: 12,
             }}>
                 <View style={{marginHorizontal: 24, marginBottom: 4}}>
-                    <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>
+                    <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>
                         New Real Round Session
-                    </Text>
-                    <Text
+                    </FontText>
+                    <FontText
                         style={{
                             marginTop: 12,
                             fontSize: 18,
@@ -51,7 +52,7 @@ export function NewRealRound({newRealRoundRef}) {
                             marginBottom: 10,
                         }}>
                         Holes
-                    </Text>
+                    </FontText>
                     <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
                         <Pressable
                             onPress={() => setHoles(9)}
@@ -92,13 +93,13 @@ export function NewRealRound({newRealRoundRef}) {
                                     </Svg>
                                 </View>
                             )}
-                            <Text style={{
+                            <FontText style={{
                                 textAlign: "center",
                                 color: colors.text.primary,
                                 fontSize: 16,
                             }}>
                                 9 Holes
-                            </Text>
+                            </FontText>
                         </Pressable>
                         <Pressable
                             onPress={() => setHoles(18)}
@@ -139,20 +140,20 @@ export function NewRealRound({newRealRoundRef}) {
                                     </Svg>
                                 </View>
                             )}
-                            <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>
+                            <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>
                                 18 Holes
-                            </Text>
+                            </FontText>
                         </Pressable>
                     </View>
-                    <Text style={{
+                    <FontText style={{
                         marginTop: 12,
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,
-                    }}>Grip Method</Text>
+                    }}>Grip Method</FontText>
                     <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{flexDirection: "row", borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
                         <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips.length > 0 ? grips[userData.preferences.selectedGrip].name : "No Grip Method"}</Text>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips.length > 0 ? grips[userData.preferences.selectedGrip].name : "No Grip Method"}</FontText>
                         </View>
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editgrips"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
@@ -164,19 +165,19 @@ export function NewRealRound({newRealRoundRef}) {
                             </Svg>
                         </SecondaryButton>
                     </Pressable>
-                    <Text style={{
+                    <FontText style={{
                         marginTop: 12,
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,
-                    }}>Putter</Text>
+                    }}>Putter</FontText>
                     <Pressable onPress={() => router.push({pathname: "/editputters"})} style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
                         <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                         <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
-                            <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[userData.preferences.selectedPutter].name : "Default Putter"}</Text>
+                            <FontText style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters.length > 0 ? putters[userData.preferences.selectedPutter].name : "Default Putter"}</FontText>
                             <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                                <Text style={{color: colors.text.secondary, width: "35%"}}>Sessions: 3</Text>
-                                <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[userData.preferences.selectedPutter].stats.strokesGained.overall : 0}</Text>
+                                <FontText style={{color: colors.text.secondary, width: "35%"}}>Sessions: 3</FontText>
+                                <FontText style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters.length > 0 ? putters[userData.preferences.selectedPutter].stats.strokesGained.overall : 0}</FontText>
                             </View>
                         </View>
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editputters"})}>

@@ -1,6 +1,7 @@
-import {Pressable, StyleSheet, Text} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import useColors from "@/hooks/useColors";
 import React from 'react';
+import FontText from "../FontText";
 
 export function PrimaryButton({
                                   onPress, onPressIn = () => {
@@ -37,10 +38,10 @@ export function PrimaryButton({
             onPressOut={onPressOut}
             style={({pressed}) => [{backgroundColor: !disabled && pressed ? colors.button.primary.depressed : colors.button.primary.background, opacity: disabled ? 0.5 : 1}, Object.keys(style).length !== 0 ? [styles.bareButton, style] : styles.button]}
             onPress={onPress} {...rest}>
-            {React.Children.count(children) > 0 ? children : <Text style={{
+            {React.Children.count(children) > 0 ? children : <FontText style={{
                 color: disabled ? colors.button.disabled.text : colors.button.primary.text,
                 fontWeight: 500
-            }}>{title}</Text>}
+            }}>{title}</FontText>}
         </Pressable>
     );
 }

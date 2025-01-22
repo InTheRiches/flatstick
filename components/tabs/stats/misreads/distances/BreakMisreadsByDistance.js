@@ -1,8 +1,9 @@
 import {BarChart} from "../../../../../charts";
-import {Dimensions, useColorScheme} from "react-native";
+import {Dimensions} from "react-native";
 import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import {useAppContext} from "../../../../../contexts/AppCtx";
+import {roundTo} from "../../../../../utils/roundTo";
 
 export const BreakMisreadsByDistance = ({statsToUse}) => {
     const colors = useColors();
@@ -17,7 +18,7 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
                 labels: userData.preferences.units === 0 ? ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'] : ['<2 m', '2-4 m', '4-7 m', '>7 m'],
                 datasets: [{
                     data: [
-                        statsToUse.misreads.misreadLineByDistance[0]*100, statsToUse.misreads.misreadLineByDistance[1]*100, statsToUse.misreads.misreadLineByDistance[2]*100, statsToUse.misreads.misreadLineByDistance[3]*100
+                        roundTo(statsToUse.misreads.misreadLineByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[3]*100, 0)
                     ]},
                 ],
             }}

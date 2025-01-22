@@ -1,12 +1,13 @@
 import React, {useState} from "react";
-import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
+import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 import useColors from "../../../../hooks/useColors";
-import {Text, View} from "react-native";
+import {TextInput, View} from "react-native";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import {EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth'
 import {useRouter} from "expo-router";
+import FontText from "../../../general/FontText";
 
 export function ReauthenticateForProfile({reauthenticateRef}) {
     const colors = useColors();
@@ -46,10 +47,10 @@ export function ReauthenticateForProfile({reauthenticateRef}) {
               keyboardBlurBehavior={"restore"}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 64, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
-                <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Re-Authenticate</Text>
-                <Text style={{color: colors.text.secondary, fontWeight: 600}}>PASSWORD</Text>
+                <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Re-Authenticate</FontText>
+                <FontText style={{color: colors.text.secondary, fontWeight: 600}}>PASSWORD</FontText>
                 <View style={{flexDirection: "row", gap: 10}}>
-                    <BottomSheetTextInput
+                    <TextInput
                         style={{
                             flex: 1,
                             borderWidth: 1,
@@ -66,7 +67,7 @@ export function ReauthenticateForProfile({reauthenticateRef}) {
                         onBlur={() => setPasswordFocused(false)}
                         onChangeText={(text) => updatePassword(text)}
                     />
-                    {passwordInvalid && <Text style={{
+                    {passwordInvalid && <FontText style={{
                         position: "absolute",
                         right: 12,
                         top: 7.5,
@@ -77,7 +78,7 @@ export function ReauthenticateForProfile({reauthenticateRef}) {
                         width: 22,
                         textAlign: "center",
                         fontSize: 16
-                    }}>!</Text>}
+                    }}>!</FontText>}
                     <SecondaryButton style={{aspectRatio: 1, borderRadius: 10}} onPress={submit} disabled={password.length < 6}>
                         <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={password.length < 6 ? colors.button.disabled.text : colors.button.secondary.text} stroke={password.length < 6 ? colors.button.disabled.text : colors.button.secondary.text} width={20} height={20} strokeWidth={1}>
                             <Path fillRule="evenodd"
@@ -88,7 +89,7 @@ export function ReauthenticateForProfile({reauthenticateRef}) {
                     </SecondaryButton>
                 </View>
                 {passwordInvalid &&
-                    <Text style={{color: colors.input.invalid.text, marginTop: -6}}>That password is incorrect!</Text>}
+                    <FontText style={{color: colors.input.invalid.text, marginTop: -6}}>That password is incorrect!</FontText>}
             </BottomSheetView>
         </BottomSheetModal>
     );

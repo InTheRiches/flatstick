@@ -288,28 +288,16 @@ export function AppProvider({children}) {
     };
 
     // an internal function to update the stats inside firebase
-    const updateStats = async (newData, replace = false) => {
+    const updateStats = async (newData) => {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
-        getDoc(userDocRef).then(async (doc) => {
-            if (!doc.exists()) {
-                setDoc(userDocRef, newData).catch((error) => {
-                    console.log(error);
-                });
-                return;
-            }
-
-            try {
-                await runTransaction(firestore, async (transaction) => {
-                    if (replace) {
-                        transaction.set(userDocRef, newData);
-                        return;
-                    }
-                    transaction.update(userDocRef, newData);
-                });
-            } catch (error) {
-                console.error("Update stats transaction failed:", error);
-            }
-        });
+        try {
+            await runTransaction(firestore, async (transaction) => {
+                console.log("setting")
+                transaction.update(userDocRef, newData);
+            });
+        } catch (error) {
+            console.error("Update stats transaction failed:", error);
+        }
     };
 
     // Refresh user data and sessions
@@ -388,7 +376,7 @@ export function AppProvider({children}) {
         // TODO implement this
         let totalPutts = 0;
         await updateData({totalPutts: totalPutts, strokesGained: strokesGained.overall});
-        await updateStats(newStats, true)
+        await updateStats(newStats)
 
         finalizePutters(setPutters, newStats, newPutters, strokesGained);
         finalizeGrips(setGrips, newStats, newGrips, strokesGained);

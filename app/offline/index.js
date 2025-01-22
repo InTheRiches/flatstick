@@ -1,9 +1,10 @@
 import ScreenWrapper from "../../components/general/ScreenWrapper";
-import {BackHandler, Text, View} from "react-native";
+import {BackHandler, View} from "react-native";
 import React, {useEffect} from "react";
 import useColors from "../../hooks/useColors";
 import NetInfo from "@react-native-community/netinfo";
 import {useNavigation} from "expo-router";
+import FontText from "../../components/general/FontText";
 
 export default function Offline() {
     const colors = useColors();
@@ -42,8 +43,8 @@ export default function Offline() {
                 alignItems: "center",
                 paddingHorizontal: 32
             }}>
-                <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>You are Offline</Text>
-                <Text style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Reconnect to wifi to use Flatstick.</Text>
+                <FontText style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>You are Offline</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Reconnect to wifi to use Flatstick.</FontText>
             </View>
         </ScreenWrapper>
     )

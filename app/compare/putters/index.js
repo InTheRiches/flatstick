@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, Text, View} from "react-native";
+import {Pressable, ScrollView, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -7,6 +7,7 @@ import {SelectPutter} from "../../../components/tabs/compare/popups";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
 import {useNavigation} from "expo-router";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import FontText from "../../../components/general/FontText";
 
 export default function ComparePutters({}) {
     const colors = useColors();
@@ -41,47 +42,47 @@ export default function ComparePutters({}) {
                                       d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                             </Svg>
                         </Pressable>
-                        <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Compare Putters</Text>
+                        <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Compare Putters</FontText>
                     </View>
-                    <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>SELECT PUTTERS</Text>
+                    <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>SELECT PUTTERS</FontText>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Putter One</Text>
+                        <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Putter One</FontText>
                         <Pressable
                             onPressIn={() => setIsOnePressed(true)}
                             onPressOut={() => setIsOnePressed(false)}
                             onPress={() => firstPutterRef.current.present()} style={{padding: 7}}>
-                            <Text style={{color: colors.text.link, opacity: isOnePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{firstPutter === -1 ? "N/A" : firstPutter === 0 ? "All Putters" : putters[firstPutter].name}</Text>
+                            <FontText style={{color: colors.text.link, opacity: isOnePressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{firstPutter === -1 ? "N/A" : firstPutter === 0 ? "All Putters" : putters[firstPutter].name}</FontText>
                         </Pressable>
                     </View>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-                        <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Putter Two</Text>
+                        <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Putter Two</FontText>
                         <Pressable
                             onPressIn={() => setIsTwoPressed(true)}
                             onPressOut={() => setIsTwoPressed(false)}
                             onPress={() => secondPutterRef.current.present()} style={{padding: 7}}>
-                            <Text style={{color: colors.text.link, opacity: isTwoPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{secondPutter === -1 ? "N/A" : secondPutter === 0 ? "All Putters" : putters[secondPutter].name}</Text>
+                            <FontText style={{color: colors.text.link, opacity: isTwoPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{secondPutter === -1 ? "N/A" : secondPutter === 0 ? "All Putters" : putters[secondPutter].name}</FontText>
                         </Pressable>
                     </View>
                     {
                         firstPutter !== -1 && secondPutter !== -1 && <>
-                            <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>RESULT</Text>
+                            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>RESULT</FontText>
                             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
-                                <Text style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <Text style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? firstPutter === 0 ? "the average" : putters[firstPutter].name : secondPutter === 0 ? "the average" : putters[secondPutter].name}</Text> putts better.</Text>
+                                <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that <FontText style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterPutter === 0 ? "neither" : betterPutter === 1 ? firstPutter === 0 ? "the average" : putters[firstPutter].name : secondPutter === 0 ? "the average" : putters[secondPutter].name}</FontText> putts better.</FontText>
                             </View>
-                            <Text style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</Text>
+                            <FontText style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</FontText>
                             <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>
-                                <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</Text>
-                                <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{firstPutter === 0 ? "All" : putters[firstPutter].name}</Text>
-                                <Text style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{secondPutter === 0 ? "All" : putters[secondPutter].name}</Text>
+                                <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</FontText>
+                                <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{firstPutter === 0 ? "All" : putters[firstPutter].name}</FontText>
+                                <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{secondPutter === 0 ? "All" : putters[secondPutter].name}</FontText>
                             </View>
                             <DataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"}/>
-                            <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</Text>
+                            <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</FontText>
                             <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={0}/>
-                            <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</Text>
+                            <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>
                             <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={1}/>
-                            <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</Text>
+                            <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>
                             <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={2}/>
-                            <Text style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</Text>
+                            <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>
                             <MiniDataTable stats1={putters[firstPutter].stats} stats2={putters[secondPutter].stats} type={"putters"} distance={3}/>
                         </>
                     }

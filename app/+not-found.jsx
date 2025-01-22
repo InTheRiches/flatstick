@@ -1,5 +1,6 @@
 import {Link, Stack} from 'expo-router';
-import {Text, View} from "react-native";
+import {View} from "react-native";
+import FontText from "@/components/general/FontText";
 
 export default function NotFoundScreen() {
   return (
@@ -11,12 +12,12 @@ export default function NotFoundScreen() {
         justifyContent: 'center',
         padding: 20,
       }}>
-        <Text type="title">This screen doesn't exist.</Text>
+        <FontText type="title">This screen doesn't exist.</FontText>
         <Link href="/" style={{
           marginTop: 15,
           paddingVertical: 15,
         }}>
-          <Text>Go to home screen!</Text>
+          <FontText>Go to home screen!</FontText>
         </Link>
       </View>
     </>

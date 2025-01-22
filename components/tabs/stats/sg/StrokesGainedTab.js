@@ -1,41 +1,60 @@
 import useColors from "../../../../hooks/useColors";
 import {useAppContext} from "../../../../contexts/AppCtx";
-import {Dimensions, ScrollView, Text, View} from "react-native";
-import React from "react";
+import {Dimensions, ScrollView, View} from "react-native";
+import React, {useMemo} from "react";
 import {SGByBreakSlope, SGByDistanceChart} from "./graphs";
+import {Toggleable} from "../../../general/buttons/Toggleable";
+import FontText from "../../../general/FontText";
 
 export const StrokesGainedTab = ({statsToUse}) => {
     const colors = useColors();
     const {currentStats, previousStats} = useAppContext();
     const {width} = Dimensions.get("screen")
+    const [byDistance, setByDistance] = React.useState(true);
 
     let difference = 0;
 
     if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
         difference = currentStats.strokesGained.overall - previousStats[0].strokesGained.overall;
 
+    const sgByDistance = useMemo(() => {
+        return (
+            <>
+                <View style={{alignItems: "center"}}>
+                    <SGByDistanceChart statsToUse={statsToUse}/>
+                </View>
+                <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6}}>
+                    <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
+                    <FontText style={{color: colors.text.primary}}>Your Averages</FontText>
+                </View>
+            </>
+        )
+    }, [statsToUse]);
+
+    const sgByBreakSlope = useMemo(() => {
+        return (
+            <SGByBreakSlope statsToUse={statsToUse}></SGByBreakSlope>
+        )
+    }, [statsToUse]);
+
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
-            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</Text>
+            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</FontText>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <Text style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.strokesGained.overall}</Text>
+                <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.strokesGained.overall}</FontText>
                 { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
                     <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                        <Text style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</Text>
+                        <FontText style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</FontText>
                     </View>
                 }
             </View>
-            <Text style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</Text>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Distance</Text>
-            <View style={{alignItems: "center"}}>
-                <SGByDistanceChart statsToUse={statsToUse}/>
+            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</FontText>
+            <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
+                <Toggleable toggled={byDistance} onToggle={() => setByDistance(true)} title={"By Distance"}/>
+                <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Break/Slope"}/>
             </View>
-            <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6}}>
-                <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
-                <Text style={{color: colors.text.primary}}>Your Averages</Text>
-            </View>
-            <Text style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Strokes Gained by Break/Slope</Text>
-            <SGByBreakSlope statsToUse={statsToUse}></SGByBreakSlope>
+            {byDistance && sgByDistance}
+            {!byDistance && sgByBreakSlope}
         </ScrollView>
     )
 }

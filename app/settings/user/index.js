@@ -1,4 +1,4 @@
-import {Pressable, Text, TextInput, View} from "react-native";
+import {Pressable, TextInput, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -10,6 +10,7 @@ import Loading from "../../../components/general/popups/Loading";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import FontText from "../../../components/general/FontText";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
@@ -97,9 +98,9 @@ export default function UserSettings({}) {
                               d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                     </Svg>
                 </Pressable>
-                <Text style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Personal Info</Text>
+                <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Personal Info</FontText>
             </View>
-            <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>FIRST NAME</Text>
+            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>FIRST NAME</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -118,7 +119,7 @@ export default function UserSettings({}) {
                     value={firstName}
                     onChangeText={(text) => updateFirstName(text)}
                 />
-                {firstNameInvalid && <Text style={{
+                {firstNameInvalid && <FontText style={{
                     position: "absolute",
                     right: 12,
                     top: 7.5,
@@ -129,11 +130,11 @@ export default function UserSettings({}) {
                     width: 22,
                     textAlign: "center",
                     fontSize: 16
-                }}>!</Text>}
+                }}>!</FontText>}
             </View>
             {firstNameInvalid &&
-                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : "Don't include any spaces!"}</Text>}
-            <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>LAST NAME</Text>
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : "Don't include any spaces!"}</FontText>}
+            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>LAST NAME</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -152,7 +153,7 @@ export default function UserSettings({}) {
                     value={lastName}
                     onChangeText={(text) => updateLastName(text)}
                 />
-                {lastNameInvalid && <Text style={{
+                {lastNameInvalid && <FontText style={{
                     position: "absolute",
                     right: 12,
                     top: 7.5,
@@ -163,11 +164,11 @@ export default function UserSettings({}) {
                     width: 22,
                     textAlign: "center",
                     fontSize: 16
-                }}>!</Text>}
+                }}>!</FontText>}
             </View>
             {lastNameInvalid &&
-                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</Text>}
-            <Text style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>EMAIL ADDRESS</Text>
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</FontText>}
+            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>EMAIL ADDRESS</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -196,7 +197,7 @@ export default function UserSettings({}) {
                                   d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
                         </Svg>
                 }
-                {emailInvalid && <Text style={{
+                {emailInvalid && <FontText style={{
                     position: "absolute",
                     right: 12,
                     top: 7.5,
@@ -207,16 +208,16 @@ export default function UserSettings({}) {
                     width: 22,
                     textAlign: "center",
                     fontSize: 16
-                }}>!</Text>}
+                }}>!</FontText>}
             </View>
             { isGoogle && (
-                    <Text style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with google.</Text>
+                    <FontText style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with google.</FontText>
                 )
             }
             {emailInvalid && emailErrorCode !== "auth/email-already-in-use" &&
-                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}
             {emailErrorCode === "auth/email-already-in-use" &&
-                <Text style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</Text>}
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</FontText>}
             <View style={{position: "absolute", bottom: 0}}>
                 <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
             </View>

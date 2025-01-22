@@ -1,4 +1,4 @@
-import {PixelRatio, Pressable, ScrollView, Text, TextInput, View} from "react-native";
+import {PixelRatio, Pressable, ScrollView, TextInput, View} from "react-native";
 import React, {useCallback, useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
@@ -14,6 +14,7 @@ import {
     statusCodes,
 } from '@react-native-google-signin/google-signin';
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import FontText from "../../components/general/FontText";
 
 const initialState = {
     password: "",
@@ -134,8 +135,8 @@ export default function Login() {
                 flexDirection: "column",
             }}>
                 <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center", paddingBottom: keyboardVisible ? inputsHeight : 0, width: "100%"}}>
-                    <Text style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Sign in to Flatstick</Text>
-                    <Text style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome back! Please sign in to continue</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Sign in to Flatstick</FontText>
+                    <FontText style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome back! Please sign in to continue</FontText>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                         <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
                                     onPress={google}>
@@ -163,7 +164,7 @@ export default function Login() {
                             marginTop: 12,
                             opacity: 0.1
                         }}></View>
-                        <Text style={{color: colors.text.secondary, fontSize: 16}} secondary={true}>or</Text>
+                        <FontText style={{color: colors.text.secondary, fontSize: 16}} secondary={true}>or</FontText>
                         <View style={{
                             height: 1.5,
                             flex: 1,
@@ -173,7 +174,7 @@ export default function Login() {
                         }}></View>
                     </View>
                     <View onLayout={inputsLayout}>
-                        <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</Text>
+                        <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</FontText>
                         <View style={{flexDirection: "row"}}>
                             <TextInput
                                 style={{
@@ -194,7 +195,7 @@ export default function Login() {
                                 onBlur={() => updateField("emailFocused", false)}
                                 onChangeText={(text) => validateEmail(text)}
                             />
-                            {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password") && <Text style={{
+                            {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password") && <FontText style={{
                                 position: "absolute",
                                 right: 12,
                                 top: 10,
@@ -205,15 +206,15 @@ export default function Login() {
                                 width: 28,
                                 textAlign: "center",
                                 fontSize: 20
-                            }}>!</Text>}
+                            }}>!</FontText>}
                         </View>
                         {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ?
-                            <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
-                                and try again.</Text>
+                            <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
+                                and try again.</FontText>
                             : state.invalidEmail &&
-                            <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</Text>}
+                            <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}
 
-                        <Text style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</Text>
+                        <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Password</FontText>
                         <View style={{flexDirection: "row"}}>
                             <TextInput
                                 style={{
@@ -235,7 +236,7 @@ export default function Login() {
                                 placeholderTextColor={colors.text.placeholder}
                                 onChangeText={(text) => updatePassword(text)}
                             />
-                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" && <Text style={{
+                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" && <FontText style={{
                                 position: "absolute",
                                 right: 12,
                                 top: 10,
@@ -246,11 +247,11 @@ export default function Login() {
                                 width: 28,
                                 textAlign: "center",
                                 fontSize: 20
-                            }}>!</Text>}
+                            }}>!</FontText>}
                         </View>
                         {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" &&
-                            <Text style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
-                                and try again.</Text>}
+                            <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
+                                and try again.</FontText>}
                     </View>
                     <PrimaryButton title={"Login"} onPress={() => {
                         if (state.invalidEmail) return;
@@ -268,13 +269,13 @@ export default function Login() {
                         backgroundColor: colors.background.secondary,
                         paddingVertical: 10
                     }]}>
-                        <Text style={{color: colors.text.primary, textAlign: "center"}}>Don't have an account? Click here to signup.</Text>
+                        <FontText style={{color: colors.text.primary, textAlign: "center"}}>Don't have an account? Click here to signup.</FontText>
                     </Pressable>
 
                     <Pressable onPress={() => resetPasswordRef.current.present()} style={{
                         marginTop: 24,
                     }}>
-                        <Text style={{color: colors.text.link, textAlign: "center"}}>Forgot your password? Click here to reset it.</Text>
+                        <FontText style={{color: colors.text.link, textAlign: "center"}}>Forgot your password? Click here to reset it.</FontText>
                     </Pressable>
                 </ScrollView>
             </ScreenWrapper>

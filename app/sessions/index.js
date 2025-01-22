@@ -1,5 +1,5 @@
 import {useAppContext} from "../../contexts/AppCtx";
-import {FlatList, Pressable, Text, View} from "react-native";
+import {FlatList, Pressable, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {useNavigation} from "expo-router";
 import Svg, {Path} from "react-native-svg";
@@ -7,6 +7,7 @@ import React from "react";
 import {Session} from "../../components/sessions";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import FontText from "../../components/general/FontText";
 
 export default function Sessions({}) {
     const {puttSessions} = useAppContext();
@@ -20,7 +21,7 @@ export default function Sessions({}) {
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", alignItems: "center", marginBottom: 12}}>
-                <Text style={{textAlign: "center", width: "100%", color: colors.text.primary, fontSize: 24, fontWeight: 600}}>Your Sessions</Text>
+                <FontText style={{textAlign: "center", width: "100%", color: colors.text.primary, fontSize: 24, fontWeight: 600}}>Your Sessions</FontText>
                 <Pressable onPress={navigation.goBack} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
                          stroke={colors.text.primary} width={24} height={24}>
@@ -30,10 +31,10 @@ export default function Sessions({}) {
                 </Pressable>
             </View>
             <View style={{flexDirection: "row", borderBottomWidth: 1, borderColor: colors.border.default, paddingLeft: 12, paddingVertical: 10, borderTopWidth: 1}}>
-                <Text style={{color: colors.text.secondary, fontSize: 16, flex: 0.7, textAlign: "left"}}>Type</Text>
-                <Text style={{color: colors.text.secondary, fontSize: 16, flex: 1, textAlign: "center"}}>Date</Text>
-                <Text style={{color: colors.text.secondary, fontSize: 16, flex: 1, textAlign: "center"}}>Total Putts</Text>
-                <Text style={{color: colors.text.secondary, fontSize: 16, flex: 1, textAlign: "center"}}>SG</Text>
+                <FontText style={{color: colors.text.secondary, fontSize: 16, flex: 0.7, textAlign: "left"}}>Type</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 16, flex: 1, textAlign: "center"}}>Date</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 16, flex: 1, textAlign: "center"}}>Total Putts</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 16, flex: 1, textAlign: "center"}}>SG</FontText>
             </View>
             <FlatList
                 data={puttSessions}

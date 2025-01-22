@@ -1,10 +1,11 @@
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
-import {Appearance, Platform, Pressable, Text} from "react-native";
+import {Appearance, Platform, Pressable} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import useColors from "../../../../hooks/useColors";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
+import FontText from "../../../general/FontText";
 
 export function SetTheme({setThemeRef}) {
     const {userData, updateData} = useAppContext()
@@ -31,14 +32,14 @@ export function SetTheme({setThemeRef}) {
               ref={setThemeRef}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 24, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
-                <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Set App Theme</Text>
+                <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Set App Theme</FontText>
                 <Pressable
                     style={{flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: colors.background.secondary, borderRadius: 12, justifyContent: "space-between"}}
                     onPress={() => {
                         if (userData.preferences.theme !== 0)
                             setTheme(0);
                     }}>
-                    <Text style={{color: colors.text.primary, fontSize: 16}}>Auto-Detect</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16}}>Auto-Detect</FontText>
                     {
                         userData.preferences.theme === 0 &&
                         <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
@@ -52,7 +53,7 @@ export function SetTheme({setThemeRef}) {
                         if (userData.preferences.theme !== 1)
                             setTheme(1);
                     }}>
-                    <Text style={{color: colors.text.primary, fontSize: 16}}>Dark</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16}}>Dark</FontText>
                     {
                         userData.preferences.theme === 1 &&
                         <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
@@ -66,7 +67,7 @@ export function SetTheme({setThemeRef}) {
                         if (userData.preferences.theme !== 2)
                             setTheme(2);
                     }}>
-                    <Text style={{color: colors.text.primary, fontSize: 16}}>Light</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16}}>Light</FontText>
                     {
                         userData.preferences.theme === 2 &&
                         <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">

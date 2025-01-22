@@ -1,6 +1,7 @@
-import {StyleSheet, Pressable, Text} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import useColors from "@/hooks/useColors";
 import React from 'react';
+import FontText from "../FontText";
 
 export function SecondaryButton({onPress, title = 'Save', disabled = false, children, style = {}, ...rest}) {
   const colors = useColors();
@@ -30,10 +31,10 @@ export function SecondaryButton({onPress, title = 'Save', disabled = false, chil
     <Pressable
       style={({pressed}) => [{backgroundColor: disabled ? colors.button.disabled.background : pressed ? colors.button.secondary.depressed : colors.button.secondary.background}, Object.keys(style).length !== 0 ? [styles.bareButton, style] : styles.button]}
       onPress={onPress} {...rest}>
-      {React.Children.count(children) > 0 ? children : <Text style={{
+      {React.Children.count(children) > 0 ? children : <FontText style={{
         color: disabled ? colors.button.disabled.text : colors.button.secondary.text,
         fontWeight: 500
-      }}>{title}</Text>}
+      }}>{title}</FontText>}
     </Pressable>
   );
 }

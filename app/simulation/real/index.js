@@ -1,5 +1,5 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Platform, Pressable, Text, View} from 'react-native';
+import {BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
@@ -23,6 +23,7 @@ import {
 import {GreenVisual} from "../../../components/simulations/real";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
+import FontText from "../../../components/general/FontText";
 
 const initialState = {
     confirmLeave: false,
@@ -266,7 +267,7 @@ export default function RealSimulation() {
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                        <Text style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<Text style={{fontSize: 18}}>/{holes}</Text></Text>
+                        <FontText style={{marginBottom: 6, fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">Hole {hole}<FontText style={{fontSize: 18}}>/{holes}</FontText></FontText>
                         <Pressable onPress={() => confirmExitRef.current.present()}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  strokeWidth={1.5}
@@ -306,7 +307,7 @@ export default function RealSimulation() {
                             </Svg> :
                             <SvgClose width={20} height={20} stroke={misHit ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                         }
-                        <Text style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</Text>
+                        <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</FontText>
                     </Pressable>
                     <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
                         <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
@@ -332,7 +333,7 @@ export default function RealSimulation() {
                                 </Svg> :
                                 <SvgClose width={20} height={20} stroke={misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</Text>
+                            <FontText style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</FontText>
                         </Pressable>
                         <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
                             marginBottom: 4,
@@ -357,7 +358,7 @@ export default function RealSimulation() {
                                 </Svg> :
                                 <SvgClose width={20} height={20} stroke={misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <Text style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</Text>
+                            <FontText style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</FontText>
                         </Pressable>
                     </View>
                 </View>

@@ -1,4 +1,4 @@
-import {Pressable, Text, View} from "react-native";
+import {Pressable, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
 import {useState} from "react";
@@ -6,6 +6,7 @@ import useColors from "@/hooks/useColors";
 import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "react-native-reanimated";
 import {CollapsableContainer} from "./CollapsableContainer";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
+import FontText from "../../general/FontText";
 
 export function PracticeMode({name, description, onPress, onInfo, time, distance, focus}) {
     const [expanded, setExpanded] = useState(true);
@@ -50,7 +51,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                             <Path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                         </Svg>
                     </Animated.View>
-                    <Text style={{fontSize: 18, color: colors.text.primary}}>{name}</Text>
+                    <FontText style={{fontSize: 18, color: colors.text.primary}}>{name}</FontText>
                 </View>
                 <View style={{ flexDirection: "row", gap: 8}}>
                     {onInfo && <SecondaryButton onPress={onInfo} style={{
@@ -60,7 +61,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                         justifyContent: "center",
                         alignItems: "center"
                     }}>
-                        <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>?</Text>
+                        <FontText style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>?</FontText>
                     </SecondaryButton>}
                     {
                         colorScheme === "light" ? (
@@ -71,7 +72,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                                 justifyContent: "center",
                                 alignItems: "center"
                             }}>
-                                <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</Text>
+                                <FontText style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>+</FontText>
                             </PrimaryButton>
                         ) : (
                             <SecondaryButton onPress={onPress} style={{
@@ -81,7 +82,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                                 justifyContent: "center",
                                 alignItems: "center"
                             }}>
-                                <Text style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>+</Text>
+                                <FontText style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>+</FontText>
                             </SecondaryButton>
                         )
                     }
@@ -95,21 +96,21 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                     marginBottom: 12,
                     marginTop: 8,
                 }}>
-                    <Text style={{color: colors.text.secondary}}>{description}</Text>
+                    <FontText style={{color: colors.text.secondary}}>{description}</FontText>
                 </View>
                 <View
                     style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 4, paddingRight: 12}}>
                     <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Time</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{time}</Text>
+                        <FontText style={{textAlign: "left", color: colors.text.secondary}}>Time</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{time}</FontText>
                     </View>
                     <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Distance</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{distance}</Text>
+                        <FontText style={{textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{distance}</FontText>
                     </View>
                     <View>
-                        <Text style={{textAlign: "left", color: colors.text.secondary}}>Focus</Text>
-                        <Text style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{focus}</Text>
+                        <FontText style={{textAlign: "left", color: colors.text.secondary}}>Focus</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{focus}</FontText>
                     </View>
                 </View>
             </CollapsableContainer>

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet} from 'react-native';
+import FontText from "../general/FontText";
 
 const ElapsedTimeClock = ({ startTime }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -30,7 +31,7 @@ const ElapsedTimeClock = ({ startTime }) => {
   };
 
   return (
-    <Text style={styles.text}>{formatTime(elapsedTime)}</Text>
+    <FontText style={styles.text}>{formatTime(elapsedTime)}</FontText>
   );
 };
 

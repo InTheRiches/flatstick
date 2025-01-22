@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from "react";
-import {Image, Pressable, Text, View} from "react-native";
+import {Image, Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView,} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
@@ -9,6 +9,7 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {useSharedValue} from "react-native-reanimated";
 import {useAppContext} from "@/contexts/AppCtx";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
+import FontText from "../../../general/FontText";
 
 export const NewRound = ({newSessionRef}) => {
     const colors = useColors();
@@ -38,8 +39,8 @@ export const NewRound = ({newSessionRef}) => {
     return (<BottomSheetModal ref={newSessionRef} bottomSheetPosition={bottomSheetPosition} enablePanDownToClose={true} backdropComponent={myBackdrop} handleIndicatorStyle={{backgroundColor: colors.text.primary}} backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, backgroundColor: colors.background.primary,}}>
                 <View style={{marginHorizontal: 24, paddingBottom: 12}}>
-                    <Text style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>New 18 Hole Simulation</Text>
-                    <Text style={{marginTop: 18, fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>Mode</Text>
+                    <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>New 18 Hole Simulation</FontText>
+                    <FontText style={{marginTop: 18, fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>Mode</FontText>
                     <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
                         <Pressable
                             onPress={() => setMode("random")}
@@ -70,7 +71,7 @@ export const NewRound = ({newSessionRef}) => {
                                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                 </Svg>
                             </View>)}
-                            <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Random</Text>
+                            <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Random</FontText>
                         </Pressable>
                         <Pressable
                             onPress={() => setMode("weaknesses")}
@@ -102,12 +103,12 @@ export const NewRound = ({newSessionRef}) => {
                                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                 </Svg>
                             </View>)}
-                            <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Weaknesses</Text>
+                            <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Weaknesses</FontText>
                         </Pressable>
                     </View>
                     {   mode === "random" &&
                         <>
-                            <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>Difficulty</Text>
+                            <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>Difficulty</FontText>
                             <View style={{flexDirection: "row", gap: 12}}>
                                 <Pressable
                                     onPress={() => setDifficulty("easy")}
@@ -144,7 +145,7 @@ export const NewRound = ({newSessionRef}) => {
                                             />
                                         </Svg>
                                     </View>)}
-                                    <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Easy</Text>
+                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Easy</FontText>
                                 </Pressable>
                                 <Pressable
                                     onPress={() => setDifficulty("medium")}
@@ -181,7 +182,7 @@ export const NewRound = ({newSessionRef}) => {
                                             />
                                         </Svg>
                                     </View>)}
-                                    <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Medium</Text>
+                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Medium</FontText>
                                 </Pressable>
                                 <Pressable
                                     onPress={() => setDifficulty("hard")}
@@ -218,20 +219,20 @@ export const NewRound = ({newSessionRef}) => {
                                             />
                                         </Svg>
                                     </View>)}
-                                    <Text style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Hard </Text>
+                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Hard </FontText>
                                 </Pressable>
                             </View>
                         </>
                     }
-                    <Text style={{
+                    <FontText style={{
                         marginTop: 12,
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,
-                    }}>Grip Method</Text>
+                    }}>Grip Method</FontText>
                     <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{flexDirection: "row", borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
                         <View style={{flexDirection: "column", flex: 1}}>
-                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips[userData.preferences.selectedGrip].name}</Text>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips[userData.preferences.selectedGrip].name}</FontText>
                         </View>
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editgrips"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
@@ -243,23 +244,23 @@ export const NewRound = ({newSessionRef}) => {
                             </Svg>
                         </SecondaryButton>
                     </Pressable>
-                    <Text style={{
+                    <FontText style={{
                         marginTop: 12,
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,
-                    }}>Putter</Text>
+                    }}>Putter</FontText>
                     <Pressable onPress={() => router.push({pathname: "/editputters"})} style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
                         {   userData.preferences.selectedPutter === 0 ? (
-                            <Text style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters[userData.preferences.selectedPutter].name}</Text>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters[userData.preferences.selectedPutter].name}</FontText>
                         ) : (
                             <>
                                 <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
                                 <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
-                                    <Text style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters[userData.preferences.selectedPutter].name}</Text>
+                                    <FontText style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters[userData.preferences.selectedPutter].name}</FontText>
                                     <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                                        <Text style={{color: colors.text.secondary, width: "35%"}}>Rounds: {putters[userData.preferences.selectedPutter].stats.rounds}</Text>
-                                        <Text style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters[userData.preferences.selectedPutter].stats.strokesGained.overall}</Text>
+                                        <FontText style={{color: colors.text.secondary, width: "35%"}}>Rounds: {putters[userData.preferences.selectedPutter].stats.rounds}</FontText>
+                                        <FontText style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters[userData.preferences.selectedPutter].stats.strokesGained.overall}</FontText>
                                     </View>
                                 </View>
                             </>

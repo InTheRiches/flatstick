@@ -1,4 +1,4 @@
-import {Dimensions, FlatList, Pressable, Text, View} from "react-native";
+import {Dimensions, FlatList, Pressable, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {useAppContext} from "../../contexts/AppCtx";
 import React, {useEffect, useMemo, useRef, useState} from "react";
@@ -12,6 +12,8 @@ import {useNavigation, useRouter} from "expo-router";
 import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import Loading from "../../components/general/popups/Loading";
+import FontText from "../../components/general/FontText";
+import PlacementTab from "../../components/tabs/stats/placement/PlacementTab";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -39,44 +41,52 @@ export default function Stats({}) {
         setStatsToUse(
             nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
                 nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
-                    nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats)
+                    nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
     }, [nonPersistentData, currentStats]);
 
-    const tabs = [
+    const tabs  = [
         {
             id: 1,
             title: "Overview",
             content: useMemo(() => {
                 return <OverviewTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+                // KEEP CURRENT STATS IN THE DEPS, OR ELSE WHEN UNITS CHANGE IT WILL NOT UPDATE
+            }, [statsToUse, currentStats])
         },
         {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
                 return <StrokesGainedTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
         },
         {
             id: 3,
             title: "Putts / Hole",
             content: useMemo(() => {
                 return <PuttsAHoleTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
         },
         {
             id: 4,
             title: "Made Putts",
             content: useMemo(() => {
                 return <MadePuttsTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
         },
         {
             id: 5,
             title: "Misreads",
             content: useMemo(() => {
                 return <MisreadTab statsToUse={statsToUse}/>
-            }, [statsToUse])
+            }, [statsToUse, currentStats])
+        },
+        {
+            id: 6,
+            title: "Placement",
+            content: useMemo(() => {
+                return <PlacementTab statsToUse={statsToUse}/>
+            }, [statsToUse, currentStats])
         }
     ]
 
@@ -108,14 +118,14 @@ export default function Stats({}) {
                 alignItems: "center",
                 paddingHorizontal: 32
             }}>
-                <Text style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</Text>
-                <Text style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</Text>
+                <FontText style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</FontText>
             </View>
         </ScreenWrapper>
     ) : (
         <ScreenWrapper style={{borderBottomColor: colors.border.default, borderBottomWidth: 1}}>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                <Text style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</Text>
+                <FontText style={{color: colors.text.primary, fontSize: 24, marginLeft: 24, fontWeight: 600, marginBottom: 12, flex: 1}}>Stats</FontText>
                 <Pressable style={{marginRight: 24}} onPress={() => router.push({pathname: "/settings/stats"})}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.primary} width={32} height={32} className="size-6">
                         <Path fillRule="evenodd"
@@ -128,10 +138,10 @@ export default function Stats({}) {
                 ref={scrollViewRef}
                 contentContainerStyle={{gap: 4, paddingHorizontal: 24}}
                 data={tabs}
-                horizontal
+                horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item, index}) =>
-                    <Toggleable key={item.id} title={item.title} toggled={tab === index}
+                    <Toggleable top={true} key={item.id} title={item.title} toggled={tab === index}
                        onPress={() => {
                            scrollTo(index);
                        }}/>}

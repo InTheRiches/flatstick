@@ -1,18 +1,25 @@
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
-import {Pressable, Text} from "react-native";
+import {Pressable} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import useColors from "../../../../hooks/useColors";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
+import FontText from "../../../general/FontText";
 
 export function SetUnits({setUnitsRef}) {
-    const {userData, updateData, setUserData} = useAppContext()
+    const {userData, updateData, updateStats} = useAppContext()
     const colors = useColors();
 
     const setUnits = (units) => {
         setUnitsRef.current.dismiss();
-        updateData({preferences: {...userData.preferences, units: units}});
+        try {
+            console.log("updating")
+            updateData({preferences: {...userData.preferences, units: units}}).then(r => updateStats());
+        } catch (e) {
+            console.error(e);
+        }
+
     }
 
     return (
@@ -24,14 +31,14 @@ export function SetUnits({setUnitsRef}) {
               ref={setUnitsRef}
               backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 24, marginHorizontal: 24, backgroundColor: colors.background.primary, gap: 12}}>
-                <Text style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Set App Theme</Text>
+                <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Set App Theme</FontText>
                 <Pressable
                     style={{flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: colors.background.secondary, borderRadius: 12, justifyContent: "space-between"}}
                     onPress={() => {
                         if (userData.preferences.units !== 0)
                             setUnits(0);
                     }}>
-                    <Text style={{color: colors.text.primary, fontSize: 16}}>Imperial</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16}}>Imperial</FontText>
                     {
                         userData.preferences.units === 0 &&
                         <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
@@ -45,7 +52,7 @@ export function SetUnits({setUnitsRef}) {
                         if (userData.preferences.units !== 1)
                             setUnits(1);
                     }}>
-                    <Text style={{color: colors.text.primary, fontSize: 16}}>Metric</Text>
+                    <FontText style={{color: colors.text.primary, fontSize: 16}}>Metric</FontText>
                     {
                         userData.preferences.units === 1 &&
                         <Svg width={22} height={22} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
