@@ -8,11 +8,11 @@ import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from "@react-native-google-signin/google-signin";
 import {useAppContext, useSession} from "../../contexts/AppCtx";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import {createSimpleRefinedStats} from "../../utils/PuttUtils";
 
 const initialState = {
     skill: -1,
@@ -148,7 +148,9 @@ export default function CreateAccount() {
                         selectedGrip: 0,
                     }
                 }).then(() => {
-                    updateStats()
+                    setDoc(doc(db, `users/${user.uid}/stats/current`), createSimpleRefinedStats()).then(() => {
+                        updateStats()
+                    });
                 }).catch((error) => {
                     console.log(error);
                 });
