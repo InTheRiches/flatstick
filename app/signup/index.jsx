@@ -160,7 +160,7 @@ export default function CreateAccount() {
             .catch((error) => {
                 setErrorCode(error.code);
 
-                if (errorCode === "auth/email-already-in-use")
+                if (error.code === "auth/email-already-in-use")
                     setInvalidEmail(true);
 
                 setLoading(false);
@@ -261,21 +261,18 @@ export default function CreateAccount() {
                             onBlur={() => setFirstNameFocused(false)}
                             value={firstName}
                             onChangeText={(text) => updateFirstName(text)}
-                            placeholderTextColor={colors.text.placeholder}
+                            placeholderTextColor={firstNameInvalid ? "#b65454" : colors.text.placeholder}
                             placeholder={"Enter your first name..."}
                         />
-                        {firstNameInvalid && <FontText style={{
+                        {firstNameInvalid && <View style={{
                             position: "absolute",
                             right: 12,
-                            top: 7.5,
-                            color: "white",
+                            top: 10,
                             backgroundColor: "#EF4444",
-                            borderRadius: 50,
+                            borderRadius: 30,
                             aspectRatio: 1,
-                            width: 22,
-                            textAlign: "center",
-                            fontSize: 16
-                        }}>!</FontText>}
+                            width: 24,
+                        }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                     </View>
                     {firstNameInvalid &&
                         <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : /^[a-zA-Z\s]*$/.test(firstName) ? "Don't include any spaces!" : "Don't include any special characters!"}</FontText>}
@@ -297,21 +294,18 @@ export default function CreateAccount() {
                             onBlur={() => setLastNameFocused(false)}
                             value={lastName}
                             onChangeText={(text) => updateLastName(text)}
-                            placeholderTextColor={colors.text.placeholder}
+                            placeholderTextColor={lastNameInvalid ? "#b65454" : colors.text.placeholder}
                             placeholder={"Enter your last name..."}
                         />
-                        {lastNameInvalid && <FontText style={{
+                        {lastNameInvalid && <View style={{
                             position: "absolute",
                             right: 12,
-                            top: 7.5,
-                            color: "white",
+                            top: 10,
                             backgroundColor: "#EF4444",
-                            borderRadius: 50,
+                            borderRadius: 30,
                             aspectRatio: 1,
-                            width: 22,
-                            textAlign: "center",
-                            fontSize: 16
-                        }}>!</FontText>}
+                            width: 24,
+                        }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                     </View>
                     {lastNameInvalid &&
                         <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</FontText>}
@@ -333,19 +327,18 @@ export default function CreateAccount() {
                             value={state.email}
                             onBlur={() => setEmailFocused(false)}
                             onChangeText={(text) => updateEmail(text)}
-                            placeholderTextColor={colors.text.placeholder}
+                            placeholderTextColor={invalidEmail ? "#b65454" : colors.text.placeholder}
                             placeholder={"Enter your email..."}
                         />
                         {invalidEmail && <View style={{
                             position: "absolute",
                             right: 12,
-                            top: 7.5,
-                            color: "white",
+                            top: 10,
                             backgroundColor: "#EF4444",
                             borderRadius: 30,
                             aspectRatio: 1,
-                            width: 22,
-                        }}><FontText style={{textAlign: "center", fontSize: 16}}>!</FontText></View>}
+                            width: 24,
+                        }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                     </View>
                     {invalidEmail && errorCode !== "auth/email-already-in-use" &&
                         <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}
@@ -371,21 +364,18 @@ export default function CreateAccount() {
                             secureTextEntry={true}
                             value={state.password}
                             onChangeText={(text) => updatePassword(text)}
-                            placeholderTextColor={colors.text.placeholder}
+                            placeholderTextColor={invalidPassword ? "#b65454" : colors.text.placeholder}
                             placeholder={"Enter a password..."}
                         />
-                        {invalidPassword && <FontText style={{
+                        {invalidPassword && <View style={{
                             position: "absolute",
                             right: 12,
-                            top: 7.5,
-                            color: "white",
+                            top: 10,
                             backgroundColor: "#EF4444",
-                            borderRadius: 50,
+                            borderRadius: 30,
                             aspectRatio: 1,
-                            width: 22,
-                            textAlign: "center",
-                            fontSize: 16
-                        }}>!</FontText>}
+                            width: 24,
+                        }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                     </View>
                     <FontText style={{
                         color: !requirements.invalid ? '#16a34a' : colors.input.invalid.text,

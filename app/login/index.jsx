@@ -191,22 +191,19 @@ export default function Login() {
                                 onFocus={() => updateField("emailFocused", true)}
                                 value={state.email}
                                 placeholder={"Enter your email..."}
-                                placeholderTextColor={colors.text.placeholder}
+                                placeholderTextColor={state.invalidEmail ? "#b65454" : colors.text.placeholder}
                                 onBlur={() => updateField("emailFocused", false)}
                                 onChangeText={(text) => validateEmail(text)}
                             />
-                            {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password") && <FontText style={{
+                            {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password") && <View style={{
                                 position: "absolute",
                                 right: 12,
                                 top: 10,
-                                color: "white",
                                 backgroundColor: "#EF4444",
-                                borderRadius: 50,
+                                borderRadius: 30,
                                 aspectRatio: 1,
-                                width: 28,
-                                textAlign: "center",
-                                fontSize: 20
-                            }}>!</FontText>}
+                                width: 24,
+                            }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                         </View>
                         {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ?
                             <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
@@ -233,21 +230,18 @@ export default function Login() {
                                 secureTextEntry={true}
                                 value={state.password}
                                 placeholder={"Enter your password..."}
-                                placeholderTextColor={colors.text.placeholder}
+                                placeholderTextColor={errorCode ? "#b65454" : colors.text.placeholder}
                                 onChangeText={(text) => updatePassword(text)}
                             />
-                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" && <FontText style={{
+                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" && <View style={{
                                 position: "absolute",
                                 right: 12,
                                 top: 10,
-                                color: "white",
                                 backgroundColor: "#EF4444",
-                                borderRadius: 50,
+                                borderRadius: 30,
                                 aspectRatio: 1,
-                                width: 28,
-                                textAlign: "center",
-                                fontSize: 20
-                            }}>!</FontText>}
+                                width: 24,
+                            }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                         </View>
                         {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" &&
                             <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
