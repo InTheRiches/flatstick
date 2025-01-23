@@ -10,8 +10,8 @@
     "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.puttless",
-      "supportsTablet": true,
+      "bundleIdentifier": "com.intheriches.flatstick",
+      "supportsTablet": false,
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "androidNavigationBar": {
