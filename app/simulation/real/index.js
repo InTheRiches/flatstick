@@ -22,8 +22,16 @@ import {
 } from '../../../utils/PuttUtils';
 import {GreenVisual} from "../../../components/simulations/real";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
+import {
+    AdEventType,
+    BannerAd,
+    BannerAdSize,
+    InterstitialAd,
+    TestIds,
+    useForeground
+} from "react-native-google-mobile-ads";
 import FontText from "../../../components/general/FontText";
+import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 
 const initialState = {
     confirmLeave: false,
@@ -74,6 +82,7 @@ const slopes = {
 }
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : TestIds.INTERSTITIAL;
+const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 export default function RealSimulation() {
@@ -91,6 +100,12 @@ export default function RealSimulation() {
     const submitRef = useRef(null);
     const confirmExitRef = useRef(null);
     const [adLoaded, setAdLoaded] = useState(false);
+    const misreadRef = useRef(null);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     // keep track of the time this session started at
     const [startTime, setStartTime] = useState(new Date().getTime());
@@ -263,7 +278,8 @@ export default function RealSimulation() {
                 paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
                 flexDirection: "column",
                 justifyContent: "space-between",
-                marginBottom: 20
+                marginBottom: 18,
+                gap: 8
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
@@ -282,12 +298,10 @@ export default function RealSimulation() {
                                  distanceInvalid={distanceInvalid}
                                  updateField={updateField}/>
                 </View>
-                <View style={{flexDirection: "column", gap: 4}}>
+                <View style={{flexDirection: "row", justifyContent: "space-around", gap: 4}}>
                     <Pressable onPress={() => updateField("misHit", !misHit)} style={{
-                        marginTop: 12,
-                        marginBottom: 4,
-                        paddingRight: 20,
-                        paddingLeft: 10,
+                        paddingRight: 30,
+                        paddingLeft: 20,
                         paddingVertical: 8,
                         borderRadius: 8,
                         borderWidth: 1,
@@ -309,60 +323,25 @@ export default function RealSimulation() {
                         }
                         <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</FontText>
                     </Pressable>
-                    <View style={{flexDirection: "row", justifyContent: "center", gap: 12}}>
-                        <Pressable onPress={() => updateField("misReadSlope", !misReadSlope)} style={{
-                            marginBottom: 4,
-                            paddingRight: 20,
-                            paddingLeft: 10,
-                            paddingVertical: 8,
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            borderColor: misReadSlope ? colors.button.danger.border : colors.button.danger.disabled.border,
-                            backgroundColor: misReadSlope ? colors.button.danger.background : colors.button.danger.disabled.background,
-                            alignSelf: "center",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: 'center',
-                        }}>
-                            {misReadSlope ?
-                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth={2}
-                                     width={20}
-                                     height={20} stroke={colors.button.danger.text}>
-                                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                </Svg> :
-                                <SvgClose width={20} height={20} stroke={misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
-                            }
-                            <FontText style={{color: misReadSlope ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Slope</FontText>
-                        </Pressable>
-                        <Pressable onPress={() => updateField("misReadLine", !misReadLine)} style={{
-                            marginBottom: 4,
-                            paddingRight: 20,
-                            paddingLeft: 10,
-                            paddingVertical: 8,
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            borderColor: misReadLine ? colors.button.danger.border : colors.button.danger.disabled.border,
-                            backgroundColor: misReadLine ? colors.button.danger.background : colors.button.danger.disabled.background,
-                            alignSelf: "center",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: 'center',
-                        }}>
-                            {misReadLine ?
-                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth={2}
-                                     width={20}
-                                     height={20} stroke={colors.button.danger.text}>
-                                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                </Svg> :
-                                <SvgClose width={20} height={20} stroke={misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
-                            }
-                            <FontText style={{color: misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Misread Line</FontText>
-                        </Pressable>
-                    </View>
+                    <Pressable onPress={() => misreadRef.current.present()} style={({pressed}) => [{
+                        paddingHorizontal: 30,
+                        paddingVertical: 8,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: misReadSlope || misReadLine ? colors.button.danger.border : colors.button.danger.disabled.border,
+                        backgroundColor: misReadSlope || misReadLine ? colors.button.danger.background : pressed ? colors.button.primary.depressed : colors.button.danger.disabled.background,
+                        alignSelf: "center",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: 'center',
+                    }]}>
+                        <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Slope" : misReadLine ? ": Line" : ""}</FontText>
+                    </Pressable>
                 </View>
                 <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
+                <View style={{marginLeft: -24}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
+                </View>
                 <View style={{flexDirection: "row", justifyContent: "space-between", gap: 4}}>
                     <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                    title="Back"
@@ -371,9 +350,7 @@ export default function RealSimulation() {
                         if (distance === -1) return;
                         updateField("largeMiss", true);
                         bigMissRef.current.present();
-                    }}
-                                  disabled={distance === -1}
-                                  title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`}></DangerButton>
+                    }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 32, paddingVertical: 10, borderRadius: 8, opacity: distance === -1 ? 0.5 : 1}}></DangerButton>
                     {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                     title={hole === holes ? "Submit" : "Next"}
                                     disabled={point.x === undefined || distance === -1}
@@ -391,6 +368,7 @@ export default function RealSimulation() {
                           rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
             <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit(true)} end={fullReset}></ConfirmExit>
+            <MisreadModal misreadRef={misreadRef} setMisreadSlope={(val) => updateField("misReadSlope", val)} setMisreadLine={(val) => updateField("misReadLine", val)} misreadLine={misReadLine} misreadSlope={misReadSlope}></MisreadModal>
         </View>
     );
 }

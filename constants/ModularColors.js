@@ -47,7 +47,7 @@ export const LightTheme = {
       depressed: '#e04343',
       disabled: {
         background: 'rgb(255,255,255)',
-        border: '#a1a1a1',
+        border: '#CFCFCF',
         text: '#111827',
       },
     },
