@@ -19,6 +19,7 @@ export const AnimatedBootSplash = ({ onAnimationEnd, ready }: Props) => {
         logo: require("../../../assets/bootsplash/logo.png"),
 
         animate: () => {
+            console.log("animate");
             const {height} = Dimensions.get("window");
 
             Animated.stagger(250, [

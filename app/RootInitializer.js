@@ -16,6 +16,7 @@ import {
     Inter_900Black,
     useFonts,
 } from '@expo-google-fonts/inter';
+import {Platform} from "react-native";
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
@@ -46,6 +47,7 @@ export default function RootInitializer({}) {
         });
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
+            console.log("Auth state changed");
             if (user) {
                 user.getIdToken().then((token) => {
                     setSession(token);
@@ -54,6 +56,10 @@ export default function RootInitializer({}) {
             }
             else {
                 setLocalLoading(false);
+                if (Platform.OS === "ios") {
+                    setVisible(false);
+                    router.push({pathname: "/signup"});
+                }
             }
         });
         return () => {
@@ -66,6 +72,7 @@ export default function RootInitializer({}) {
         <AnimatedBootSplash
             ready={(!localLoading || !isLoading) && fontsLoaded}
             onAnimationEnd={() => {
+                console.log("Animation end");
                 setVisible(false);
                 if (!localLoading) {
                     router.push({pathname: "/signup"});
