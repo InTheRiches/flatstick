@@ -41,6 +41,9 @@ export default function RootInitializer({}) {
         const unsubscribeNetInfo = NetInfo.addEventListener(state => {
             if (!state.isConnected) {
                 if (localLoading) setLocalLoading(false);
+                if (Platform.OS === "ios") {
+                    setVisible(false);
+                }
                 alert("No internet connection. Please connect to the internet to continue.");
                 router.push({pathname: "/offline"});
             }
@@ -52,6 +55,9 @@ export default function RootInitializer({}) {
                 user.getIdToken().then((token) => {
                     setSession(token);
                     initialize();
+                    if (Platform.OS === "ios") {
+                        setVisible(false);
+                    }
                 });
             }
             else {
