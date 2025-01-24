@@ -4,7 +4,7 @@
     "slug": "putt-perfect",
     "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/branding/appicon/adaptive_icon.png",
+    "icon": "./assets/branding/appicon/play_store_512.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#ffffff",

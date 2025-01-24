@@ -90,14 +90,14 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 24,
-                        marginTop: -12,
+                        marginTop: -8,
                         fontWeight: 500,
                     }}>Session</FontText>
                 </View>
                 <View style={{flex: 1}}>
                     <FontText style={{textAlign: "right", color: colors.text.primary}}>#{puttSessionsLength}</FontText>
                     <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24, fontWeight: 500,}}>Simulation</FontText>
-                    <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -12, fontWeight: 500,}}>Summary</FontText>
+                    <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24, marginTop: -8, fontWeight: 500,}}>Summary</FontText>
                 </View>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
