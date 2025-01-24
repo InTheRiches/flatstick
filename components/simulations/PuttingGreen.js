@@ -59,12 +59,10 @@ export function PuttingGreen({updateField, width, height, point, center}) {
             runOnJS(updateField)("point", {x: snappedX * 1.005, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
 
-    const displayValue = (valueInFeet, valueInMetric) => {
-        return userData.preferences.units === 1 ? valueInMetric + " m" : valueInFeet + " ft";
-    };
+    console.log(width)
 
     return (
-        <View>
+        <View style={{flex: 1, maxHeight: width}}>
             <View style={{
                 alignSelf: "center",
                 flexDirection: "row",
@@ -101,8 +99,9 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                           alignSelf: "center",
                           alignItems: "center",
                           justifyContent: "center",
-                          aspectRatio: "1",
                           flexDirection: "col",
+                          flex: 1,
+                          maxHeight: width,
                           width: "100%",
                       }}>
                     <Image
@@ -114,6 +113,7 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                             width: 12,
                             aspectRatio: "1",
                             flex: 1,
+                            maxHeight: width
                         }}/>
                     <Image style={{position: "absolute", height: width / 10 + 1, width: width / 10 + 1,}} source={require("../../assets/images/golf-hole-borderless.png")}></Image>
                     { center &&

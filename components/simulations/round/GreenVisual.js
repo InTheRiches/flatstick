@@ -1,4 +1,4 @@
-import {Platform, View} from "react-native";
+import {View} from "react-native";
 import {Image} from "expo-image";
 import React from "react";
 import useColors from "../../../hooks/useColors";
@@ -19,7 +19,7 @@ export function GreenVisual({distance, puttBreak, slope, imageSource}) {
         }}>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
                 <Image source={imageSource} style={{
-                    width: Platform.OS === "ios" ? "90%" : "100%",
+                    width: "90%",
                     height: "auto",
                     aspectRatio: 2
                 }}></Image>
