@@ -91,7 +91,7 @@ export default function HomeScreen() {
                         }}>
                             <FontText style={{
                                 fontSize: 24,
-                                fontWeight: 500,
+                                fontWeight: 600,
                                 color: colors.text.primary
                             }}>Settings</FontText>
                         </View>

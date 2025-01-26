@@ -25,7 +25,7 @@ export default function Compare({}) {
         <ScreenWrapper style={{alignItems: "center", paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
             <FontText style={{
                 fontSize: 24,
-                fontWeight: 500,
+                fontWeight: 600,
                 color: colors.text.primary,
                 textAlign: "left",
                 width: "100%"
@@ -45,7 +45,7 @@ export default function Compare({}) {
             </View>
             <View style={{flexDirection: "row", gap: 16}}>
                 <PrimaryButton onPress={() => {
-                    if (putters.length < 2) return;
+                    if (putters.length <= 2) return;
                     router.push({pathname: "/compare/putters"})
                 }} disabled={putters.length <= 2} style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width={40} height={40} fill={colors.text.primary}>
@@ -60,7 +60,7 @@ export default function Compare({}) {
                         to determine which one is best for you.</FontText>
                 </PrimaryButton>
                 <PrimaryButton onPress={() => {
-                    if (grips.length < 2) return;
+                    if (grips.length <= 2) return;
                     router.push({pathname: "/compare/grips"})
                 }} disabled={grips.length <= 2} style={{borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12, flex: 1, justifyContent: "flex-start"}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
