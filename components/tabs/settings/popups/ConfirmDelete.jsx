@@ -26,12 +26,8 @@ export function ConfirmDelete({ confirmDeleteRef, cancel, onDelete}) {
         <BottomSheetView style={{
                 paddingBottom: 20, backgroundColor: colors.background.secondary,
             }}>
-            <View style={{
-                    paddingHorizontal: 32, flexDirection: "column", alignItems: "center",
-                }}>
-                <View style={{
-                        flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,
-                    }}>
+            <View style={{paddingHorizontal: 32, flexDirection: "column", alignItems: "center",}}>
+                <View style={{flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,}}>
                     <View
                         style={{
                             height: 32,

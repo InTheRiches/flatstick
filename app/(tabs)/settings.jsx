@@ -19,7 +19,6 @@ import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {auth} from "../../utils/firebase";
 import {deleteUser} from "firebase/auth";
-import Loading from "../../components/general/popups/Loading";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
@@ -36,7 +35,6 @@ export default function HomeScreen() {
 
     // const [themePressed, setThemePressed] = useState(false);
     const [unitsPressed, setUnitsPressed] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     const setThemeRef = React.useRef(null);
     const setUnitsRef = React.useRef(null);
@@ -48,10 +46,6 @@ export default function HomeScreen() {
     useForeground(() => {
         bannerRef.current?.load();
     })
-
-    if (loading) {
-        return <Loading/>
-    }
 
     const deleteAccount = async () => {
         await updateData({ deleted: true });
@@ -65,7 +59,6 @@ export default function HomeScreen() {
             console.log("User deleted");
         }).catch((error) => {
             // An error ocurred
-            // ...
             console.log(error);
         });
     }
@@ -83,12 +76,7 @@ export default function HomeScreen() {
                     flex: 1
                 }}>
                     <ScrollView keyboardShouldPersistTaps={'handled'}>
-                        <View style={{
-                            flexDirection: "col",
-                            alignItems: "flex-start",
-                            flex: 0,
-                            paddingBottom: 10,
-                        }}>
+                        <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, paddingBottom: 10,}}>
                             <FontText style={{
                                 fontSize: 24,
                                 fontWeight: 600,
