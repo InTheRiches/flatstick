@@ -1,7 +1,7 @@
-import {Pressable, ScrollView, Text, TextInput, View} from "react-native";
+import {Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
 import React, {useState} from "react";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
-import {createUserWithEmailAndPassword, updateProfile} from "firebase/auth";
+import {createUserWithEmailAndPassword, OAuthProvider, signInWithCredential, updateProfile} from "firebase/auth";
 import {getAuth} from "../../utils/firebase"
 import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {useRouter} from "expo-router";
@@ -13,6 +13,7 @@ import {useAppContext, useSession} from "../../contexts/AppCtx";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {createSimpleRefinedStats} from "../../utils/PuttUtils";
+import {appleAuth, AppleButton} from "@invertase/react-native-apple-authentication";
 
 const initialState = {
     skill: -1,
@@ -32,7 +33,7 @@ export default function CreateAccount() {
     const db = getFirestore();
     const router = useRouter();
 
-    const {googleSignIn} = useSession();
+    const {googleSignIn, appleSignIn} = useSession();
     const {updateStats} = useAppContext();
 
     const [state, setState] = useState(initialState);
@@ -196,6 +197,45 @@ export default function CreateAccount() {
         }
     }
 
+    async function onAppleButtonPress() {
+        console.warn('Beginning Apple Authentication');
+
+        const auth = getAuth();
+
+        // start a login request
+        try {
+            const { identityToken, nonce, fullName } = await appleAuth.performRequest({
+                requestedOperation: appleAuth.Operation.LOGIN,
+                requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+            });
+
+            let firstName = fullName && fullName.givenName !== null ? fullName.givenName : "Unknown";
+            let lastName = fullName && fullName.familyName != null ? fullName.familyName : "Unknown";
+
+            // can be null in some scenarios
+            if (identityToken) {
+                console.warn(`Apple Authentication Completed, idToken: ${identityToken}`);
+                // 3). create a Firebase `AppleAuthProvider` credential
+                const appleCredential = new OAuthProvider('apple.com').credential({
+                    idToken: identityToken,
+                    rawNonce: nonce,
+                });
+
+                const userCredential = await signInWithCredential(auth, appleCredential);
+
+                appleSignIn(userCredential, firstName, lastName);
+
+                // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
+                console.warn(`Firebase authenticated via Apple`);
+            } else {}
+        } catch (error) {
+            if (error.code === appleAuth.Error.CANCELED)
+                console.warn('User canceled Apple Sign in.');
+            else
+                console.error(error);
+        }
+    }
+
     return (loading ? <Loading/> :
             <ScreenWrapper style={{
                 flex: 1,
@@ -204,7 +244,7 @@ export default function CreateAccount() {
                 flexDirection: "column",
                 backgroundColor: colors.background.primary
             }}>
-                <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center"}}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center"}}>
                     <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>
                     <FontText style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome! Please fill in the details to get started.</FontText>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
@@ -225,6 +265,17 @@ export default function CreateAccount() {
                                 <Path clipPath="url(#b)" fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/>
                             </Svg>
                         </Pressable>
+                        { Platform.OS === "ios" &&
+                            <AppleButton
+                                buttonStyle={AppleButton.Style.WHITE}
+                                buttonType={AppleButton.Type.SIGN_IN}
+                                style={{
+                                    flex: 1,
+                                    height: 45, // You must specify a height
+                                }}
+                                onPress={() => onAppleButtonPress()}
+                            />
+                        }
                     </View>
                     <View style={{width: "100%", flexDirection: "row", gap: 10}}>
                         <View style={{

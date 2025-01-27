@@ -53,6 +53,7 @@ const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
     googleSignIn: () => {},
+    appleSignIn: () => {},
     setSession: () => {},
     setLoading: () => {},
     session: {},
@@ -94,6 +95,44 @@ export function AppProvider({children}) {
 
         router.push({pathname: "/"});
     };
+
+    const appleSignIn = (userCredential, firstName, lastName) => {
+        getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((newDoc) => {
+            if (newDoc.exists()) {
+                userCredential.user.getIdToken().then((token) => {
+                    setSession(token || null);
+                    router.push({pathname: `/`});
+                });
+                return;
+            }
+            setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
+                date: new Date().toISOString(),
+                totalPutts: 0,
+                sessions: 0,
+                firstName: firstName,
+                lastName: lastName,
+                strokesGained: 0,
+                preferences: {
+                    countMishits: false,
+                    selectedPutter: 0,
+                    theme: 0,
+                    units: 0,
+                    reminders: false,
+                    selectedGrip: 0,
+                }
+            }).then(() => {
+                userCredential.user.getIdToken().then((token) => {
+                    setSession(token || null);
+                    router.push({pathname: `/`});
+                });
+                refreshStats();
+            }).catch((error) => {
+                console.log(error);
+            });
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
 
     const googleSignIn = (user) => {
         const credential = GoogleAuthProvider.credential(user.idToken);
@@ -143,7 +182,7 @@ export function AppProvider({children}) {
             await GoogleSignin.signOut();
 
             setSession(null);
-            router.push({pathname: "/login"});
+            router.push({pathname: "/signup"});
         } catch (error) {
             console.error("Error during sign-out:", error);
         }
@@ -292,11 +331,15 @@ export function AppProvider({children}) {
         const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/current`);
         try {
             await runTransaction(firestore, async (transaction) => {
-                console.log("setting")
                 transaction.update(userDocRef, newData);
             });
         } catch (error) {
-            console.error("Update stats transaction failed:", error);
+            console.warn("Update stats transaction failed, attempting alternative:", error);
+            try {
+                await setDoc(userDocRef, newData);
+            } catch (error) {
+                console.error("Update stats failed:", error)
+            }
         }
     };
 
@@ -472,6 +515,7 @@ export function AppProvider({children}) {
         signIn,
         signOut,
         googleSignIn,
+        appleSignIn,
         setSession,
         setLoading,
         session,

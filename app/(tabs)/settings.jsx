@@ -22,6 +22,7 @@ import {deleteUser} from "firebase/auth";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
+import {appleAuth} from "@invertase/react-native-apple-authentication";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
@@ -31,9 +32,6 @@ export default function HomeScreen() {
     const {signOut} = useSession();
     const router = useRouter();
 
-    // const [reminders, setReminders] = useState(userData.preferences.reminders);
-
-    // const [themePressed, setThemePressed] = useState(false);
     const [unitsPressed, setUnitsPressed] = useState(false);
 
     const setThemeRef = React.useRef(null);
@@ -46,6 +44,8 @@ export default function HomeScreen() {
     useForeground(() => {
         bannerRef.current?.load();
     })
+
+    const isApple = auth.currentUser && auth.currentUser.providerData[0].providerId === "apple.com";
 
     const deleteAccount = async () => {
         await updateData({ deleted: true });
@@ -153,7 +153,7 @@ export default function HomeScreen() {
                                 <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</FontText>
                             </PrimaryButton>
                             <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={() => {
-                                if (GoogleSignin.getCurrentUser() !== null) {
+                                if (GoogleSignin.getCurrentUser() !== null || isApple) {
                                     confirmDeleteRef.current.present();
                                 } else reauthenticateDeletionRef.current.present();
                             }}>

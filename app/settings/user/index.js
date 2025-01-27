@@ -11,6 +11,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../components/general/FontText";
+import {appleAuth} from "@invertase/react-native-apple-authentication";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
 
@@ -39,6 +40,7 @@ export default function UserSettings({}) {
     let nameErrorCode = "";
 
     const isGoogle = GoogleSignin.getCurrentUser() !== null;
+    const isApple = auth.currentUser.providerData[0].providerId === "apple.com";
 
     const updateFirstName = (newName) => {
         setFirstName(newName.trim());
@@ -70,7 +72,7 @@ export default function UserSettings({}) {
         // Save changes to the database
         updateProfile(auth.currentUser, {displayName: firstName + " " + lastName})
             .then(() => {
-                if (isGoogle) {
+                if (isGoogle || isApple) {
                     navigation.goBack();
                     return;
                 }
@@ -174,23 +176,23 @@ export default function UserSettings({}) {
                     style={{
                         flex: 1,
                         borderWidth: 1,
-                        borderColor: isGoogle ? colors.input.disabled.border : emailFocused ? emailInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : emailInvalid ? colors.input.invalid.border : colors.input.border,
+                        borderColor: isGoogle || isApple ? colors.input.disabled.border : emailFocused ? emailInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : emailInvalid ? colors.input.invalid.border : colors.input.border,
                         borderRadius: 10,
                         paddingVertical: 8,
                         paddingHorizontal: 10,
                         fontSize: 16,
-                        color: isGoogle ? colors.input.disabled.text : emailInvalid? colors.input.invalid.text : colors.input.text,
-                        backgroundColor: isGoogle ? colors.input.disabled.background : emailInvalid? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
+                        color: isGoogle || isApple ? colors.input.disabled.text : emailInvalid? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: isGoogle || isApple ? colors.input.disabled.background : emailInvalid? colors.input.invalid.background : emailFocused ? colors.input.focused.background : colors.input.background
                     }}
                     onFocus={() => setEmailFocused(true)}
                     value={email}
                     onBlur={() => setEmailFocused(false)}
                     onChangeText={(text) => updateEmailAddress(text)}
-                    editable={!isGoogle}
-                    caretHidden={isGoogle}
+                    editable={!isGoogle && !isApple}
+                    caretHidden={isGoogle && !isApple}
                 />
                 {
-                    isGoogle &&
+                    isGoogle || isApple &&
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                              stroke={colors.input.disabled.text} style={{position: "absolute", right: 12, top: 7.5, width: 24, height: 24}}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
@@ -213,6 +215,10 @@ export default function UserSettings({}) {
             { isGoogle && (
                     <FontText style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with google.</FontText>
                 )
+            }
+            { isApple && (
+                <FontText style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with apple.</FontText>
+            )
             }
             {emailInvalid && emailErrorCode !== "auth/email-already-in-use" &&
                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}

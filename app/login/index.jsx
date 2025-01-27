@@ -16,6 +16,7 @@ import {
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import FontText from "../../components/general/FontText";
 import {appleAuth, AppleButton} from "@invertase/react-native-apple-authentication";
+import {getAuth, OAuthProvider, signInWithCredential} from "firebase/auth";
 
 const initialState = {
     password: "",
@@ -29,7 +30,7 @@ const initialState = {
 export default function Login() {
     const colors = useColors();
     const router = useRouter();
-    const {signIn, googleSignIn} = useSession();
+    const {signIn, googleSignIn, appleSignIn} = useSession();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
@@ -115,57 +116,39 @@ export default function Login() {
     async function onAppleButtonPress() {
         console.warn('Beginning Apple Authentication');
 
+        const auth = getAuth();
+
         // start a login request
         try {
-            const appleAuthRequestResponse = await appleAuth.performRequest({
+            const { identityToken, nonce, fullName } = await appleAuth.performRequest({
                 requestedOperation: appleAuth.Operation.LOGIN,
                 requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
             });
 
-            console.log('appleAuthRequestResponse', appleAuthRequestResponse);
+            let firstName = fullName && fullName.givenName !== null ? fullName.givenName : "Unknown";
+            let lastName = fullName && fullName.familyName != null ? fullName.familyName : "Unknown";
 
-            const {
-                user: userId,
-                email,
-                fullName,
-                identityToken,
-                nonce,
-                realUserStatus /* etc */,
-            } = appleAuthRequestResponse;
-
-            let userEmail, userName;
-
-            email ? (userEmail = email) : (userEmail = 'unknown');
-            fullName && fullName.givenName && fullName.familyName
-                ? (userName = `${fullName.givenName} ${fullName.familyName}`)
-                : (userName = 'unknown');
-
-            // The email and fullName are only provided on the first sign in to an app.
-            // But, we can get the email from the JWT every time if we decode it.
-            const decoded = jwtDecode(identityToken);
-            console.log('decoded token: ', decoded);
-            userEmail === 'unknown' && decoded.email
-                ? (userEmail = decoded.email)
-                : (userEmail = 'unknown');
-
+            // can be null in some scenarios
             if (identityToken) {
-                // e.g. sign in with Firebase Auth using `nonce` & `identityToken`
-                console.log("stuff: " + nonce, identityToken);
-            } else {
-                // no token - failed sign-in?
-            }
+                console.warn(`Apple Authentication Completed, idToken: ${identityToken}`);
+                // 3). create a Firebase `AppleAuthProvider` credential
+                const appleCredential = new OAuthProvider('apple.com').credential({
+                    idToken: identityToken,
+                    rawNonce: nonce,
+                });
 
-            if (realUserStatus === appleAuth.UserStatus.LIKELY_REAL) {
-                console.log("I'm a real person!");
-            }
+                const userCredential = await signInWithCredential(auth, appleCredential);
 
-            console.warn(`Apple Authentication Completed, ${userId}, ${email}`);
+                appleSignIn(userCredential, firstName, lastName);
+
+                // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
+                console.warn(`Firebase authenticated via Apple`);
+            } else {}
         } catch (error) {
-            if (error.code === appleAuth.Error.CANCELED) {
+            if (error.code === appleAuth.Error.CANCELED)
                 console.warn('User canceled Apple Sign in.');
-            } else {
+            else
                 console.error(error);
-            }
         }
     }
 
@@ -204,7 +187,7 @@ export default function Login() {
                                 buttonStyle={AppleButton.Style.WHITE}
                                 buttonType={AppleButton.Type.SIGN_IN}
                                 style={{
-                                    width: 160, // You must specify a width
+                                    flex: 1,
                                     height: 45, // You must specify a height
                                 }}
                                 onPress={() => onAppleButtonPress()}
