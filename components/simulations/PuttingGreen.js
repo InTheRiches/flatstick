@@ -12,6 +12,7 @@ export function PuttingGreen({updateField, width, height, point, center}) {
     const {userData} = useAppContext();
     const [puttingGreenWidth, setPuttingGreenWidth] = React.useState(0);
 
+    // TODO see if we can delete puttingGreenWidth
     const onLayout = (event) => {
         const {width, height} = event.nativeEvent.layout;
 
@@ -58,8 +59,6 @@ export function PuttingGreen({updateField, width, height, point, center}) {
 
             runOnJS(updateField)("point", {x: snappedX * 1.005, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
-
-    console.log(width)
 
     return (
         <View style={{flex: 1, maxHeight: width}}>
