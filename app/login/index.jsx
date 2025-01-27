@@ -1,5 +1,5 @@
-import {PixelRatio, Pressable, ScrollView, TextInput, View} from "react-native";
-import React, {useCallback, useRef, useState} from "react";
+import {PixelRatio, Platform, Pressable, ScrollView, TextInput, View} from "react-native";
+import React, {useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
@@ -15,6 +15,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import FontText from "../../components/general/FontText";
+import {appleAuth, AppleButton} from "@invertase/react-native-apple-authentication";
 
 const initialState = {
     password: "",
@@ -111,19 +112,62 @@ export default function Login() {
     const [inputsHeight, setInputsHeight] = useState(0);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-    const updateKeyboardVisibility = useCallback((visible) => {
-        setKeyboardVisible(visible);
-    }, []);
+    async function onAppleButtonPress() {
+        console.warn('Beginning Apple Authentication');
 
-    // useEffect(() => {
-    //     console.log("updating")
-    //     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => updateKeyboardVisibility(true));
-    //     const keyboardHidListener = Keyboard.addListener('keyboardDidHide', () => updateKeyboardVisibility(false));
-    //     return () => {
-    //         keyboardDidShowListener.remove();
-    //         keyboardHidListener.remove();
-    //     }
-    // }, []);
+        // start a login request
+        try {
+            const appleAuthRequestResponse = await appleAuth.performRequest({
+                requestedOperation: appleAuth.Operation.LOGIN,
+                requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+            });
+
+            console.log('appleAuthRequestResponse', appleAuthRequestResponse);
+
+            const {
+                user: userId,
+                email,
+                fullName,
+                identityToken,
+                nonce,
+                realUserStatus /* etc */,
+            } = appleAuthRequestResponse;
+
+            let userEmail, userName;
+
+            email ? (userEmail = email) : (userEmail = 'unknown');
+            fullName && fullName.givenName && fullName.familyName
+                ? (userName = `${fullName.givenName} ${fullName.familyName}`)
+                : (userName = 'unknown');
+
+            // The email and fullName are only provided on the first sign in to an app.
+            // But, we can get the email from the JWT every time if we decode it.
+            const decoded = jwtDecode(identityToken);
+            console.log('decoded token: ', decoded);
+            userEmail === 'unknown' && decoded.email
+                ? (userEmail = decoded.email)
+                : (userEmail = 'unknown');
+
+            if (identityToken) {
+                // e.g. sign in with Firebase Auth using `nonce` & `identityToken`
+                console.log("stuff: " + nonce, identityToken);
+            } else {
+                // no token - failed sign-in?
+            }
+
+            if (realUserStatus === appleAuth.UserStatus.LIKELY_REAL) {
+                console.log("I'm a real person!");
+            }
+
+            console.warn(`Apple Authentication Completed, ${userId}, ${email}`);
+        } catch (error) {
+            if (error.code === appleAuth.Error.CANCELED) {
+                console.warn('User canceled Apple Sign in.');
+            } else {
+                console.error(error);
+            }
+        }
+    }
 
     // TODO this translucent does jack squat because there is nothing underneath it
     return (loading ? <Loading translucent={true}/> :
@@ -155,6 +199,17 @@ export default function Login() {
                                 <Path clipPath="url(#b)" fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/>
                             </Svg>
                         </Pressable>
+                        { Platform.OS === "ios" &&
+                            <AppleButton
+                                buttonStyle={AppleButton.Style.WHITE}
+                                buttonType={AppleButton.Type.SIGN_IN}
+                                style={{
+                                    width: 160, // You must specify a width
+                                    height: 45, // You must specify a height
+                                }}
+                                onPress={() => onAppleButtonPress()}
+                            />
+                        }
                     </View>
                     <View style={{width: "100%", flexDirection: "row", gap: 10, marginVertical: 12}}>
                         <View style={{

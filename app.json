@@ -10,6 +10,7 @@
     "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "ios": {
+      "usesAppleSignIn": true,
       "bundleIdentifier": "com.intheriches.flatstick",
       "supportsTablet": false,
       "googleServicesFile": "./GoogleService-Info.plist"
