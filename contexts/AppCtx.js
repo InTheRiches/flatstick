@@ -182,7 +182,9 @@ export function AppProvider({children}) {
             await GoogleSignin.signOut();
 
             setSession(null);
-            router.push({pathname: "/signup"});
+            if (Platform.OS !== "ios") {
+                router.push({pathname: "/login"});
+            }
         } catch (error) {
             console.error("Error during sign-out:", error);
         }

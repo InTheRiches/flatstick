@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 import useColors from "../../../../hooks/useColors";
-import {TextInput, View} from "react-native";
+import {Platform, TextInput, View} from "react-native";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import {EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth';
@@ -66,23 +66,43 @@ export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef})
                 <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, fontWeight: 500}}>Re-Authenticate</FontText>
                 <FontText style={{color: colors.text.secondary, fontWeight: 600}}>PASSWORD</FontText>
                 <View style={{flexDirection: "row", gap: 10}}>
-                    <TextInput
-                        style={{
-                            flex: 1,
-                            borderWidth: 1,
-                            borderColor: passwordFocused ? passwordInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : passwordInvalid ? colors.input.invalid.border : colors.input.border,
-                            borderRadius: 10,
-                            paddingVertical: 8,
-                            paddingHorizontal: 10,
-                            fontSize: 16,
-                            color: passwordInvalid? colors.input.invalid.text : colors.input.text,
-                            backgroundColor: passwordInvalid? colors.input.invalid.background : passwordFocused ? colors.input.focused.background : colors.input.background
-                        }}
-                        secureTextEntry={true}
-                        onFocus={() => setPasswordFocused(true)}
-                        onBlur={() => setPasswordFocused(false)}
-                        onChangeText={(text) => updatePassword(text)}
-                    />
+                    {Platform.OS === "ios" ? (
+                        <BottomSheetTextInput
+                            style={{
+                                flex: 1,
+                                borderWidth: 1,
+                                borderColor: passwordFocused ? passwordInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : passwordInvalid ? colors.input.invalid.border : colors.input.border,
+                                borderRadius: 10,
+                                paddingVertical: 8,
+                                paddingHorizontal: 10,
+                                fontSize: 16,
+                                color: passwordInvalid? colors.input.invalid.text : colors.input.text,
+                                backgroundColor: passwordInvalid? colors.input.invalid.background : passwordFocused ? colors.input.focused.background : colors.input.background
+                            }}
+                            secureTextEntry={true}
+                            onFocus={() => setPasswordFocused(true)}
+                            onBlur={() => setPasswordFocused(false)}
+                            onChangeText={(text) => updatePassword(text)}
+                        />
+                    ) : (
+                        <TextInput
+                            style={{
+                                flex: 1,
+                                borderWidth: 1,
+                                borderColor: passwordFocused ? passwordInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : passwordInvalid ? colors.input.invalid.border : colors.input.border,
+                                borderRadius: 10,
+                                paddingVertical: 8,
+                                paddingHorizontal: 10,
+                                fontSize: 16,
+                                color: passwordInvalid? colors.input.invalid.text : colors.input.text,
+                                backgroundColor: passwordInvalid? colors.input.invalid.background : passwordFocused ? colors.input.focused.background : colors.input.background
+                            }}
+                            secureTextEntry={true}
+                            onFocus={() => setPasswordFocused(true)}
+                            onBlur={() => setPasswordFocused(false)}
+                            onChangeText={(text) => updatePassword(text)}
+                        />
+                    )}
                     {passwordInvalid && <FontText style={{
                         position: "absolute",
                         right: 12,

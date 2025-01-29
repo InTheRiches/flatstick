@@ -1,4 +1,4 @@
-import {Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
+import {KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
 import React, {useState} from "react";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import {createUserWithEmailAndPassword, OAuthProvider, signInWithCredential, updateProfile} from "firebase/auth";
@@ -81,7 +81,7 @@ export default function CreateAccount() {
     }
 
     const validatePassword = (newPassword) => {
-        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{6,}$/;
+        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d\S]{6,}$/;
 
         setInvalidPassword(!re.test(newPassword))
 
@@ -237,6 +237,8 @@ export default function CreateAccount() {
     }
 
     return (loading ? <Loading/> :
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <ScreenWrapper style={{
                 flex: 1,
                 paddingHorizontal: 24,
@@ -246,7 +248,12 @@ export default function CreateAccount() {
             }}>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center"}}>
                     <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>
-                    <FontText style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome! Please fill in the details to get started.</FontText>
+                    <Pressable onPress={() => router.push({pathname: `/login`})} style={({pressed}) => [{
+                        marginBottom: 32,
+                    }]}>
+                        <FontText style={{color: colors.text.secondary, fontSize: 16, marginTop: 12, textAlign: "center"}}>Already have an account? Click <Text
+                            style={{color: colors.text.link}}>here</Text> to login.</FontText>
+                    </Pressable>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                         <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
                             onPress={googleSignUp}>
@@ -467,18 +474,9 @@ export default function CreateAccount() {
                             marginTop: 12
                         }}
                         title={"Create your account"}></PrimaryButton>
-                    <Pressable onPress={() => router.push({pathname: `/login`})} style={({pressed}) => [{
-                        marginTop: 32,
-                        elevation: pressed ? 0 : 1,
-                        borderRadius: 12,
-                        backgroundColor: colors.background.secondary,
-                        paddingVertical: 10
-                    }]}>
-                        <FontText style={{color: colors.text.primary, textAlign: "center"}}>Already have an account? Click <Text
-                            style={{color: colors.text.link}}>here</Text> to login.</FontText>
-                    </Pressable>
                 </ScrollView>
-        </ScreenWrapper>
+            </ScreenWrapper>
+        </KeyboardAvoidingView>
     )
 }
 

@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, View} from "react-native";
+import {Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -66,7 +66,7 @@ export default function CompareUsers({}) {
                                   clipRule="evenodd"/>
                         </Svg>
                         <View style={{marginLeft: 6}}>
-                            <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500, marginBottom: 4}}>{profile.firstName + " " + profile.lastName}</FontText>
+                            <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500, marginBottom: Platform.OS === "ios" ? 0 : 4}}>{profile.firstName + " " + profile.lastName}</FontText>
                         </View>
                     </View>
                 </View>

@@ -1,6 +1,6 @@
-import {Keyboard, TextInput, View} from "react-native";
+import {Keyboard, Platform, TextInput, View} from "react-native";
 import React, {useCallback, useState} from "react";
-import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../general/popups/CustomBackdrop";
 import {PrimaryButton} from "../general/buttons/PrimaryButton";
 import useColors from "@/hooks/useColors";
@@ -67,24 +67,45 @@ export function NewPutterModal({newPutterRef}) {
                         New Putter
                     </FontText>
                 </View>
-                <TextInput
-                    style={{
-                        marginHorizontal: 24,
-                        padding: 12,
-                        backgroundColor: putterInvalid ? colors.input.invalid.background : putterFocused ? colors.input.focused.background : colors.input.background,
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        borderColor: putterFocused ? putterInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : putterInvalid ? colors.input.invalid.border : colors.input.border,
-                        color: putterInvalid ? colors.input.invalid.text : colors.input.text,
-                        fontSize: 16,
-                        marginBottom: 12,
-                    }}
-                    placeholder={"Putter name..."}
-                    placeholderTextColor={colors.text.secondary}
-                    onChangeText={updatePutterName}
-                    onFocus={() => setPutterFocused(true)}
-                    onBlur={() => setPutterFocused(false)}
-                />
+                {Platform.OS === "ios" ? (
+                    <BottomSheetTextInput
+                        style={{
+                            marginHorizontal: 24,
+                            padding: 12,
+                            backgroundColor: putterInvalid ? colors.input.invalid.background : putterFocused ? colors.input.focused.background : colors.input.background,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            borderColor: putterFocused ? putterInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : putterInvalid ? colors.input.invalid.border : colors.input.border,
+                            color: putterInvalid ? colors.input.invalid.text : colors.input.text,
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}
+                        placeholder={"Putter name..."}
+                        placeholderTextColor={colors.text.secondary}
+                        onChangeText={updatePutterName}
+                        onFocus={() => setPutterFocused(true)}
+                        onBlur={() => setPutterFocused(false)}
+                    />
+                ) : (
+                    <TextInput
+                        style={{
+                            marginHorizontal: 24,
+                            padding: 12,
+                            backgroundColor: putterInvalid ? colors.input.invalid.background : putterFocused ? colors.input.focused.background : colors.input.background,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            borderColor: putterFocused ? putterInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : putterInvalid ? colors.input.invalid.border : colors.input.border,
+                            color: putterInvalid ? colors.input.invalid.text : colors.input.text,
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}
+                        placeholder={"Putter name..."}
+                        placeholderTextColor={colors.text.secondary}
+                        onChangeText={updatePutterName}
+                        onFocus={() => setPutterFocused(true)}
+                        onBlur={() => setPutterFocused(false)}
+                    />
+                )}
                 <PrimaryButton
                     title={"Create"}
                     onPress={() => {

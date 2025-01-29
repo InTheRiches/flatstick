@@ -1,6 +1,6 @@
-import {Keyboard, TextInput, View} from "react-native";
+import {Keyboard, Platform, TextInput, View} from "react-native";
 import React, {useCallback, useState} from "react";
-import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import CustomBackdrop from "../general/popups/CustomBackdrop";
 import {PrimaryButton} from "../general/buttons/PrimaryButton";
 import useColors from "@/hooks/useColors";
@@ -65,24 +65,45 @@ export function NewGripModal({newGripRef}) {
                         New Grip Method
                     </FontText>
                 </View>
-                <TextInput
-                    style={{
-                        marginHorizontal: 24,
-                        padding: 12,
-                        backgroundColor: gripInvalid ? colors.input.invalid.background : gripFocused ? colors.input.focused.background : colors.input.background,
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        borderColor: gripFocused ? gripInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : gripInvalid ? colors.input.invalid.border : colors.input.border,
-                        color: gripInvalid ? colors.input.invalid.text : colors.input.text,
-                        fontSize: 16,
-                        marginBottom: 12,
-                    }}
-                    placeholder={"Grip method name..."}
-                    placeholderTextColor={colors.text.secondary}
-                    onChangeText={updateGripName}
-                    onFocus={() => setGripFocused(true)}
-                    onBlur={() => setGripFocused(false)}
-                />
+                {Platform.OS === "ios" ? (
+                    <TextInput
+                        style={{
+                            marginHorizontal: 24,
+                            padding: 12,
+                            backgroundColor: gripInvalid ? colors.input.invalid.background : gripFocused ? colors.input.focused.background : colors.input.background,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            borderColor: gripFocused ? gripInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : gripInvalid ? colors.input.invalid.border : colors.input.border,
+                            color: gripInvalid ? colors.input.invalid.text : colors.input.text,
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}
+                        placeholder={"Grip method name..."}
+                        placeholderTextColor={colors.text.secondary}
+                        onChangeText={updateGripName}
+                        onFocus={() => setGripFocused(true)}
+                        onBlur={() => setGripFocused(false)}
+                    />
+                ) : (
+                    <BottomSheetTextInput
+                        style={{
+                            marginHorizontal: 24,
+                            padding: 12,
+                            backgroundColor: gripInvalid ? colors.input.invalid.background : gripFocused ? colors.input.focused.background : colors.input.background,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            borderColor: gripFocused ? gripInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : gripInvalid ? colors.input.invalid.border : colors.input.border,
+                            color: gripInvalid ? colors.input.invalid.text : colors.input.text,
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}
+                        placeholder={"Grip method name..."}
+                        placeholderTextColor={colors.text.secondary}
+                        onChangeText={updateGripName}
+                        onFocus={() => setGripFocused(true)}
+                        onBlur={() => setGripFocused(false)}
+                    />
+                )}
                 <PrimaryButton
                     title={"Create"}
                     onPress={() => {

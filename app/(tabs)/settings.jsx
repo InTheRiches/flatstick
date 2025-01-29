@@ -47,6 +47,8 @@ export default function HomeScreen() {
 
     const isApple = auth.currentUser && auth.currentUser.providerData[0].providerId === "apple.com";
 
+    console.log(isApple)
+
     const deleteAccount = async () => {
         await updateData({ deleted: true });
 
@@ -85,7 +87,7 @@ export default function HomeScreen() {
                         </View>
                         <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</FontText>
                         <Pressable onPress={() => {
-                            if (GoogleSignin.getCurrentUser() !== null) {
+                            if (GoogleSignin.getCurrentUser() !== null || isApple) {
                                 router.push({pathname: "/settings/user"})
                             } else reauthenticateRef.current.present()
                         }} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>

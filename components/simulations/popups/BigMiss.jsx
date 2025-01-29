@@ -162,15 +162,14 @@ export function BigMissModal({
                 </View>
                 <FontText
                     style={{
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: 400,
                         color: colors.text.secondary,
                         textAlign: "center",
-                        width: "70%",
                         marginBottom: 16,
                     }}>
-                    Putting for the rough, are we? You might need GPS for the next one.
-                    Mark where you missed below.
+                    Putting for the rough, are we? GPS might be a good idea for the next one.
+                    Mark which direction you missed below.
                 </FontText>
                 <View style={{flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",}}>
                     <View style={{flexDirection: "column", gap: 12}}>
@@ -179,7 +178,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -196,7 +195,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -213,7 +212,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -232,7 +231,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -249,7 +248,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -268,7 +267,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -285,7 +284,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -302,7 +301,7 @@ export function BigMissModal({
                             style={{
                                 aspectRatio: 1,
                                 padding: 20,
-                                backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : colors.button.danger.disabled.background,
+                                backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : "#f3bebe",
                                 justifyContent: "center",
                                 flexDirection: "row",
                                 alignItems: "center",

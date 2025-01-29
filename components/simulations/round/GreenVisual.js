@@ -62,7 +62,7 @@ export function GreenVisual({distance, puttBreak, slope, imageSource}) {
                         }}>{slope}</FontText>
                     </View>
                     <View
-                        style={{flexDirection: "column", flex: 0.7, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
+                        style={{flexDirection: "column", flex: 0.5, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
                         <FontText style={{
                             fontSize: 20,
