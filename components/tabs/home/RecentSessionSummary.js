@@ -79,7 +79,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
             }}>
                 <View style={{flex: 1}}>
                     <FontText style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
-                        "/" + date.getDate()}</FontText>
+                        "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
@@ -161,7 +161,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
             }}>
                 <View style={{flex: 1}}>
                     <FontText style={{textAlign: "left", color: colors.text.primary}}>{(date.getMonth() + 1) +
-                        "/" + date.getDate()}</FontText>
+                        "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,

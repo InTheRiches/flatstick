@@ -22,6 +22,7 @@ import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {useRouter} from "expo-router";
+import {Platform} from "react-native";
 
 const AppContext = createContext({
     userData: {},
@@ -151,7 +152,7 @@ export function AppProvider({children}) {
                     totalPutts: 0,
                     sessions: 0,
                     firstName: user.user.givenName,
-                    lastName: user.user.familyName,
+                    lastName: user.user.familyName !== null ? user.user.familyName : "",
                     strokesGained: 0,
                     preferences: {
                         countMishits: false,
