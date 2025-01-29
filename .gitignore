@@ -11,6 +11,9 @@ npm-debug.*
 web-build/
 eas.json
 *.apk
+*.ipa
+*.tar.gz
+*.gz
 
 # macOS
 .DS_Store
