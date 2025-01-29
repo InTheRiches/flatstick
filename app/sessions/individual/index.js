@@ -35,7 +35,6 @@ export default function IndividualSession({}) {
     useEffect(() => {
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             interstitial.show();
-            console.log("Interstitial loaded");
         });
 
         if (isRecap) {

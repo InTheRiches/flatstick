@@ -311,11 +311,11 @@ export default function RoundSimulation() {
             <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,
-                paddingHorizontal: Platform.OS === "ios" ? 32 : 24,
+                paddingHorizontal: 24,
                 flexDirection: "column",
                 justifyContent: "space-between",
                 marginBottom: 18,
-                gap: 8
+                gap: 64
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>

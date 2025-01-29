@@ -68,15 +68,16 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                     <FontText style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
                     <View style={{
                         flexDirection: "row",
-                        gap: 12,
+                        gap: 6,
                         alignItems: "center",
+                        justifyContent: "space-between",
                         alignSelf: "center",
                         paddingHorizontal: 12
                     }}>
                         <PrimaryButton style={{
                             aspectRatio: 1,
-                            paddingHorizontal: 4,
-                            paddingVertical: 4,
+                            paddingHorizontal: 3,
+                            paddingVertical: 3,
                             borderRadius: 16,
                             flex: 0
                         }} onPress={() => {
@@ -102,12 +103,13 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                             borderWidth: 1.5,
                             borderColor: distanceInvalid ? colors.input.invalid.border : colors.border.default,
                             borderRadius: 8,
+                            marginTop: 4,
                             flex: 1,
                             overflow: "hidden"
                         }}>
                             <TextInput style={{
                                 flex: 1,
-                                fontSize: 20,
+                                fontSize: 16,
                                 paddingVertical: 0,
                                 fontWeight: "bold",
                                 color: colors.text.primary,
@@ -131,14 +133,14 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                                                 colors.background.primary :
                                                 colors.border.default,
                                     flex: 1}}>
-                                <FontText style={{fontSize: 20, paddingVertical: 2, fontWeight: "bold", textAlign: "center", color: colors.text.primary,}}>{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                                <FontText style={{fontSize: 16, paddingVertical: 2, fontWeight: "bold", textAlign: "center", color: colors.text.primary,}}>{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                             </View>
                         </View>
                         <PrimaryButton
                             style={{
                                 aspectRatio: 1,
-                                paddingHorizontal: 4,
-                                paddingVertical: 4,
+                                paddingHorizontal: 3,
+                                paddingVertical: 3,
                                 borderRadius: 16,
                                 flex: 0
                             }}

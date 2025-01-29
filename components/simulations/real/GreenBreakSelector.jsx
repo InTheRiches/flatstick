@@ -46,8 +46,6 @@ export function GreenBreakSelector({theta, setTheta}) {
 
                 setWidth(width);
                 setHeight(height);
-
-                console.log("Component width is: " + px + " and height is: " + py);
             });
         }
     };

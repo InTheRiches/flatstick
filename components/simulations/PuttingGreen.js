@@ -1,63 +1,57 @@
 import {Image, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
-import React from "react";
+import React, {useState} from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
 import FontText from "../general/FontText";
 
-export function PuttingGreen({updateField, width, height, point, center}) {
+export function PuttingGreen({updateField, width: realWidth, height, point, center}) {
     const colors = useColors();
     const {userData} = useAppContext();
-    const [puttingGreenWidth, setPuttingGreenWidth] = React.useState(0);
+    const [ballSize, setBallSize] = useState(0);
+    const [width, setWidth] = useState(0);
+
+    const difference = (width - height) / 2;
 
     // TODO see if we can delete puttingGreenWidth
     const onLayout = (event) => {
-        const {width, height} = event.nativeEvent.layout;
+        const {width: rawWidth, height: rawHeight} = event.nativeEvent.layout;
 
-        updateField("width", width);
-        updateField("height", height);
-
-        if (userData.preferences.units === 0)
-            setPuttingGreenWidth(width);
-        else {
-            // find the number closest to width (less than) that is dividisble by 8
-            let closest = 0;
-            for (let i = Math.round(width); i > 0; i--) {
-                if (i % 8 === 0) {
-                    closest = i;
-                    break;
-                }
-            }
-            setPuttingGreenWidth(closest);
-        }
+        setWidth(rawWidth);
+        updateField("height", rawHeight);
+        updateField("width", rawHeight);
     };
 
     const singleTap = userData.preferences.units === 0 ? Gesture.Tap()
         .onStart((data) => {
+            // ignore it if the point is outside of the green
+            if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
+
             runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
 
-            const boxWidth = width / 10;
+            const boxWidth = height / 10;
             const boxHeight = height / 10;
 
             // Assuming tap data comes in as `data.x` and `data.y`
-            const snappedX = Math.round(data.x / boxWidth) * boxWidth;
+            const snappedX = Math.round((data.x - difference) / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
             runOnJS(updateField)("point", {x: snappedX, y: snappedY});
         }) : Gesture.Tap()
         .onStart((data) => {
             runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
+            if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
-            const boxWidth = width / 8;
-            const boxHeight = width / 8; // this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
+            const boxWidth = height / 8;
+            const boxHeight = height / 8; // this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
 
             // Assuming tap data comes in as `data.x` and `data.y`
-            const snappedX = Math.round(data.x / boxWidth) * boxWidth;
+            const snappedX = Math.round((data.x - difference) / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
-            runOnJS(updateField)("point", {x: snappedX * 1.005, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
+            runOnJS(updateField)("point", {x: snappedX, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
 
     return (
@@ -66,7 +60,7 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                 alignSelf: "center",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                width: "100%"
+                width: height
             }}>
                 {userData.preferences.units === 0 ? (
                     <>
@@ -100,7 +94,6 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                           justifyContent: "center",
                           flexDirection: "col",
                           flex: 1,
-                          maxHeight: width,
                           width: "100%",
                       }}>
                     <Image
@@ -109,7 +102,6 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                             borderWidth: 1,
                             borderRadius: 12,
                             borderColor: colors.putting.grid.border,
-                            width: 12,
                             aspectRatio: "1",
                             flex: 1,
                             maxHeight: width
@@ -137,10 +129,10 @@ export function PuttingGreen({updateField, width, height, point, center}) {
                         </View>
                     }
                     {point.x !== undefined && center !== true ? (
-                        <Image source={require('@/assets/images/golf-ball.png')} style={{
+                        <Image source={require('@/assets/images/golf-ball.png')} onLayout={(event) => setBallSize(event.nativeEvent.layout.width)} style={{
                             position: "absolute",
-                            left: point.x - 12,
-                            top: point.y - 12,
+                            left: point.x - (ballSize/2) + difference,
+                            top: point.y - (ballSize/2),
                             width: 24,
                             height: 24,
                             borderRadius: 12,

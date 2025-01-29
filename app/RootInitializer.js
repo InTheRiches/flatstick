@@ -50,7 +50,6 @@ export default function RootInitializer({}) {
         });
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
-            console.log("Auth state changed");
             if (user) {
                 user.getIdToken().then((token) => {
                     setSession(token);
@@ -78,7 +77,6 @@ export default function RootInitializer({}) {
         <AnimatedBootSplash
             ready={(!localLoading || !isLoading) && fontsLoaded}
             onAnimationEnd={() => {
-                console.log("Animation end");
                 setVisible(false);
                 if (!localLoading) {
                     router.push({pathname: "/signup"});

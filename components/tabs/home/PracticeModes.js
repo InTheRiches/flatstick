@@ -11,8 +11,14 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
 
     return (
         <View style={{marginTop: puttSessions.length > 0 ? 0 : 24, gap: 12, marginBottom: 18}}>
-            <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>New
-                Practice</FontText>
+            <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>Record New Session</FontText>
+            <PracticeMode
+                description={"Track your putts from an actual round of golf."}
+                name={"Real Round Tracking"}
+                distance={userData.preferences.units === 0 ? "~ ft" : "~ m"}
+                time={"~ min"}
+                focus={"Realism"}
+                onPress={() => newRealRoundRef.current.present()}/>
             <PracticeMode
                 description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
                 name={"18 Hole Simulation"}
@@ -20,13 +26,6 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
                 time={"10 - 20min"}
                 focus={"Adaptability"}
                 onPress={() => newSessionRef.current?.present()}/>
-            <PracticeMode
-                description={"Allows you to track your putts from a real round, and keep track of real putts."}
-                name={"Real Round Tracking"}
-                distance={userData.preferences.units === 0 ? "~ ft" : "~ m"}
-                time={"~ min"}
-                focus={"Realism"}
-                onPress={() => newRealRoundRef.current.present()}/>
             <View style={{
                 backgroundColor: colors.background.secondary,
                 borderRadius: 50,

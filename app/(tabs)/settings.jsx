@@ -47,8 +47,6 @@ export default function HomeScreen() {
 
     const isApple = auth.currentUser && auth.currentUser.providerData[0].providerId === "apple.com";
 
-    console.log(isApple)
-
     const deleteAccount = async () => {
         await updateData({ deleted: true });
 
