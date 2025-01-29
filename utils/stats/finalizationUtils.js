@@ -92,7 +92,7 @@ const finalizeGrips = (setGrips, newStats, newGrips, strokesGained) => {
         });
     });
 
-    setGrips([{type: "default", name: "No Grip Method", stats: newStats}, ...cleanedGrips]);
+    setGrips([{type: "default", name: "Standard Method", stats: newStats}, ...cleanedGrips]);
 }
 
 export {finalizeStats, finalizePutters, finalizeGrips};
