@@ -89,8 +89,10 @@ export default function SearchUsers({}) {
                                     </Svg>
                                     <View style={{marginLeft: 6}}>
                                         <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</FontText>
-                                        <FontText style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</FontText>
-                                        <FontText style={{color: colors.text.secondary, fontSize: 14}}>Joined: {(date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
+                                        <View style={{flexDirection: "row", alignItems: "center", marginTop: 4}}>
+                                            <FontText style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</FontText>
+                                            <FontText style={{color: colors.text.secondary, fontSize: 14}}>Joined: {(date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
+                                        </View>
                                     </View>
                                 </View>
                                 <View style={{backgroundColor: colors.button.secondary.background, alignItems: "center", justifyContent: "center", aspectRatio: 1, borderRadius: 24, paddingHorizontal: 8}}>
