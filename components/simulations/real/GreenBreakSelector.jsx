@@ -26,6 +26,7 @@ export function GreenBreakSelector({theta, setTheta}) {
     const [baseY, setBaseY] = useState(0);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
+
     const [imageAbsoluteX, setImageAbsoluteX] = useState(0);
     const [imageAbsoluteY, setImageAbsoluteY] = useState(0);
 

@@ -254,16 +254,7 @@ export const NewRound = ({newSessionRef}) => {
                         {   userData.preferences.selectedPutter === 0 ? (
                             <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters[userData.preferences.selectedPutter].name}</FontText>
                         ) : (
-                            <>
-                                <Image source={require("@/assets/images/putterTest.png")} style={{height: 48, width: 48, aspectRatio: 1, borderRadius: 8}}></Image>
-                                <View style={{flexDirection: "column", flex: 1, marginLeft: 12}}>
-                                    <FontText style={{fontSize: 16, color: colors.text.primary, fontWeight: 500}}>{putters[userData.preferences.selectedPutter].name}</FontText>
-                                    <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                                        <FontText style={{color: colors.text.secondary, width: "35%"}}>Rounds: {putters[userData.preferences.selectedPutter].stats.rounds}</FontText>
-                                        <FontText style={{color: colors.text.secondary, width: "100%"}}>Strokes Gained: {putters[userData.preferences.selectedPutter].stats.strokesGained.overall}</FontText>
-                                    </View>
-                                </View>
-                            </>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters[userData.preferences.selectedPutter].name}</FontText>
                         )}
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editputters"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}

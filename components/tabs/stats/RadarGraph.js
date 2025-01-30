@@ -109,23 +109,26 @@ export function RadarChart({
         const isArray = Array.isArray(data[0][column.key]);
 
         return (
-            <View key={"label-view-of-" + column.key}>
+            <Text key={"label-view-of-" + column.key}>
                 {
                     // split the text by "\n" and make a new one for each line
-                    column.key.split("\n").map((text, i) => (
-                        <Text
-                            key={`label2-of-${text}`}
-                            x={posX(column.angle, 1.25)}
-                            y={posY(column.angle, 1.2) - (i*50) - ((data[0][column.key].length-2) * 25)}
-                            dy={10 / 2}
-                            fill={colors.text.primary}
-                            fontWeight="500"
-                            fontSize="48"
-                            textAnchor="middle"
-                        >
-                            {text}
-                        </Text>
-                    ))
+                    column.key.split("\n").map((text, i) => {
+                        console.log(text);
+                        return (
+                            <Text
+                                key={`label2-of-${text}`}
+                                x={posX(column.angle, 1.25)}
+                                y={posY(column.angle, 1.2) - (i*50) - ((data[0][column.key].length-2) * 25)}
+                                dy={10 / 2}
+                                fill={"black"}
+                                fontWeight="500"
+                                fontSize="48"
+                                textAnchor="middle"
+                            >
+                                {text}
+                            </Text>
+                        )
+                    })
                 }
                 {isArray &&
                     <Text
@@ -154,7 +157,7 @@ export function RadarChart({
                         {data[0][column.key][2]}
                     </Text>
                 }
-            </View>
+            </Text>
         );
     };
 

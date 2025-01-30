@@ -260,7 +260,7 @@ export function AppProvider({children}) {
         }
 
         getAllStats().then(async (updatedStats) => {
-            let localPutters = [{type: "default", name: "No Putter", stats: updatedStats}];
+            let localPutters = [{type: "default", name: "Standard Putter", stats: updatedStats}];
 
             const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
             try {

@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, TextInput, View} from "react-native";
+import {Platform, Pressable, ScrollView, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../../hooks/useColors";
 import {auth, getProfilesByUsername} from "../../../../utils/firebase";
@@ -8,7 +8,7 @@ import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../../components/general/FontText";
 
-const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/3548415690";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function SearchUsers({}) {
     const colors = useColors();
@@ -79,17 +79,18 @@ export default function SearchUsers({}) {
                                 marginBottom: 8,
                                 flexDirection: "row",
                                 alignItems: "center",
-                                justifyContent: "space-between"
+                                justifyContent: "space-between",
+                                gap: 12
                             }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.id, jsonProfile: JSON.stringify(profile)}})}>
-                                <View style={{flexDirection: "row",}}>
+                                <View style={{flexDirection: "row", flex: 1}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
                                         <Path fillRule="evenodd"
                                               d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 0 1-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 0 1-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 0 1-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584ZM12 18a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
                                               clipRule="evenodd"/>
                                     </Svg>
-                                    <View style={{marginLeft: 6}}>
+                                    <View style={{marginLeft: 6, flex: 1}}>
                                         <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</FontText>
-                                        <View style={{flexDirection: "row", alignItems: "center", marginTop: 4}}>
+                                        <View style={{flexDirection: "row", alignItems: "center", marginTop: 4, justifyContent: "space-between"}}>
                                             <FontText style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</FontText>
                                             <FontText style={{color: colors.text.secondary, fontSize: 14}}>Joined: {(date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
                                         </View>

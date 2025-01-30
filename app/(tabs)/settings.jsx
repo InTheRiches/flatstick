@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, View} from 'react-native';
+import {Platform, Pressable, ScrollView, View} from 'react-native';
 
 import React, {useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
@@ -24,7 +24,7 @@ import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-googl
 import FontText from "../../components/general/FontText";
 import {appleAuth} from "@invertase/react-native-apple-authentication";
 
-const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
 export default function HomeScreen() {
     const colors = useColors();

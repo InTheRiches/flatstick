@@ -1,4 +1,4 @@
-import {Pressable, Switch, View} from "react-native";
+import {Platform, Pressable, Switch, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {FilterGrips, FilterPutters} from "../../../components/tabs/stats/settings/popups";
@@ -9,7 +9,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../components/general/FontText";
 
-const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
 export default function StatSettings({}) {
     const colors = useColors();

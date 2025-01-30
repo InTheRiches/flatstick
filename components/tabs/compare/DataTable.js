@@ -33,6 +33,7 @@ export function DataTable({stats1, stats2}) {
     }
 
     const getStyle = (value1, value2, isBetter) => {
+        if (value1 === value2) return styles.normalData;
         return isBetter(value1, value2) ? styles.betterData : styles.worseData;
     };
 
@@ -78,12 +79,12 @@ export function DataTable({stats1, stats2}) {
                 <FontText style={getStyle(stats2.puttsMisread, stats1.puttsMisread, isBetterMisreadMishits)}>{stats2.puttsMisread}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
-                <FontText style={{flex: 1, color: colors.text.primary}}>Line Misread %</FontText>
+                <FontText style={{flex: 1, color: colors.text.primary}}>Break Misread %</FontText>
                 <FontText style={getStyle(stats1.misreads.misreadLinePercentage, stats2.misreads.misreadLinePercentage, isBetterMisreadPercentage)}>{stats1.misreads.misreadLinePercentage}</FontText>
                 <FontText style={getStyle(stats2.misreads.misreadLinePercentage, stats1.misreads.misreadLinePercentage, isBetterMisreadPercentage)}>{stats2.misreads.misreadLinePercentage}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
-                <FontText style={{flex: 1, color: colors.text.primary}}>Slope Misread %</FontText>
+                <FontText style={{flex: 1, color: colors.text.primary}}>Speed Misread %</FontText>
                 <FontText style={getStyle(stats1.misreads.misreadSlopePercentage, stats2.misreads.misreadSlopePercentage, isBetterMisreadPercentage)}>{stats1.misreads.misreadSlopePercentage}</FontText>
                 <FontText style={getStyle(stats2.misreads.misreadSlopePercentage, stats1.misreads.misreadSlopePercentage, isBetterMisreadPercentage)}>{stats2.misreads.misreadSlopePercentage}</FontText>
             </View>
@@ -145,6 +146,7 @@ export function MiniDataTable({stats1, stats2, distance}) {
     }
 
     const getStyle = (value1, value2, isBetter) => {
+        if (value1 === value2) return styles.normalData;
         return isBetter(value1, value2) ? styles.betterData : styles.worseData;
     };
 
@@ -177,12 +179,12 @@ export function MiniDataTable({stats1, stats2, distance}) {
                 <FontText style={getStyle(stats2.puttsAHole.distance[distance], stats1.puttsAHole.distance[distance], isBetterThreePutts)}>{stats2.puttsAHole.distance[distance]}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
-                <FontText style={{flex: 1, color: colors.text.primary}}>Line Misread %</FontText>
+                <FontText style={{flex: 1, color: colors.text.primary}}>Break Misread %</FontText>
                 <FontText style={getStyle(stats1.misreads.misreadLineByDistance[distance], stats2.misreads.misreadLineByDistance[distance], isBetterMisreadPercentage)}>{stats1.misreads.misreadLineByDistance[distance]}</FontText>
                 <FontText style={getStyle(stats2.misreads.misreadLineByDistance[distance], stats1.misreads.misreadLineByDistance[distance], isBetterMisreadPercentage)}>{stats2.misreads.misreadLineByDistance[distance]}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
-                <FontText style={{flex: 1, color: colors.text.primary}}>Slope Misread %</FontText>
+                <FontText style={{flex: 1, color: colors.text.primary}}>Speed Misread %</FontText>
                 <FontText style={getStyle(stats1.misreads.misreadSlopeByDistance[distance], stats2.misreads.misreadSlopeByDistance[distance], isBetterMisreadPercentage)}>{stats1.misreads.misreadSlopeByDistance[distance]}</FontText>
                 <FontText style={getStyle(stats2.misreads.misreadSlopeByDistance[distance], stats1.misreads.misreadSlopeByDistance[distance], isBetterMisreadPercentage)}>{stats2.misreads.misreadSlopeByDistance[distance]}</FontText>
             </View>

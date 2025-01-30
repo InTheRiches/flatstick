@@ -46,7 +46,7 @@ export function GreenVisual({distance, puttBreak, slope, imageSource}) {
                     </View>
                     <View style={{
                         flexDirection: "column",
-                        flex: 0.7,
+                        flex: 0.75,
                         borderRightWidth: 1,
                         borderColor: colors.border.default,
                         paddingBottom: 12,

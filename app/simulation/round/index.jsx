@@ -85,8 +85,8 @@ const initialState = {
     currentPutts: 2,
 }
 
-const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : "ca-app-pub-2701716227191721/1702380355";
-const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 // TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
@@ -315,7 +315,7 @@ export default function RoundSimulation() {
                 flexDirection: "column",
                 justifyContent: "space-between",
                 marginBottom: 18,
-                gap: 64
+                gap: 8
             }}>
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>

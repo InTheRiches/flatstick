@@ -55,7 +55,7 @@ export function MisreadModal({ misreadRef, setMisreadSlope, misreadSlope, setMis
                         width: "70%",
                         marginBottom: 16,
                     }}>
-                    Don’t worry—every great golfer has a misread or ten...or fifty. Shake it off and show that green who's boss on the next one!
+                    Shake it off and show that green who's boss on the next one!
                 </FontText>
                 <View style={{flexDirection: "column", width: "80%", alignItems: "center", justifyContent: "flex-end"}}>
                     <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 10}}>
@@ -72,7 +72,7 @@ export function MisreadModal({ misreadRef, setMisreadSlope, misreadSlope, setMis
                             justifyContent: "center",
                             alignItems: 'center',
                         }}>
-                            <FontText style={{color: misreadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Line</FontText>
+                            <FontText style={{color: misreadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Break</FontText>
                         </Pressable>
                         <Pressable onPress={() => setMisreadSlope(!misreadSlope)} style={{
                             paddingHorizontal: 12,
@@ -87,7 +87,7 @@ export function MisreadModal({ misreadRef, setMisreadSlope, misreadSlope, setMis
                             justifyContent: "center",
                             alignItems: 'center',
                         }}>
-                            <FontText style={{color: misreadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}}>Slope</FontText>
+                            <FontText style={{color: misreadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}}>Speed</FontText>
                         </Pressable>
                     </View>
                     <PrimaryButton onPress={() => misreadRef.current.close()} title={"Close"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>

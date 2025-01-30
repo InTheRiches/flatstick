@@ -1,4 +1,4 @@
-import {Pressable, TextInput, View} from "react-native";
+import {Platform, Pressable, TextInput, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -13,7 +13,7 @@ import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-googl
 import FontText from "../../../components/general/FontText";
 import {appleAuth} from "@invertase/react-native-apple-authentication";
 
-const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/8611403632";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
 export default function UserSettings({}) {
     const colors = useColors();

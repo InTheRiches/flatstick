@@ -46,17 +46,17 @@ export function MisreadTab({statsToUse}) {
                     </View>
                 </View>
             </View>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Line Misreads by Distance</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Break Misreads by Distance</FontText>
             <View style={{alignItems: "center"}}>
                 <BreakMisreadsByDistance statsToUse={statsToUse}/>
             </View>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Slope Misreads by Distance</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Speed Misreads by Distance</FontText>
             <View style={{alignItems: "center"}}>
                 <SlopeMisreadsByDistance statsToUse={statsToUse}/>
             </View>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Line Misreads by Break/Slope</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Break Misreads by Break/Slope</FontText>
             <BreakMisreadsByBreakSlope statsToUse={statsToUse}></BreakMisreadsByBreakSlope>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Slope Misreads by Break/Slope</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Speed Misreads by Break/Slope</FontText>
             <SlopeMisreadsByBreakSlope statsToUse={statsToUse}></SlopeMisreadsByBreakSlope>
         </ScrollView>
     )

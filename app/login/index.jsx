@@ -1,4 +1,4 @@
-import {KeyboardAvoidingView, PixelRatio, Platform, Pressable, ScrollView, TextInput, View} from "react-native";
+import {KeyboardAvoidingView, PixelRatio, Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
@@ -165,7 +165,12 @@ export default function Login() {
                 }}>
                     <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center", paddingBottom: keyboardVisible ? inputsHeight : 0, width: "100%"}}>
                         <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Sign in to Flatstick</FontText>
-                        <FontText style={{color: colors.text.secondary, fontSize: 16, marginBottom: 32, textAlign: "center"}}>Welcome back! Please sign in to continue</FontText>
+                        <Pressable onPress={() => router.push({pathname: `/signup`})} style={{
+                            marginBottom: 32,
+                        }}>
+                            <FontText style={{color: colors.text.secondary, fontSize: 16, marginTop: 12, textAlign: "center"}}>Already have an account? Click <Text
+                                style={{color: colors.text.link}}>here</Text> to login.</FontText>
+                        </Pressable>
                         <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                             <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
                                         onPress={google}>

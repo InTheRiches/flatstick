@@ -243,14 +243,15 @@ export default function CreateAccount() {
                 flex: 1,
                 paddingHorizontal: 24,
                 justifyContent: "center",
+                alignItems: "center",
                 flexDirection: "column",
                 backgroundColor: colors.background.primary
             }}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center"}}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center", flex: 1}}>
                     <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>
-                    <Pressable onPress={() => router.push({pathname: `/login`})} style={({pressed}) => [{
+                    <Pressable onPress={() => router.push({pathname: `/login`})} style={{
                         marginBottom: 32,
-                    }]}>
+                    }}>
                         <FontText style={{color: colors.text.secondary, fontSize: 16, marginTop: 12, textAlign: "center"}}>Already have an account? Click <Text
                             style={{color: colors.text.link}}>here</Text> to login.</FontText>
                     </Pressable>

@@ -67,20 +67,20 @@ export const updateCategoryStats = (putt, session, newStats, userData, newPutter
 const processSession = (session, newStats, newPutters, newGrips, userData) => {
     const averaging = newStats.rounds < 5 &&
         (session.type === "round-simulation" || session.type === "real-simulation") &&
-        session.holes === 18;
+        session.holes > 3;
     if (averaging) newStats.rounds++;
 
     if (session.putter !== "default") {
         const putter = newPutters.find((putter) => putter.type === session.putter);
         if (putter !== undefined) {
-            putter.stats.rounds += session.holes / 18;
+            putter.stats.rounds++;
 
             if (putter.rounds < 6) {
                 if (putter.stats.strokesGained.overall === 0) {
-                    putter.stats.strokesGained.overall += 29 - session.totalPutts;
+                    putter.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
                     return;
                 }
-                putter.stats.strokesGained.overall += 29 - session.totalPutts;
+                putter.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
                 putter.stats.strokesGained.overall /= 2;
             }
         }
@@ -89,14 +89,14 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
     if (session.grip !== "default") {
         const grip = newGrips.find((grip) => grip.type === session.grip);
         if (grip !== undefined) {
-            grip.stats.rounds += session.holes / 18;
+            grip.stats.rounds++;
 
             if (grip.rounds < 6) {
                 if (grip.stats.strokesGained.overall === 0) {
-                    grip.stats.strokesGained.overall += 29 - session.totalPutts;
+                    grip.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
                     return;
                 }
-                grip.stats.strokesGained.overall += 29 - session.totalPutts;
+                grip.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
                 grip.stats.strokesGained.overall /= 2;
             }
         }

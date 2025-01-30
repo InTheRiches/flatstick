@@ -56,7 +56,7 @@ const finalizePutters = (setPutters, newStats, newPutters, strokesGained) => {
         });
     });
 
-    setPutters([{type: "default", name: "No Putter", stats: newStats}, ...cleanedPutters]);
+    setPutters([{type: "default", name: "Standard Putter", stats: newStats}, ...cleanedPutters]);
 }
 
 const finalizeGrips = (setGrips, newStats, newGrips, strokesGained) => {

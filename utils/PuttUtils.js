@@ -139,6 +139,7 @@ const calculateStats = (puttsCopy, width, height) => {
             return;
 
         // calculate strokes gained
+        // TODO use this method for overall strokes gained as it is far more accurate, and adapts to different # of holes!!!
         if (putt.totalPutts !== -1) {
             const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
             strokesGained += strokesGainedForPutt;

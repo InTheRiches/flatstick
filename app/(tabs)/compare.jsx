@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {Platform, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useRouter} from "expo-router";
@@ -9,7 +9,7 @@ import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
 
-const bannerAdId = __DEV__ ? TestIds.BANNER : "ca-app-pub-2701716227191721/3548415690";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function Compare({}) {
     const colors = useColors();
