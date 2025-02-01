@@ -183,7 +183,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 24,
                         fontWeight: 500
-                    }}>{recentSession.holes} Hole Round</FontText>
+                    }}>Round</FontText>
                     <FontText style={{
                         textAlign: "right",
                         color: colors.text.primary,

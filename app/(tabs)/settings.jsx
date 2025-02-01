@@ -65,13 +65,11 @@ export default function HomeScreen() {
 
     return (
         <BottomSheetModalProvider>
-            <ScreenWrapper>
+            <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
                 <View style={{
                     overflow: "hidden",
                     flexDirection: "column",
                     alignContent: "center",
-                    borderBottomWidth: 1,
-                    borderBottomColor: colors.border.default,
                     paddingHorizontal: 24,
                     flex: 1
                 }}>
