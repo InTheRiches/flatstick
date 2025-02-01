@@ -3,6 +3,7 @@ import {Dimensions, useColorScheme} from "react-native";
 import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import {useAppContext} from "../../../../../contexts/AppCtx";
+import {roundTo} from "../../../../../utils/roundTo";
 
 export const SlopeMisreadsByDistance = ({statsToUse}) => {
     const colors = useColors();
@@ -17,7 +18,7 @@ export const SlopeMisreadsByDistance = ({statsToUse}) => {
                 labels: userData.preferences.units === 0 ? ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'] : ['<2 m', '2-4 m', '4-7 m', '>7 m'],
                 datasets: [{
                     data: [
-                        statsToUse.misreads.misreadSlopeByDistance[0]*100, statsToUse.misreads.misreadSlopeByDistance[1]*100, statsToUse.misreads.misreadSlopeByDistance[2]*100, statsToUse.misreads.misreadSlopeByDistance[3]*100
+                        roundTo(statsToUse.misreads.misreadSlopeByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[3]*100, 0)
                     ]},
                 ],
             }}

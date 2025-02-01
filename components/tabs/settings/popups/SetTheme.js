@@ -17,8 +17,6 @@ export function SetTheme({setThemeRef}) {
 
         const nativeColor = Platform.OS === "android" ? Appearance.getNativeColorScheme() : null;
 
-        console.log(nativeColor);
-
         // TODO find out why this doesnt work for Auto-Detect
         Appearance.setColorScheme(theme === 0 ? nativeColor : theme === 1 ? "dark" : "light");
     }

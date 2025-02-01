@@ -15,6 +15,11 @@ const statSlopes = [
 ]
 
 export const updateCategoryStats = (putt, session, newStats, userData, newPutters, newGrips, averaging) => {
+    // this means that they holed out
+    if (putt.distance === 0) {
+        return;
+    }
+
     const { units: sessionUnits } = session;
     const { units: preferredUnits } = userData.preferences;
 
@@ -68,12 +73,23 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
     const averaging = newStats.rounds < 5 &&
         (session.type === "round-simulation" || session.type === "real-simulation") &&
         session.holes > 3;
-    if (averaging) newStats.rounds++;
+
+    const filteringHoles = session.filteredHoles ? session.filteredHoles : session.holes;
+    if (averaging) {
+        newStats.rounds++;
+        newStats.filteredHoles += filteringHoles;
+
+        if (newStats.avgPuttsARound === 0) newStats.avgPuttsARound = (session.totalPutts * (18 / filteringHoles));
+        else newStats.avgPuttsARound = (newStats.avgPuttsARound + (session.totalPutts * (18 / filteringHoles))) / 2;
+    }
 
     if (session.putter !== "default") {
         const putter = newPutters.find((putter) => putter.type === session.putter);
         if (putter !== undefined) {
             putter.stats.rounds++;
+
+            if (putter.stats.avgPuttsARound === 0) putter.stats.avgPuttsARound = (session.totalPutts * (18 / filteringHoles));
+            else putter.stats.avgPuttsARound = (putter.stats.avgPuttsARound + (session.totalPutts * (18 / filteringHoles))) / 2;
 
             if (putter.rounds < 6) {
                 if (putter.stats.strokesGained.overall === 0) {
@@ -90,6 +106,9 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
         const grip = newGrips.find((grip) => grip.type === session.grip);
         if (grip !== undefined) {
             grip.stats.rounds++;
+
+            if (grip.stats.avgPuttsARound === 0) grip.stats.avgPuttsARound = (session.totalPutts * (18 / filteringHoles));
+            else grip.stats.avgPuttsARound = (grip.stats.avgPuttsARound + (session.totalPutts * (18 / filteringHoles))) / 2;
 
             if (grip.rounds < 6) {
                 if (grip.stats.strokesGained.overall === 0) {

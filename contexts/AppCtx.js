@@ -16,7 +16,7 @@ import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
 import {createSimpleRefinedStats, createSimpleStats} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
-import {getAuth} from "@/utils/firebase";
+import {deepMergeDefaults, getAuth} from "@/utils/firebase";
 import {initializeGrips, initializePutters} from "@/utils/stats/statsHelpers";
 import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
@@ -114,7 +114,7 @@ export function AppProvider({children}) {
                 lastName: lastName,
                 strokesGained: 0,
                 preferences: {
-                    countMishits: false,
+                    countMishits: true,
                     selectedPutter: 0,
                     theme: 0,
                     units: 0,
@@ -155,7 +155,7 @@ export function AppProvider({children}) {
                     lastName: user.user.familyName !== null ? user.user.familyName : "",
                     strokesGained: 0,
                     preferences: {
-                        countMishits: false,
+                        countMishits: true,
                         selectedPutter: 0,
                         theme: 0,
                         units: 0,
@@ -440,8 +440,17 @@ export function AppProvider({children}) {
                 return createSimpleRefinedStats();
             }
 
-            setCurrentStats(document.data());
-            updatedStats = document.data();
+            const data = document.data();
+
+            // check to make sure it is updated and has all the necessary fields
+            updatedStats = deepMergeDefaults({ ...data }, createSimpleRefinedStats());
+
+            setCurrentStats(updatedStats);
+
+            // if they arent equal, update the stats in firebase
+            if (data !== updatedStats) {
+                await updateStats(updatedStats);
+            }
         }
 
         return updatedStats;

@@ -277,6 +277,7 @@ export default function RoundSimulation() {
             timestamp: new Date().getTime(),
             difficulty: difficulty,
             holes: partial ? puttsCopy.length : holes,
+            filteredHoles: partial ? puttsCopy.length : holes,
             mode: mode,
             putts: trimmedPutts,
             totalPutts: totalPutts,
@@ -372,7 +373,7 @@ export default function RoundSimulation() {
                         justifyContent: "center",
                         alignItems: 'center',
                     }]}>
-                        <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Slope" : misReadLine ? ": Line" : ""}</FontText>
+                        <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Speed" : misReadLine ? ": Break" : ""}</FontText>
                     </Pressable>
                 </View>
                 <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>

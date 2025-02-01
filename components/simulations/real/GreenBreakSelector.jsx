@@ -34,7 +34,6 @@ export function GreenBreakSelector({theta, setTheta}) {
 
     const onLayout = (event) => {
         const {x, y} = event.nativeEvent.layout;
-        console.log(x, y);
         setBaseX(x);
         setBaseY(y);
     };

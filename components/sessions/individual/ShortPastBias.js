@@ -4,6 +4,7 @@ import useColors from "../../../hooks/useColors";
 import {convertUnits} from "../../../utils/Conversions";
 import {useAppContext} from "../../../contexts/AppCtx";
 import FontText from "../../general/FontText";
+import {roundTo} from "../../../utils/roundTo";
 
 export const ShortPastBias = ({bias, units}) => {
     const colors = useColors();
@@ -14,7 +15,7 @@ export const ShortPastBias = ({bias, units}) => {
         setVerticalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    const shortPastBias = Math.min(1.89, convertUnits(bias, units, userData.preferences.units));
+    const shortPastBias = roundTo(Math.min(1.9, convertUnits(bias, units, userData.preferences.units)), 1);
 
     let left = shortPastBias / (userData.preferences.units === 0 ? 2 : 1) * (verticalBiasWidth/2 + (shortPastBias > 0 ? 25 : 0));
     left = left + (verticalBiasWidth/2);
@@ -25,7 +26,7 @@ export const ShortPastBias = ({bias, units}) => {
 
     return (
         <View style={{backgroundColor: colors.background.secondary, marginTop: 20, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Short / Past Bias</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Short-Long Bias</FontText>
             <View onLayout={onVertiLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>

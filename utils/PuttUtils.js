@@ -92,6 +92,23 @@ const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope
 };
 
 const loadPuttData = (putt, updateField) => {
+    if (putt.distance === 0) {
+        updateField("currentPutts", 2);
+        updateField("point", {});
+        updateField("misReadLine", false);
+        updateField("misReadSlope", false);
+        updateField("misHit", false);
+        updateField("center", false);
+        updateField("holedOut", false);
+        updateField("distanceInvalid", true);
+        updateField("largeMissBy", [0, 0]);
+        updateField("theta", 999);
+        updateField("puttBreak", convertThetaToBreak(0));
+        updateField("distance", -1);
+        updateField("largeMiss", false);
+        return;
+    }
+
     if (putt.largeMiss) {
         updateField("point", {});
         updateField("largeMiss", true);
@@ -134,9 +151,30 @@ const calculateStats = (puttsCopy, width, height) => {
     let long = 0;
     let short = 0;
 
+    let holes = 0;
+
     puttsCopy.forEach((putt, index) => {
         if (putt === undefined || putt.distance === -1 || putt.point.x === undefined)
             return;
+
+        if (putt.distance === 0) {
+            trimmedPutts.push({
+                distance: putt.distance,
+                xDistance: 0,
+                yDistance: 0,
+                puttBreak: [0,0],
+                misReadLine: putt.misReadLine,
+                misReadSlope: putt.misReadSlope,
+                misHit: putt.misHit,
+                distanceMissed: 0,
+                largeMiss: putt.largeMiss,
+                totalPutts: putt.totalPutts,
+                point: putt.point
+            });
+            return;
+        }
+
+        holes++;
 
         // calculate strokes gained
         // TODO use this method for overall strokes gained as it is far more accurate, and adapts to different # of holes!!!
@@ -219,12 +257,12 @@ const calculateStats = (puttsCopy, width, height) => {
     });
 
     avgMiss = roundTo(avgMiss, 1);
-    madePercent /= puttsCopy.length;
+    madePercent /= holes;
 
-    leftRightBias /= puttsCopy.length;
-    shortPastBias /= puttsCopy.length;
+    leftRightBias /= holes;
+    shortPastBias /= holes;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1)};
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes };
 };
 
 function formatFeetAndInches(feet) {
@@ -415,6 +453,8 @@ const createSimpleStats = () => {
         leftRightBias: 0,
         shortPastBias: 0,
         rounds: 0,
+        avgPuttsARound: 0,
+        holes: 0
     }
 }
 const createSimpleRefinedStats = () => {
@@ -535,6 +575,8 @@ const createSimpleRefinedStats = () => {
         leftRightBias: 0,
         shortPastBias: 0,
         rounds: 0,
+        avgPuttsARound: 0,
+        holes: 0,
     }
 }
 

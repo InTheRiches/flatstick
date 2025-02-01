@@ -67,7 +67,7 @@ export const RecentSession = ({recentSession}) => {
                         fontWeight: "bold",
                     }}>{recentSession.strokesGained}</FontText>
                 </View>
-                <View style={{
+                {recentSession.type === "round-simulation" && <View style={{
                     flexDirection: "column",
                     flex: 1,
                     borderRightWidth: 1,
@@ -76,13 +76,13 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>{recentSession.type === "round-simulation" ? "Difficulty" : "Total Distance"}</FontText>
+                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>{"Difficulty"}</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
                         fontWeight: "bold",
-                    }}>{recentSession.type === "round-simulation" ? recentSession.difficulty : convertUnits(recentSession.totalDistance, recentSession.units, userData.preferences.units)}</FontText>
-                </View>
+                    }}>{recentSession.difficulty}</FontText>
+                </View>}
                 <View style={{
                     flexDirection: "column",
                     flex: 1,

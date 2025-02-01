@@ -33,6 +33,7 @@ import {
 import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 
 const initialState = {
     confirmLeave: false,
@@ -181,15 +182,53 @@ export default function RealSimulation() {
         return puttsCopy;
     };
 
+    const holedOutApproach = () => {
+        if (hole === holes) {
+            const puttsCopy = updatePuttsCopy(putts, hole, 0, 0, false, false, false, false, 0, 0, 0, {x: 0, y: 0}, {x: 0, y: 0}, [0,0]);
+            updateField("putts", puttsCopy);
+
+            submitRef.current.present();
+            return;
+        }
+
+        if (hole === 8 && adLoaded) {
+            interstitial.show();
+            setAdLoaded(false);
+        }
+
+        const puttsCopy = updatePuttsCopy(putts, hole, 0, 0, false, false, false, false, 0, 0, 0, {x: 0, y: 0}, {x: 0, y: 0}, [0,0]);
+        updateField("putts", puttsCopy);
+
+        if (putts[hole] === undefined) {
+            updateField("currentPutts", 2);
+            updateField("point", {});
+            updateField("misReadLine", false);
+            updateField("misReadSlope", false);
+            updateField("misHit", false);
+            updateField("center", false);
+            updateField("distanceInvalid", true);
+            updateField("largeMissBy", [0, 0]);
+            updateField("theta", 999);
+            updateField("puttBreak", convertThetaToBreak(0));
+            updateField("distance", -1);
+            updateField("hole", hole + 1);
+            updateField("largeMiss", false);
+            return;
+        }
+
+        loadPuttData(puttsCopy[hole], updateField);
+        updateField("hole", hole + 1);
+    }
+
     const nextHole = (totalPutts, largeMissDistance = -1) => {
+        if (!largeMiss && point.x === undefined) return;
+
         if (hole === holes) {
             pushHole(totalPutts, largeMissDistance);
 
             submitRef.current.present();
             return;
         }
-
-        if (!largeMiss && point.x === undefined) return;
 
         if (hole === 8 && adLoaded) {
             interstitial.show();
@@ -234,7 +273,7 @@ export default function RealSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData, totalDistance} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData, totalDistance, filteredHoles} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true)
 
@@ -243,6 +282,7 @@ export default function RealSimulation() {
             startedAtTimestamp: startTime,
             timestamp: new Date().getTime(),
             holes: partial ? puttsCopy.length : holes,
+            filteredHoles: filteredHoles,
             putts: trimmedPutts,
             totalPutts: totalPutts,
             strokesGained: roundTo(strokesGained, 1),
@@ -302,11 +342,12 @@ export default function RealSimulation() {
                     </View>
                     <View style={{flexDirection: "row", justifyContent: "space-around", gap: 4}}>
                         <Pressable onPress={() => updateField("misHit", !misHit)} style={{
-                            paddingRight: 30,
-                            paddingLeft: 20,
+                            paddingRight: 5,
+                            paddingLeft: 0,
                             paddingVertical: 8,
                             borderRadius: 8,
                             borderWidth: 1,
+                            flex: 1,
                             borderColor: misHit ? colors.button.danger.border : colors.button.danger.disabled.border,
                             backgroundColor: misHit ? colors.button.danger.background : colors.button.danger.disabled.background,
                             alignSelf: "center",
@@ -323,10 +364,12 @@ export default function RealSimulation() {
                                 </Svg> :
                                 <SvgClose width={20} height={20} stroke={misHit ? colors.button.danger.text : colors.button.danger.disabled.text}></SvgClose>
                             }
-                            <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 8}}>Mishit</FontText>
+                            <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 4, fontWeight: 400}}>Mishit</FontText>
                         </Pressable>
+                        <PrimaryButton title="Holed Out" onPress={() => holedOutApproach()} style={{ paddingHorizontal: 5, paddingVertical: 8, flex: 1, borderRadius: 8}}></PrimaryButton>
                         <Pressable onPress={() => misreadRef.current.present()} style={({pressed}) => [{
-                            paddingHorizontal: 30,
+                            paddingHorizontal: 5,
+                            flex: 1,
                             paddingVertical: 8,
                             borderRadius: 8,
                             borderWidth: 1,
@@ -337,7 +380,7 @@ export default function RealSimulation() {
                             justifyContent: "center",
                             alignItems: 'center',
                         }]}>
-                            <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Slope" : misReadLine ? ": Line" : ""}</FontText>
+                            <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Speed" : misReadLine ? ": Break" : ""}</FontText>
                         </Pressable>
                     </View>
                     <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>

@@ -76,25 +76,6 @@ export const OverviewTab = ({statsToUse}) => {
                     <View style={{
                         flexDirection: "column",
                         flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 12,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</FontText>
-                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                            <FontText style={{
-                                fontSize: 20,
-                                color: colors.text.primary,
-                                fontWeight: "bold",
-                            }}>{statsToUse.twoPutts}</FontText>
-                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.twoPutts/18)*100,0)}%)</FontText>
-                        </View>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
                         paddingBottom: 12,
                         paddingTop: 6,
                         paddingLeft: 12
@@ -108,6 +89,22 @@ export const OverviewTab = ({statsToUse}) => {
                             }}>{statsToUse.threePutts}</FontText>
                             <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.threePutts/18)*100,0)}%)</FontText>
                         </View>
+                    </View>
+                    <View style={{
+                        flexDirection: "column",
+                        flex: 1,
+                        borderLeftWidth: 1,
+                        borderColor: colors.border.default,
+                        paddingBottom: 12,
+                        paddingTop: 6,
+                        paddingLeft: 12
+                    }}>
+                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg Putts</FontText>
+                        <FontText style={{
+                            fontSize: 20,
+                            color: colors.text.primary,
+                            fontWeight: "bold",
+                        }}>{statsToUse.avgPuttsARound}</FontText>
                     </View>
                 </View>
                 <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>

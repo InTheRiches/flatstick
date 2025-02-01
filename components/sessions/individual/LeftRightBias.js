@@ -4,6 +4,7 @@ import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {convertUnits} from "../../../utils/Conversions";
 import FontText from "../../general/FontText";
+import {roundTo} from "../../../utils/roundTo";
 
 export const LeftRightBias = ({bias, units}) => {
     const colors = useColors();
@@ -14,7 +15,7 @@ export const LeftRightBias = ({bias, units}) => {
         setHorizontalBiasWidth(event.nativeEvent.layout.width-25);
     };
 
-    const leftRightBias = convertUnits(bias, units, userData.preferences.units);
+    const leftRightBias = roundTo(convertUnits(bias, units, userData.preferences.units), 1);
 
     let left = leftRightBias / (userData.preferences.units === 0 ? 2 : 1) * (horizontalBiasWidth/2 + (leftRightBias > 0 ? 25 : 0));
     left = left + (horizontalBiasWidth/2);
@@ -24,7 +25,7 @@ export const LeftRightBias = ({bias, units}) => {
     }
     return (
         <View style={{backgroundColor: colors.background.secondary, marginTop: 20, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Left to Right Bias</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Left-Right Bias</FontText>
             <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>

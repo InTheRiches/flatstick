@@ -25,6 +25,38 @@ const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
+// Recursively merge defaults into target without overwriting existing values.
+function deepMergeDefaults(target, defaults) {
+    for (const key in defaults) {
+        if (defaults.hasOwnProperty(key)) {
+            const defaultValue = defaults[key];
+            const targetValue = target[key];
+
+            // Check if both the target and default are objects (but not arrays)
+            if (
+                typeof defaultValue === 'object' &&
+                defaultValue !== null &&
+                !Array.isArray(defaultValue)
+            ) {
+                if (typeof targetValue !== 'object' || targetValue === null) {
+                    // If the target doesn't have an object here, assign the entire default object.
+                    target[key] = defaultValue;
+                } else {
+                    // Recursively merge the nested objects.
+                    deepMergeDefaults(targetValue, defaultValue);
+                }
+            } else {
+                // For non-objects, only add the field if it's missing.
+                if (!(key in target)) {
+                    target[key] = defaultValue;
+                }
+            }
+        }
+    }
+    return target;
+}
+
+
 async function getProfilesByUsername(username) {
     let firstName, lastName;
     if (username.includes(" ")) {
@@ -69,4 +101,4 @@ async function getProfilesByUsername(username) {
     }
 }
 
-export {firestore, auth, getApp, getAuth, getProfilesByUsername};
+export {firestore, auth, deepMergeDefaults, getApp, getAuth, getProfilesByUsername};

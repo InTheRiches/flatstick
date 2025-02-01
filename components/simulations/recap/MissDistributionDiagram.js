@@ -24,16 +24,14 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
                 }}></Image>
 
                 <View style={{
-                    width: "75%",
+                    width: "90%",
                     height: "auto",
-                    aspectRatio: 3072 / 1835,
                     flexDirection: 'row',
                     flexWrap: 'wrap',
                     justifyContent: 'center',
                     alignItems: 'center',
                     columnGap: 9,
                     rowGap: 4,
-                    paddingTop: 10
                 }}>
                     {gridData.map((item, index) => {
                         let text = "";

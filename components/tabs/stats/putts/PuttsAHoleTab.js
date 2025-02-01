@@ -78,7 +78,7 @@ export const PuttsAHoleTab = ({statsToUse}) => {
             </View>
             <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
                 <Toggleable toggled={byDistance} onToggle={() => setByDistance(true)} title={"By Distance"}/>
-                <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Break/Slope"}/>
+                <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Direction"}/>
             </View>
             {byDistance && puttsByDistance}
             {!byDistance && <PuttsByBreakSlope statsToUse={statsToUse}></PuttsByBreakSlope>}

@@ -197,7 +197,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Short Past Bias</FontText>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Short-Long Bias</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,

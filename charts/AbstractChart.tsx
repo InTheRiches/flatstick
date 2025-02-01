@@ -200,7 +200,7 @@ class AbstractChart<
       verticalLabelsHeightPercentage = DEFAULT_X_LABELS_HEIGHT_PERCENTAGE
     } = config;
 
-    const {
+    let {
       yAxisLabel = "",
       yAxisSuffix = "",
       yLabelsOffset = 12
@@ -217,8 +217,11 @@ class AbstractChart<
           ? ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data, 0))
           : ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data));
 
+        if (label < 0) {
+          yLabelsOffset = 5;
+        }
         yLabel = `${yAxisLabel}${formatYLabel(
-          label.toFixed(decimalPlaces)
+            label.toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
       }
 

@@ -24,7 +24,7 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
                     }
                 ],
             }}
-            width={Dimensions.get('window').width - 16}
+            width={Dimensions.get('window').width - 48}
             height={220}
             autoShiftLabels
             showValuesOnTopOfBars={true}

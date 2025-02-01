@@ -54,9 +54,9 @@ export function MisreadTab({statsToUse}) {
             <View style={{alignItems: "center"}}>
                 <SlopeMisreadsByDistance statsToUse={statsToUse}/>
             </View>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Break Misreads by Break/Slope</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Break Misreads by Direction</FontText>
             <BreakMisreadsByBreakSlope statsToUse={statsToUse}></BreakMisreadsByBreakSlope>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Speed Misreads by Break/Slope</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8, textAlign: "left", width: "100%"}}>Speed Misreads by Direction</FontText>
             <SlopeMisreadsByBreakSlope statsToUse={statsToUse}></SlopeMisreadsByBreakSlope>
         </ScrollView>
     )

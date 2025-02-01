@@ -51,7 +51,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
             <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</FontText>
             <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
                 <Toggleable toggled={byDistance} onToggle={() => setByDistance(true)} title={"By Distance"}/>
-                <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Break/Slope"}/>
+                <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Direction"}/>
             </View>
             {byDistance && sgByDistance}
             {!byDistance && sgByBreakSlope}

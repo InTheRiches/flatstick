@@ -40,7 +40,7 @@ export function PrimaryButton({
             onPress={onPress} {...rest}>
             {React.Children.count(children) > 0 ? children : <FontText style={{
                 color: disabled ? colors.button.disabled.text : colors.button.primary.text,
-                fontWeight: 500
+                fontWeight: 400
             }}>{title}</FontText>}
         </Pressable>
     );

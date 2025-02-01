@@ -112,8 +112,7 @@ export function RadarChart({
             <Text key={"label-view-of-" + column.key}>
                 {
                     // split the text by "\n" and make a new one for each line
-                    column.key.split("\n").map((text, i) => {
-                        console.log(text);
+                    column.key.split("\n").map((text, i) => {8
                         return (
                             <Text
                                 key={`label2-of-${text}`}

@@ -5,14 +5,14 @@ import {doc, runTransaction} from "firebase/firestore";
 import {auth, firestore} from "@/utils/firebase";
 
 const finalizeStats = (newStats, strokesGained) => {
-    newStats.avgMiss = roundTo(newStats.avgMiss / (newStats.rounds * 18), 1);
-    newStats.totalDistance = roundTo(newStats.totalDistance / newStats.rounds, 1);
-    newStats.puttsMisread = roundTo(newStats.puttsMisread / newStats.rounds, 1);
-    newStats.onePutts = roundTo(newStats.onePutts / newStats.rounds, 1);
-    newStats.twoPutts = roundTo(newStats.twoPutts / newStats.rounds, 1);
-    newStats.threePutts = roundTo(newStats.threePutts / newStats.rounds, 1);
-    newStats.leftRightBias = roundTo(newStats.leftRightBias / (newStats.rounds*18), 2);
-    newStats.shortPastBias = roundTo(newStats.shortPastBias / (newStats.rounds*18), 2);
+    newStats.avgMiss = roundTo(newStats.avgMiss / ((newStats.holes / 18) * 18), 1);
+    newStats.totalDistance = roundTo(newStats.totalDistance / (newStats.holes / 18), 1);
+    newStats.puttsMisread = roundTo(newStats.puttsMisread / (newStats.holes / 18), 1);
+    newStats.onePutts = roundTo(newStats.onePutts / (newStats.holes / 18), 1);
+    newStats.twoPutts = roundTo(newStats.twoPutts / (newStats.holes / 18), 1);
+    newStats.threePutts = roundTo(newStats.threePutts / (newStats.holes / 18), 1);
+    newStats.leftRightBias = roundTo(newStats.leftRightBias / ((newStats.holes / 18)*18), 2);
+    newStats.shortPastBias = roundTo(newStats.shortPastBias / ((newStats.holes / 18)*18), 2);
     newStats.strokesGained = cleanAverageStrokesGained(newStats, strokesGained.overall);
     newStats.puttsAHole = cleanPuttsAHole(newStats);
     newStats.madePutts = cleanMadePutts(newStats);
@@ -21,6 +21,7 @@ const finalizeStats = (newStats, strokesGained) => {
         if (newStats.puttsByDistance[idx] === 0) return 0;
         return roundTo(val / newStats.puttsByDistance[idx], 1);
     });
+    newStats.avgPuttsARound = roundTo(newStats.avgPuttsARound, 1);
 };
 
 const finalizePutters = (setPutters, newStats, newPutters, strokesGained) => {
