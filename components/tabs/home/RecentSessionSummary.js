@@ -34,17 +34,8 @@ export function RecentSessionSummary({unfinished}) {
                     borderBottomRightRadius: unfinished ? 8 : 16,
                     marginBottom: unfinished ? 4 : 0
                 }}>
-                <FontText style={{
-                    textAlign: "left",
-                    color: colors.text.primary,
-                    fontSize: 20,
-                }}>No sessions</FontText>
-                <FontText style={{
-                    textAlign: "left",
-                    color: colors.text.secondary,
-                    fontSize: 16,
-                    marginTop: 4
-                }}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</FontText>
+                <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 20}}>No sessions</FontText>
+                <FontText style={{textAlign: "left", color: colors.text.secondary, fontSize: 16, marginTop: 4}}>You haven't practiced yet, what are you waiting for? A motivational speech from your putter?</FontText>
             </View>
         )
     }

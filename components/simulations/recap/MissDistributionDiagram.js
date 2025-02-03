@@ -8,11 +8,7 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
     const gridData = Array.from({length: 15}, (_, index) => index + 1);
 
     return (
-        <View style={{
-            backgroundColor: colors.background.secondary,
-            flexDirection: "column",
-            borderRadius: alone ? 16 : 0,
-        }}>
+        <View style={{backgroundColor: colors.background.secondary, flexDirection: "column", borderRadius: alone ? 16 : 0}}>
             <View style={{width: "100%", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
                 <Image source={units === 0 ? require("@/assets/images/recapBackground.png") : require("@/assets/images/recapBackgroundMetric.png")} style={{
                     width: "100%",
