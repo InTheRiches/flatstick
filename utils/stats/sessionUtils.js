@@ -2,18 +2,6 @@ import {categorizeDistance} from "./statsHelpers";
 import {convertUnits} from "../Conversions";
 import {updateSimpleStats} from "../PuttUtils";
 
-const statBreaks = [
-    "leftToRight",
-    "rightToLeft",
-    "straight",
-]
-
-const statSlopes = [
-    "downhill",
-    "neutral",
-    "uphill"
-]
-
 export const updateCategoryStats = (putt, session, newStats, userData, newPutters, newGrips, averaging) => {
     // this means that they holed out
     if (putt.distance === 0) {
@@ -74,10 +62,10 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
         (session.type === "round-simulation" || session.type === "real-simulation") &&
         session.holes > 3;
 
-    const filteringHoles = session.filteredHoles ? session.filteredHoles : session.holes;
+    const filteringHoles = session.filteredHoles !== undefined ? session.filteredHoles : session.holes;
     if (averaging) {
         newStats.rounds++;
-        newStats.filteredHoles += filteringHoles;
+        newStats.holes += filteringHoles;
 
         if (newStats.avgPuttsARound === 0) newStats.avgPuttsARound = (session.totalPutts * (18 / filteringHoles));
         else newStats.avgPuttsARound = (newStats.avgPuttsARound + (session.totalPutts * (18 / filteringHoles))) / 2;
@@ -87,6 +75,7 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
         const putter = newPutters.find((putter) => putter.type === session.putter);
         if (putter !== undefined) {
             putter.stats.rounds++;
+            putter.stats.holes += filteringHoles;
 
             if (putter.stats.avgPuttsARound === 0) putter.stats.avgPuttsARound = (session.totalPutts * (18 / filteringHoles));
             else putter.stats.avgPuttsARound = (putter.stats.avgPuttsARound + (session.totalPutts * (18 / filteringHoles))) / 2;
@@ -106,6 +95,7 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
         const grip = newGrips.find((grip) => grip.type === session.grip);
         if (grip !== undefined) {
             grip.stats.rounds++;
+            grip.stats.holes += filteringHoles;
 
             if (grip.stats.avgPuttsARound === 0) grip.stats.avgPuttsARound = (session.totalPutts * (18 / filteringHoles));
             else grip.stats.avgPuttsARound = (grip.stats.avgPuttsARound + (session.totalPutts * (18 / filteringHoles))) / 2;
