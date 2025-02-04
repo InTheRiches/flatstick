@@ -69,7 +69,7 @@ export function NewRealRound({newRealRoundRef}) {
                                 backgroundColor:
                                     holes === 9
                                         ? colors.toggleable.toggled.background
-                                        : "transparent",
+                                        : colors.toggleable.background,
                             }}>
                             {holes === 9 && (
                                 <View

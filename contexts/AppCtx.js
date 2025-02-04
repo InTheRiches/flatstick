@@ -278,7 +278,7 @@ export function AppProvider({children}) {
                 console.error("Error refreshing putters:", error);
             }
 
-            let localGrips = [{type: "default", name: "Standard", stats: updatedStats}];
+            let localGrips = [{type: "default", name: "Standard Method", stats: updatedStats}];
 
             const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
             try {

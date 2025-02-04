@@ -56,7 +56,7 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
 
                         return (
                             <View key={index} style={{
-                                paddingTop: index > 4 && index !== 7 ? index === 12 ? 14 : 6 : 4,
+                                paddingTop: index > 4 && index !== 7 ? index === 12 ? 8 : 2 : 0,
                                 width: '16%',
                                 aspectRatio: 1,
                                 justifyContent: 'center',
@@ -64,7 +64,7 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
                                 borderRadius: 5
                             }}>
                                 <FontText style={{
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: "bold",
                                     color: index === 7 ? "black" : [5, 9].includes(index) ? "white" : "#0e450b"
                                 }}>{text}</FontText>

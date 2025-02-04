@@ -117,10 +117,10 @@ export default function IndividualSession({}) {
                                         </View>
                                     </View>
                                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
-                                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</FontText>
+                                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</FontText>
                                         <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                            <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{session.puttCounts[1]}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[1]/session.totalPutts) * 100, 0)}%)</FontText>
+                                            <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</FontText>
+                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/session.totalPutts) * 100, 0)}%)</FontText>
                                         </View>
                                     </View>
                                 </View>
@@ -134,11 +134,8 @@ export default function IndividualSession({}) {
                                         paddingTop: 6,
                                         paddingLeft: 12,
                                     }}>
-                                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</FontText>
-                                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                            <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/session.totalPutts) * 100, 0)}%)</FontText>
-                                        </View>
+                                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Putts</FontText>
+                                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.totalPutts}</FontText>
                                     </View>
                                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
                                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>

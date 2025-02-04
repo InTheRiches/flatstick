@@ -99,7 +99,7 @@ export const OverviewTab = ({statsToUse}) => {
                         paddingTop: 6,
                         paddingLeft: 12
                     }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg Putts</FontText>
+                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Putts</FontText>
                         <FontText style={{
                             fontSize: 20,
                             color: colors.text.primary,
