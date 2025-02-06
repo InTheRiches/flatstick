@@ -1,15 +1,8 @@
 import React from "react";
 import Svg, {G, Path, Polyline, Text} from "react-native-svg";
-import {useColorScheme, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 
-export function RadarChart({
-                                       graphSize,
-                                       scaleCount,
-                                       numberInterval,
-                                       data,
-                                       options,
-                                   }) {
+export function RadarChart({graphSize, scaleCount, numberInterval, data, options}) {
     const colorScheme = "light";
     const colors = useColors();
 
@@ -201,6 +194,7 @@ export function RadarChart({
                 groups.push(<G key={`group-${i}`}>{textIndicator(i)}</G>);
         }
     }
+
     return (
         <Svg
             version="1"
