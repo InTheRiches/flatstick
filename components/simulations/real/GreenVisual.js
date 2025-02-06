@@ -64,7 +64,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                     <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</FontText>
                     <FontText style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{slope}</FontText>
                 </View>
-                <View style={{ flex: 1, flexDirection: "column"}}>
+                <View style={{ flex: 1, flexDirection: "column", justifyContent: "center"}}>
                     <FontText style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
                     <View style={{
                         flexDirection: "row",

@@ -54,15 +54,29 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                     <FontText style={{fontSize: 18, color: colors.text.primary}}>{name}</FontText>
                 </View>
                 <View style={{ flexDirection: "row", gap: 8}}>
-                    {onInfo && <SecondaryButton onPress={onInfo} style={{
-                        borderRadius: 30,
-                        width: 32,
-                        aspectRatio: 1,
-                        justifyContent: "center",
-                        alignItems: "center"
-                    }}>
-                        <FontText style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>?</FontText>
-                    </SecondaryButton>}
+                    {onInfo && (
+                        colorScheme === "light" ? (
+                            <PrimaryButton onPress={onInfo} style={{
+                                borderRadius: 30,
+                                width: 32,
+                                aspectRatio: 1,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <FontText style={{fontSize: 20, lineHeight: 22, color: colors.button.primary.text}}>?</FontText>
+                            </PrimaryButton>
+                        ) : (
+                            <SecondaryButton onPress={onInfo} style={{
+                                borderRadius: 30,
+                                width: 32,
+                                aspectRatio: 1,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <FontText style={{fontSize: 20, lineHeight: 22, color: colors.button.secondary.text}}>?</FontText>
+                            </SecondaryButton>
+                        )
+                    )}
                     {
                         colorScheme === "light" ? (
                             <PrimaryButton onPress={onPress} style={{

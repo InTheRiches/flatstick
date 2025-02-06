@@ -17,7 +17,7 @@ export const NewRound = ({newSessionRef}) => {
     const [difficulty, setDifficulty] = useState("easy");
     const [mode, setMode] = useState("random");
     const bottomSheetPosition = useSharedValue(0);
-    const {putters, grips, userData} = useAppContext();
+    const {putters, grips, userData, updateData} = useAppContext();
 
     const router = useRouter();
 
@@ -270,11 +270,20 @@ export const NewRound = ({newSessionRef}) => {
                         title={"Start Session"}
                         onPress={() => {
                             newSessionRef.current?.dismiss();
-                            router.push({
-                                pathname: `/simulation/round`, params: {
-                                    localHoles: 18, difficulty: difficulty, mode: mode,
-                                },
-                            });
+                            if (userData.hasSeenRoundTutorial) {
+                                router.push({
+                                    pathname: `/simulation/round`, params: {
+                                        localHoles: 18, difficulty: difficulty, mode: mode,
+                                    },
+                                });
+                            } else {
+                                router.push({
+                                    pathname: `/simulation/round/demo`, params: {
+                                        justInfo: false, localHoles: 18, difficulty: difficulty, mode: mode,
+                                    },
+                                });
+                                updateData({hasSeenRoundTutorial: true});
+                            }
                         }}
                     ></PrimaryButton>
                 </View>

@@ -14,7 +14,7 @@ export function NewRealRound({newRealRoundRef}) {
     const colors = useColors();
     const [holes, setHoles] = useState(9);
     const router = useRouter();
-    const {putters, grips, userData} = useAppContext();
+    const {putters, grips, userData, updateData} = useAppContext();
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
@@ -191,12 +191,21 @@ export function NewRealRound({newRealRoundRef}) {
                         title={"Start Session"}
                         onPress={() => {
                             newRealRoundRef.current?.dismiss();
-                            router.push({
-                                pathname: `/simulation/real`,
-                                params: {
-                                    stringHoles: holes,
-                                },
-                            });
+                            if (userData.hasSeenRealTutorial) {
+                                router.push({
+                                    pathname: `/simulation/real`,
+                                    params: {
+                                        stringHoles: holes,
+                                    },
+                                });
+                            } else {
+                                router.push({
+                                    pathname: `/simulation/real/demo`, params: {
+                                        justInfo: false, stringHoles: holes,
+                                    },
+                                });
+                                updateData({hasSeenRealTutorial: true});
+                            }
                         }}
                     ></PrimaryButton>
                 </View>

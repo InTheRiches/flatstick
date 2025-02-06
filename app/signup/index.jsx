@@ -140,6 +140,8 @@ export default function CreateAccount() {
                     firstName: firstName.trim(),
                     lastName: firstName.trim(),
                     strokesGained: 0,
+                    hasSeenRoundTutorial: false,
+                    hasSeenRealTutorial: false,
                     preferences: {
                         countMishits: true,
                         selectedPutter: 0,
