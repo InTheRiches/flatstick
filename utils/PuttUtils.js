@@ -153,6 +153,9 @@ const calculateStats = (puttsCopy, width, height) => {
 
     let holes = 0;
 
+    let percentHigh = 0;
+    let percentShort = 0;
+
     puttsCopy.forEach((putt, index) => {
         if (putt === undefined || putt.distance === -1 || putt.point.x === undefined)
             return;
@@ -238,6 +241,20 @@ const calculateStats = (puttsCopy, width, height) => {
             else farLeft++;
         }
 
+        // if short
+        if (degrees <= -22.5 && degrees >= -157) {
+            percentShort++;
+        }
+        // check if on high side or low side based on putt break (high side meaning the side the ball is breaking towards)
+        if (degrees > -67.5 && degrees <= 67.5) {
+            if (putt.break[0] === 0) percentHigh++;
+        }
+        else if (degrees >= 112.5 || degrees <= -112.5) {
+            if (putt.break[0] === 1) {
+                percentHigh++;
+            }
+        }
+
         let puttBreak = putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
         trimmedPutts.push({
             distance: putt.distance,
@@ -261,8 +278,11 @@ const calculateStats = (puttsCopy, width, height) => {
 
     leftRightBias /= holes;
     shortPastBias /= holes;
+    console.log("percentHigh", percentHigh, "percentShort", percentShort);
+    percentHigh /= holes;
+    percentShort /= holes;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes };
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
 };
 
 function formatFeetAndInches(feet) {

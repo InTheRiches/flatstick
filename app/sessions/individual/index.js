@@ -79,8 +79,8 @@ export default function IndividualSession({}) {
             <ScreenWrapper style={{paddingHorizontal: 24, justifyContent: "space-between"}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View>
-                            <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
-                            <FontText style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "left"}}>{formatTimestamp()}</FontText>
+                        <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
+                        <FontText style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "left"}}>{formatTimestamp()}</FontText>
 
                         <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                             <View style={{alignItems: "center", flex: 0.5}}>
@@ -144,8 +144,26 @@ export default function IndividualSession({}) {
                                 </View>
                             </View>
                         </View>
-                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>1st Putt Distribution</FontText>
+                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 8, marginBottom: 8}}>1st Putt Distribution</FontText>
                         <MissDistributionDiagram missData={session.missData} holes={session.filteredHoles ? session.filteredHoles : session.holes} alone={true} units={userData.preferences.units}></MissDistributionDiagram>
+                        <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, flex: 1, flexDirection: 'row', marginTop: 20}}>
+                            <View style={{
+                                flexDirection: "column",
+                                flex: 1,
+                                borderRightWidth: 1,
+                                borderColor: colors.border.default,
+                                paddingBottom: 6,
+                                paddingLeft: 12,
+                                paddingTop: 4
+                            }}>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent High-side</FontText>
+                                <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentHigh !== undefined ? roundTo(session.percentHigh*100, 0) + "%" : "N/A"}</FontText>
+                            </View>
+                            <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingLeft: 12, paddingTop: 4}}>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Short</FontText>
+                                <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentShort !== undefined ? roundTo(session.percentShort*100, 0) + "%" : "N/A"}</FontText>
+                            </View>
+                        </View>
                         <View style={{marginTop: 20}}>
                             <LeftRightBias bias={session.leftRightBias} units={session.units}></LeftRightBias>
                             <ShortPastBias bias={session.shortPastBias} units={session.units}></ShortPastBias>

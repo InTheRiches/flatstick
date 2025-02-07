@@ -267,7 +267,7 @@ export default function RoundSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true);
 
@@ -294,6 +294,8 @@ export default function RoundSimulation() {
             totalDistance: totalDistance,
             units: userData.preferences.units,
             duration: new Date().getTime() - startTime,
+            percentShort: percentShort,
+            percentHigh: percentHigh,
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
