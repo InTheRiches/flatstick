@@ -421,7 +421,7 @@ export function AppProvider({children}) {
 
         // TODO implement this
         let totalPutts = 0;
-        await updateData({totalPutts: totalPutts, strokesGained: strokesGained.overall});
+        await updateData({totalPutts: totalPutts, sessions: newPuttSessions.length, strokesGained: strokesGained.overall});
         await updateStats(newStats)
 
         finalizePutters(setPutters, newStats, newPutters, strokesGained);

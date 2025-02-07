@@ -8,6 +8,7 @@ const finalizeStats = (newStats, strokesGained) => {
     newStats.avgMiss = roundTo(newStats.avgMiss / ((newStats.holes / 18) * 18), 1);
     newStats.totalDistance = roundTo(newStats.totalDistance / (newStats.holes / 18), 1);
     newStats.puttsMisread = roundTo(newStats.puttsMisread / (newStats.holes / 18), 1);
+    newStats.puttsMishits = roundTo(newStats.puttsMishits / (newStats.holes / 18), 1);
     newStats.onePutts = roundTo(newStats.onePutts / (newStats.holes / 18), 1);
     newStats.twoPutts = roundTo(newStats.twoPutts / (newStats.holes / 18), 1);
     newStats.threePutts = roundTo(newStats.threePutts / (newStats.holes / 18), 1);
