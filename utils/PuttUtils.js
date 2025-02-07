@@ -342,6 +342,8 @@ const createSimpleStats = () => {
         totalDistance: 0,
         puttsMisread: 0,
         puttsMishits: 0,
+        percentHigh: 0,
+        percentShort: 0,
         misreads: {
             misreadLineByDistance: [0, 0, 0, 0],
             misreadSlopeByDistance: [0, 0, 0, 0],
@@ -467,6 +469,8 @@ const createSimpleRefinedStats = () => {
         totalDistance: 0,
         puttsMisread: 0,
         puttsMishits: 0,
+        percentHigh: 0,
+        percentShort: 0,
         misreads: {
             misreadLineByDistance: [0, 0, 0, 0],
             misreadSlopeByDistance: [0, 0, 0, 0],
@@ -758,6 +762,19 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
 
         simpleStats.avgMiss += distanceMissed;
         simpleStats.avgMissDistance[distanceIndex] += distanceMissed;
+    }
+
+    const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
+    // if short
+    if (degrees <= -22.5 && degrees >= -157) {
+        simpleStats.percentShort++;
+    }
+    // check if on high side or low side based on putt break (high side meaning the side the ball is breaking towards)
+    if (degrees > -67.5 && degrees <= 67.5) {
+        if (puttBreak[0] === 0) simpleStats.percentHigh++;
+    }
+    else if (degrees >= 112.5 || degrees <= -112.5) {
+        if (puttBreak[0] === 1) simpleStats.percentHigh++;
     }
 
     simpleStats.leftRightBias += xDistance;

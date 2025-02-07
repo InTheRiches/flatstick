@@ -14,6 +14,8 @@ const finalizeStats = (newStats, strokesGained) => {
     newStats.threePutts = roundTo(newStats.threePutts / (newStats.holes / 18), 1);
     newStats.leftRightBias = roundTo(newStats.leftRightBias / ((newStats.holes / 18)*18), 2);
     newStats.shortPastBias = roundTo(newStats.shortPastBias / ((newStats.holes / 18)*18), 2);
+    newStats.percentHigh = roundTo(newStats.percentHigh / ((newStats.holes / 18)*18), 2);
+    newStats.percentShort = roundTo(newStats.percentShort / ((newStats.holes / 18)*18), 2);
     newStats.strokesGained = cleanAverageStrokesGained(newStats, strokesGained.overall);
     newStats.puttsAHole = cleanPuttsAHole(newStats);
     newStats.madePutts = cleanMadePutts(newStats);
