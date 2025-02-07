@@ -1,6 +1,6 @@
 import useColors from "../../../../hooks/useColors";
 import {Dimensions, ScrollView, View} from "react-native";
-import React from "react";
+import React, {useMemo} from "react";
 import {MakeByBreakSlope, MakeByDistance} from "./graphs";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import {roundTo} from "../../../../utils/roundTo";
@@ -18,9 +18,9 @@ export const MadePuttsTab = ({statsToUse}) => {
     let difference = 0;
 
     if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
-        difference = currentStats.madePutts.overall - previousStats[0].madePutts.overall;
+        difference = ((currentStats.madePutts.overall - previousStats[0].madePutts.overall) * 100).toFixed(0);
 
-    const madeByDistance = (
+    const madeByDistance = useMemo(() =>
         <>
             <View style={{alignItems: "center"}}>
                 <MakeByDistance statsToUse={statsToUse}/>
@@ -36,15 +36,19 @@ export const MadePuttsTab = ({statsToUse}) => {
                 </View>
             </View>
         </>
-    );
+    , [statsToUse]);
+
+    const madeBySlope = useMemo(() => (
+        <MakeByBreakSlope statsToUse={statsToUse}></MakeByBreakSlope>
+    ), [statsToUse]);
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 24}}>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
                 <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{roundTo(statsToUse.madePutts.overall*100, 0)}%</FontText>
-                { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
-                    <View style={{backgroundColor: "#A1ECA8", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                        <FontText style={{color: "#275E2B", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</FontText>
+                { previousStats !== undefined && previousStats.length > 0 && difference != 0 &&
+                    <View style={{backgroundColor: difference > 0 ? "#A1ECA8" : "#eca1a1", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
+                        <FontText style={{color: difference > 0 ? "#275E2B" : "#530606", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference}%` : `${difference}%`}</FontText>
                     </View>
                 }
             </View>
@@ -54,7 +58,7 @@ export const MadePuttsTab = ({statsToUse}) => {
                 <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Direction"}/>
             </View>
             {byDistance && madeByDistance}
-            {!byDistance && <MakeByBreakSlope statsToUse={statsToUse}></MakeByBreakSlope>}
+            {!byDistance && madeBySlope}
         </ScrollView>
     )
 };

@@ -13,7 +13,7 @@ import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import Loading from "../../components/general/popups/Loading";
 import FontText from "../../components/general/FontText";
-import PlacementTab from "../../components/tabs/stats/placement/PlacementTab";
+import MissBiasTab from "../../components/tabs/stats/missbias/MissBiasTab";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -83,9 +83,9 @@ export default function Stats({}) {
         },
         {
             id: 6,
-            title: "Placement",
+            title: "Miss Bias",
             content: useMemo(() => {
-                return <PlacementTab statsToUse={statsToUse}/>
+                return <MissBiasTab statsToUse={statsToUse}/>
             }, [statsToUse, currentStats])
         }
     ]

@@ -763,9 +763,9 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats.leftRightBias += xDistance;
     simpleStats.shortPastBias += yDistance;
 
-    simpleStats["totalDistance"] += distance;
-    simpleStats["puttsMisread"] += misReadLine || misReadSlope ? 1 : 0;
-    simpleStats["puttsMishits"] += misHit ? 1 : 0;
+    simpleStats.totalDistance += distance;
+    simpleStats.puttsMisread += misReadLine || misReadSlope ? 1 : 0;
+    simpleStats.puttsMishits += misHit ? 1 : 0;
 
     simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
     simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
