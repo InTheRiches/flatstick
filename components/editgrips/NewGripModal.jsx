@@ -66,7 +66,7 @@ export function NewGripModal({newGripRef}) {
                     </FontText>
                 </View>
                 {Platform.OS === "ios" ? (
-                    <TextInput
+                    <BottomSheetTextInput
                         style={{
                             marginHorizontal: 24,
                             padding: 12,
@@ -85,7 +85,7 @@ export function NewGripModal({newGripRef}) {
                         onBlur={() => setGripFocused(false)}
                     />
                 ) : (
-                    <BottomSheetTextInput
+                    <TextInput
                         style={{
                             marginHorizontal: 24,
                             padding: 12,
