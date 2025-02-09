@@ -1,5 +1,5 @@
 import {Platform, Pressable, ScrollView, View} from "react-native";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
 import Svg, {Path} from "react-native-svg";
@@ -10,6 +10,9 @@ import {auth, firestore} from "../../../utils/firebase";
 import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function CompareUsers({}) {
     const colors = useColors();
@@ -20,6 +23,11 @@ export default function CompareUsers({}) {
     const [loading, setLoading] = useState(true);
 
     const [usersStats, setUsersStats] = useState(createSimpleRefinedStats());
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     useEffect(() => {
         // fetch users stats
@@ -70,6 +78,9 @@ export default function CompareUsers({}) {
                         </View>
                     </View>
                 </View>
+                <View style={{marginLeft: -24}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
                 <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>COMPARISON</FontText>
                 <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
                     {loading ?
@@ -88,6 +99,9 @@ export default function CompareUsers({}) {
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={0}/>
                 <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={1}/>
+                <View style={{marginLeft: -24}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
                 <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>
                 <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={2}/>
                 <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>

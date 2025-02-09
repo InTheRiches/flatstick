@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, View} from "react-native";
+import {Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -8,6 +8,9 @@ import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/c
 import {useNavigation} from "expo-router";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function CompareGrips({}) {
     const colors = useColors();
@@ -22,6 +25,11 @@ export default function CompareGrips({}) {
 
     const firstGripRef = useRef(null);
     const secondGripRef = useRef(null);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     let betterGrip = 0;
     if (firstGrip !== -1 && secondGrip !== -1) {
@@ -63,9 +71,12 @@ export default function CompareGrips({}) {
                             <FontText style={{color: colors.text.link, opacity: isTwoPressed ? 0.3 : 1, fontSize: 18, fontWeight: 500}}>{secondGrip === -1 ? "N/A" : secondGrip === 0 ? "All Grips" : grips[secondGrip].name}</FontText>
                         </Pressable>
                     </View>
+                    <View style={{marginLeft: -24, marginTop: 12}}>
+                        <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                    </View>
                     {
                         firstGrip !== -1 && secondGrip !== -1 && <>
-                            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>RESULT</FontText>
+                            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 12, marginBottom: 6}}>RESULT</FontText>
                             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center"}}>
                                 <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500, textAlign: "center"}}>You can be confident that you putt better with <FontText style={{fontWeight: 800, textDecorationLine: "underline"}}>{betterGrip === 0 ? "neither" : betterGrip === 1 ? firstGrip === 0 ? "the average" : grips[firstGrip].name : secondGrip === 0 ? "the average" : grips[secondGrip].name}</FontText> grip method.</FontText>
                             </View>
@@ -80,6 +91,9 @@ export default function CompareGrips({}) {
                             <MiniDataTable stats1={grips[firstGrip].stats} stats2={grips[secondGrip].stats} distance={0}/>
                             <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>
                             <MiniDataTable stats1={grips[firstGrip].stats} stats2={grips[secondGrip].stats} distance={1}/>
+                            <View style={{marginLeft: -24}}>
+                                <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                            </View>
                             <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>
                             <MiniDataTable stats1={grips[firstGrip].stats} stats2={grips[secondGrip].stats} distance={2}/>
                             <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>
