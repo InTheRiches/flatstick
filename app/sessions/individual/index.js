@@ -178,15 +178,13 @@ export default function IndividualSession({}) {
                                 <Path strokeLinecap="round" strokeLinejoin="round"
                                       d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"/>
                             </Svg>
-
                         </SecondaryButton>
                         <SecondaryButton onPress={() => {
                             if (isRecap) {
                                 navigation.navigate("(tabs)");
                             } else navigation.goBack();
-                        }}
-                                         title={isRecap ? "Continue" : "Back"}
-                                         style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
+                        }} title={isRecap ? "Continue" : "Back"}
+                           style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
                         <SecondaryButton onPress={() => {
                             confirmDeleteRef.current.present();
                         }} style={{aspectRatio: 1, height: 42, borderRadius: 50}}>

@@ -134,7 +134,8 @@ export default function UserSettings({}) {
                 }}>!</FontText>}
             </View>
             {firstNameInvalid &&
-                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : "Don't include any spaces!"}</FontText>}
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : "Don't include any spaces!"}</FontText>
+            }
             <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>LAST NAME</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
@@ -168,7 +169,8 @@ export default function UserSettings({}) {
                 }}>!</FontText>}
             </View>
             {lastNameInvalid &&
-                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</FontText>}
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</FontText>
+            }
             <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>EMAIL ADDRESS</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
@@ -212,13 +214,11 @@ export default function UserSettings({}) {
                 }}>!</FontText>}
             </View>
             { isGoogle && (
-                    <FontText style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with google.</FontText>
-                )
-            }
+                <FontText style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with google.</FontText>
+            )}
             { isApple && (
                 <FontText style={{color: colors.text.secondary, marginTop: 4}}>You are signed in with apple.</FontText>
-            )
-            }
+            )}
             {emailInvalid && emailErrorCode !== "auth/email-already-in-use" &&
                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}
             {emailErrorCode === "auth/email-already-in-use" &&
