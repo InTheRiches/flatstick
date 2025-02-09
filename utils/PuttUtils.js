@@ -302,7 +302,7 @@ function formatFeetAndInches(feet) {
     if (inchesPart !== 0) {
         result += ` ${inchesPart}"`;
     }
-    return result;
+    return result === "" ? "0\"" : result;
 }
 
 function cleanPuttsAHole(averagePerformance) {
