@@ -32,7 +32,7 @@ export function Session({session}) {
                 day: '2-digit'
             })}</FontText>
             <FontText style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{session.totalPutts}</FontText>
-            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{session.strokesGained}</FontText>
+            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
         </Pressable>
     )
 }

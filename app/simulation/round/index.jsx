@@ -214,7 +214,7 @@ export default function RoundSimulation() {
 
         if (!largeMiss && point.x === undefined) return;
 
-        if (hole === 8 && adLoaded) {
+        if (hole === 9 && adLoaded) {
             interstitial.show();
             setAdLoaded(false);
         }

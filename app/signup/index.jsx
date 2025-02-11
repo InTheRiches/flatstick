@@ -243,7 +243,6 @@ export default function CreateAccount() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <ScreenWrapper style={{
                 flex: 1,
-                paddingHorizontal: 24,
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",

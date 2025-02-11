@@ -13,7 +13,8 @@ import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {
-    calculateDistanceMissedFeet, calculateDistanceMissedMeters,
+    calculateDistanceMissedFeet,
+    calculateDistanceMissedMeters,
     calculateStats,
     convertThetaToBreak,
     getLargeMissPoint,
@@ -21,7 +22,6 @@ import {
     updatePuttsCopy
 } from '../../../utils/PuttUtils';
 import {GreenVisual} from "../../../components/simulations/real";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {
     AdEventType,
     BannerAd,
@@ -33,7 +33,6 @@ import {
 import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 
 const initialState = {
     confirmLeave: false,
@@ -105,6 +104,8 @@ export default function RealSimulation() {
     const misreadRef = useRef(null);
     const bannerRef = useRef(null);
 
+    const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
     useForeground(() => {
         bannerRef.current?.load();
     })
@@ -158,9 +159,19 @@ export default function RealSimulation() {
             onBackPress
         );
 
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardIsVisible(true);
+        });
+
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardIsVisible(false);
+        });
+
         return () => {
             unsubscribeLoaded();
             backHandler.remove();
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
         }
     }, []);
 
@@ -191,7 +202,7 @@ export default function RealSimulation() {
             return;
         }
 
-        if (hole === 8 && adLoaded) {
+        if (hole === 9 && adLoaded) {
             interstitial.show();
             setAdLoaded(false);
         }
@@ -383,7 +394,9 @@ export default function RealSimulation() {
                             <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Speed" : misReadLine ? ": Break" : ""}</FontText>
                         </Pressable>
                     </View>
-                    <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
+                    {!keyboardIsVisible && (
+                        <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
+                    )}
                     <View style={{marginLeft: -24}}>
                         <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
                     </View>

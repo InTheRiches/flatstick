@@ -2,7 +2,7 @@ import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import FontText from "../../../../components/general/FontText";
 import React from "react";
 import useColors from "../../../../hooks/useColors";
-import {Image, Pressable, ScrollView, View} from "react-native";
+import {Image, Pressable, View} from "react-native";
 import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
@@ -35,7 +35,7 @@ export default function RealDemo({}) {
                     <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Real Round Tutorial</FontText>
                 </View>
                 <View style={{backgroundColor: colors.background.secondary, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 10}}>
-                    <FontText style={{color: colors.text.secondary}}>This mode allows you to track your putting in a real round.</FontText>
+                    <FontText style={{color: colors.text.primary}}>This mode allows you to track your putting in a real round.</FontText>
                 </View>
                 <View onLayout={onLayout} style={{flexDirection: "column", marginTop: 12, flex: 0.7, alignItems: "center"}}>
                     <FontText style={{fontSize: 18, fontWeight: 500, width: "100%"}}>Step 1</FontText>

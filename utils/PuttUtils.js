@@ -41,6 +41,7 @@ const slopeConversion = [
 ]
 
 const convertThetaToBreak = (theta) => {
+    console.log("theta", theta)
     return [breakConversion.indexOf(breaks[theta]), slopeConversion.indexOf(slopes[theta])];
 }
 
@@ -214,6 +215,7 @@ const calculateStats = (puttsCopy, width, height) => {
             if (index !== 0)
                 avgMiss /= 2;
         }
+
         let xDistance = roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2);
         let yDistance = roundTo((height / 2 - putt.point.y) * (5 / height), 2);
         if (putt.largeMiss) {
@@ -241,21 +243,21 @@ const calculateStats = (puttsCopy, width, height) => {
             else farLeft++;
         }
 
+        let puttBreak = putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
         // if short
         if (degrees <= -22.5 && degrees >= -157) {
             percentShort++;
         }
         // check if on high side or low side based on putt break (high side meaning the side the ball is breaking towards)
         if (degrees > -67.5 && degrees <= 67.5) {
-            if (putt.break[0] === 0) percentHigh++;
+            if (puttBreak[0] === 0) percentHigh++;
         }
         else if (degrees >= 112.5 || degrees <= -112.5) {
-            if (putt.break[0] === 1) {
+            if (puttBreak[0] === 1) {
                 percentHigh++;
             }
         }
 
-        let puttBreak = putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
         trimmedPutts.push({
             distance: putt.distance,
             xDistance: xDistance,
