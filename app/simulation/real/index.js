@@ -284,7 +284,7 @@ export default function RealSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData, totalDistance, filteredHoles} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, shortPastBias, leftRightBias, missData, totalDistance, filteredHoles, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true)
 
@@ -309,6 +309,8 @@ export default function RealSimulation() {
             totalDistance: totalDistance,
             units: userData.preferences.units,
             duration: new Date().getTime() - startTime,
+            percentShort,
+            percentHigh
         }
 
         newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
