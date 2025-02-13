@@ -91,22 +91,6 @@ export default function ShareSession({shareSessionRef, session}) {
                             <View style={{
                                 flexDirection: "column",
                                 flex: 1,
-                                borderRightWidth: 1,
-                                borderColor: colors.border.default,
-                                paddingBottom: 12,
-                                paddingTop: 6,
-                                paddingLeft: 12
-                            }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>2 Putts</FontText>
-                                <FontText style={{
-                                    fontSize: 20,
-                                    color: colors.text.primary,
-                                    fontWeight: "bold",
-                                }}>{session.puttCounts[1]}</FontText>
-                            </View>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
                                 paddingBottom: 12,
                                 paddingTop: 6,
                                 paddingLeft: 12
@@ -117,6 +101,75 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                 }}>{session.puttCounts[2]}</FontText>
+                            </View>
+                            <View style={{
+                                flexDirection: "column",
+                                flex: 1,
+                                paddingBottom: 12,
+                                paddingTop: 6,
+                                paddingLeft: 12,
+                                borderLeftWidth: 1,
+                                borderColor: colors.border.default,
+                            }}>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Make %</FontText>
+                                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
+                                    <FontText style={{
+                                        fontSize: 20,
+                                        color: colors.text.primary,
+                                        fontWeight: "bold",
+                                    }}>{roundTo(session.madePercent*100, 0)}%</FontText>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
+                            <View style={{
+                                flexDirection: "column",
+                                flex: 1,
+                                borderRightWidth: 1,
+                                borderColor: colors.border.default,
+                                paddingBottom: 12,
+                                paddingTop: 6,
+                                paddingLeft: 12
+                            }}>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</FontText>
+                                <FontText style={{
+                                    fontSize: 20,
+                                    color: colors.text.primary,
+                                    fontWeight: "bold",
+                                    textAlign: "left"
+                                }}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
+                            </View>
+                            <View style={{
+                                flexDirection: "column",
+                                flex: 1,
+                                borderRightWidth: 1,
+                                borderColor: colors.border.default,
+                                paddingBottom: 12,
+                                paddingTop: 6,
+                                paddingLeft: 12
+                            }}>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent High</FontText>
+                                <FontText style={{
+                                    fontSize: 20,
+                                    color: colors.text.primary,
+                                    fontWeight: "bold",
+                                    textAlign: "left"
+                                }}>{session.percentHigh !== undefined ? roundTo(session.percentHigh*100, 0) + "%" : "N/A"}</FontText>
+                            </View>
+                            <View style={{
+                                flexDirection: "column",
+                                flex: 1,
+                                paddingBottom: 12,
+                                paddingTop: 6,
+                                paddingLeft: 12
+                            }}>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Short</FontText>
+                                <FontText style={{
+                                    fontSize: 20,
+                                    color: colors.text.primary,
+                                    fontWeight: "bold",
+                                    textAlign: "left"
+                                }}>{session.percentShort !== undefined ? roundTo(session.percentShort*100, 0) + "%" : "N/A"}</FontText>
                             </View>
                         </View>
                         <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
@@ -144,44 +197,9 @@ export default function ShareSession({shareSessionRef, session}) {
                                 borderColor: colors.border.default,
                                 paddingBottom: 12,
                                 paddingTop: 6,
-                                paddingLeft: 12
-                            }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</FontText>
-                                <FontText style={{
-                                    fontSize: 20,
-                                    color: colors.text.primary,
-                                    fontWeight: "bold",
-                                    textAlign: "left"
-                                }}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
-                            </View>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
-                                paddingBottom: 12,
-                                paddingTop: 6,
-                                paddingLeft: 12
-                            }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Make %</FontText>
-                                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                    <FontText style={{
-                                        fontSize: 20,
-                                        color: colors.text.primary,
-                                        fontWeight: "bold",
-                                    }}>{roundTo(session.madePercent*100, 0)}%</FontText>
-                                </View>
-                            </View>
-                        </View>
-                        <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
-                                borderRightWidth: 1,
-                                borderColor: colors.border.default,
-                                paddingBottom: 12,
-                                paddingTop: 6,
                                 paddingLeft: 12,
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Left Right Bias</FontText>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break Bias</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -191,33 +209,16 @@ export default function ShareSession({shareSessionRef, session}) {
                             <View style={{
                                 flexDirection: "column",
                                 flex: 1,
-                                borderRightWidth: 1,
-                                borderColor: colors.border.default,
                                 paddingBottom: 12,
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Short-Long Bias</FontText>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Speed Bias</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                 }}>{session.shortPastBias > 0 ? "+" : ""}{convertUnits(session.shortPastBias, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
-                            </View>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
-                                paddingBottom: 12,
-                                paddingTop: 6,
-                                paddingLeft: 12
-                            }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Distance</FontText>
-                                <FontText style={{
-                                    fontSize: 20,
-                                    color: colors.text.primary,
-                                    fontWeight: "bold",
-                                    textAlign: "left"
-                                }}>{convertUnits(session.totalDistance, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                             </View>
                         </View>
                     </ViewShot>
