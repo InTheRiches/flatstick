@@ -74,6 +74,8 @@ export default function IndividualSession({}) {
         return date.toLocaleString('en-US', options);
     };
 
+    const numOfHoles = session.filteredHoles ? session.filteredHoles : session.holes;
+
     return loading ? <Loading></Loading> : (
         <>
             <ScreenWrapper style={{paddingHorizontal: 24, justifyContent: "space-between"}}>
@@ -120,14 +122,14 @@ export default function IndividualSession({}) {
                                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</FontText>
                                         <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
                                             <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[0]}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[0]/session.totalPutts) * 100, 0)}%)</FontText>
+                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[0]/numOfHoles) * 100, 0)}%)</FontText>
                                         </View>
                                     </View>
                                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
                                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</FontText>
                                         <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
                                             <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/session.totalPutts) * 100, 0)}%)</FontText>
+                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/numOfHoles) * 100, 0)}%)</FontText>
                                         </View>
                                     </View>
                                 </View>
