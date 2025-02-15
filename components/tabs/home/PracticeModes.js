@@ -31,17 +31,6 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
                 focus={"Adaptability"}
                 onInfo={() => router.push({pathname: "/simulation/round/demo", params: {justInfo: true}})}
                 onPress={() => newSessionRef.current?.present()}/>
-            <View style={{
-                backgroundColor: colors.background.secondary,
-                borderRadius: 50,
-                flexDirection: "row",
-                alignSelf: "center",
-                paddingHorizontal: 16,
-                gap: 12,
-                paddingVertical: 10
-            }}>
-                <FontText style={{color: colors.text.primary, fontSize: 18}}>More coming soon!</FontText>
-            </View>
         </View>
     )
 }

@@ -1,13 +1,14 @@
 // only 18 hole simulations and real simulations, no other practices
-import {View} from "react-native";
+import {Pressable, View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import {convertUnits} from "../../../../utils/Conversions";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import FontText from "../../../general/FontText";
+import {useRouter} from "expo-router";
 
 export const RecentSession = ({recentSession}) => {
     const colors = useColors();
-    const {userData} = useAppContext();
+    const router = useRouter();
 
     const formattedName = () => {
         if (recentSession.type === "real-simulation") {
@@ -19,7 +20,7 @@ export const RecentSession = ({recentSession}) => {
     }
 
     return (
-        <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8}}>
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8}}>
             <View style={{
                 paddingHorizontal: 12,
                 borderBottomWidth: 1,
@@ -98,6 +99,6 @@ export const RecentSession = ({recentSession}) => {
                     }}>{recentSession.totalPutts}</FontText>
                 </View>
             </View>
-        </View>
+        </Pressable>
     )
 }

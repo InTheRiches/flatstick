@@ -5,6 +5,7 @@ import {roundTo} from "../../../../utils/roundTo";
 import {RecentSession} from "./RecentSession";
 import React from "react";
 import FontText from "../../../general/FontText";
+import {SeeAllSessions} from "../../home";
 
 export const OverviewTab = ({statsToUse}) => {
     const colors = useColors();
@@ -170,6 +171,7 @@ export const OverviewTab = ({statsToUse}) => {
                     })
                 }
             </View>
+            <SeeAllSessions/>
         </ScrollView>
     )
 };
