@@ -240,15 +240,15 @@ export default function CreateAccount() {
 
     return (loading ? <Loading/> :
         <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, width: "100%" }}>
             <ScreenWrapper style={{
                 flex: 1,
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",
-                backgroundColor: colors.background.primary
+                paddingHorizontal: 24,
             }}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center", flex: 1}}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center", flex: 1, width: "100%"}}>
                     <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>
                     <Pressable onPress={() => router.push({pathname: `/login`})} style={{
                         marginBottom: 32,

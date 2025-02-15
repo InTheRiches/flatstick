@@ -26,7 +26,7 @@ export const ShortPastBias = ({bias, units}) => {
 
     return (
         <View style={{backgroundColor: colors.background.secondary, marginTop: 20, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>Short-Long Bias</FontText>
+            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>1st Putt Short-Long Bias</FontText>
             <View onLayout={onVertiLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>

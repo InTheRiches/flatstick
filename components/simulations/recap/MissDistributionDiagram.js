@@ -33,25 +33,25 @@ export function MissDistributionDiagram({missData, holes, alone = false, units =
                         let text = "";
 
                         if (index === 2) {
-                            text = Math.floor((missData.long / holes) * 100) + "%";
+                            text = Math.round((missData.long / holes) * 100) + "%";
                         }
                         if (index === 5) {
-                            text = Math.floor((missData.farLeft / holes) * 100) + "%";
+                            text = Math.round((missData.farLeft / holes) * 100) + "%";
                         }
                         if (index === 6) {
-                            text = Math.floor((missData.left / holes) * 100) + "%";
+                            text = Math.round((missData.left / holes) * 100) + "%";
                         }
                         if (index === 7) {
-                            text = Math.floor((missData.center / holes) * 100) + "%";
+                            text = Math.round((missData.center / holes) * 100) + "%";
                         }
                         if (index === 8) {
-                            text = Math.floor((missData.right / holes) * 100) + "%";
+                            text = Math.round((missData.right / holes) * 100) + "%";
                         }
                         if (index === 9) {
-                            text = Math.floor((missData.farRight / holes) * 100) + "%";
+                            text = Math.round((missData.farRight / holes) * 100) + "%";
                         }
                         if (index === 12) {
-                            text = Math.floor((missData.short / holes) * 100) + "%";
+                            text = Math.round((missData.short / holes) * 100) + "%";
                         }
 
                         return (
