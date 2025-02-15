@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from "react";
-import {Image, Pressable, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView,} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
@@ -145,7 +145,7 @@ export const NewRound = ({newSessionRef}) => {
                                             />
                                         </Svg>
                                     </View>)}
-                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Easy</FontText>
+                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>{userData.preferences.units === 0 ? "3-15ft" : "1-5m"}</FontText>
                                 </Pressable>
                                 <Pressable
                                     onPress={() => setDifficulty("medium")}
@@ -182,7 +182,7 @@ export const NewRound = ({newSessionRef}) => {
                                             />
                                         </Svg>
                                     </View>)}
-                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Medium</FontText>
+                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>{userData.preferences.units === 0 ? "8-25ft" : "3-8m"}</FontText>
                                 </Pressable>
                                 <Pressable
                                     onPress={() => setDifficulty("hard")}
@@ -219,7 +219,7 @@ export const NewRound = ({newSessionRef}) => {
                                             />
                                         </Svg>
                                     </View>)}
-                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>Hard </FontText>
+                                    <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>{userData.preferences.units === 0 ? "10-40ft" : "3-13m"}</FontText>
                                 </Pressable>
                             </View>
                         </>
