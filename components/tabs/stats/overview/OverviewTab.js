@@ -9,12 +9,12 @@ import {SeeAllSessions} from "../../home";
 
 export const OverviewTab = ({statsToUse}) => {
     const colors = useColors();
-    const {puttSessions, previousStats, userData} = useAppContext();
+    const {puttSessions, previousStats, currentStats, userData} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     let difference = 0;
 
-    if (previousStats !== undefined && previousStats.length > 0)
+    if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
         difference = statsToUse.strokesGained.overall - previousStats[0].strokesGained.overall;
 
     return (
