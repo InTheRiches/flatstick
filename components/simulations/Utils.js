@@ -115,12 +115,12 @@ function generateDistance(difficulty, units) {
     if (units === 0) {
         if (difficulty === "easy") {
             minDistance = 3; // Easy: Minimum 3 ft
-            maxDistance = 15; // Easy: Maximum 10 ft
+            maxDistance = 15; // Easy: Maximum 15 ft
         } else if (difficulty === "medium") {
-            minDistance = 8; // Medium: Minimum 5 ft
-            maxDistance = 25; // Medium: Maximum 20 ft
+            minDistance = 8; // Medium: Minimum 8 ft
+            maxDistance = 25; // Medium: Maximum 25 ft
         } else if (difficulty === "hard") {
-            minDistance = 10; // Hard: Minimum 8 ft
+            minDistance = 10; // Hard: Minimum 10 ft
             maxDistance = 40; // Hard: Maximum 40 ft
         }
     }
