@@ -1,16 +1,45 @@
-import {Platform, TextInput, View} from "react-native";
+import {Platform, Pressable, TextInput, View} from "react-native";
 import {GreenBreakSelector} from "./GreenBreakSelector";
-import Svg, {Path} from "react-native-svg";
+import Svg, {Circle, Path} from "react-native-svg";
 import React from "react";
 import useColors from "../../../hooks/useColors";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
 import {useAppContext} from "../../../contexts/AppCtx";
 import FontText from "../../general/FontText";
 
-export function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid, slope, puttBreak}) {
+const breaks = {
+    45: "Left to Right",
+    90: "Left to Right",
+    135: "Left to Right",
+    315: "Right to Left",
+    270: "Right to Left",
+    225: "Right to Left",
+    0: "Straight",
+    360: "Straight",
+    180: "Straight",
+    999: "Straight",
+}
+
+const slopes = {
+    45: "Downhill",
+    90: "Neutral",
+    135: "Uphill",
+    315: "Downhill",
+    270: "Neutral",
+    225: "Uphill",
+    0: "Downhill",
+    360: "Downhill",
+    180: "Uphill",
+    999: "Neutral",
+}
+
+export function GreenVisual({theta, setTheta, updateField, distance, distanceInvalid}) {
     const colors = useColors();
     const colorScheme = "light";
     const {userData} = useAppContext();
+
+    const slope = slopes[theta];
+    const puttBreak = breaks[theta];
 
     const validateDistance = (text) => {
         // if it's not a number, make it invalid
@@ -29,6 +58,81 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
         updateField("distanceInvalid", num < 1 || num > 99);
     }
 
+    const BreakDots = ({}) => {
+        const colors = useColors();
+        const dots = [0, 1, 2]; // Assuming there are three breaks
+        const breaks = ["Right to Left", "Straight", "Left to Right"];
+
+        return (
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 2, marginRight: 8 }}>
+                {dots.map((dot, index) => (
+                    <Svg key={index} height="6" width="6" style={{ marginHorizontal: 4 }}>
+                        <Circle cx="3" cy="3" r="3" fill={breaks[index] === puttBreak ? colors.text.primary : colors.text.secondary} opacity={breaks[index] === puttBreak ? 0.7 : 0.2}/>
+                    </Svg>
+                ))}
+            </View>
+        );
+    };
+
+    const SlopeDots = ({}) => {
+        const colors = useColors();
+        const dots = [0, 1, 2]; // Assuming there are three breaks
+        const slopes = ["Downhill", "Neutral", "Uphill"];
+
+        return (
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 2, marginRight: 8 }}>
+                {dots.map((dot, index) => (
+                    <Svg key={index} height="6" width="6" style={{ marginHorizontal: 4 }}>
+                        <Circle cx="3" cy="3" r="3" fill={slopes[index] === slope ? colors.text.primary : colors.text.secondary} opacity={slopes[index] === slope ? 0.7 : 0.2}/>
+                    </Svg>
+                ))}
+            </View>
+        );
+    };
+
+    const cycleBreak = () => {
+        const breakMapping = {
+            "Downhill": [315, 0, 45],
+            "Neutral": [90, 270, 999],
+            "Uphill": [225, 180, 135]
+        };
+
+        const currentBreak = breaks[theta];
+        const currentSlope = slopes[theta];
+        const currentBreakArray = breakMapping[currentSlope];
+        const currentIndex = currentBreakArray.indexOf(theta);
+
+        // Cycle to the next break in the array
+        const nextIndex = (currentIndex + 1) % currentBreakArray.length;
+        const newTheta = currentBreakArray[nextIndex];
+
+        console.log(newTheta)
+
+        setTheta(newTheta);
+        updateField("theta", newTheta);
+    };
+
+    const cycleSlopes = () => {
+        const slopeMapping = {
+            "Right to Left": [315, 270, 225],
+            "Straight": [360, 180, 999],
+            "Left to Right": [45, 90, 135]
+        };
+
+        const currentBreak = breaks[theta];
+        const currentBreakArray = slopeMapping[currentBreak];
+        const currentIndex = currentBreakArray.indexOf(theta);
+
+        // Cycle to the next break in the array
+        const nextIndex = (currentIndex + 1) % currentBreakArray.length;
+        const newTheta = currentBreakArray[nextIndex];
+
+        console.log(newTheta)
+
+        setTheta(newTheta);
+        updateField("theta", newTheta);
+    };
+
     return (
         <View style={{
             backgroundColor: colors.background.secondary,
@@ -42,7 +146,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                 <GreenBreakSelector theta={theta} setTheta={setTheta}/>
             </View>
             <View style={{flex: 0.9, flexDirection: "column", borderLeftWidth: 1, borderColor: colors.border.default}}>
-                <View style={{
+                <Pressable onPress={cycleBreak} style={{
                     flexDirection: "column",
                     borderBottomWidth: 1,
                     borderColor: colors.border.default,
@@ -52,8 +156,9 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                 }}>
                     <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break</FontText>
                     <FontText style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{puttBreak}</FontText>
-                </View>
-                <View style={{
+                    <BreakDots/>
+                </Pressable>
+                <Pressable onPress={cycleSlopes} style={{
                     flexDirection: "column",
                     borderBottomWidth: 1,
                     borderColor: colors.border.default,
@@ -63,7 +168,8 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
                 }}>
                     <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Slope</FontText>
                     <FontText style={{fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: "bold"}}>{slope}</FontText>
-                </View>
+                    <SlopeDots/>
+                </Pressable>
                 <View style={{ flex: 1, flexDirection: "column", justifyContent: "center"}}>
                     <FontText style={{ paddingLeft: 8, marginTop: 4, fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
                     <View style={{

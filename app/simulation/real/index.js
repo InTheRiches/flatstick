@@ -348,7 +348,7 @@ export default function RealSimulation() {
                                 </Svg>
                             </Pressable>
                         </View>
-                        <GreenVisual slope={slopes[theta]} puttBreak={breaks[theta]} theta={theta}
+                        <GreenVisual theta={theta}
                                      setTheta={(newTheta) => updateField("theta", newTheta)} distance={distance}
                                      distanceInvalid={distanceInvalid}
                                      updateField={updateField}/>
