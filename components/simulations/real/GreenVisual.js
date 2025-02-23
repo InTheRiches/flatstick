@@ -97,7 +97,6 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
             "Uphill": [225, 180, 135]
         };
 
-        const currentBreak = breaks[theta];
         const currentSlope = slopes[theta];
         const currentBreakArray = breakMapping[currentSlope];
         const currentIndex = currentBreakArray.indexOf(theta);
@@ -106,8 +105,6 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
         const nextIndex = (currentIndex + 1) % currentBreakArray.length;
         const newTheta = currentBreakArray[nextIndex];
 
-        console.log(newTheta)
-
         setTheta(newTheta);
         updateField("theta", newTheta);
     };
@@ -115,7 +112,7 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
     const cycleSlopes = () => {
         const slopeMapping = {
             "Right to Left": [315, 270, 225],
-            "Straight": [360, 180, 999],
+            "Straight": [999, 180, 360],
             "Left to Right": [45, 90, 135]
         };
 
@@ -126,8 +123,6 @@ export function GreenVisual({theta, setTheta, updateField, distance, distanceInv
         // Cycle to the next break in the array
         const nextIndex = (currentIndex + 1) % currentBreakArray.length;
         const newTheta = currentBreakArray[nextIndex];
-
-        console.log(newTheta)
 
         setTheta(newTheta);
         updateField("theta", newTheta);

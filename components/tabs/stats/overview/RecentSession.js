@@ -57,7 +57,7 @@ export const RecentSession = ({recentSession}) => {
                     flex: 1,
                     borderRightWidth: 1,
                     borderColor: colors.border.default,
-                    paddingBottom: 12,
+                    paddingBottom: 8,
                     paddingTop: 6,
                     paddingLeft: 12,
                 }}>
@@ -73,7 +73,7 @@ export const RecentSession = ({recentSession}) => {
                     flex: 1,
                     borderRightWidth: 1,
                     borderColor: colors.border.default,
-                    paddingBottom: 12,
+                    paddingBottom: 8,
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
@@ -87,7 +87,7 @@ export const RecentSession = ({recentSession}) => {
                 <View style={{
                     flexDirection: "column",
                     flex: 1,
-                    paddingBottom: 12,
+                    paddingBottom: 8,
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>

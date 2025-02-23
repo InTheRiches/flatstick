@@ -10,16 +10,33 @@ export const SlopeMisreadsByDistance = ({statsToUse}) => {
     const {userData} = useAppContext();
     const colorScheme = "light";
 
+    const data = [
+        roundTo(statsToUse.misreads.misreadSlopeByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[3]*100, 0)
+    ];
+
+    const biggestMisread = Math.max(...data);
+
+    // find the nearest multiple of 4 & 5 to the biggest misread, but it has to be bigger than it
+    let maxNumber = 0;
+    for (let i = biggestMisread; i < 100; i++) {
+        if (i < 20 && i % 4 === 0) {
+            maxNumber = i;
+            break;
+        }
+        if (i % 4 === 0 && i % 5 === 0) {
+            maxNumber = i;
+            break;
+        }
+    }
+
     return (
         <BarChart
             minNumber={0}
-            maxNumber={100}
+            maxNumber={maxNumber}
             data={{
                 labels: userData.preferences.units === 0 ? ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'] : ['<2 m', '2-4 m', '4-7 m', '>7 m'],
                 datasets: [{
-                    data: [
-                        roundTo(statsToUse.misreads.misreadSlopeByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[3]*100, 0)
-                    ]},
+                    data: data},
                 ],
             }}
             width={Dimensions.get('window').width - 16}

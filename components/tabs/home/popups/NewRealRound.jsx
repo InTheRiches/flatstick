@@ -49,7 +49,7 @@ export function NewRealRound({newRealRoundRef}) {
                             marginTop: 12,
                             fontSize: 18,
                             color: colors.text.primary,
-                            marginBottom: 10,
+                            marginBottom: 4
                         }}>
                         Holes
                     </FontText>

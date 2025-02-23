@@ -33,14 +33,14 @@ export function MisreadTab({statsToUse}) {
                         flex: 1,
                         borderRightWidth: 1,
                         borderColor: colors.border.default,
-                        paddingBottom: 12,
+                        paddingBottom: 8,
                         paddingTop: 6,
                         paddingLeft: 12,
                     }}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Misreads a Round</FontText>
                         <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.puttsMisread}</FontText>
                     </View>
-                    <View style={{flexDirection: "column", flex: 1, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
+                    <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12}}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Mishits a Round</FontText>
                         <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsMishits}</FontText>
                     </View>

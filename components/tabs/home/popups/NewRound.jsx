@@ -40,7 +40,7 @@ export const NewRound = ({newSessionRef}) => {
             <BottomSheetView style={{paddingBottom: 12, backgroundColor: colors.background.primary,}}>
                 <View style={{marginHorizontal: 24, paddingBottom: 12}}>
                     <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>New 18 Hole Simulation</FontText>
-                    <FontText style={{marginTop: 18, fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>Mode</FontText>
+                    <FontText style={{marginTop: 18, fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Mode</FontText>
                     <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
                         <Pressable
                             onPress={() => setMode("random")}
@@ -108,7 +108,7 @@ export const NewRound = ({newSessionRef}) => {
                     </View>
                     {   mode === "random" &&
                         <>
-                            <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 10,}}>Difficulty</FontText>
+                            <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Difficulty</FontText>
                             <View style={{flexDirection: "row", gap: 12}}>
                                 <Pressable
                                     onPress={() => setDifficulty("easy")}
