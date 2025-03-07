@@ -81,7 +81,13 @@ export default function IndividualSession({}) {
             <ScreenWrapper style={{paddingHorizontal: 24, justifyContent: "space-between"}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{marginBottom: 86}}>
-                        <Pressable onPress={navigation.goBack} style={{position: "absolute", left: 0, top: 0, marginTop: -6, marginLeft: -10, padding: 10}}>
+                        <Pressable onPress={() => {
+                            if (isRecap) {
+                                navigation.navigate("(tabs)");
+                            } else {
+                                navigation.goBack();
+                            }
+                        }} style={{position: "absolute", left: 0, top: 0, marginTop: -6, marginLeft: -10, padding: 10}}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
                                  stroke={colors.text.primary} width={24} height={24}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"

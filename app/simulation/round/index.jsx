@@ -99,7 +99,7 @@ export default function RoundSimulation() {
     const router = useRouter();
 
     const {localHoles, difficulty, mode} = useLocalSearchParams();
-    const holes = 2; //parseInt(localHoles);
+    const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
@@ -298,7 +298,7 @@ export default function RoundSimulation() {
             percentHigh: percentHigh,
         }
 
-        newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
+        newSession(data).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {

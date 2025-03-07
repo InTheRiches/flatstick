@@ -313,7 +313,7 @@ export default function RealSimulation() {
             percentHigh
         }
 
-        newSession(`users/${auth.currentUser.uid}/sessions`, data).then(() => {
+        newSession(data).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {
