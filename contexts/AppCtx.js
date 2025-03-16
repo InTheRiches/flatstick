@@ -23,6 +23,9 @@ import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/final
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {useRouter} from "expo-router";
 import {Platform} from "react-native";
+import RNFS from "react-native-fs";
+
+const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
 
 const AppContext = createContext({
     userData: {},
@@ -259,55 +262,70 @@ export function AppProvider({children}) {
             return;
         }
 
-        getAllStats().then(async (updatedStats) => {
-            let localPutters = [{type: "default", name: "Standard Putter", stats: updatedStats}];
-
-            const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
+        const setupFolder = async () => {
             try {
-                const querySnapshot = await getDocs(putterSessionQuery);
-
-                if (querySnapshot.docs.length !== 0)
-                    localPutters = [...localPutters, ...querySnapshot.docs.map((doc) => {
-                        return {
-                            type: doc.id,
-                            name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
-                            stats: doc.data()
-                        }
-                    })];
+                const dirExists = await RNFS.exists(sessionDirectory);
+                if (!dirExists) {
+                    await RNFS.mkdir(sessionDirectory);
+                }
             } catch (error) {
-                console.error("Error refreshing putters:", error);
+                console.error("Error creating session directory:", error);
             }
+        }
 
-            let localGrips = [{type: "default", name: "Standard Method", stats: updatedStats}];
+        setupFolder().then(() => {
+            getAllStats().then(async (updatedStats) => {
+                let localPutters = [{type: "default", name: "Standard Putter", stats: updatedStats}];
 
-            const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
-            try {
-                const querySnapshot = await getDocs(gripSessionQuery);
+                const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
+                try {
+                    const querySnapshot = await getDocs(putterSessionQuery);
 
-                if (querySnapshot.docs.length !== 0)
-                    localGrips = [...localGrips, ...querySnapshot.docs.map((doc) => {
-                        return {
-                            type: doc.id,
-                            name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
-                            stats: doc.data()
-                        }
-                    })];
-            } catch (error) {
-                console.error("Error refreshing grips:", error);
-            }
+                    if (querySnapshot.docs.length !== 0)
+                        localPutters = [...localPutters, ...querySnapshot.docs.map((doc) => {
+                            return {
+                                type: doc.id,
+                                name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
+                                stats: doc.data()
+                            }
+                        })];
+                } catch (error) {
+                    console.error("Error refreshing putters:", error);
+                }
 
-            setGrips(localGrips);
-            setPutters(localPutters);
+                let localGrips = [{type: "default", name: "Standard Method", stats: updatedStats}];
 
-            refreshData().then(({sessions, newData}) => {
-                getPreviousStats().then(() => {
-                    console.log("Initialization complete!");
-                    setLoading(false);
-                })
+                const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
+                try {
+                    const querySnapshot = await getDocs(gripSessionQuery);
+
+                    if (querySnapshot.docs.length !== 0)
+                        localGrips = [...localGrips, ...querySnapshot.docs.map((doc) => {
+                            return {
+                                type: doc.id,
+                                name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
+                                stats: doc.data()
+                            }
+                        })];
+                } catch (error) {
+                    console.error("Error refreshing grips:", error);
+                }
+
+                setGrips(localGrips);
+                setPutters(localPutters);
+
+                refreshData().then(() => {
+                    getPreviousStats().then(() => {
+                        console.log("Initialization complete!");
+                        setLoading(false);
+                    })
+                });
             });
+        }).catch((error) => {
+            console.error("Error during initialization:", error);
         });
 
-        return "hey";
+        return;
     };
 
     // Update user data
@@ -358,15 +376,39 @@ export function AppProvider({children}) {
             console.error("Error refreshing user data:", error);
         }
 
-        const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`), orderBy("timestamp", "desc"));
+        if (newData.sessionsConverted === undefined) {
+            // take all of the sessions in the firebase and make them files, and then delete from firebase
+            const sessionsQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`), orderBy("date", "desc"));
+            try {
+                const querySnapshot = await getDocs(sessionsQuery);
+                if (querySnapshot.docs.length !== 0) {
+                    querySnapshot.forEach(async (doc) => {
+                        const sessionData = doc.data();
+                        await RNFS.writeFile(`${sessionDirectory}/${generatePushID()}.json`, JSON.stringify(sessionData), 'utf8');
+                        await deleteDoc(doc.ref);
+                    });
+                }
+            } catch (error) {
+                console.error("Error refreshing sessions:", error);
+            }
+
+            // update the user data to reflect that the sessions have been converted
+            newData.sessionsConverted = true;
+            await updateData(newData);
+        }
+
         try {
-            const querySnapshot = await getDocs(sessionQuery);
-            const sessions = querySnapshot.docs.map((doc) => {
-                return ({
-                    id: doc.ref.id,
-                    ...doc.data()
-                })
-            });
+            const files = await RNFS.readDir(sessionDirectory);
+            const sessions = await Promise.all(files.map(async (file) => {
+                const content = await RNFS.readFile(file.path, 'utf8');
+                // get the file name from the path
+                const fileName = file.name.split('.')[0];
+                // add the file name to the session data
+                const sessionData = JSON.parse(content);
+                sessionData.id = fileName;
+                // return the session data with the file name
+                return sessionData;
+            }));
 
             setPuttSessions(sessions);
             return {sessions, newData};
@@ -461,8 +503,9 @@ export function AppProvider({children}) {
         console.warn("setStat is not implemented yet:", statName, statValue);
     }, []);
 
-    const newSession = async (file, data) => {
-        await setDoc(doc(firestore, file, generatePushID()), data)
+    const newSession = async (data) => {
+        RNFS.writeFile(`${sessionDirectory}/${generatePushID()}.json`, JSON.stringify(data), 'utf8')
+        // await setDoc(doc(firestore, file, generatePushID()), data)
         let newStats;
         try {
             newStats = await refreshStats();
@@ -471,11 +514,12 @@ export function AppProvider({children}) {
             return false;
         }
 
-        const sessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`));
-        getDocs(sessionQuery).then((querySnapshot) => {
-            if (querySnapshot.docs.length % 5 === 0) {
+        RNFS.readDir(sessionDirectory).then((files) => {
+            if (files.length % 5 === 0) {
                 setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
             }
+        }).catch((error) => {
+            console.error("Error reading session files:", error);
         });
 
         // Update the best session
@@ -485,11 +529,11 @@ export function AppProvider({children}) {
     }
 
     const deleteSession = async (sessionId) => {
-        const docRef = doc(firestore, `users/${auth.currentUser.uid}/sessions/${sessionId}`);
+        const sessionFilePath = `${sessionDirectory}/${sessionId}.json`;
         try {
-            await deleteDoc(docRef);
-        } catch(error) {
-            console.error("Error deleting session:", error);
+            await RNFS.unlink(sessionFilePath);
+        } catch (error) {
+            console.error("Error deleting session file:", error);
             return false;
         }
         await refreshStats();

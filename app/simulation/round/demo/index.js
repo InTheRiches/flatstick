@@ -68,7 +68,7 @@ export default function RoundDemo({}) {
                         router.back();
                     } else {
                         router.replace({
-                            pathname: `/simulation/real`, params: {
+                            pathname: `/simulation/round`, params: {
                                 localHoles: localHoles, difficulty: difficulty, mode: mode,
                             }
                         });

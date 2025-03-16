@@ -7,6 +7,7 @@ import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../../components/general/FontText";
+import RNFS from "react-native-fs";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -21,7 +22,7 @@ export default function SearchUsers({}) {
 
     useForeground(() => {
         bannerRef.current?.load();
-    })
+    });
 
     const updateUsername = (text) => {
         // search for profiles that match that name
