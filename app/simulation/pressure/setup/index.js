@@ -17,7 +17,7 @@ export default function PressurePuttingSetup() {
 
     return (
         <View style={{backgroundColor: colors.background.primary, flexGrow: 1}}>
-            <View style={{paddingHorizontal: 24, gap: 24}}>
+            <View style={{paddingHorizontal: 20, gap: 24}}>
                 <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, marginBottom: -12}}>
                     <FontText style={{color: colors.text.secondary, fontSize: 16}}>Pressure Putting</FontText>
                     <FontText style={{fontSize: 28, fontWeight: 500, color: colors.text.primary}}>Setup</FontText>

@@ -22,7 +22,6 @@ import {deleteUser} from "firebase/auth";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
-import {appleAuth} from "@invertase/react-native-apple-authentication";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
@@ -70,7 +69,7 @@ export default function HomeScreen() {
                     overflow: "hidden",
                     flexDirection: "column",
                     alignContent: "center",
-                    paddingHorizontal: 24,
+                    paddingHorizontal: 20,
                     flex: 1
                 }}>
                     <ScrollView keyboardShouldPersistTaps={'handled'}>

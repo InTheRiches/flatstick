@@ -44,7 +44,7 @@ export default function CompareUsers({}) {
 
     return (
         <ScreenWrapper>
-            <ScrollView style={{flex: 1, paddingHorizontal: 24}}>
+            <ScrollView style={{flex: 1, paddingHorizontal: 20}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
                         navigation.goBack()

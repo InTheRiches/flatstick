@@ -25,7 +25,6 @@ export function SeeAllSessions({}) {
                 paddingRight: 8,
                 paddingVertical: 6,
                 marginTop: 12,
-                marginBottom: 24
             }}>
                 <FontText style={{color: colors.button.secondary.text, fontSize: 18}}>See All Sessions</FontText>
                 <View style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.secondary.text}}>

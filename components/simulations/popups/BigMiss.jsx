@@ -144,7 +144,7 @@ export function BigMissModal({
             <BottomSheetView style={{
                     paddingBottom: 12, backgroundColor: colors.background.secondary,
                 }}>
-                <View style={{paddingHorizontal: 24, flexDirection: "column", alignItems: "center",}}>
+                <View style={{paddingHorizontal: 20, flexDirection: "column", alignItems: "center",}}>
                     <View style={{flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,}}>
                         <View style={{
                                 height: 32,

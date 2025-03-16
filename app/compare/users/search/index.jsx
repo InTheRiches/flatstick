@@ -7,7 +7,6 @@ import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../../components/general/FontText";
-import RNFS from "react-native-fs";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -27,7 +26,7 @@ export default function SearchUsers({}) {
     const updateUsername = (text) => {
         // search for profiles that match that name
         setUsername(text);
-        if (text.length > 2) {
+        if (text.length > 1) {
             getProfilesByUsername(text).then(fetchedProfiles => {
                 // remove the current user from the list
                 const currentUser = auth.currentUser;
@@ -41,7 +40,7 @@ export default function SearchUsers({}) {
 
     return (
         <ScreenWrapper>
-            <View style={{paddingBottom: 25, paddingHorizontal: 24, gap: 12, width: "100%"}}>
+            <View style={{paddingBottom: 25, paddingHorizontal: 20, gap: 12, width: "100%"}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
                         navigation.goBack()

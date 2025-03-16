@@ -146,7 +146,7 @@ export default function Stats({}) {
             </View>
             <FlatList
                 ref={scrollViewRef}
-                contentContainerStyle={{gap: 4, paddingHorizontal: 24}}
+                contentContainerStyle={{gap: 4, paddingHorizontal: 20}}
                 data={tabs}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}

@@ -22,7 +22,7 @@ export default function Compare({}) {
     })
 
     return (
-        <ScreenWrapper style={{alignItems: "center", paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
+        <ScreenWrapper style={{alignItems: "center", paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
             <FontText style={{
                 fontSize: 24,
                 fontWeight: 600,

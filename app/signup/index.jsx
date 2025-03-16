@@ -246,7 +246,7 @@ export default function CreateAccount() {
                 justifyContent: "center",
                 alignItems: "center",
                 flexDirection: "column",
-                paddingHorizontal: 24,
+                paddingHorizontal: 20,
             }}>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center", flex: 1, width: "100%"}}>
                     <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>

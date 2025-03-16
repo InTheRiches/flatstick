@@ -2,7 +2,7 @@ import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import FontText from "../../../../components/general/FontText";
 import React from "react";
 import useColors from "../../../../hooks/useColors";
-import {Image, Pressable, ScrollView, View} from "react-native";
+import {Image, Pressable, View} from "react-native";
 import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
@@ -23,7 +23,7 @@ export default function RoundDemo({}) {
     }
 
     return (
-        <ScreenWrapper style={{paddingHorizontal: 24}}>
+        <ScreenWrapper style={{paddingHorizontal: 20}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 4}}>
                     <Pressable onPress={() => navigation.goBack()} style={{paddingHorizontal: 4, paddingLeft: 0}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}

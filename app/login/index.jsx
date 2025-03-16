@@ -158,7 +158,7 @@ export default function Login() {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <ScreenWrapper style={{
-                    paddingHorizontal: 24,
+                    paddingHorizontal: 20,
                     justifyContent: "center",
                     alignItems: "center",
                     flexDirection: "column",

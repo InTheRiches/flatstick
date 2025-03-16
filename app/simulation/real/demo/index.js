@@ -23,7 +23,7 @@ export default function RealDemo({}) {
     }
 
     return (
-        <ScreenWrapper style={{paddingHorizontal: 24}}>
+        <ScreenWrapper style={{paddingHorizontal: 20}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 4}}>
                     <Pressable onPress={() => navigation.goBack()} style={{paddingHorizontal: 4, paddingLeft: 0}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}

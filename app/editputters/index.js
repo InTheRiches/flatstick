@@ -67,7 +67,7 @@ export default function EditPutters() {
     return (
         <>
             <ScreenWrapper>
-                <Pressable onPress={(event) => setEditing(false)} style={{paddingHorizontal: 24}}>
+                <Pressable onPress={(event) => setEditing(false)} style={{paddingHorizontal: 20}}>
                     <GestureDetector gesture={gesture}>
                         <View style={{marginLeft: -10, paddingHorizontal: 10}}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}

@@ -1,4 +1,4 @@
-import {Pressable, View} from "react-native";
+import {View} from "react-native";
 import {PracticeMode} from "./PracticeMode";
 import React from "react";
 import {useAppContext} from "../../../contexts/AppCtx";
@@ -13,7 +13,7 @@ export function PracticeModes({newSessionRef, newRealRoundRef}) {
     const router = useRouter();
 
     return (
-        <View style={{marginTop: puttSessions.length > 0 ? 0 : 24, gap: 12, marginBottom: 18}}>
+        <View style={{marginTop: 24, gap: 12, marginBottom: 18}}>
             <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>Record New Session</FontText>
             <PracticeMode
                 description={"Track your putts from an actual round of golf."}

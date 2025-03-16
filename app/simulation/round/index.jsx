@@ -314,7 +314,7 @@ export default function RoundSimulation() {
             <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,
-                paddingHorizontal: 24,
+                paddingHorizontal: 20,
                 flexDirection: "column",
                 justifyContent: "space-between",
                 marginBottom: 18,
