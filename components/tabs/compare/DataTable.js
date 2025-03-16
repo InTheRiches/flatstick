@@ -27,6 +27,7 @@ export function DataTable({stats1, stats2}) {
             flex: 1,
             color: "#28a745",
             textAlign: "center",
+            textDecorationLine: "underline",
             fontWeight: 600,
             fontSize: 16
         }
