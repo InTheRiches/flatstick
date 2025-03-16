@@ -23,7 +23,7 @@ const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 export default function IndividualSession({}) {
     const colors = useColors();
     const navigation = useNavigation();
-    const {deleteSession, userData} = useAppContext();
+    const {deleteSession, userData, putters, grips} = useAppContext();
 
     const {jsonSession, recap} = useLocalSearchParams();
     const session = JSON.parse(jsonSession);
@@ -78,7 +78,7 @@ export default function IndividualSession({}) {
 
     return loading ? <Loading></Loading> : (
         <>
-            <ScreenWrapper style={{paddingHorizontal: 24, justifyContent: "space-between"}}>
+            <ScreenWrapper style={{paddingHorizontal: 20, justifyContent: "space-between"}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{marginBottom: 86}}>
                         <Pressable onPress={() => {
@@ -96,6 +96,15 @@ export default function IndividualSession({}) {
                         </Pressable>
                         <FontText style={{marginLeft: 32, fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
                         <FontText style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "left"}}>{formatTimestamp()}</FontText>
+
+                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 8, marginBottom: 4}}>Putter</FontText>
+                        <View style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters.find((putter) => putter.type === session.putter).name}</FontText>
+                        </View>
+                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 8, marginBottom: 4}}>Grip</FontText>
+                        <View style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{grips.find((grip) => grip.type === session.grip).name}</FontText>
+                        </View>
 
                         <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                             <View style={{alignItems: "center", flex: 0.5}}>
