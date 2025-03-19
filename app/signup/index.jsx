@@ -1,19 +1,14 @@
 import {KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
 import React, {useState} from "react";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
-import {createUserWithEmailAndPassword, OAuthProvider, signInWithCredential, updateProfile} from "firebase/auth";
-import {getAuth} from "../../utils/firebase"
-import {doc, getFirestore, setDoc} from "firebase/firestore";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
-import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from "@react-native-google-signin/google-signin";
-import {useAppContext, useSession} from "../../contexts/AppCtx";
+import {useSession} from "../../contexts/AppCtx";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
-import {createSimpleRefinedStats} from "../../utils/PuttUtils";
-import {appleAuth, AppleButton} from "@invertase/react-native-apple-authentication";
+import {AppleButton} from "@invertase/react-native-apple-authentication";
 
 const initialState = {
     skill: -1,
@@ -30,11 +25,9 @@ const initialState = {
 export default function CreateAccount() {
     const colors = useColors();
 
-    const db = getFirestore();
     const router = useRouter();
 
-    const {googleSignIn, appleSignIn} = useSession();
-    const {updateStats} = useAppContext();
+    const {googleSignIn, appleSignIn, createEmailAccount} = useSession();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
@@ -118,124 +111,9 @@ export default function CreateAccount() {
         if (state.invalid) return;
         if (invalidPassword || invalidEmail || firstNameInvalid || lastNameInvalid || firstName.length === 0 || lastName.length === 0) return;
 
-        const auth = getAuth();
-
         setLoading(true);
 
-        createUserWithEmailAndPassword(auth, state.email, state.password)
-            .then((userCredential) => {
-                setLoading(false);
-                // Signed up
-                const user = userCredential.user;
-
-                updateProfile(user, {
-                    displayName: firstName.trim() + " " + lastName.trim()
-                }).catch((error) => {
-                });
-
-                setDoc(doc(db, `users/${user.uid}`), {
-                    date: new Date().toISOString(),
-                    totalPutts: 0,
-                    sessions: 0,
-                    firstName: firstName.trim(),
-                    lastName: firstName.trim(),
-                    strokesGained: 0,
-                    hasSeenRoundTutorial: false,
-                    hasSeenRealTutorial: false,
-                    preferences: {
-                        countMishits: true,
-                        selectedPutter: 0,
-                        theme: 0,
-                        units: 0,
-                        reminders: false,
-                        selectedGrip: 0,
-                    }
-                }).then(() => {
-                    setDoc(doc(db, `users/${user.uid}/stats/current`), createSimpleRefinedStats()).then(() => {
-                        updateStats()
-                    });
-                }).catch((error) => {
-                    console.log(error);
-                });
-
-                router.push({pathname: `/`});
-            })
-            .catch((error) => {
-                setErrorCode(error.code);
-
-                if (error.code === "auth/email-already-in-use")
-                    setInvalidEmail(true);
-
-                setLoading(false);
-            });
-    }
-
-    const googleSignUp = async () => {
-        setLoading(true);
-        try {
-            await GoogleSignin.hasPlayServices();
-            const response = await GoogleSignin.signIn();
-            if (isSuccessResponse(response)) {
-                googleSignIn(response.data)
-            } else {
-                console.log("Sign in failed");
-                setLoading(false);
-            }
-        } catch (error) {
-            console.log("Error", error)
-            setLoading(false);
-            if (isErrorWithCode(error)) {
-                switch (error.code) {
-                    case statusCodes.IN_PROGRESS:
-                        // operation (eg. sign in) already in progress
-                        break;
-                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-                        // Android only, play services not available or outdated
-                        break;
-                    default:
-                    // some other error happened
-                }
-            } else{}
-        }
-    }
-
-    async function onAppleButtonPress() {
-        console.warn('Beginning Apple Authentication');
-
-        const auth = getAuth();
-
-        // start a login request
-        try {
-            const { identityToken, nonce, fullName } = await appleAuth.performRequest({
-                requestedOperation: appleAuth.Operation.LOGIN,
-                requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-            });
-
-            let firstName = fullName && fullName.givenName !== null ? fullName.givenName : "Unknown";
-            let lastName = fullName && fullName.familyName != null ? fullName.familyName : "Unknown";
-
-            // can be null in some scenarios
-            if (identityToken) {
-                console.warn(`Apple Authentication Completed, idToken: ${identityToken}`);
-                // 3). create a Firebase `AppleAuthProvider` credential
-                const appleCredential = new OAuthProvider('apple.com').credential({
-                    idToken: identityToken,
-                    rawNonce: nonce,
-                });
-
-                const userCredential = await signInWithCredential(auth, appleCredential);
-
-                appleSignIn(userCredential, firstName, lastName);
-
-                // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
-                console.warn(`Firebase authenticated via Apple`);
-            } else {}
-        } catch (error) {
-            if (error.code === appleAuth.Error.CANCELED)
-                console.warn('User canceled Apple Sign in.');
-            else
-                console.error(error);
-        }
+        createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail);
     }
 
     return (loading ? <Loading/> :
@@ -258,7 +136,7 @@ export default function CreateAccount() {
                     </Pressable>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                         <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
-                            onPress={googleSignUp}>
+                            onPress={() => googleSignIn(setLoading)}>
                             <Svg xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                 <Defs>
@@ -282,7 +160,7 @@ export default function CreateAccount() {
                                     flex: 1,
                                     height: 45, // You must specify a height
                                 }}
-                                onPress={() => onAppleButtonPress()}
+                                onPress={() => appleSignIn()}
                             />
                         }
                     </View>

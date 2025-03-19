@@ -1,4 +1,4 @@
-import {KeyboardAvoidingView, PixelRatio, Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
+import {KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
@@ -7,16 +7,9 @@ import {useSession} from "../../contexts/AppCtx";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import ResetPassword from "../../components/signin/ResetPassword";
-import {
-    GoogleSignin,
-    isErrorWithCode,
-    isSuccessResponse,
-    statusCodes,
-} from '@react-native-google-signin/google-signin';
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import FontText from "../../components/general/FontText";
-import {appleAuth, AppleButton} from "@invertase/react-native-apple-authentication";
-import {getAuth, OAuthProvider, signInWithCredential} from "firebase/auth";
+import {AppleButton} from "@invertase/react-native-apple-authentication";
 
 const initialState = {
     password: "",
@@ -48,7 +41,6 @@ export default function Login() {
     const login = () => {
         if (state.invalid) return;
 
-        // TODO MAKE LOADING A SEE THROUGH LOADING MODAL SO IT ISN'T AS HARSH OF A TRANSITION
         setLoading(true);
 
         signIn(state.email, state.password).catch((error) => {
@@ -72,86 +64,6 @@ export default function Login() {
         if (errorCode !== "") setErrorCode("");
     }
 
-    const google = async () => {
-        setLoading(true);
-        try {
-            await GoogleSignin.hasPlayServices();
-            const response = await GoogleSignin.signIn();
-            if (isSuccessResponse(response)) {
-                googleSignIn(response.data);
-            } else {
-                console.log("Sign in failed");
-                alert("Sign in failed, unable to sign in with Google");
-                setLoading(false);
-            }
-        } catch (error) {
-            setLoading(false);
-            if (isErrorWithCode(error)) {
-                switch (error.code) {
-                    case statusCodes.IN_PROGRESS:
-                        // operation (eg. sign in) already in progress
-                        break;
-                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-                        // Android only, play services not available or outdated
-                        alert("Play services not available or outdated");
-                        break;
-                    default:
-                        alert("An error occurred while trying to sign in with Google");
-                    // some other error happened
-                }
-            } else {
-                alert("An error occurred while trying to sign in with Google.");
-            }
-        }
-    }
-
-    const inputsLayout = (event) => {
-        setInputsHeight(event.nativeEvent.layout.height / PixelRatio.get());
-    }
-
-    // get height of the android keyboard
-    const [inputsHeight, setInputsHeight] = useState(0);
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
-
-    async function onAppleButtonPress() {
-        console.warn('Beginning Apple Authentication');
-
-        const auth = getAuth();
-
-        // start a login request
-        try {
-            const { identityToken, nonce, fullName } = await appleAuth.performRequest({
-                requestedOperation: appleAuth.Operation.LOGIN,
-                requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-            });
-
-            let firstName = fullName && fullName.givenName !== null ? fullName.givenName : "Unknown";
-            let lastName = fullName && fullName.familyName != null ? fullName.familyName : "Unknown";
-
-            // can be null in some scenarios
-            if (identityToken) {
-                console.warn(`Apple Authentication Completed, idToken: ${identityToken}`);
-                // 3). create a Firebase `AppleAuthProvider` credential
-                const appleCredential = new OAuthProvider('apple.com').credential({
-                    idToken: identityToken,
-                    rawNonce: nonce,
-                });
-
-                const userCredential = await signInWithCredential(auth, appleCredential);
-
-                appleSignIn(userCredential, firstName, lastName);
-
-                // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
-                console.warn(`Firebase authenticated via Apple`);
-            } else {}
-        } catch (error) {
-            if (error.code === appleAuth.Error.CANCELED)
-                console.warn('User canceled Apple Sign in.');
-            else
-                console.error(error);
-        }
-    }
-
     // TODO this translucent does jack squat because there is nothing underneath it
     return (loading ? <Loading translucent={true}/> :
         <>
@@ -163,7 +75,7 @@ export default function Login() {
                     alignItems: "center",
                     flexDirection: "column",
                 }}>
-                    <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center", paddingBottom: keyboardVisible ? inputsHeight : 0, width: "100%"}}>
+                    <ScrollView contentContainerStyle={{flex: 1, justifyContent: "center", width: "100%"}}>
                         <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Sign in to Flatstick</FontText>
                         <Pressable onPress={() => router.push({pathname: `/signup`})} style={{
                             marginBottom: 32,
@@ -173,7 +85,7 @@ export default function Login() {
                         </Pressable>
                         <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                             <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
-                                        onPress={google}>
+                                        onPress={() => googleSignIn(setLoading)}>
                                 <Svg xmlns="http://www.w3.org/2000/svg"
                                      viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                     <Defs>
@@ -197,7 +109,7 @@ export default function Login() {
                                         flex: 1,
                                         height: 45, // You must specify a height
                                     }}
-                                    onPress={() => onAppleButtonPress()}
+                                    onPress={() => appleSignIn()}
                                 />
                             }
                         </View>
@@ -218,7 +130,7 @@ export default function Login() {
                                 opacity: 0.1
                             }}></View>
                         </View>
-                        <View onLayout={inputsLayout}>
+                        <View>
                             <FontText style={{color: colors.text.primary, fontSize: 16, marginTop: 16, marginBottom: 4}}>Email Address</FontText>
                             <View style={{flexDirection: "row"}}>
                                 <TextInput

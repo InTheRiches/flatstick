@@ -8,7 +8,7 @@ import {useRouter} from "expo-router";
 
 export function PracticeModes({newSessionRef, newRealRoundRef}) {
     const colors = useColors();
-    const {puttSessions, updateStats, userData} = useAppContext();
+    const {userData} = useAppContext();
 
     const router = useRouter();
 
