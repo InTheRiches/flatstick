@@ -204,6 +204,11 @@ export default function RoundSimulation() {
         return puttsCopy;
     }
 
+    const reRoll = () => {
+        updateField("puttBreak", generateBreak());
+        updateField("distance", generateDistance(difficulty, userData.preferences.units));
+    }
+
     const nextHole = (totalPutts, largeMissDistance = -1) => {
         if (hole === holes) {
             pushHole(totalPutts, largeMissDistance);
@@ -336,7 +341,7 @@ export default function RoundSimulation() {
                         </Pressable>
                     </View>
                     <GreenVisual imageSource={greenMaps[puttBreak[0] + "," + puttBreak[1]]} distance={distance}
-                                 puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]}></GreenVisual>
+                                 puttBreak={breaks[puttBreak[0]]} slope={slopes[puttBreak[1]]} reRoll={reRoll}></GreenVisual>
                 </View>
                 <View style={{flexDirection: "row", justifyContent: "space-around", gap: 4}}>
                     <Pressable onPress={() => updateField("misHit", !misHit)} style={{
