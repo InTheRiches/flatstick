@@ -57,7 +57,7 @@ export const updateCategoryStats = (putt, session, newStats, userData, newPutter
     }
 };
 
-const processSession = (session, newStats, newPutters, newGrips, userData) => {
+const processSession = (session, newStats, yearlyStats, newPutters, newGrips, userData) => {
     const averaging = newStats.rounds < 5 &&
         (session.type === "round-simulation" || session.type === "real-simulation") &&
         session.holes > 3;
@@ -82,10 +82,10 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
 
             if (putter.rounds < 6) {
                 if (putter.stats.strokesGained.overall === 0) {
-                    putter.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
+                    putter.stats.strokesGained.overall += session.strokesGained;
                     return;
                 }
-                putter.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
+                putter.stats.strokesGained.overall += session.strokesGained;
                 putter.stats.strokesGained.overall /= 2;
             }
         }
@@ -102,13 +102,32 @@ const processSession = (session, newStats, newPutters, newGrips, userData) => {
 
             if (grip.rounds < 6) {
                 if (grip.stats.strokesGained.overall === 0) {
-                    grip.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
+                    grip.stats.strokesGained.overall += session.strokesGained;
                     return;
                 }
-                grip.stats.strokesGained.overall += ((session.totalPutts / 18) * 29) - session.totalPutts;
+                grip.stats.strokesGained.overall += session.strokesGained;
                 grip.stats.strokesGained.overall /= 2;
             }
         }
+    }
+
+    yearlyStats.strokesGained += session.strokesGained;
+
+    if (yearlyStats.strokesGained !== 0) {
+        yearlyStats.strokesGained /= 2;
+    }
+
+    console.log(session.strokesGained);
+
+    // find the month and update the stats
+    const month = new Date(session.date).getMonth();
+    if (yearlyStats.months[month].strokesGained === -999)
+        yearlyStats.months[month].strokesGained = session.strokesGained;
+    else
+        yearlyStats.months[month].strokesGained += session.strokesGained;
+
+    if (yearlyStats.months[month].strokesGained !== 0 && yearlyStats.strokesGained !== -999) {
+        yearlyStats.months[month].strokesGained /= 2;
     }
 
     session.putts.forEach(putt => {

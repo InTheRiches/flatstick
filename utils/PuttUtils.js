@@ -353,6 +353,49 @@ function cleanPuttsAHole(averagePerformance) {
     return refinedPuttsAHole;
 }
 
+const createYearlyStats = () => {
+    return {
+        strokesGained: 0,
+        months: [
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+            {
+                strokesGained: -999,
+            },
+        ]
+    }
+}
 const createSimpleStats = () => {
     return {
         onePutts: 0,
@@ -810,4 +853,4 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 }
 
-export { calculateDistanceMissedMeters, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { calculateDistanceMissedMeters, createYearlyStats, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

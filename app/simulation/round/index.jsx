@@ -95,11 +95,10 @@ export default function RoundSimulation() {
     const navigation = useNavigation();
     const {newSession, putters, userData, currentStats, grips} = useAppContext();
 
-    const auth = getAuth();
     const router = useRouter();
 
     const {localHoles, difficulty, mode} = useLocalSearchParams();
-    const holes = parseInt(localHoles);
+    const holes = 2;// parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);

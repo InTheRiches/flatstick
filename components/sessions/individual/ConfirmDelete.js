@@ -44,7 +44,7 @@ export function ConfirmDelete({ confirmDeleteRef, cancel, onDelete}) {
                         }}>
                         <FontText style={{color: "white", fontWeight: 600, fontSize: 24}}>!</FontText>
                     </View>
-                    <FontText style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left",}}>
+                    <FontText style={{fontSize: 22, fontWeight: 600, color: colors.text.primary, textAlign: "left",}}>
                         Delete Session
                     </FontText>
                 </View>

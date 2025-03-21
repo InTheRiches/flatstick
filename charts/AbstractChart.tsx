@@ -94,8 +94,8 @@ class AbstractChart<
   getPropsForBackgroundLines() {
     const { propsForBackgroundLines = {} } = this.props.chartConfig;
     return {
-      stroke: this.props.chartConfig.color(0.2),
-      strokeDasharray: "5, 10",
+      stroke: "#C4C4C4",
+      opacity: 0.25,
       strokeWidth: 1,
       ...propsForBackgroundLines
     };
@@ -220,6 +220,7 @@ class AbstractChart<
         if (label < 0) {
           yLabelsOffset = 5;
         }
+
         yLabel = `${yAxisLabel}${formatYLabel(
             label.toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
@@ -293,7 +294,7 @@ class AbstractChart<
       }
 
       const x =
-        (((width - paddingRight) / labels.length) * i +
+        (((width - paddingRight - (i === labels.length-1 ? 16 : 0)) / (labels.length-1)) * i +
           paddingRight +
           horizontalOffset) *
         fac;
@@ -348,12 +349,12 @@ class AbstractChart<
           <Line
             key={Math.random()}
             x1={Math.floor(
-              ((width - paddingRight) / (data.length / yAxisInterval)) * i +
+              ((width - paddingRight - (i === data.length-1 ? 16 : 0)) / ((data.length-1) / yAxisInterval)) * (i) +
                 paddingRight
             )}
             y1={0}
             x2={Math.floor(
-              ((width - paddingRight) / (data.length / yAxisInterval)) * i +
+              ((width - paddingRight - (i === data.length-1 ? 16 : 0)) / ((data.length-1) / yAxisInterval)) * i +
                 paddingRight
             )}
             y2={height * verticalLabelsHeightPercentage + paddingTop}

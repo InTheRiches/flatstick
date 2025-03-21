@@ -5,10 +5,11 @@ import React, {useMemo} from "react";
 import {SGByBreakSlope, SGByDistanceChart} from "./graphs";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
+import SGOverTime from "./graphs/SGOverTime";
 
 export const StrokesGainedTab = ({statsToUse}) => {
     const colors = useColors();
-    const {currentStats, previousStats} = useAppContext();
+    const {currentStats, yearlyStats, previousStats} = useAppContext();
     const {width} = Dimensions.get("screen")
     const [byDistance, setByDistance] = React.useState(true);
 
@@ -55,6 +56,17 @@ export const StrokesGainedTab = ({statsToUse}) => {
             </View>
             {byDistance && sgByDistance}
             {!byDistance && sgByBreakSlope}
+
+            <SGOverTime statsToUse={yearlyStats}></SGOverTime>
+
+            <FontText style={{marginTop: 24, fontWeight: 600, fontSize: 14, marginBottom: 10}}>HOW TO READ THE DATA</FontText>
+            <View>
+                <View style={{flexDirection: "row", alignItems: "center", marginBottom: 4}}>
+                    <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
+                    <FontText style={{fontSize: 14, fontWeight: 500}}>Strokes Gained</FontText>
+                </View>
+                <FontText style={{marginLeft: 16}}>The number of strokes gained or lost compared to the average PGA Tour player over 18 holes. A positive number is better than a negative. The pill showing an increase or decrease in strokes gained represents the change between the last 5 sessions and the current 5.</FontText>
+            </View>
         </ScrollView>
     )
 }

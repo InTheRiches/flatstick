@@ -13,7 +13,7 @@ import {
     setDoc
 } from "firebase/firestore";
 import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
-import {createSimpleRefinedStats, createSimpleStats} from "@/utils/PuttUtils";
+import {createSimpleRefinedStats, createSimpleStats, createYearlyStats} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {deepMergeDefaults, getAuth} from "@/utils/firebase";
@@ -35,6 +35,7 @@ const AppContext = createContext({
     grips: [],
     previousStats: [],
     nonPersistentData: {},
+    yearlyStats: {},
     setNonPersistentData: () => {},
     initialize: () => {},
     refreshData: () => Promise.resolve(),
@@ -42,7 +43,6 @@ const AppContext = createContext({
     setUserData: () => {},
     updateStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
-    setStat: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
@@ -76,6 +76,7 @@ export function AppProvider({children}) {
     const [userData, setUserData] = useState({});
     const [puttSessions, setPuttSessions] = useState([]);
     const [currentStats, setCurrentStats] = useState({});
+    const [yearlyStats, setYearlyStats] = useState({});
     const [session, setSession] = useState({});
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
@@ -199,7 +200,7 @@ export function AppProvider({children}) {
         try {
             const querySnapshot = await getDocs(statsQuery);
             const statDocs = querySnapshot.docs
-                .filter(doc => doc.id !== 'current')
+                .filter(doc => doc.id !== 'current' && doc.id.length > 4)
                 .map(doc => doc.data());
             setPreviousStats(statDocs);
             return statDocs;
@@ -324,8 +325,6 @@ export function AppProvider({children}) {
         }).catch((error) => {
             console.error("Error during initialization:", error);
         });
-
-        return;
     };
 
     // Update user data
@@ -363,6 +362,23 @@ export function AppProvider({children}) {
             }
         }
     };
+
+    const updateYearlyStats = async (newData) => {
+        setYearlyStats(newData);
+        const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/` + new Date().getFullYear());
+        try {
+            await runTransaction(firestore, async (transaction) => {
+                transaction.update(userDocRef, newData);
+            });
+        } catch (error) {
+            console.warn("Update yearly stats transaction failed, attempting alternative:", error);
+            try {
+                await setDoc(userDocRef, newData);
+            } catch (error) {
+                console.error("Update yearly stats failed:", error)
+            }
+        }
+    }
 
     // Refresh user data and sessions
     const refreshData = async () => {
@@ -410,6 +426,9 @@ export function AppProvider({children}) {
                 return sessionData;
             }));
 
+            // sort by timestamp
+            sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
             setPuttSessions(sessions);
             return {sessions, newData};
         } catch (error) {
@@ -448,13 +467,14 @@ export function AppProvider({children}) {
     // Update statistics
     const refreshStats = async () => {
         const newStats = createSimpleStats();
+        const yearlyStats = createYearlyStats();
 
         const newPuttSessions = (await refreshData()).sessions;
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
         const newPutters = initializePutters(putters);
         const newGrips = initializeGrips(grips);
 
-        newPuttSessions.forEach(session => processSession(session, newStats, newPutters, newGrips, userData));
+        newPuttSessions.forEach(session => processSession(session, newStats, yearlyStats, newPutters, newGrips, userData));
 
         if (newStats.rounds > 0)
             finalizeStats(newStats, strokesGained);
@@ -465,6 +485,7 @@ export function AppProvider({children}) {
         let totalPutts = 0;
         await updateData({totalPutts: totalPutts, sessions: newPuttSessions.length, strokesGained: strokesGained.overall});
         await updateStats(newStats)
+        await updateYearlyStats(yearlyStats);
 
         finalizePutters(setPutters, newStats, newPutters, strokesGained);
         finalizeGrips(setGrips, newStats, newGrips, strokesGained);
@@ -495,13 +516,29 @@ export function AppProvider({children}) {
             }
         }
 
+        if (Object.keys(yearlyStats).length === 0) {
+            const document = await getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getFullYear()}`));
+
+            if (!document.exists()) {
+                await updateYearlyStats(createYearlyStats());
+                return updatedStats;
+            }
+
+            const data = document.data();
+
+            // check to make sure it is updated and has all the necessary fields
+            const updatedYearlyStats = deepMergeDefaults({ ...data }, createYearlyStats());
+
+            setYearlyStats(updatedYearlyStats);
+
+            // if they arent equal, update the stats in firebase
+            if (data !== updatedYearlyStats) {
+                await updateYearlyStats(updatedYearlyStats);
+            }
+        }
+
         return updatedStats;
     };
-
-    // Set specific statistic
-    const setStat = useMemo(() => (statName, statValue) => {
-        console.warn("setStat is not implemented yet:", statName, statValue);
-    }, []);
 
     const newSession = async (data) => {
         RNFS.writeFile(`${sessionDirectory}/${generatePushID()}.json`, JSON.stringify(data), 'utf8')
@@ -550,13 +587,13 @@ export function AppProvider({children}) {
         previousStats,
         nonPersistentData,
         setNonPersistentData,
+        yearlyStats,
         initialize,
         refreshData,
         updateData,
         setUserData,
         updateStats: refreshStats,
         getAllStats,
-        setStat,
         newPutter,
         newSession,
         getPreviousStats,
@@ -565,7 +602,7 @@ export function AppProvider({children}) {
         newGrip,
         deleteGrip,
         calculateSpecificStats,
-    }), [userData, puttSessions, currentStats, setStat, putters, getPreviousStats, previousStats, grips, nonPersistentData]);
+    }), [userData, puttSessions, currentStats, yearlyStats, putters, getPreviousStats, previousStats, grips, nonPersistentData]);
 
     const authContextValue = useMemo(() => ({
         signIn,

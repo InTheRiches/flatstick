@@ -237,8 +237,8 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
 
   getDatas = (data: Dataset[]): number[] => {
     return data.reduce(
-      (acc, item) => (item.data ? [...acc, ...item.data] : acc),
-      []
+        (acc, item) => (item.data ? [...acc, ...item.data.filter(d => d !== -999)] : acc),
+        []
     );
   };
 
@@ -287,7 +287,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
           return;
         }
 
-        const cx = paddingRight + (i * (width - paddingRight)) / xMax;
+        const cx = paddingRight + (i * (width - paddingRight - (i === dataset.data.length-1 ? 16 : 0))) / (xMax-1);
 
         const cy =
           ((baseHeight - this.calcHeight(x, datas, height)) / 4) * 3 +
@@ -569,7 +569,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
               .map((d, i) => {
                 const x =
                   paddingRight +
-                  (i * (width - paddingRight)) / dataset.data.length;
+                  (i * (width - paddingRight)) / (dataset.data.length);
 
                 const y =
                   ((baseHeight - this.calcHeight(d, datas, height)) / 4) * 3 +
@@ -579,7 +579,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
               })
               .join(" ") +
             ` ${paddingRight +
-              ((width - paddingRight) / dataset.data.length) *
+              ((width - paddingRight) / (dataset.data.length)) *
                 (dataset.data.length - 1)},${(height / 4) * 3 +
               paddingTop} ${paddingRight},${(height / 4) * 3 + paddingTop}`
           }
@@ -593,15 +593,15 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
   };
 
   renderLine = ({
-    width,
-    height,
-    paddingRight,
-    paddingTop,
-    data,
-    linejoinType
-  }: Pick<
-    AbstractChartConfig,
-    "data" | "width" | "height" | "paddingRight" | "paddingTop" | "linejoinType"
+                  width,
+                  height,
+                  paddingRight,
+                  paddingTop,
+                  data,
+                  linejoinType
+                }: Pick<
+      AbstractChartConfig,
+      "data" | "width" | "height" | "paddingRight" | "paddingTop" | "linejoinType"
   >) => {
     if (this.props.bezier) {
       return this.renderBezierLine({
@@ -618,30 +618,27 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
     const baseHeight = this.calcBaseHeight(datas, height);
     const xMax = this.getXMaxValues(data);
 
-    let lastPoint: string;
-
     data.forEach((dataset, index) => {
       const points = dataset.data.map((d, i) => {
-        if (d === null) return lastPoint;
-        const x = (i * (width - paddingRight)) / xMax + paddingRight;
+        if (d === -999) return null;
+        const x = ((i) * (width - paddingRight - (i === data.length-1 ? 16 : 0))) / (xMax) + paddingRight;
         const y =
-          ((baseHeight - this.calcHeight(d, datas, height)) / 4) * 3 +
-          paddingTop;
-        lastPoint = `${x},${y}`;
+            ((baseHeight - this.calcHeight(d, datas, height)) / 4) * 3 +
+            paddingTop;
         return `${x},${y}`;
-      });
+      }).filter(point => point !== null);
 
       output.push(
-        <Polyline
-          key={index}
-          strokeLinejoin={linejoinType}
-          points={points.join(" ")}
-          fill="none"
-          stroke={this.getColor(dataset, 0.2)}
-          strokeWidth={this.getStrokeWidth(dataset)}
-          strokeDasharray={dataset.strokeDashArray}
-          strokeDashoffset={dataset.strokeDashOffset}
-        />
+          <Polyline
+              key={index}
+              strokeLinejoin={linejoinType}
+              points={points.join(" ")}
+              fill="none"
+              stroke={this.getColor(dataset, 0.2)}
+              strokeWidth={this.getStrokeWidth(dataset)}
+              strokeDasharray={dataset.strokeDashArray}
+              strokeDashoffset={dataset.strokeDashOffset}
+          />
       );
     });
 
@@ -655,17 +652,17 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
   };
 
   getBezierLinePoints = (
-    dataset: Dataset,
-    {
-      width,
-      height,
-      paddingRight,
-      paddingTop,
-      data
-    }: Pick<
-      AbstractChartConfig,
-      "width" | "height" | "paddingRight" | "paddingTop" | "data"
-    >
+      dataset: Dataset,
+      {
+        width,
+        height,
+        paddingRight,
+        paddingTop,
+        data
+      }: Pick<
+          AbstractChartConfig,
+          "width" | "height" | "paddingRight" | "paddingTop" | "data"
+      >
   ) => {
     if (dataset.data.length === 0) {
       return "M0,0";
@@ -675,30 +672,39 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
     const xMax = this.getXMaxValues(data);
 
     const x = (i: number) =>
-      Math.floor(paddingRight + (i * (width - paddingRight)) / xMax);
+        Math.floor(paddingRight + ((i) * (width - paddingRight - (i === dataset.data.length-1 ? 16 : 0))) / (xMax-1));
 
     const baseHeight = this.calcBaseHeight(datas, height);
 
     const y = (i: number) => {
       const yHeight = this.calcHeight(dataset.data[i], datas, height);
-
       return Math.floor(((baseHeight - yHeight) / 4) * 3 + paddingTop);
     };
 
-    return [`M${x(0)},${y(0)}`]
-      .concat(
-        dataset.data.slice(0, -1).map((_, i) => {
-          const x_mid = (x(i) + x(i + 1)) / 2;
-          const y_mid = (y(i) + y(i + 1)) / 2;
-          const cp_x1 = (x_mid + x(i)) / 2;
-          const cp_x2 = (x_mid + x(i + 1)) / 2;
-          return (
-            `Q ${cp_x1}, ${y(i)}, ${x_mid}, ${y_mid}` +
-            ` Q ${cp_x2}, ${y(i + 1)}, ${x(i + 1)}, ${y(i + 1)}`
-          );
-        })
-      )
-      .join(" ");
+    const points = dataset.data.map((d, i) => {
+      if (d === -999) return null;
+      return { x: x(i), y: y(i) };
+    }).filter(point => point !== null);
+
+    if (points.length === 0) {
+      return "M0,0";
+    }
+
+    return [`M${points[0].x},${points[0].y}`]
+        .concat(
+            points.slice(0, -1).map((point, i) => {
+              const nextPoint = points[i + 1];
+              const x_mid = (point.x + nextPoint.x) / 2;
+              const y_mid = (point.y + nextPoint.y) / 2;
+              const cp_x1 = (x_mid + point.x) / 2;
+              const cp_x2 = (x_mid + nextPoint.x) / 2;
+              return (
+                  `Q ${cp_x1}, ${point.y}, ${x_mid}, ${y_mid}` +
+                  ` Q ${cp_x2}, ${nextPoint.y}, ${nextPoint.x}, ${nextPoint.y}`
+              );
+            })
+        )
+        .join(" ");
   };
 
   renderBezierLine = ({
@@ -725,7 +731,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
           key={index}
           d={result}
           fill="none"
-          stroke={this.getColor(dataset, 0.2)}
+          stroke={this.getColor(dataset, 1)}
           strokeWidth={this.getStrokeWidth(dataset)}
           strokeDasharray={dataset.strokeDashArray}
           strokeDashoffset={dataset.strokeDashOffset}
@@ -758,7 +764,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
           data
         }) +
         ` L${paddingRight +
-          ((width - paddingRight) / xMax) *
+          ((width - paddingRight - (index === data.length-1 ? 16 : 0)) / (xMax-1)) *
             (dataset.data.length - 1)},${(height / 4) * 3 +
           paddingTop} L${paddingRight},${(height / 4) * 3 + paddingTop} Z`;
 
@@ -857,7 +863,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
             rx={borderRadius}
             ry={borderRadius}
             fill="url(#backgroundGradient)"
-            fillOpacity={transparent ? 0 : 1}
+            fillOpacity={0}
           />
           {this.props.data.legend &&
             this.renderLegend(config.width, legendOffset)}
@@ -894,7 +900,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                   paddingRight: paddingRight as number,
                   formatYLabel,
                   decimalPlaces: chartConfig.decimalPlaces
-                })}
+                }, this.props.minNumber, this.props.maxNumber)}
             </G>
             <G>
               {withVerticalLines &&
