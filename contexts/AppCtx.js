@@ -1,5 +1,12 @@
 import React, {createContext, useContext, useMemo, useState} from 'react';
-import {GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword} from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    OAuthProvider,
+    signInWithCredential,
+    signInWithEmailAndPassword,
+    updateProfile
+} from "firebase/auth";
 import {
     collection,
     deleteDoc,
@@ -20,10 +27,11 @@ import {deepMergeDefaults, getAuth} from "@/utils/firebase";
 import {initializeGrips, initializePutters} from "@/utils/stats/statsHelpers";
 import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
-import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from "@react-native-google-signin/google-signin";
 import {useRouter} from "expo-router";
 import {Platform} from "react-native";
 import RNFS from "react-native-fs";
+import {appleAuth} from "@invertase/react-native-apple-authentication";
 
 const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
 
@@ -43,6 +51,8 @@ const AppContext = createContext({
     setUserData: () => {},
     updateStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
+    setStat: () => Promise.resolve(),
+    createEmailAccount: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
@@ -101,63 +111,27 @@ export function AppProvider({children}) {
         router.push({pathname: "/"});
     };
 
-    const appleSignIn = (userCredential, firstName, lastName) => {
-        getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((newDoc) => {
-            if (newDoc.exists()) {
-                userCredential.user.getIdToken().then((token) => {
-                    setSession(token || null);
-                    router.push({pathname: `/`});
-                });
-                return;
-            }
-            setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
-                date: new Date().toISOString(),
-                totalPutts: 0,
-                sessions: 0,
-                firstName: firstName,
-                lastName: lastName,
-                strokesGained: 0,
-                preferences: {
-                    countMishits: true,
-                    selectedPutter: 0,
-                    theme: 0,
-                    units: 0,
-                    reminders: false,
-                    selectedGrip: 0,
-                }
-            }).then(() => {
-                userCredential.user.getIdToken().then((token) => {
-                    setSession(token || null);
-                    router.push({pathname: `/`});
-                });
-                refreshStats();
-            }).catch((error) => {
-                console.log(error);
-            });
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
+    const createEmailAccount = async (email, password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail) => {
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                setLoading(false);
+                // Signed up
+                const user = userCredential.user;
 
-    const googleSignIn = (user) => {
-        const credential = GoogleAuthProvider.credential(user.idToken);
+                updateProfile(user, {
+                    displayName: firstName.trim() + " " + lastName.trim()
+                }).catch((error) => {
+                });
 
-        signInWithCredential(getAuth(), credential).then((userCredential) => {
-            getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((newDoc) => {
-                if (newDoc.exists()) {
-                    userCredential.user.getIdToken().then((token) => {
-                        setSession(token || null);
-                        router.push({pathname: `/`});
-                    });
-                    return;
-                }
-                setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
+                setDoc(doc(firestore, `users/${user.uid}`), {
                     date: new Date().toISOString(),
                     totalPutts: 0,
                     sessions: 0,
-                    firstName: user.user.givenName,
-                    lastName: user.user.familyName !== null ? user.user.familyName : "",
+                    firstName: firstName.trim(),
+                    lastName: firstName.trim(),
                     strokesGained: 0,
+                    hasSeenRoundTutorial: false,
+                    hasSeenRealTutorial: false,
                     preferences: {
                         countMishits: true,
                         selectedPutter: 0,
@@ -167,18 +141,164 @@ export function AppProvider({children}) {
                         selectedGrip: 0,
                     }
                 }).then(() => {
-                    userCredential.user.getIdToken().then((token) => {
-                        setSession(token || null);
-                        router.push({pathname: `/`});
+                    setDoc(doc(firestore, `users/${user.uid}/stats/current`), createSimpleRefinedStats()).then(() => {
+                        updateStats()
                     });
-                    refreshStats();
                 }).catch((error) => {
                     console.log(error);
                 });
-            }).catch((error) => {
-                console.log(error);
+
+                router.push({pathname: `/`});
+            })
+            .catch((error) => {
+                setErrorCode(error.code);
+
+                if (error.code === "auth/email-already-in-use")
+                    setInvalidEmail(true);
+
+                setLoading(false);
             });
-        }).catch(console.log);
+    }
+
+    const appleSignIn = async () => {
+        try {
+            const { identityToken, nonce, fullName } = await appleAuth.performRequest({
+                requestedOperation: appleAuth.Operation.LOGIN,
+                requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+            });
+
+            let firstName = fullName && fullName.givenName !== null ? fullName.givenName : "Unknown";
+            let lastName = fullName && fullName.familyName != null ? fullName.familyName : "Unknown";
+
+            // can be null in some scenarios
+            if (identityToken) {
+                console.warn(`Apple Authentication Completed, idToken: ${identityToken}`);
+                // 3). create a Firebase `AppleAuthProvider` credential
+                const appleCredential = new OAuthProvider('apple.com').credential({
+                    idToken: identityToken,
+                    rawNonce: nonce,
+                });
+
+                const userCredential = await signInWithCredential(auth, appleCredential);
+
+                getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((newDoc) => {
+                    if (newDoc.exists()) {
+                        userCredential.user.getIdToken().then((token) => {
+                            setSession(token || null);
+                            router.push({pathname: `/`});
+                        });
+                        return;
+                    }
+                    setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
+                        date: new Date().toISOString(),
+                        totalPutts: 0,
+                        sessions: 0,
+                        firstName: firstName,
+                        lastName: lastName,
+                        strokesGained: 0,
+                        preferences: {
+                            countMishits: true,
+                            selectedPutter: 0,
+                            theme: 0,
+                            units: 0,
+                            reminders: false,
+                            selectedGrip: 0,
+                        }
+                    }).then(() => {
+                        userCredential.user.getIdToken().then((token) => {
+                            setSession(token || null);
+                            router.push({pathname: `/`});
+                        });
+                        refreshStats();
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                }).catch((error) => {
+                    console.log(error);
+                });
+
+                // user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
+                console.warn(`Firebase authenticated via Apple`);
+            } else {}
+        } catch (error) {
+            if (error.code === appleAuth.Error.CANCELED)
+                console.warn('User canceled Apple Sign in.');
+            else
+                console.error(error);
+        }
+    }
+
+    const googleSignIn = async (setLoading) => {
+        setLoading(true);
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+            if (isSuccessResponse(response)) {
+                const user = response.data;
+
+                const credential = GoogleAuthProvider.credential(user.idToken);
+
+                signInWithCredential(getAuth(), credential).then((userCredential) => {
+                    getDoc(doc(firestore, `users/${userCredential.user.uid}`)).then((newDoc) => {
+                        if (newDoc.exists()) {
+                            userCredential.user.getIdToken().then((token) => {
+                                setSession(token || null);
+                                router.push({pathname: `/`});
+                            });
+                            return;
+                        }
+                        setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
+                            date: new Date().toISOString(),
+                            totalPutts: 0,
+                            sessions: 0,
+                            firstName: user.user.givenName,
+                            lastName: user.user.familyName !== null ? user.user.familyName : "",
+                            strokesGained: 0,
+                            preferences: {
+                                countMishits: true,
+                                selectedPutter: 0,
+                                theme: 0,
+                                units: 0,
+                                reminders: false,
+                                selectedGrip: 0,
+                            }
+                        }).then(() => {
+                            userCredential.user.getIdToken().then((token) => {
+                                setSession(token || null);
+                                router.push({pathname: `/`});
+                            });
+                            refreshStats();
+                        }).catch((error) => {
+                            console.log(error);
+                        });
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                }).catch(console.log);
+            } else {
+                console.log("Sign in failed");
+                alert("Sign in failed, unable to sign in with Google");
+                setLoading(false);
+            }
+        } catch (error) {
+            setLoading(false);
+            if (isErrorWithCode(error)) {
+                switch (error.code) {
+                    case statusCodes.IN_PROGRESS:
+                        // operation (eg. sign in) already in progress
+                        break;
+                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                        // Android only, play services not available or outdated
+                        alert("Play services not available or outdated");
+                        break;
+                    default:
+                        alert("An error occurred while trying to sign in with Google");
+                    // some other error happened
+                }
+            } else {
+                alert("An error occurred while trying to sign in with Google.");
+            }
+        }
     }
 
     const signOut = async () => {
@@ -597,6 +717,7 @@ export function AppProvider({children}) {
         newPutter,
         newSession,
         getPreviousStats,
+        createEmailAccount,
         deletePutter,
         deleteSession,
         newGrip,
