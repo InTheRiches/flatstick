@@ -16,6 +16,7 @@ import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import ShareSession from "../../../components/sessions/individual/ShareSession";
 import {ConfirmDelete} from "../../../components/sessions/individual/ConfirmDelete";
 import FontText from "../../../components/general/FontText";
+import InfoModal from "../../../components/sessions/individual/InfoModal";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/8364755969";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
@@ -31,6 +32,7 @@ export default function IndividualSession({}) {
 
     const shareSessionRef = useRef();
     const confirmDeleteRef = useRef();
+    const infoModalRef = useRef();
 
     useEffect(() => {
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
@@ -94,17 +96,13 @@ export default function IndividualSession({}) {
                                       d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                             </Svg>
                         </Pressable>
-                        <FontText style={{marginLeft: 32, fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
+                        <View style={{marginLeft: 32, marginRight: 12, justifyContent: "space-between", flexDirection: "row"}}>
+                            <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
+                            <Pressable onPress={() => infoModalRef.current.present()} style={({pressed}) => [{width: 32, height: 32, borderRadius: 15, borderWidth: 1, borderColor: colors.border.default, justifyContent: "center", alignItems: "center", backgroundColor: pressed ? colors.background.primary : colors.background.secondary}]}>
+                                <FontText style={{fontWeight: 600, fontSize: 18}}>i</FontText>
+                            </Pressable>
+                        </View>
                         <FontText style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "left"}}>{formatTimestamp()}</FontText>
-
-                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 8, marginBottom: 4}}>Putter</FontText>
-                        <View style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
-                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters.find((putter) => putter.type === session.putter).name}</FontText>
-                        </View>
-                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 8, marginBottom: 4}}>Grip</FontText>
-                        <View style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
-                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{grips.find((grip) => grip.type === session.grip).name}</FontText>
-                        </View>
 
                         <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
                             <View style={{alignItems: "center", flex: 0.5}}>
@@ -232,6 +230,7 @@ export default function IndividualSession({}) {
                     }
                 });
             }}></ConfirmDelete>
+            <InfoModal infoModalRef={infoModalRef} putter={putters.find((putter) => putter.type === session.putter)} grip={grips.find((grip) => grip.type === session.grip)}></InfoModal>
         </>
     )
 }
