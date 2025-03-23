@@ -213,13 +213,18 @@ class AbstractChart<
           data[0].toFixed(decimalPlaces)
         )}${yAxisSuffix}`;
       } else {
-        const label = this.props.fromZero
+        let label = this.props.fromZero
           ? ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data, 0))
           : ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data));
 
         if (label < 0) {
           yLabelsOffset = 5;
         }
+        else {
+            yLabelsOffset = this.props.yLabelsOffset;
+        }
+
+        label = Math.round(label)
 
         yLabel = `${yAxisLabel}${formatYLabel(
             label.toFixed(decimalPlaces)
@@ -261,7 +266,7 @@ class AbstractChart<
     stackedBar = false,
     verticalLabelRotation = 0,
     formatXLabel = xLabel => xLabel,
-    verticalLabelsHeightPercentage = DEFAULT_X_LABELS_HEIGHT_PERCENTAGE
+    verticalLabelsHeightPercentage = DEFAULT_X_LABELS_HEIGHT_PERCENTAGE,
   }: Pick<
     AbstractChartConfig,
     | "labels"
@@ -274,7 +279,7 @@ class AbstractChart<
     | "verticalLabelRotation"
     | "formatXLabel"
     | "verticalLabelsHeightPercentage"
-  >) => {
+  >, yAxisTextOffset = 0) => {
     const {
       xAxisLabel = "",
       xLabelsOffset = 0,
@@ -294,7 +299,7 @@ class AbstractChart<
       }
 
       const x =
-        (((width - paddingRight - (i === labels.length-1 ? 16 : 0)) / (labels.length-1)) * i +
+        ((((width-20-yAxisTextOffset) - paddingRight) / (labels.length-1)) * i +
           paddingRight +
           horizontalOffset) *
         fac;
@@ -349,12 +354,12 @@ class AbstractChart<
           <Line
             key={Math.random()}
             x1={Math.floor(
-              ((width - paddingRight - (i === data.length-1 ? 16 : 0)) / ((data.length-1) / yAxisInterval)) * (i) +
+              (((width-20) - paddingRight - (i === data.length-1 ? 0 : 0)) / ((data.length-1) / yAxisInterval)) * (i) +
                 paddingRight
             )}
             y1={0}
             x2={Math.floor(
-              ((width - paddingRight - (i === data.length-1 ? 16 : 0)) / ((data.length-1) / yAxisInterval)) * i +
+              (((width-20) - paddingRight - (i === data.length-1 ? 0 : 0)) / ((data.length-1) / yAxisInterval)) * i +
                 paddingRight
             )}
             y2={height * verticalLabelsHeightPercentage + paddingTop}

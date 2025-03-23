@@ -19,6 +19,7 @@ export interface BarChartProps extends AbstractChartProps {
   style?: Partial<ViewStyle>;
   horizontalLabelRotation?: number;
   verticalLabelRotation?: number;
+  yAxisTextOffset?: number;
   /**
    * Show vertical labels - default: True.
    */
@@ -75,8 +76,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             barWidth / 2
           }
           y={
-            ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
-            paddingTop
+            ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3
           }
           rx={barRadius}
           width={barWidth}
@@ -118,7 +118,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             (i * (width - paddingRight)) / data.length +
             barWidth / 2
           }
-          y={((baseHeight - barHeight) / 4) * 3 + (baseline ? 0 : paddingTop)}
+          y={((baseHeight - barHeight) / 4) * 3}
           width={barWidth}
           height={3}
           fill={baseline ? this.props.chartConfig.secondaryCapColor : this.props.chartConfig.capColor}
@@ -196,7 +196,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             barWidth / 1
             
           }
-          y={((baseHeight - barHeight) / 4) * 3 + paddingTop + (barHeight < 0 ? 16 : -4)}
+          y={((baseHeight - barHeight) / 4) * 3 + (barHeight < 0 ? 16 : -4)}
           fill={this.props.chartConfig.textColor}
           fontSize="13"
           fontWeight={500}
@@ -288,8 +288,8 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
                 labels: data.labels,
                 paddingRight: paddingRight as number,
                 paddingTop: paddingTop as number,
-                horizontalOffset: barWidth * this.getBarPercentage()
-              })
+                horizontalOffset: barWidth * this.getBarPercentage(),
+              }, this.props.yAxisTextOffset)
               : null}
           </G>
           <G>

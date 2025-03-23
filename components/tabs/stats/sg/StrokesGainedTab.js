@@ -56,6 +56,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
             </View>
             {byDistance && sgByDistance}
             {!byDistance && sgByBreakSlope}
+            <FontText style={{marginTop: 24, fontWeight: 600, fontSize: 16, width: "100%"}}>Strokes Gained Over Time</FontText>
 
             <SGOverTime statsToUse={yearlyStats}></SGOverTime>
 

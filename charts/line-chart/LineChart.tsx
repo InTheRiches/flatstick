@@ -287,7 +287,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
           return;
         }
 
-        const cx = paddingRight + (i * (width - paddingRight - (i === dataset.data.length-1 ? 16 : 0))) / (xMax-1);
+        const cx = paddingRight + (i * ((width-20) - paddingRight)) / (xMax-1);
 
         const cy =
           ((baseHeight - this.calcHeight(x, datas, height)) / 4) * 3 +
@@ -621,7 +621,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
     data.forEach((dataset, index) => {
       const points = dataset.data.map((d, i) => {
         if (d === -999) return null;
-        const x = ((i) * (width - paddingRight - (i === data.length-1 ? 16 : 0))) / (xMax) + paddingRight;
+        const x = ((i) * ((width-20) - paddingRight)) / (xMax) + paddingRight;
         const y =
             ((baseHeight - this.calcHeight(d, datas, height)) / 4) * 3 +
             paddingTop;
@@ -672,7 +672,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
     const xMax = this.getXMaxValues(data);
 
     const x = (i: number) =>
-        Math.floor(paddingRight + ((i) * (width - paddingRight - (i === dataset.data.length-1 ? 16 : 0))) / (xMax-1));
+        Math.floor(paddingRight + ((i) * ((width-20) - paddingRight)) / (xMax-1));
 
     const baseHeight = this.calcBaseHeight(datas, height);
 
@@ -764,7 +764,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
           data
         }) +
         ` L${paddingRight +
-          ((width - paddingRight - (index === data.length-1 ? 16 : 0)) / (xMax-1)) *
+          (((width-20) - paddingRight) / (xMax-1)) *
             (dataset.data.length - 1)},${(height / 4) * 3 +
           paddingTop} L${paddingRight},${(height / 4) * 3 + paddingTop} Z`;
 
@@ -834,6 +834,8 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
       marginRight = 0,
       paddingBottom = 0
     } = style;
+
+    console.log(this.props.yLabelsOffset);
 
     const config = {
       width,

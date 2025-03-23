@@ -10,19 +10,32 @@ export default function SGOverTime({statsToUse}) {
     let data = statsToUse.months.map(month => month.strokesGained);
     let labels = ["Jan.", "", "Mar.", "", "May", "", "July", "", "Sept.", "", "Nov.", ""];
     let bigLabels = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
+    let evenBiggerLabels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     // Remove -999 values from the end
     while (data.length > 0 && data[data.length - 1] === -999) {
         data.pop();
         labels.pop();
         bigLabels.pop();
+        evenBiggerLabels.pop();
     }
 
-    // find the multiple of 2 to use for the y-axis
+    // Calculate the range and interval size
     const maxValue = Math.max(...data);
-    const maxY = Math.ceil(maxValue / 2) * 2;
     const minValue = Math.min(...data);
-    const minY = Math.floor(minValue / 2) * 2;
+
+    // Ensure the min and max values are even
+    const adjustedMinValue = minValue % 2 === 0 ? minValue : minValue - 1;
+    const adjustedMaxValue = maxValue % 2 === 0 ? maxValue : maxValue + 1;
+
+    // Calculate the min and max values for the y-axis
+    const maxY = adjustedMaxValue;
+    const minY = adjustedMinValue;
+
+    // Calculate the number of segments
+    const range = maxY - minY;
+    const intervalSize = 2;
+    const segments = Math.ceil(range / intervalSize);
 
     console.log(data)
 
@@ -30,7 +43,7 @@ export default function SGOverTime({statsToUse}) {
     return (
         <LineChart
             data={{
-                labels: labels.length < 8 ? bigLabels : labels,
+                labels: labels.length < 8 ? evenBiggerLabels : labels.length < 10 ? bigLabels : labels,
                 datasets: [
                     {
                         data: data
@@ -39,10 +52,11 @@ export default function SGOverTime({statsToUse}) {
             }}
             minNumber={minY}
             maxNumber={maxY}
-            segments={3}
+            segments={segments-1}
             width={Dimensions.get("window").width-48} // from react-native
             height={220}
             yAxisLabel=""
+            yLabelsOffset={5}
             yAxisSuffix=" strokes"
             yAxisInterval={1} // optional, defaults to 1
             chartConfig={{
@@ -57,7 +71,7 @@ export default function SGOverTime({statsToUse}) {
                 propsForDots: {
                     r: "5",
                     fill: "black"
-                }
+                },
             }}
             bezier
             style={{

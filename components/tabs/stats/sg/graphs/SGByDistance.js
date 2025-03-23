@@ -9,17 +9,21 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
     const {userData} = useAppContext();
     const colorScheme = "light";
 
-    // determine the multiple of 2 to use for the y-axis
+    // Calculate the range and interval size
     const maxValue = Math.max(...Object.values(statsToUse.strokesGained.distance));
-    const maxY = Math.ceil(maxValue / 2) * 2;
     const minValue = Math.min(...Object.values(statsToUse.strokesGained.distance));
-    const minY = Math.floor(minValue / 2) * 2;
+    const range = maxValue - minValue;
+    const intervalSize = Math.ceil(range / 2);
+
+    // Calculate the min and max values for the y-axis
+    const maxY = minValue + intervalSize * 2;
+    const minY = minValue;
 
     return (
         <BarChart
             minNumber={minY}
             maxNumber={maxY}
-            segments={4}
+            segments={3}
             data={{
                 labels: userData.preferences.units === 0 ? ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'] : ['<2 m', '2-4 m', '4-7 m', '>7 m'],
                 datasets: [
@@ -34,6 +38,7 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
             height={220}
             autoShiftLabels
             showValuesOnTopOfBars={true}
+            yAxisTextOffset={60}
             chartConfig={{
                 decimalPlaces: 0,
 
