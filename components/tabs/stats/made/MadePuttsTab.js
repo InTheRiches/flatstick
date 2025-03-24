@@ -59,6 +59,21 @@ export const MadePuttsTab = ({statsToUse}) => {
             </View>
             {byDistance && madeByDistance}
             {!byDistance && madeBySlope}
+            <FontText style={{marginTop: 24, fontWeight: 700, fontSize: 16, marginBottom: 10}}>HOW TO READ THE DATA</FontText>
+            <View>
+                <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>
+                    <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
+                    <FontText style={{fontSize: 14, fontWeight: 500}}>By Distance</FontText>
+                </View>
+                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Your make percents by distance have been plotted next to the PGA Tour averages. Being at or above the Tour Pro bar means you make more putts at that distance than Tour Pros.</FontText>
+            </View>
+            <View style={{marginTop: 6, marginBottom: 24}}>
+                <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>
+                    <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
+                    <FontText style={{fontSize: 14, fontWeight: 500}}>By Direction</FontText>
+                </View>
+                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Each vertex on the radar graph corresponds to a certain kind of break/slope. The closer the blue area is to each outside vertex, the more putts you make with that break/slope. The closer you are to the center, the worse.</FontText>
+            </View>
         </ScrollView>
     )
 };

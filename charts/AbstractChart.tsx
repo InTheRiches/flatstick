@@ -137,7 +137,11 @@ class AbstractChart<
     };
   }
 
-  renderHorizontalLines = config => {
+  renderHorizontalLines = (
+      config: Omit<AbstractChartConfig, "data"> & { data: number[] },
+      minNumber?: number,
+      maxNumber?: number
+  ) => {
     const {
       count,
       width,
@@ -148,19 +152,39 @@ class AbstractChart<
     } = config;
     const basePosition = height * verticalLabelsHeightPercentage;
 
-    return [...new Array(count + 1)].map((_, i) => {
+    const lines = [...new Array(count + 1)].map((_, i) => {
       const y = (basePosition / count) * i + paddingTop;
       return (
-        <Line
-          key={Math.random()}
-          x1={paddingRight}
-          y1={y}
-          x2={width}
-          y2={y}
-          {...this.getPropsForBackgroundLines()}
-        />
+          <Line
+              key={Math.random()}
+              x1={paddingRight}
+              y1={y}
+              x2={width}
+              y2={y}
+              {...this.getPropsForBackgroundLines()}
+          />
       );
     });
+
+    console.log(minNumber, maxNumber)
+
+    // Add 0 line if within range
+    if (minNumber < 0 && maxNumber > 0) {
+      //const y = (basePosition / count) * 1.5 + paddingTop;
+      const y = (basePosition / count) * ((0 - minNumber) / (maxNumber - minNumber)) + paddingTop;
+      lines.push(
+          <Line
+              key={Math.random()}
+              x1={paddingRight}
+              y1={y}
+              x2={width}
+              y2={y}
+              {...this.getPropsForBackgroundLines()}
+          />
+      );
+    }
+
+    return lines;
   };
 
   renderHorizontalLine = config => {
@@ -203,9 +227,9 @@ class AbstractChart<
     let {
       yAxisLabel = "",
       yAxisSuffix = "",
-      yLabelsOffset = 12
+      yLabelsOffset = 5
     } = this.props;
-    return new Array(count === 1 ? 1 : count + 1).fill(1).map((_, i) => {
+    const labels = new Array(count === 1 ? 1 : count + 1).fill(1).map((_, i) => {
       let yLabel = String(i * count);
 
       if (count === 1) {
@@ -217,13 +241,7 @@ class AbstractChart<
           ? ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data, 0))
           : ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data));
 
-        if (label < 0) {
-          yLabelsOffset = 5;
-        }
-        else {
-            yLabelsOffset = this.props.yLabelsOffset;
-        }
-
+        console.log(label, minNumber, maxNumber)
         label = Math.round(label)
 
         yLabel = `${yAxisLabel}${formatYLabel(
@@ -254,6 +272,32 @@ class AbstractChart<
         </Text>
       );
     });
+
+    const mapToHeight = () => {
+      return ((0 - minNumber) / (maxNumber - minNumber)) * (height * verticalLabelsHeightPercentage);
+    }
+
+    if (minNumber < 0 && maxNumber > 0) {
+      const x = paddingRight - yLabelsOffset;
+      const y = (height * verticalLabelsHeightPercentage) -
+          mapToHeight() +
+          paddingTop;
+      labels.push(
+          <Text
+              rotation={horizontalLabelRotation}
+              origin={`${x}, ${y}`}
+              key={Math.random()}
+              x={x}
+              textAnchor="end"
+              y={y}
+              {...this.getPropsForLabels()}
+              {...this.getPropsForHorizontalLabels()}
+          >
+            {`${yAxisLabel}${formatYLabel("0")}${yAxisSuffix}`}
+          </Text>
+      );
+    }
+    return labels;
   };
 
   renderVerticalLabels = ({

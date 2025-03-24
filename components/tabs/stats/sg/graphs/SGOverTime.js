@@ -1,6 +1,5 @@
 import {Dimensions, View} from "react-native";
 import {LineChart} from "../../../../../charts";
-import useColors from "../../../../../hooks/useColors";
 
 export default function SGOverTime({statsToUse}) {
     if (statsToUse === undefined || Object.keys(statsToUse).length === 0) {
@@ -21,23 +20,17 @@ export default function SGOverTime({statsToUse}) {
     }
 
     // Calculate the range and interval size
-    const maxValue = Math.max(...data);
-    const minValue = Math.min(...data);
-
-    // Ensure the min and max values are even
-    const adjustedMinValue = minValue % 2 === 0 ? minValue : minValue - 1;
-    const adjustedMaxValue = maxValue % 2 === 0 ? maxValue : maxValue + 1;
+    const maxValue = Math.ceil(Math.max(...data));
+    const minValue = Math.floor(Math.min(...data));
 
     // Calculate the min and max values for the y-axis
-    const maxY = adjustedMaxValue;
-    const minY = adjustedMinValue;
+    const maxY = maxValue % 2 === 0 ? maxValue : maxValue + 1;
+    const minY = minValue % 2 === 0 ? minValue : minValue - 1;
 
     // Calculate the number of segments
     const range = maxY - minY;
     const intervalSize = 2;
     const segments = Math.ceil(range / intervalSize);
-
-    console.log(data)
 
     // when you implement this, only include the months that you have data for (or go into last year, decide later)
     return (

@@ -43,6 +43,7 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
             height={220}
             autoShiftLabels
             showValuesOnTopOfBars={true}
+            yAxisTextOffset={64}
             chartConfig={{
                 backgroundColor: colors.background.primary,
                 backgroundGradientFrom: colors.background.primary,

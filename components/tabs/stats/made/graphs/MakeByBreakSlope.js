@@ -32,6 +32,9 @@ function createPuttsMadeByBreak(currentStats) {
     // find the highest value, and take all of those out of that (as a percent)
     for (let slope of ["downhill", "neutral", "uphill"]) {
         for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
+            if (slope === "neutral" && brek === "straight")
+                continue; // don't include neutral straight
+
             if (mySlopes[slope][brek]*100 > max) {
                 max = mySlopes[slope][brek]*100;
             }
@@ -51,7 +54,8 @@ function createPuttsMadeByBreak(currentStats) {
         };
     }
 
-    max += 0.1;
+    max += 5;
+    console.log(max)
 
     // make another copy of mySlopes
     const mySlopesCopy = JSON.parse(JSON.stringify(mySlopes));

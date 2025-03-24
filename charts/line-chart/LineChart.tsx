@@ -1,28 +1,10 @@
-import React, { ReactNode } from "react";
-import {
-  Animated,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-  ViewStyle
-} from "react-native";
-import {
-  Circle,
-  G,
-  Path,
-  Polygon,
-  Polyline,
-  Rect,
-  Svg
-} from "react-native-svg";
+import React, {ReactNode} from "react";
+import {Animated, ScrollView, StyleSheet, TextInput, View, ViewStyle} from "react-native";
+import {Circle, G, Path, Polygon, Polyline, Rect, Svg} from "react-native-svg";
 
-import AbstractChart, {
-  AbstractChartConfig,
-  AbstractChartProps
-} from "../AbstractChart";
-import { ChartData, Dataset } from "../HelperTypes";
-import { LegendItem } from "./LegendItem";
+import AbstractChart, {AbstractChartConfig, AbstractChartProps} from "../AbstractChart";
+import {ChartData, Dataset} from "../HelperTypes";
+import {LegendItem} from "./LegendItem";
 
 let AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -883,7 +865,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                       count: count,
                       paddingTop,
                       paddingRight
-                    })
+                    }, this.props.minNumber, this.props.maxNumber)
                   : withOuterLines
                   ? this.renderHorizontalLine({
                       ...config,
