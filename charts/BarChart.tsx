@@ -76,7 +76,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             barWidth / 2
           }
           y={
-            ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3
+            ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 + paddingTop
           }
           rx={barRadius}
           width={barWidth}
@@ -118,7 +118,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             (i * (width - paddingRight)) / data.length +
             barWidth / 2
           }
-          y={((baseHeight - barHeight) / 4) * 3}
+          y={((baseHeight - barHeight) / 4) * 3 + (baseline ? 0 : paddingTop)}
           width={barWidth}
           height={3}
           fill={baseline ? this.props.chartConfig.secondaryCapColor : this.props.chartConfig.capColor}
@@ -196,7 +196,7 @@ class BarChart extends AbstractChart<BarChartProps, BarChartState> {
             barWidth / 1
             
           }
-          y={((baseHeight - barHeight) / 4) * 3 + (barHeight < 0 ? 16 : -4)}
+          y={((baseHeight - barHeight) / 4) * 3 + paddingTop + (barHeight < 0 ? 16 : -4)}
           fill={this.props.chartConfig.textColor}
           fontSize="13"
           fontWeight={500}

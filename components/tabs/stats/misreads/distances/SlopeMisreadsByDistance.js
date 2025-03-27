@@ -1,5 +1,5 @@
 import {BarChart} from "../../../../../charts";
-import {Dimensions, useColorScheme} from "react-native";
+import {Dimensions} from "react-native";
 import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import {useAppContext} from "../../../../../contexts/AppCtx";
@@ -42,6 +42,7 @@ export const SlopeMisreadsByDistance = ({statsToUse}) => {
             width={Dimensions.get('window').width - 16}
             height={220}
             autoShiftLabels
+            yAxisTextOffset={64}
             showValuesOnTopOfBars={true}
             chartConfig={{
                 backgroundColor: colors.background.primary,

@@ -60,13 +60,20 @@ export const StrokesGainedTab = ({statsToUse}) => {
 
             <SGOverTime statsToUse={yearlyStats}></SGOverTime>
 
-            <FontText style={{marginTop: 24, fontWeight: 600, fontSize: 14, marginBottom: 10}}>HOW TO READ THE DATA</FontText>
+            <FontText style={{marginTop: 24, fontWeight: 700, fontSize: 16, marginBottom: 10}}>HOW TO READ THE DATA</FontText>
             <View>
-                <View style={{flexDirection: "row", alignItems: "center", marginBottom: 4}}>
+                <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>
                     <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
                     <FontText style={{fontSize: 14, fontWeight: 500}}>Strokes Gained</FontText>
                 </View>
-                <FontText style={{marginLeft: 16}}>The number of strokes gained or lost compared to the average PGA Tour player over 18 holes. A positive number is better than a negative. The pill showing an increase or decrease in strokes gained represents the change between the last 5 sessions and the current 5.</FontText>
+                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>The number of strokes gained or lost compared to the average PGA Tour player over 18 holes. A positive number means that you average less strokes than a pro. Positive is better than negative. The pill next to your current strokes gained shows an increase or decrease between the last 5 sessions and the current 5.</FontText>
+            </View>
+            <View style={{marginTop: 12, marginBottom: 24}}>
+                <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>
+                    <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
+                    <FontText style={{fontSize: 14, fontWeight: 500}}>By Direction</FontText>
+                </View>
+                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Each vertex on the radar graph corresponds to a certain kind of break/slope. The closer the blue area is to the vertex, the better you putt with that break/slope. The closer you are to the center, the worse.</FontText>
             </View>
         </ScrollView>
     )

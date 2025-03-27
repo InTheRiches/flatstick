@@ -43,6 +43,9 @@ function createStrokesGainedByBreak(currentStats) {
     const mySlopesCopy = JSON.parse(JSON.stringify(mySlopes));
     for (let slope of ["downhill", "neutral", "uphill"]) {
         for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
+            if (slope === "neutral" && brek === "straight")
+                continue; // don't include neutral straight
+
             mySlopesCopy[slope][brek] += 1; // this stuff makes it never less than 0, and since its a web graph, thats good :)
 
             if (mySlopesCopy[slope][brek] < 0) {
@@ -54,13 +57,13 @@ function createStrokesGainedByBreak(currentStats) {
     }
 
     return {
-        "Downhill\nStraight": [mySlopesCopy.downhill.straight, mySlopes.downhill.straight + " Strokes"],
-        "Downhill\nLeft to Right": [mySlopesCopy.downhill.leftToRight, mySlopes.downhill.leftToRight + " Strokes"],
-        "Neutral\nLeft to Right": [mySlopesCopy.neutral.leftToRight, mySlopes.neutral.leftToRight + " Strokes"],
-        "Uphill\nLeft to Right": [mySlopesCopy.uphill.leftToRight, mySlopes.uphill.leftToRight + " Strokes"],
-        "Uphill\nStraight": [mySlopesCopy.uphill.straight, mySlopes.uphill.straight + " Strokes"],
-        "Uphill\nRight to Left": [mySlopesCopy.uphill.rightToLeft, mySlopes.uphill.rightToLeft + " Strokes"],
-        "Neutral\nRight to Left": [mySlopesCopy.neutral.rightToLeft, mySlopes.neutral.rightToLeft + " Strokes"],
-        "Downhill\nRight to Left": [mySlopesCopy.downhill.rightToLeft, mySlopes.downhill.rightToLeft + " Strokes"],
+        "Downhill\nStraight": [mySlopesCopy.downhill.straight, (mySlopes.downhill.straight > 0 ? "+" : "" ) + mySlopes.downhill.straight + " Strokes"],
+        "Downhill\nLeft to Right": [mySlopesCopy.downhill.leftToRight, (mySlopes.downhill.leftToRight > 0 ? "+" : "" ) + mySlopes.downhill.leftToRight + " Strokes"],
+        "Neutral\nLeft to Right": [mySlopesCopy.neutral.leftToRight, (mySlopes.neutral.leftToRight > 0 ? "+" : "" ) + mySlopes.neutral.leftToRight + " Strokes"],
+        "Uphill\nLeft to Right": [mySlopesCopy.uphill.leftToRight, (mySlopes.uphill.leftToRight > 0 ? "+" : "" ) + mySlopes.uphill.leftToRight + " Strokes"],
+        "Uphill\nStraight": [mySlopesCopy.uphill.straight, (mySlopes.uphill.straight > 0 ? "+" : "" ) + mySlopes.uphill.straight + " Strokes"],
+        "Uphill\nRight to Left": [mySlopesCopy.uphill.rightToLeft, (mySlopes.uphill.rightToLeft > 0 ? "+" : "" ) + mySlopes.uphill.rightToLeft + " Strokes"],
+        "Neutral\nRight to Left": [mySlopesCopy.neutral.rightToLeft, (mySlopes.neutral.rightToLeft > 0 ? "+" : "" ) + mySlopes.neutral.rightToLeft + " Strokes"],
+        "Downhill\nRight to Left": [mySlopesCopy.downhill.rightToLeft, (mySlopes.downhill.rightToLeft > 0 ? "+" : "" ) + mySlopes.downhill.rightToLeft + " Strokes"],
     }
 }
