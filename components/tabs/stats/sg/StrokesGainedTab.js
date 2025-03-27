@@ -11,7 +11,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
     const colors = useColors();
     const {currentStats, yearlyStats, previousStats} = useAppContext();
     const {width} = Dimensions.get("screen")
-    const [byDistance, setByDistance] = React.useState(true);
+    const [graph, setGraph] = React.useState(0);
 
     let difference = 0;
 
@@ -21,10 +21,12 @@ export const StrokesGainedTab = ({statsToUse}) => {
     const sgByDistance = useMemo(() => {
         return (
             <>
+                <FontText style={{marginTop: 12, fontWeight: 600, fontSize: 16, width: "100%"}}>Strokes Gained By Distance</FontText>
+
                 <View style={{alignItems: "center"}}>
                     <SGByDistanceChart statsToUse={statsToUse}/>
                 </View>
-                <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6}}>
+                <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 10}}>
                     <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
                     <FontText style={{color: colors.text.primary}}>Your Averages</FontText>
                 </View>
@@ -34,7 +36,10 @@ export const StrokesGainedTab = ({statsToUse}) => {
 
     const sgByBreakSlope = useMemo(() => {
         return (
-            <SGByBreakSlope statsToUse={statsToUse}></SGByBreakSlope>
+            <>
+                <FontText style={{marginTop: 12, fontWeight: 600, fontSize: 16, width: "100%"}}>Strokes Gained By Break/Slope</FontText>
+                <SGByBreakSlope statsToUse={statsToUse}></SGByBreakSlope>
+            </>
         )
     }, [statsToUse]);
 
@@ -51,14 +56,19 @@ export const StrokesGainedTab = ({statsToUse}) => {
             </View>
             <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</FontText>
             <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
-                <Toggleable toggled={byDistance} onToggle={() => setByDistance(true)} title={"By Distance"}/>
-                <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Direction"}/>
+                <Toggleable toggled={graph === 0} onToggle={() => setGraph(0)} title={"Distance"}/>
+                <Toggleable toggled={graph === 1} onToggle={() => setGraph(1)} title={"Direction"}/>
+                <Toggleable toggled={graph === 2} onToggle={() => setGraph(2)} title={"Time"}/>
             </View>
-            {byDistance && sgByDistance}
-            {!byDistance && sgByBreakSlope}
-            <FontText style={{marginTop: 24, fontWeight: 600, fontSize: 16, width: "100%"}}>Strokes Gained Over Time</FontText>
+            {graph === 0 && sgByDistance}
+            {graph === 1 && sgByBreakSlope}
+            {graph === 2 && (
+                <>
+                    <FontText style={{marginTop: 12, fontWeight: 600, fontSize: 16, width: "100%"}}>Strokes Gained Over Time</FontText>
 
-            <SGOverTime statsToUse={yearlyStats}></SGOverTime>
+                    <SGOverTime statsToUse={yearlyStats}></SGOverTime>
+                </>
+            )}
 
             <FontText style={{marginTop: 24, fontWeight: 700, fontSize: 16, marginBottom: 10}}>HOW TO READ THE DATA</FontText>
             <View>

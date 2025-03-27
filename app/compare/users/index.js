@@ -6,7 +6,7 @@ import Svg, {Path} from "react-native-svg";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import {doc, getDoc} from "firebase/firestore";
-import {auth, firestore} from "../../../utils/firebase";
+import {firestore} from "../../../utils/firebase";
 import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
@@ -91,7 +91,7 @@ export default function CompareUsers({}) {
                 <FontText style={{color: colors.text.primary, fontWeight: 600, marginTop: 20, fontSize: 18}}>All Putts</FontText>
                 <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 12}}>
                     <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600}}>Category</FontText>
-                    <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{auth.currentUser.displayName}</FontText>
+                    <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>You</FontText>
                     <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</FontText>
                 </View>
                 <DataTable stats1={currentStats} stats2={usersStats} type={"users"}/>
