@@ -356,46 +356,10 @@ function cleanPuttsAHole(averagePerformance) {
 const createYearlyStats = () => {
     return {
         strokesGained: 0,
-        months: [
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-            {
-                strokesGained: -999,
-            },
-        ]
+        months: Array(12).fill(null).map(() => ({ strokesGained: -999 }))
     }
 }
+
 const createSimpleStats = () => {
     return {
         onePutts: 0,

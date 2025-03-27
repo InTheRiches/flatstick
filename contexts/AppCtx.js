@@ -20,7 +20,13 @@ import {
     setDoc
 } from "firebase/firestore";
 import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
-import {createSimpleRefinedStats, createSimpleStats, createYearlyStats} from "@/utils/PuttUtils";
+import {
+    createSimpleRefinedStats,
+    createSimpleStats,
+    createSixMonthStats,
+    createThreeMonthStats,
+    createYearlyStats
+} from "@/utils/PuttUtils";
 import generatePushID from "@/components/general/utils/GeneratePushID";
 import {updateBestSession} from "@/utils/sessions/best";
 import {deepMergeDefaults, getAuth} from "@/utils/firebase";
@@ -44,6 +50,8 @@ const AppContext = createContext({
     previousStats: [],
     nonPersistentData: {},
     yearlyStats: {},
+    sixMonthStats: {},
+    threeMonthStats: {},
     setNonPersistentData: () => {},
     initialize: () => {},
     refreshData: () => Promise.resolve(),
@@ -87,6 +95,8 @@ export function AppProvider({children}) {
     const [puttSessions, setPuttSessions] = useState([]);
     const [currentStats, setCurrentStats] = useState({});
     const [yearlyStats, setYearlyStats] = useState({});
+    const [sixMonthStats, setSixMonthStats] = useState({});
+    const [threeMonthStats, setThreeMonthStats] = useState({});
     const [session, setSession] = useState({});
     const [isLoading, setLoading] = useState(true);
     const [putters, setPutters] = useState([]);
@@ -395,7 +405,9 @@ export function AppProvider({children}) {
         }
 
         setupFolder().then(() => {
+            console.log("Session directory setup complete!");
             getAllStats().then(async (updatedStats) => {
+                console.log("Stats loaded!");
                 let localPutters = [{type: "default", name: "Standard Putter", stats: updatedStats}];
 
                 const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
@@ -483,17 +495,17 @@ export function AppProvider({children}) {
         }
     };
 
-    const updateYearlyStats = async (newData) => {
-        setYearlyStats(newData);
-        const userDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/` + new Date().getFullYear());
+    const updateOtherStats = async (yearly) => {
+        setYearlyStats(yearly);
+        const yearlyDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/` + new Date().getFullYear());
         try {
             await runTransaction(firestore, async (transaction) => {
-                transaction.update(userDocRef, newData);
+                transaction.update(yearlyDocRef, yearly);
             });
         } catch (error) {
             console.warn("Update yearly stats transaction failed, attempting alternative:", error);
             try {
-                await setDoc(userDocRef, newData);
+                await setDoc(yearlyDocRef, yearly);
             } catch (error) {
                 console.error("Update yearly stats failed:", error)
             }
@@ -587,14 +599,14 @@ export function AppProvider({children}) {
     // Update statistics
     const refreshStats = async () => {
         const newStats = createSimpleStats();
-        const yearlyStats = createYearlyStats();
+        const newYearlyStats = createYearlyStats();
 
         const newPuttSessions = (await refreshData()).sessions;
         const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
         const newPutters = initializePutters(putters);
         const newGrips = initializeGrips(grips);
 
-        newPuttSessions.forEach(session => processSession(session, newStats, yearlyStats, newPutters, newGrips, userData));
+        newPuttSessions.forEach(session => processSession(session, newStats, newYearlyStats, newPutters, newGrips, userData));
 
         if (newStats.rounds > 0)
             finalizeStats(newStats, strokesGained);
@@ -605,7 +617,10 @@ export function AppProvider({children}) {
         let totalPutts = 0;
         await updateData({totalPutts: totalPutts, sessions: newPuttSessions.length, strokesGained: strokesGained.overall});
         await updateStats(newStats)
-        await updateYearlyStats(yearlyStats);
+
+        console.log("yearly stats", newYearlyStats);
+
+        await updateOtherStats(newYearlyStats);
 
         finalizePutters(setPutters, newStats, newPutters, strokesGained);
         finalizeGrips(setGrips, newStats, newGrips, strokesGained);
@@ -637,23 +652,22 @@ export function AppProvider({children}) {
         }
 
         if (Object.keys(yearlyStats).length === 0) {
-            const document = await getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getFullYear()}`));
-
-            if (!document.exists()) {
-                await updateYearlyStats(createYearlyStats());
+            const yearlyDocument = await getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getFullYear()}`));
+            if (!yearlyDocument.exists()) {
+                await updateOtherStats(createYearlyStats());
                 return updatedStats;
             }
 
-            const data = document.data();
+            const yearlyData = yearlyDocument.data();
 
             // check to make sure it is updated and has all the necessary fields
-            const updatedYearlyStats = deepMergeDefaults({ ...data }, createYearlyStats());
+            const updatedYearlyStats = deepMergeDefaults({ ...yearlyData }, createYearlyStats());
 
             setYearlyStats(updatedYearlyStats);
 
             // if they arent equal, update the stats in firebase
-            if (data !== updatedYearlyStats) {
-                await updateYearlyStats(updatedYearlyStats);
+            if (yearlyData !== updatedYearlyStats) {
+                await updateOtherStats(updatedYearlyStats);
             }
         }
 
@@ -661,7 +675,7 @@ export function AppProvider({children}) {
     };
 
     const newSession = async (data) => {
-        RNFS.writeFile(`${sessionDirectory}/${generatePushID()}.json`, JSON.stringify(data), 'utf8')
+        RNFS.writeFile(`${sessionDirectory}/${data.id}.json`, JSON.stringify(data), 'utf8')
         // await setDoc(doc(firestore, file, generatePushID()), data)
         let newStats;
         try {

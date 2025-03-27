@@ -40,6 +40,7 @@ import {
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
+import generatePushID from "../../../components/general/utils/GeneratePushID";
 
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
@@ -276,6 +277,7 @@ export default function RoundSimulation() {
         updateField("loading", true);
 
         const data = {
+            id: generatePushID(),
             date: new Date().toISOString(),
             startedAtTimestamp: startTime,
             timestamp: new Date().getTime(),

@@ -7,16 +7,27 @@ export default function SGOverTime({statsToUse}) {
         return <View></View>
     }
 
+    const currentMonth = new Date().getMonth();
+
     let data = statsToUse.months.map(month => month.strokesGained);
     let labels = ["Jan.", "", "Mar.", "", "May", "", "July", "", "Sept.", "", "Nov.", ""];
     let bigLabels = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
     let evenBiggerLabels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    const getMonthOrder = (array) => {
+        return Array.from({ length: 12 }, (_, i) =>
+            array[(currentMonth - i + 12) % 12]
+        );
+    };
+
+    const orderedMonths = getMonthOrder(bigLabels)
 
     // Remove -999 values from the end
     while (data.length > 0 && data[data.length - 1] === -999) {
         data.pop();
         labels.pop();
         bigLabels.pop();
+        orderedMonths.pop();
         evenBiggerLabels.pop();
     }
 
@@ -37,13 +48,11 @@ export default function SGOverTime({statsToUse}) {
     const intervalSize = 2;
     const segments = Math.ceil(range / intervalSize);
 
-    console.log(data)
-
     // when you implement this, only include the months that you have data for (or go into last year, decide later)
     return (
         <LineChart
             data={{
-                labels: labels.length < 8 ? evenBiggerLabels : labels.length < 10 ? bigLabels : labels,
+                labels: orderedMonths.reverse(),
                 datasets: [
                     {
                         data: data

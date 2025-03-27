@@ -110,24 +110,28 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
             }
         }
     }
+    // if the session's date is within a year of the current date, console log the strokes gained
+    const sessionDate = new Date(session.date);
+    const currentDate = new Date();
+    const oneYearAgo = new Date().setFullYear(currentDate.getFullYear() - 1);
 
-    yearlyStats.strokesGained += session.strokesGained;
+    if (sessionDate > oneYearAgo) {
+        yearlyStats.strokesGained += session.strokesGained;
 
-    if (yearlyStats.strokesGained !== 0) {
-        yearlyStats.strokesGained /= 2;
-    }
+        if (yearlyStats.strokesGained !== 0)
+            yearlyStats.strokesGained /= 2;
 
-    console.log(session.strokesGained);
+        // // find the month and update the stats
+        const monthIndex = (currentDate.getMonth() - sessionDate.getMonth() + 12) % 12;
+        if (yearlyStats.months[monthIndex].strokesGained === -999 || yearlyStats.months[monthIndex].strokesGained === 0) {
+            yearlyStats.months[monthIndex].strokesGained = session.strokesGained;
+        }
+        else {
+            yearlyStats.months[monthIndex].strokesGained += session.strokesGained;
+            yearlyStats.months[monthIndex].strokesGained /= 2;
+        }
 
-    // find the month and update the stats
-    const month = new Date(session.date).getMonth();
-    if (yearlyStats.months[month].strokesGained === -999)
-        yearlyStats.months[month].strokesGained = session.strokesGained;
-    else
-        yearlyStats.months[month].strokesGained += session.strokesGained;
-
-    if (yearlyStats.months[month].strokesGained !== 0 && yearlyStats.strokesGained !== -999) {
-        yearlyStats.months[month].strokesGained /= 2;
+        console.log(monthIndex, yearlyStats);
     }
 
     session.putts.forEach(putt => {
