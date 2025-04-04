@@ -811,13 +811,10 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
     const {
       borderRadius = 0,
       paddingTop = 16,
-      paddingRight = 64,
       margin = 0,
       marginRight = 0,
       paddingBottom = 0
     } = style;
-
-    console.log(this.props.yLabelsOffset);
 
     const config = {
       width,
@@ -834,6 +831,17 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
     }
 
     const legendOffset = this.props.data.legend ? height * 0.15 : 0;
+
+    const {horizontalLabels, iOfZero} =
+        this.renderHorizontalLabels({
+          ...config,
+          count: count,
+          data: datas,
+          paddingTop: paddingTop as number,
+          paddingRight: chartConfig.paddingRight as number,
+          formatYLabel,
+          decimalPlaces: chartConfig.decimalPlaces,
+        }, this.props.minNumber, this.props.maxNumber, true);
 
     return (
       <View style={style}>
@@ -864,27 +872,19 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                       ...config,
                       count: count,
                       paddingTop,
-                      paddingRight
-                    }, this.props.minNumber, this.props.maxNumber)
+                      paddingRight: chartConfig.paddingRight as number,
+                    }, this.props.minNumber, this.props.maxNumber, iOfZero)
                   : withOuterLines
                   ? this.renderHorizontalLine({
                       ...config,
                       paddingTop,
-                      paddingRight
+                          paddingRight: chartConfig.paddingRight as number,
                     })
                   : null)}
             </G>
             <G>
               {withHorizontalLabels &&
-                this.renderHorizontalLabels({
-                  ...config,
-                  count: count,
-                  data: datas,
-                  paddingTop: paddingTop as number,
-                  paddingRight: paddingRight as number,
-                  formatYLabel,
-                  decimalPlaces: chartConfig.decimalPlaces
-                }, this.props.minNumber, this.props.maxNumber)}
+                horizontalLabels}
             </G>
             <G>
               {withVerticalLines &&
@@ -893,13 +893,13 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                       ...config,
                       data: data.datasets[0].data,
                       paddingTop: paddingTop as number,
-                      paddingRight: paddingRight as number
+                      paddingRight: chartConfig.paddingRight as number,
                     })
                   : withOuterLines
                   ? this.renderVerticalLine({
                       ...config,
                       paddingTop: paddingTop as number,
-                      paddingRight: paddingRight as number
+                      paddingRight: chartConfig.paddingRight as number,
                     })
                   : null)}
             </G>
@@ -909,17 +909,17 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                   ...config,
                   labels,
                   paddingTop: paddingTop as number,
-                  paddingRight: paddingRight as number,
-                  formatXLabel
+                  paddingRight: chartConfig.paddingRight as number,
+                  formatXLabel,
                 })}
             </G>
             <G>
               {this.renderLine({
                 ...config,
                 ...chartConfig,
-                paddingRight: paddingRight as number,
                 paddingTop: paddingTop as number,
-                data: data.datasets
+                paddingRight: chartConfig.paddingRight as number,
+                data: data.datasets,
               })}
             </G>
             <G>
@@ -927,8 +927,8 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                 this.renderShadow({
                   ...config,
                   data: data.datasets,
-                  paddingRight: paddingRight as number,
                   paddingTop: paddingTop as number,
+                  paddingRight: chartConfig.paddingRight as number,
                   useColorFromDataset: chartConfig.useShadowColorFromDataset
                 })}
             </G>
@@ -938,7 +938,7 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                   ...config,
                   data: data.datasets,
                   paddingTop: paddingTop as number,
-                  paddingRight: paddingRight as number,
+                  paddingRight: chartConfig.paddingRight as number,
                   onDataPointClick
                 })}
             </G>
@@ -949,8 +949,8 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                   ...chartConfig,
                   data: data.datasets,
                   paddingTop: paddingTop as number,
-                  paddingRight: paddingRight as number,
                   onDataPointClick,
+                  paddingRight: chartConfig.paddingRight as number,
                   scrollableDotHorizontalOffset
                 })}
             </G>
@@ -960,7 +960,6 @@ class LineChart extends AbstractChart<LineChartProps, LineChartState> {
                   ...config,
                   data: data.datasets,
                   paddingTop,
-                  paddingRight
                 })}
             </G>
           </G>

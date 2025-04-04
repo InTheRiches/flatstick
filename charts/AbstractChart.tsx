@@ -140,7 +140,8 @@ class AbstractChart<
   renderHorizontalLines = (
       config: Omit<AbstractChartConfig, "data"> & { data: number[] },
       minNumber?: number,
-      maxNumber?: number
+      maxNumber?: number,
+      iOfZero?: number,
   ) => {
     const {
       count,
@@ -152,8 +153,13 @@ class AbstractChart<
     } = config;
     const basePosition = height * verticalLabelsHeightPercentage;
 
+    let zeroLine = false;
+
     const lines = [...new Array(count + 1)].map((_, i) => {
       const y = (basePosition / count) * i + paddingTop;
+
+      if (i === iOfZero) zeroLine = true;
+
       return (
           <Line
               key={Math.random()}
@@ -166,12 +172,14 @@ class AbstractChart<
       );
     });
 
-    console.log(minNumber, maxNumber)
+    console.log("zeroline: " + iOfZero)
 
     // Add 0 line if within range
+    // TODO this doesnt always work, the line says even though it shouldnt, when min is -2,
+    //  and max is 2, segments is 3, it divides by 0
     if (minNumber < 0 && maxNumber > 0) {
       //const y = (basePosition / count) * 1.5 + paddingTop;
-      const y = (basePosition / count) * ((0 - minNumber) / (maxNumber - minNumber)) + paddingTop;
+      const y = (basePosition / count) * (count - iOfZero) + paddingTop;
       lines.push(
           <Line
               key={Math.random()}
@@ -210,7 +218,8 @@ class AbstractChart<
   renderHorizontalLabels = (
     config: Omit<AbstractChartConfig, "data"> & { data: number[] },
     minNumber?: number,
-    maxNumber?: number
+    maxNumber?: number,
+    findIOfZero?: boolean
   ) => {
     const {
       count,
@@ -229,6 +238,9 @@ class AbstractChart<
       yAxisSuffix = "",
       yLabelsOffset = 5
     } = this.props;
+
+    let iOfZero = -1;
+
     const labels = new Array(count === 1 ? 1 : count + 1).fill(1).map((_, i) => {
       let yLabel = String(i * count);
 
@@ -241,7 +253,9 @@ class AbstractChart<
           ? ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data, 0))
           : ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data));
 
-        console.log(label, minNumber, maxNumber)
+        console.log("scalar:" + (this.calcScaler(data) / count))
+        console.log("min: " + (minNumber !== undefined ? minNumber : Math.min(...data)))
+
         label = Math.round(label)
 
         yLabel = `${yAxisLabel}${formatYLabel(
@@ -277,7 +291,12 @@ class AbstractChart<
       return ((0 - minNumber) / (maxNumber - minNumber)) * (height * verticalLabelsHeightPercentage);
     }
 
-    if (minNumber < 0 && maxNumber > 0) {
+    if (!findIOfZero) return labels;
+    if (minNumber > 0 || maxNumber < 0) return {horizontalLabels: labels, iOfZero: -1}
+
+    iOfZero = -(minNumber !== undefined ? minNumber : Math.min(...data)) / (this.calcScaler(data) / count);
+
+    if (iOfZero % 1 !== 0) {
       const x = paddingRight - yLabelsOffset;
       const y = (height * verticalLabelsHeightPercentage) -
           mapToHeight() +
@@ -297,7 +316,8 @@ class AbstractChart<
           </Text>
       );
     }
-    return labels;
+
+    return {horizontalLabels: labels, iOfZero};
   };
 
   renderVerticalLabels = ({

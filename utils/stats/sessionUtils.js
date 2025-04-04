@@ -110,6 +110,7 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
             }
         }
     }
+
     // if the session's date is within a year of the current date, console log the strokes gained
     const sessionDate = new Date(session.date);
     const currentDate = new Date();
@@ -117,21 +118,36 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
 
     if (sessionDate > oneYearAgo) {
         yearlyStats.strokesGained += session.strokesGained;
+        yearlyStats.puttsAHole += session.totalPutts / filteringHoles;
+        yearlyStats.makePercent += session.makePercent;
 
-        if (yearlyStats.strokesGained !== 0)
-            yearlyStats.strokesGained /= 2;
+        if (yearlyStats.strokesGained !== 0) yearlyStats.strokesGained /= 2;
+        if (yearlyStats.puttsAHole !== 0) yearlyStats.puttsAHole /= 2;
+        if (yearlyStats.makePercent !== 0) yearlyStats.makePercent /= 2;
 
         // // find the month and update the stats
         const monthIndex = (currentDate.getMonth() - sessionDate.getMonth() + 12) % 12;
-        if (yearlyStats.months[monthIndex].strokesGained === -999 || yearlyStats.months[monthIndex].strokesGained === 0) {
-            yearlyStats.months[monthIndex].strokesGained = session.strokesGained;
+
+        if (yearlyStats.months[monthIndex].puttsAHole === -999 || yearlyStats.months[monthIndex].puttsAHole === 0)
+            yearlyStats.months[monthIndex].puttsAHole = session.totalPutts / filteringHoles;
+        else {
+            yearlyStats.months[monthIndex].puttsAHole += session.totalPutts / filteringHoles;
+            yearlyStats.months[monthIndex].puttsAHole /= 2;
         }
+
+        if (yearlyStats.months[monthIndex].makePercent === -999 || yearlyStats.months[monthIndex].makePercent === 0)
+            yearlyStats.months[monthIndex].makePercent = session.makePercent;
+        else {
+            yearlyStats.months[monthIndex].makePercent += session.makePercent;
+            yearlyStats.months[monthIndex].makePercent /= 2;
+        }
+
+        if (yearlyStats.months[monthIndex].strokesGained === -999 || yearlyStats.months[monthIndex].strokesGained === 0)
+            yearlyStats.months[monthIndex].strokesGained = session.strokesGained;
         else {
             yearlyStats.months[monthIndex].strokesGained += session.strokesGained;
             yearlyStats.months[monthIndex].strokesGained /= 2;
         }
-
-        console.log(monthIndex, yearlyStats);
     }
 
     session.putts.forEach(putt => {

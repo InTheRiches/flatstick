@@ -1,10 +1,9 @@
 import {Dimensions, View} from "react-native";
 import {LineChart} from "../../../../../charts";
 
-export default function SGOverTime({statsToUse}) {
-    if (statsToUse === undefined || Object.keys(statsToUse).length === 0) {
+export default function SGOverTime({statsToUse, months}) {
+    if (statsToUse === undefined || Object.keys(statsToUse).length === 0)
         return <View></View>
-    }
 
     const currentMonth = new Date().getMonth();
 
@@ -19,15 +18,28 @@ export default function SGOverTime({statsToUse}) {
         );
     };
 
-    const orderedMonths = getMonthOrder(bigLabels)
+    let largeOrderedMonths = getMonthOrder(evenBiggerLabels);
+    let orderedMonths = getMonthOrder(bigLabels)
+    let smallOrderedMonths = getMonthOrder(labels);
 
     // Remove -999 values from the end
     while (data.length > 0 && data[data.length - 1] === -999) {
         data.pop();
-        labels.pop();
-        bigLabels.pop();
+
+        smallOrderedMonths.pop();
         orderedMonths.pop();
-        evenBiggerLabels.pop();
+        largeOrderedMonths.pop();
+    }
+
+    smallOrderedMonths = smallOrderedMonths.reverse();
+    orderedMonths = orderedMonths.reverse();
+    largeOrderedMonths = largeOrderedMonths.reverse();
+
+    if (data.length > months) {
+        smallOrderedMonths = smallOrderedMonths.slice(12 - months);
+        orderedMonths = orderedMonths.slice(12 - months);
+        largeOrderedMonths = largeOrderedMonths.slice(12 - months);
+        data = data.slice(12 - months);
     }
 
     // Calculate the range and interval size
@@ -40,14 +52,14 @@ export default function SGOverTime({statsToUse}) {
 
     // Calculate the number of segments
     const range = maxY - minY;
-    const intervalSize = 2;
+    const intervalSize = range > 2 ? range > 8 ? 4 : 2 : 1;
     const segments = Math.ceil(range / intervalSize);
 
     // when you implement this, only include the months that you have data for (or go into last year, decide later)
     return (
         <LineChart
             data={{
-                labels: orderedMonths.reverse(),
+                labels: orderedMonths.length > 6 ? smallOrderedMonths : orderedMonths.length > 3 ? orderedMonths : largeOrderedMonths,
                 datasets: [
                     {
                         data: data
@@ -56,11 +68,11 @@ export default function SGOverTime({statsToUse}) {
             }}
             minNumber={minY}
             maxNumber={maxY}
-            segments={segments-1}
+            segments={segments}
             width={Dimensions.get("window").width-48} // from react-native
             height={220}
             yAxisLabel=""
-            yLabelsOffset={5}
+            yLabelsOffset={10}
             yAxisSuffix=" strokes"
             yAxisInterval={1} // optional, defaults to 1
             chartConfig={{
@@ -73,9 +85,10 @@ export default function SGOverTime({statsToUse}) {
                     borderRadius: 16
                 },
                 propsForDots: {
-                    r: "5",
+                    r: "4",
                     fill: "black"
                 },
+                paddingRight: 72,
             }}
             bezier
             style={{

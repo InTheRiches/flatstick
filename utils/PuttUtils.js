@@ -41,7 +41,6 @@ const slopeConversion = [
 ]
 
 const convertThetaToBreak = (theta) => {
-    console.log("theta", theta)
     return [breakConversion.indexOf(breaks[theta]), slopeConversion.indexOf(slopes[theta])];
 }
 
@@ -280,7 +279,6 @@ const calculateStats = (puttsCopy, width, height) => {
 
     leftRightBias /= holes;
     shortPastBias /= holes;
-    console.log("percentHigh", percentHigh, "percentShort", percentShort);
     percentHigh /= holes;
     percentShort /= holes;
 
@@ -356,7 +354,19 @@ function cleanPuttsAHole(averagePerformance) {
 const createYearlyStats = () => {
     return {
         strokesGained: 0,
-        months: Array(12).fill(null).map(() => ({ strokesGained: -999 }))
+        puttsAHole: -999,
+        makePercent: -999,
+        misreadsARound: -999,
+        mishitsARound: -999,
+        months: Array(12).fill(null).map(() => (
+            {
+                strokesGained: -999,
+                puttsAHole: -999,
+                makePercent: -999,
+                misreadsARound: -999,
+                mishitsARound: -999
+            }
+        ))
     }
 }
 

@@ -19,8 +19,6 @@ export const SGByDistanceChart = memo(({statsToUse}) => {
     const maxY = minValue + intervalSize * 2;
     const minY = minValue;
 
-    console.log("SGByDistance data", minY, maxY)
-
     return (
         <BarChart
             minNumber={minY}

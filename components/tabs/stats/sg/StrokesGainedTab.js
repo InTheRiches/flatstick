@@ -26,7 +26,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
                 <View style={{alignItems: "center"}}>
                     <SGByDistanceChart statsToUse={statsToUse}/>
                 </View>
-                <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 10}}>
+                <View style={{flexDirection: "row", width: "100%", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 24}}>
                     <View style={{backgroundColor: "#40C2FF", aspectRatio: 1, width: 14, borderRadius: 12}}></View>
                     <FontText style={{color: colors.text.primary}}>Your Averages</FontText>
                 </View>
@@ -66,7 +66,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
                 <>
                     <FontText style={{marginTop: 12, fontWeight: 600, fontSize: 16, width: "100%"}}>Strokes Gained Over Time</FontText>
 
-                    <SGOverTime statsToUse={yearlyStats}></SGOverTime>
+                    <SGOverTime statsToUse={yearlyStats} months={12}></SGOverTime>
                 </>
             )}
 

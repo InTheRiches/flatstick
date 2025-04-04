@@ -14,7 +14,7 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
         roundTo(statsToUse.misreads.misreadLineByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[3]*100, 0)
     ];
 
-    const biggestMisread = Math.max(...data);
+    const biggestMisread = Math.max(...data, 1);
 
     // find the nearest multiple of 4 & 5 to the biggest misread, but it has to be bigger than it
     let maxNumber = 0;
@@ -28,6 +28,8 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
             break;
         }
     }
+
+    console.log("mn: " + maxNumber)
 
     return (
         <BarChart

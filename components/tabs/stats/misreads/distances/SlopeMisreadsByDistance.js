@@ -14,7 +14,7 @@ export const SlopeMisreadsByDistance = ({statsToUse}) => {
         roundTo(statsToUse.misreads.misreadSlopeByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadSlopeByDistance[3]*100, 0)
     ];
 
-    const biggestMisread = Math.max(...data);
+    const biggestMisread = Math.max(...data, 1);
 
     // find the nearest multiple of 4 & 5 to the biggest misread, but it has to be bigger than it
     let maxNumber = 0;

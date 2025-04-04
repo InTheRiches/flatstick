@@ -14,7 +14,6 @@ export function SetUnits({setUnitsRef}) {
     const setUnits = (units) => {
         setUnitsRef.current.dismiss();
         try {
-            console.log("updating")
             updateData({preferences: {...userData.preferences, units: units}}).then(r => updateStats());
         } catch (e) {
             console.error(e);
