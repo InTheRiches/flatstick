@@ -33,7 +33,7 @@ export const LightTheme = {
       background: '#000',
       border: '#000',
       text: '#fff',
-      depressed: '#1c1c1c',
+      depressed: '#2b2b2b',
     },
     disabled: {
       background: '#f1f2f3',

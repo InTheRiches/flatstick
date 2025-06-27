@@ -118,10 +118,12 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                         <FontText style={{textAlign: "left", color: colors.text.secondary}}>Time</FontText>
                         <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{time}</FontText>
                     </View>
-                    <View>
-                        <FontText style={{textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
-                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{distance}</FontText>
-                    </View>
+                    {distance && (
+                        <View>
+                            <FontText style={{textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
+                            <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{distance}</FontText>
+                        </View>
+                    )}
                     <View>
                         <FontText style={{textAlign: "left", color: colors.text.secondary}}>Focus</FontText>
                         <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{focus}</FontText>

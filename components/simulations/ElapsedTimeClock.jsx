@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import FontText from "../general/FontText";
 
-const ElapsedTimeClock = ({ startTime }) => {
+const ElapsedTimeClock = ({ startTime, styles }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -20,27 +20,15 @@ const ElapsedTimeClock = ({ startTime }) => {
 
   // Format elapsed time as hh:mm:ss
   const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    const formattedHours = hours > 0 ? `${hours.toString().padStart(2, '0')}:` : '';
-    const formattedMinutes = minutes > 0 ? `${minutes.toString().padStart(2, '0')}:` : (hours > 0 ? '00:' : '');
-    const formattedSeconds = secs.toString().padStart(2, '0');
 
-    return `${formattedHours}${formattedMinutes}${formattedSeconds}`;
+    return `${minutes}m ${secs.toString().padStart(2, '0')}s`;
   };
 
   return (
-    <FontText style={styles.text}>{formatTime(elapsedTime)}</FontText>
+    <FontText style={styles}>{formatTime(elapsedTime)}</FontText>
   );
 };
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: 500
-  },
-});
 
 export default ElapsedTimeClock;
