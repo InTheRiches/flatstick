@@ -26,6 +26,8 @@ export default function FullRound() {
     const confirmExitRef = useRef(null);
 
     const [score, setScore] = useState(tee.holes[hole-1].par);
+    const [strokes, setStrokes] = useState(0);
+    const [parStrokes, setParStrokes] = useState(2);
     const [putts, setPutts] = useState(2);
 
     const submit = () => {
@@ -47,15 +49,15 @@ export default function FullRound() {
             }}>
                 <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                     <View style={{flexDirection: "row", marginBottom: 6}}>
-                        <FontText style={{fontSize: 24, color: colors.text.primary, fontWeight: 600}} type="title">{hole}</FontText>
-                        <FontText style={{fontSize: 12, fontWeight: 600, marginTop: 3}}>{hole === 1 ? "ST" : hole === 2 ? "ND" : "TH"}</FontText>
+                        <FontText style={{fontSize: 32, color: colors.text.primary, fontWeight: 700}} type="title">{hole}</FontText>
+                        <FontText style={{fontSize: 16, fontWeight: 700, marginTop: 3}}>{hole === 1 ? "ST" : hole === 2 ? "ND" : "TH"}</FontText>
                     </View>
                     <View style={{flexDirection: "row", gap: 10, alignItems: "center"}}>
-                        <FontText>Par {tee.holes[hole-1].par}</FontText>
+                        <FontText style={{fontSize: 16}}>Par {tee.holes[hole-1].par}</FontText>
                         <View style={{width: 4, height: 4, borderRadius: "50%", backgroundColor: "black"}}></View>
-                        <FontText>{tee.holes[hole-1].yardage} yds</FontText>
+                        <FontText style={{fontSize: 16}}>{tee.holes[hole-1].yardage} yds</FontText>
                         <View style={{width: 4, height: 4, borderRadius: "50%", backgroundColor: "black"}}></View>
-                        <FontText>{tee.holes[hole-1].handicap}</FontText>
+                        <FontText style={{fontSize: 16}}>{tee.holes[hole-1].handicap}</FontText>
                     </View>
                     <Pressable onPress={() => confirmExitRef.current.present()}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -66,47 +68,56 @@ export default function FullRound() {
                         </Svg>
                     </Pressable>
                 </View>
-                <View style={{width: "100%", borderBottomWidth: 2, borderColor: colors.border.default, paddingBottom: 8, flexDirection: "row"}}>
-                    <View style={{flexDirection: "row", width: 120}}>
-                        <FontText style={{fontVariant: ["tabular-nums"], fontWeight: 600, fontSize: 14}}>Round: </FontText>
-                        <ElapsedTimeClock startTime={startTime} styles={{fontSize: 14}}></ElapsedTimeClock>
+                <View style={{width: "100%", paddingBottom: 12, flexDirection: "row"}}>
+                    <View style={{flexDirection: "row", width: 150}}>
+                        <FontText style={{fontVariant: ["tabular-nums"], fontWeight: 600, fontSize: 16}}>Round: </FontText>
+                        <ElapsedTimeClock startTime={startTime} styles={{fontSize: 16}}></ElapsedTimeClock>
                     </View>
                     <View style={{flexDirection: "row"}}>
-                        <FontText style={{marginLeft: 12, fontWeight: 600, fontVariant: ["tabular-nums"]}}>Hole: </FontText>
-                        <ElapsedTimeClock startTime={holeStartTime} styles={{fontSize: 14}}></ElapsedTimeClock>
+                        <FontText style={{marginLeft: 12, fontSize: 16, fontWeight: 600, fontVariant: ["tabular-nums"]}}>Hole: </FontText>
+                        <ElapsedTimeClock startTime={holeStartTime} styles={{fontSize: 16}}></ElapsedTimeClock>
+                    </View>
+                </View>
+                <View style={{backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 16, width: "100%", paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                    <View>
+                        <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.firstName} {userData.lastName === "Unknown" ? "" : userData.lastName}</FontText>
+                        <FontText style={{color: colors.text.secondary, fontWeight: 500}}>Handicap: {userData.strokesGained}</FontText>
+                    </View>
+                    <View style={{backgroundColor: colors.button.secondary.background, width: 48, height: 48, borderRadius: 32, justifyContent: "center", alignItems: "center"}}>
+                        <FontText style={{fontSize: (strokes-parStrokes) === 0 ? 24 : (strokes-parStrokes) > 9 || (strokes-parStrokes) < -9 ? 20 : 22, fontWeight: 600, color: colors.button.secondary.text, textAlign: "center"}}>{strokes-parStrokes > 0 ? "+" : ""}{strokes - parStrokes === 0 ? "E" : (strokes - parStrokes)}</FontText>
                     </View>
                 </View>
                 <View style={{flexDirection: "row", gap: 32, flex: 1}}>
-                    <View>
-                        <FontText style={{fontSize: 20, fontWeight: 600, marginTop: 12, marginBottom: 8}}>Score</FontText>
-                        <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 10, alignSelf: "flex-start"}}>
-                            <Pressable onPress={() => setScore(score >= 9 ? 0 : score+1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background, alignItems: "center", justifyContent: "center"}]}>
+                    <View style={{alignItems: "center"}}>
+                        <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, marginBottom: 8}}>Score</FontText>
+                        <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 16, alignSelf: "flex-start"}}>
+                            <Pressable onPress={() => setScore(score >= 9 ? 1 : score+1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
                                 <Svg width={32} height={32} viewBox="0 0 24 24">
-                                    <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.secondary.text} strokeWidth="2" />
-                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.secondary.text} strokeWidth="2" />
+                                    <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.primary.text} strokeWidth="2" />
+                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="2" />
                                 </Svg>
                             </Pressable>
-                            <FontText style={{fontSize: 27, fontWeight: 600, textAlign: "center"}}>{score}</FontText>
-                            <Pressable onPress={() => setScore(score <= 0 ? 9 : score-1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background, alignItems: "center", justifyContent: "center"}]}>
+                            <FontText style={{fontSize: 32, fontWeight: 600, textAlign: "center"}}>{score}</FontText>
+                            <Pressable onPress={() => setScore(score <= 1 ? 9 : score-1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
                                 <Svg width={32} height={32} viewBox="0 0 24 24">
-                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.secondary.text} strokeWidth="3" />
+                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="3" />
                                 </Svg>
                             </Pressable>
                         </View>
                     </View>
-                    <View>
-                        <FontText style={{fontSize: 20, fontWeight: 600, marginTop: 12, marginBottom: 8}}>Putts</FontText>
-                        <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 10, alignSelf: "flex-start"}}>
-                            <Pressable onPress={() => setPutts(putts >= 9 ? 0 : putts+1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background, alignItems: "center", justifyContent: "center"}]}>
+                    <View style={{alignItems: "center"}}>
+                        <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, marginBottom: 8}}>Putts</FontText>
+                        <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 16, alignSelf: "flex-start"}}>
+                            <Pressable onPress={() => setPutts(putts >= 9 ? 0 : putts+1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
                                 <Svg width={32} height={32} viewBox="0 0 24 24">
-                                    <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.secondary.text} strokeWidth="2" />
-                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.secondary.text} strokeWidth="2" />
+                                    <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.primary.text} strokeWidth="2" />
+                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="2" />
                                 </Svg>
                             </Pressable>
-                            <FontText style={{fontSize: 27, fontWeight: 600, textAlign: "center"}}>{putts}</FontText>
-                            <Pressable onPress={() => setPutts(putts <= 0 ? 9 : putts-1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background, alignItems: "center", justifyContent: "center"}]}>
+                            <FontText style={{fontSize: 32, fontWeight: 600, textAlign: "center"}}>{putts}</FontText>
+                            <Pressable onPress={() => setPutts(putts <= 0 ? 9 : putts-1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
                                 <Svg width={32} height={32} viewBox="0 0 24 24">
-                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.secondary.text} strokeWidth="3" />
+                                    <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="3" />
                                 </Svg>
                             </Pressable>
                         </View>

@@ -279,8 +279,7 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                                         backgroundColor: isSelected
                                             ? colors.toggleable.toggled.background
                                             : colors.toggleable.background,
-                                    }}
-                                >
+                                    }}>
                                     {isSelected && (
                                         <View
                                             style={{
@@ -309,13 +308,11 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                                             </Svg>
                                         </View>
                                     )}
-                                    <FontText
-                                        style={{
+                                    <FontText style={{
                                             textAlign: "center",
                                             color: colors.text.primary,
                                             fontSize: 16,
-                                        }}
-                                    >
+                                        }}>
                                         {item.name}
                                     </FontText>
                                 </Pressable>

@@ -175,15 +175,14 @@ export default function GolfCourseSearchScreen() {
                         )}
                     </View>
 
+                    {results.length === 0 && (
+                        <FontText style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No courses found</FontText>
+                    )}
 
                     <FlatList
                         data={results}
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({item}) => {
-                            const number_of_holes = item.tees.male?.[0].number_of_holes;
-                            const par = item.tees.male?.[0].par_total;
-                            const slope_rating = item.tees.male?.[0].slope_rating;
-
                             if (!item.club_name) return null; // skip if no club name
                             if (!item.location || !item.location.city || !item.location.state) return null; // skip if no location
                             const clubName = item.club_name.replace(/\s*\(\d+\)$/, "");
