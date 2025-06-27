@@ -3,7 +3,7 @@ import {Animated, Pressable, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
 import Svg, {Path} from "react-native-svg";
-import React, {useEffect} from "react";
+import React, {useEffect, useMemo} from "react";
 import FontText from "../general/FontText";
 
 // Make sure there is a max of like 5 putters
@@ -35,7 +35,10 @@ export function PutterSelector({id, name, stats, selectedPutter, setSelectedPutt
         runOnJS(setSelectedPutter)(id)
     })
 
-    const gesture = Gesture.Race(hold, tap);
+    const gesture = useMemo(() => {
+        if (id === 0) return tap;
+        else return Gesture.Race(hold, tap);
+    }, [id]);
 
     useEffect(() => {
         if (editing && id !== 0) {

@@ -44,7 +44,6 @@ export default function RootInitializer({}) {
                 if (Platform.OS === "ios") {
                     setVisible(false);
                 }
-                alert("No internet connection. Please connect to the internet to continue.");
                 router.push({pathname: "/offline"});
             }
         });

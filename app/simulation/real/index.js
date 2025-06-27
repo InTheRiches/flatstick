@@ -1,5 +1,13 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Keyboard, Platform, Pressable, TouchableWithoutFeedback, View} from 'react-native';
+import {
+    ActivityIndicator,
+    BackHandler,
+    Keyboard,
+    Platform,
+    Pressable,
+    TouchableWithoutFeedback,
+    View
+} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
@@ -113,6 +121,8 @@ export default function RealSimulation() {
     // keep track of the time this session started at
     const [startTime, setStartTime] = useState(new Date().getTime());
 
+    const [transitioning, setTransitioning] = useState(false);
+
     const [{
         loading,
         largeMiss,
@@ -210,6 +220,13 @@ export default function RealSimulation() {
         const puttsCopy = updatePuttsCopy(putts, hole, 0, 0, false, false, false, false, 0, 0, 0, {x: 0, y: 0}, {x: 0, y: 0}, [0,0]);
         updateField("putts", puttsCopy);
 
+        setTransitioning(true);
+
+        setTimeout(() => {
+            setTransitioning(false);
+            // your code here
+        }, 350);
+
         if (putts[hole] === undefined) {
             updateField("currentPutts", 2);
             updateField("point", {});
@@ -246,6 +263,13 @@ export default function RealSimulation() {
             setAdLoaded(false);
         }
 
+        setTransitioning(true);
+
+        setTimeout(() => {
+            setTransitioning(false);
+            // your code here
+        }, 350);
+
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
         if (putts[hole] === undefined) {
@@ -271,6 +295,13 @@ export default function RealSimulation() {
 
     const lastHole = () => {
         if (hole === 1) return;
+
+        setTransitioning(true);
+
+        setTimeout(() => {
+            setTransitioning(false);
+            // your code here
+        }, 350);
 
         const puttsCopy = pushHole(2, -1);
         loadPuttData(puttsCopy[hole - 2], updateField);
@@ -327,6 +358,21 @@ export default function RealSimulation() {
     return (loading ? <Loading/> :
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={{flex: 1}}>
+                <View style={{
+                    zIndex: 200,
+                    position: "absolute",
+                    width: "100%",
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    flexDirection: "flow",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "black",
+                    opacity: transitioning ? 0.5  : 0
+                }}>
+                    <ActivityIndicator size="large"/>
+                </View>
                 <ScreenWrapper style={{
                     width: "100%",
                     flex: 1,

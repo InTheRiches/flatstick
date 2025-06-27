@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Text, TextInput, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
@@ -65,17 +65,16 @@ export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHo
                     >
                         Next Hole
                     </Text>
-                    <View style={{flexDirection: "row", gap: 12, alignItems: "center"}}>
-                        <Text
-                            style={{
+                    <View style={{flexDirection: "row", gap: 8, marginTop: 4, marginBottom: 10, alignItems: "center"}}>
+                        <Text style={{
                                 fontSize: 18,
                                 color: colors.text.primary,
-                                marginBottom: 10,
-                            }}
-                        >
+                                textAlign: "left",
+                                flex: 1,
+                            }}>
                             Total putts to complete hole:
                         </Text>
-                        <View style={{flexDirection: "row", gap: 12, marginBottom: 12, alignItems: "center"}}>
+                        <View style={{flexDirection: "row", gap: 12, alignItems: "center"}}>
                             <PrimaryButton style={{
                                 aspectRatio: 1,
                                 paddingHorizontal: 4,

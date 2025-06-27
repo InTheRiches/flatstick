@@ -1,5 +1,5 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
-import {BackHandler, Platform, Pressable, View} from 'react-native';
+import {ActivityIndicator, BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
@@ -96,10 +96,12 @@ export default function RoundSimulation() {
     const navigation = useNavigation();
     const {newSession, putters, userData, currentStats, grips} = useAppContext();
 
+    const [transitioning, setTransitioning] = useState(false);
+
     const router = useRouter();
 
     const {localHoles, difficulty, mode} = useLocalSearchParams();
-    const holes = 2;// parseInt(localHoles);
+    const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
@@ -226,6 +228,13 @@ export default function RoundSimulation() {
 
         const puttsCopy = pushHole(totalPutts, largeMissDistance);
 
+        setTransitioning(true);
+
+        setTimeout(() => {
+            setTransitioning(false);
+            // your code here
+        }, 350);
+
         if (putts[hole] === undefined) {
             updateField("currentPutts", 2);
             updateField("point", {});
@@ -252,13 +261,19 @@ export default function RoundSimulation() {
             updateField("largeMiss", false);
             return;
         }
-
         loadPuttData(puttsCopy[hole], updateField);
         updateField("hole", hole + 1);
     };
 
     const lastHole = () => {
         if (hole === 1) return;
+
+        setTransitioning(true);
+
+        setTimeout(() => {
+            setTransitioning(false);
+            // your code here
+        }, 350);
 
         const puttsCopy = pushHole(2, -1);
         loadPuttData(puttsCopy[hole - 2], updateField);
@@ -317,6 +332,21 @@ export default function RoundSimulation() {
 
     return (loading ? <Loading/> :
         <View style={{flex: 1}}>
+            <View style={{
+                zIndex: 200,
+                position: "absolute",
+                width: "100%",
+                top: 0,
+                left: 0,
+                height: "100%",
+                flexDirection: "flow",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "black",
+                opacity: transitioning ? 0.5  : 0
+            }}>
+                <ActivityIndicator size="large"/>
+            </View>
             <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,

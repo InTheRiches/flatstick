@@ -58,6 +58,14 @@ export default function Compare({}) {
                         style={{color: colors.text.primary, fontSize: 18, fontWeight: 600, marginTop: 6}}>Putters</FontText>
                     <FontText style={{color: colors.text.secondary, fontSize: 14, textAlign: "center"}}>Compare your putters
                         to determine which one is best for you.</FontText>
+                    {putters.length <= 2 && <View style={{flexDirection: "row", paddingHorizontal: 2, marginTop: 10}}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             strokeWidth={1.5} stroke="red" width={24} height={24}>
+                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                  d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                        </Svg>
+                        <FontText style={{color: "red", fontSize: 14, textAlign: "left", marginLeft: 6}}>You don't have enough putters to compare</FontText>
+                    </View>}
                 </PrimaryButton>
                 <PrimaryButton onPress={() => {
                     if (grips.length <= 2) return;
@@ -73,6 +81,14 @@ export default function Compare({}) {
                     <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 600, marginTop: 6}}>Grips</FontText>
                     <FontText style={{color: colors.text.secondary, fontSize: 14, textAlign: "center"}}>Compare your grip
                         methods to determine which one is fit for you.</FontText>
+                    {grips.length <= 2 && <View style={{flexDirection: "row", paddingHorizontal: 2, marginTop: 10}}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             strokeWidth={1.5} stroke="red" width={24} height={24}>
+                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                  d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                        </Svg>
+                        <FontText style={{color: "red", fontSize: 14, textAlign: "left", marginLeft: 6}}>You don't have enough grips to compare</FontText>
+                    </View>}
                 </PrimaryButton>
             </View>
             <View style={{position: "absolute", bottom: 0}}>

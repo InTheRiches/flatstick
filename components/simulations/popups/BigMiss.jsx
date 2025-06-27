@@ -8,6 +8,7 @@ import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 import {useAppContext} from "../../../contexts/AppCtx";
 import FontText from "../../general/FontText";
+import {Exclamation} from "../../../assets/svg/SvgComponents";
 
 export function BigMissModal({
                                          updateField, rawLargeMissBy, bigMissRef, nextHole, lastHole, allPutts, hole,
@@ -146,17 +147,7 @@ export function BigMissModal({
                 }}>
                 <View style={{paddingHorizontal: 20, flexDirection: "column", alignItems: "center",}}>
                     <View style={{flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,}}>
-                        <View style={{
-                                height: 32,
-                                aspectRatio: 1,
-                                alignItems: "center",
-                                flexDirection: "row",
-                                justifyContent: "center",
-                                borderRadius: 50,
-                                backgroundColor: colors.button.danger.background,
-                            }}>
-                            <FontText style={{color: "white", fontWeight: 600, fontSize: 24}}>!</FontText>
-                        </View>
+                        <Exclamation width={48} height={48}></Exclamation>
                         <FontText style={{fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left"}}>
                             Miss &gt;{userData.preferences.units === 0 ? "3ft" : "1m"}
                         </FontText>

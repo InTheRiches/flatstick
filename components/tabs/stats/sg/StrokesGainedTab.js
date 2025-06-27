@@ -16,7 +16,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
     let difference = 0;
 
     if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
-        difference = statsToUse.strokesGained.overall - previousStats[0].strokesGained.overall;
+        difference = statsToUse.strokesGained.overall - previousStats[previousStats.length-1].strokesGained.overall;
 
     const sgByDistance = useMemo(() => {
         return (

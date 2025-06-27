@@ -6,6 +6,7 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 import FontText from "../../general/FontText";
+import {Exclamation} from "../../../assets/svg/SvgComponents";
 
 export function ConfirmExit({ confirmExitRef, end, cancel, partial, canPartial = true}) {
     const colors = useColors();
@@ -24,35 +25,13 @@ export function ConfirmExit({ confirmExitRef, end, cancel, partial, canPartial =
         ref={confirmExitRef}
         backdropComponent={myBackdrop}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
-        keyboardBlurBehavior={"restore"}
-    >
-        <BottomSheetView
-            style={{
-                paddingBottom: 20, backgroundColor: colors.background.secondary,
-            }}
-        >
-            <View
-                style={{
+        keyboardBlurBehavior={"restore"}>
+        <BottomSheetView style={{paddingBottom: 20, backgroundColor: colors.background.secondary,}}>
+            <View style={{
                     paddingHorizontal: 32, flexDirection: "column", alignItems: "center",
-                }}
-            >
-                <View style={{
-                        flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,
-                    }}>
-                    <View
-                        style={{
-                            height: 32,
-                            aspectRatio: 1,
-                            alignItems: "center",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            borderRadius: 50,
-                            backgroundColor: colors.button.danger.background,
-                        }}>
-                        <FontText style={{color: "white", fontWeight: 600, fontSize: 24}}>
-                            !
-                        </FontText>
-                    </View>
+                }}>
+                <View style={{flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,}}>
+                    <Exclamation width={48} height={48}></Exclamation>
                     <FontText
                         style={{
                             fontSize: 26, fontWeight: 600, color: colors.text.primary, textAlign: "left",

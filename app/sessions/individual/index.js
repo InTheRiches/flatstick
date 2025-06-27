@@ -200,8 +200,8 @@ export default function IndividualSession({}) {
                                 <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentHigh !== undefined ? roundTo(session.percentHigh*100, 0) + "%" : "N/A"}</FontText>
                             </View>
                             <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingLeft: 12, paddingTop: 4}}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Short</FontText>
-                                <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentShort !== undefined ? roundTo(session.percentShort*100, 0) + "%" : "N/A"}</FontText>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Long</FontText>
+                                <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentShort !== undefined ? roundTo((1-session.percentShort)*100, 0) + "%" : "N/A"}</FontText>
                             </View>
                         </View>
                         <View style={{marginTop: 20}}>

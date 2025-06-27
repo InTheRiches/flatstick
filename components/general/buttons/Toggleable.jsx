@@ -10,7 +10,7 @@ export function Toggleable({onToggle, top = false, toggled, title = 'Save', ...r
         button: {
             alignItems: 'center',
             justifyContent: 'center',
-            paddingHorizontal: 32,
+            paddingHorizontal: 24,
             borderRadius: 32,
             borderWidth: 1,
             overflow: "visible",

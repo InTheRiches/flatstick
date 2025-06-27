@@ -67,7 +67,7 @@ export const MadePuttsTab = ({statsToUse}) => {
                 </View>
                 <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Your make percents by distance have been plotted next to the PGA Tour averages. Being at or above the Tour Pro bar means you make more putts at that distance than Tour Pros.</FontText>
             </View>
-            <View style={{marginTop: 6, marginBottom: 24}}>
+            <View style={{marginTop: 10, marginBottom: 24}}>
                 <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>
                     <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
                     <FontText style={{fontSize: 14, fontWeight: 500}}>By Direction</FontText>

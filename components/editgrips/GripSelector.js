@@ -3,7 +3,7 @@ import {Animated, Pressable, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
 import Svg, {Path} from "react-native-svg";
-import React, {useEffect} from "react";
+import React, {useEffect, useMemo} from "react";
 import FontText from "../general/FontText";
 
 // Make sure there is a max of like 5 putters
@@ -35,7 +35,10 @@ export function GripSelector({id, name, stats, selectedGrip, setSelectedGrip, ed
         runOnJS(setSelectedGrip)(id)
     })
 
-    const gesture = Gesture.Race(hold, tap);
+    const gesture = useMemo(() => {
+        if (id === 0) return tap;
+        else return Gesture.Race(hold, tap);
+    }, [id]);
 
     useEffect(() => {
         if (editing && id !== 0) {
@@ -62,7 +65,7 @@ export function GripSelector({id, name, stats, selectedGrip, setSelectedGrip, ed
                 gap: 12,
                 borderWidth: 1,
                 borderRadius: 10,
-                borderColor: selectedGrip === id && !editing ? colors.checkmark.background : colors.toggleable.border,
+                borderColor: selectedGrip === id ? colors.checkmark.background : colors.toggleable.border,
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 12,
                 paddingVertical: 10,
@@ -78,7 +81,7 @@ export function GripSelector({id, name, stats, selectedGrip, setSelectedGrip, ed
                         )
                     }
                 </View>
-                <Svg style={{opacity: selectedGrip === id && !editing ? 1 : 0}} width={30} height={30} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
+                <Svg style={{opacity: selectedGrip === id ? 1 : 0}} width={30} height={30} stroke={colors.checkmark.background} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3">
                     <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                 </Svg>
                 {

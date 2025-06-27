@@ -118,7 +118,7 @@ export function AppProvider({children}) {
         const token = await userCredential.user.getIdToken();
         setSession(token || null);
 
-        router.push({pathname: "/"});
+        router.replace({pathname: "/"});
     };
 
     const createEmailAccount = async (email, password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail) => {
@@ -158,7 +158,7 @@ export function AppProvider({children}) {
                     console.log(error);
                 });
 
-                router.push({pathname: `/`});
+                router.replace({pathname: `/`});
             })
             .catch((error) => {
                 setErrorCode(error.code);
@@ -195,7 +195,7 @@ export function AppProvider({children}) {
                     if (newDoc.exists()) {
                         userCredential.user.getIdToken().then((token) => {
                             setSession(token || null);
-                            router.push({pathname: `/`});
+                            router.replace({pathname: `/`});
                         });
                         return;
                     }
@@ -217,7 +217,7 @@ export function AppProvider({children}) {
                     }).then(() => {
                         userCredential.user.getIdToken().then((token) => {
                             setSession(token || null);
-                            router.push({pathname: `/`});
+                            router.replace({pathname: `/`});
                         });
                         refreshStats();
                     }).catch((error) => {
@@ -275,7 +275,7 @@ export function AppProvider({children}) {
                         }).then(() => {
                             userCredential.user.getIdToken().then((token) => {
                                 setSession(token || null);
-                                router.push({pathname: `/`});
+                                router.replace({pathname: `/`});
                             });
                             refreshStats();
                         }).catch((error) => {
@@ -318,7 +318,7 @@ export function AppProvider({children}) {
 
             setSession(null);
             if (Platform.OS !== "ios") {
-                router.push({pathname: "/login"});
+                router.replace({pathname: "/login"});
             }
         } catch (error) {
             console.error("Error during sign-out:", error);

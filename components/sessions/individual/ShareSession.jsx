@@ -163,13 +163,13 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Short</FontText>
+                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Long</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     textAlign: "left"
-                                }}>{session.percentShort !== undefined ? roundTo(session.percentShort*100, 0) + "%" : "N/A"}</FontText>
+                                }}>{session.percentShort !== undefined ? roundTo((1-session.percentShort)*100, 0) + "%" : "N/A"}</FontText>
                             </View>
                         </View>
                         <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
