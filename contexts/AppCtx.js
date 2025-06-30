@@ -40,6 +40,7 @@ import RNFS from "react-native-fs";
 import {appleAuth} from "@invertase/react-native-apple-authentication";
 
 const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
+const fullRoundDirectory = `${RNFS.DocumentDirectoryPath}/fullRounds`;
 
 const AppContext = createContext({
     userData: {},
@@ -63,6 +64,7 @@ const AppContext = createContext({
     createEmailAccount: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
+    newFullRound: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
     deleteSession: () => Promise.resolve(),
     deletePutter: () => {},
@@ -699,6 +701,31 @@ export function AppProvider({children}) {
         return true;
     }
 
+    const newFullRound = async (data) => {
+        RNFS.writeFile(`${fullRoundDirectory}/${data.id}.json`, JSON.stringify(data), 'utf8')
+        // await setDoc(doc(firestore, file, generatePushID()), data)
+        let newStats;
+        try {
+            newStats = await refreshStats();
+        } catch (error) {
+            console.error("Error updating stats:", error);
+            return false;
+        }
+
+        RNFS.readDir(fullRoundDirectory).then((files) => {
+            if (files.length % 5 === 0) {
+                setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
+            }
+        }).catch((error) => {
+            console.error("Error reading session files:", error);
+        });
+
+        // Update the best session
+        await updateBestSession(data);
+
+        return true;
+    }
+
     const deleteSession = async (sessionId) => {
         const sessionFilePath = `${sessionDirectory}/${sessionId}.json`;
         try {
@@ -730,6 +757,7 @@ export function AppProvider({children}) {
         getAllStats,
         newPutter,
         newSession,
+        newFullRound,
         getPreviousStats,
         createEmailAccount,
         deletePutter,

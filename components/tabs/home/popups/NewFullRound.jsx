@@ -31,6 +31,8 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
         []
     );
 
+    console.log("tees: " + JSON.stringify(tees["male"]));
+
     const maleTees = tees["male"] || [];
 
     // renders
@@ -38,6 +40,11 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
         <BottomSheetModal
             ref={newFullRoundRef}
             backdropComponent={myBackdrop}
+            onDismiss={() => {
+                setHoles(18);
+                setFront(true);
+                setTee("");
+            }}
             backgroundStyle={{backgroundColor: colors.background.primary, overflow: "visible"}}
             handleIndicatorStyle={{backgroundColor: colors.text.primary}}
             stackBehavior={"push"}>
@@ -48,108 +55,112 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                     <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>
                         New Full Round
                     </FontText>
-                    <FontText
-                        style={{
-                            marginTop: 12,
-                            fontSize: 18,
-                            color: colors.text.primary,
-                            marginBottom: 4
-                        }}>
-                        Holes
-                    </FontText>
-                    <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
-                        <Pressable
-                            onPress={() => setHoles(9)}
+                    {maleTees[0].number_of_holes !== 9 && (
+                        <FontText
                             style={{
-                                flex: 1,
-                                borderWidth: 1,
-                                borderColor:
-                                    holes === 9
-                                        ? colors.toggleable.toggled.border
-                                        : colors.toggleable.border,
-                                borderRadius: 12,
-                                paddingHorizontal: 8,
-                                paddingVertical: 8,
-                                backgroundColor:
-                                    holes === 9
-                                        ? colors.toggleable.toggled.background
-                                        : colors.toggleable.background,
-                            }}>
-                            {holes === 9 && (
-                                <View
-                                    style={{
-                                        position: "absolute",
-                                        right: -7,
-                                        top: -7,
-                                        backgroundColor: "#40C2FF",
-                                        padding: 3,
-                                        borderRadius: 50,
-                                    }}>
-                                    <Svg
-                                        width={18}
-                                        height={18}
-                                        stroke={colors.checkmark.color}
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="3">
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                    </Svg>
-                                </View>
-                            )}
-                            <FontText style={{
-                                textAlign: "center",
+                                marginTop: 12,
+                                fontSize: 18,
                                 color: colors.text.primary,
-                                fontSize: 16,
+                                marginBottom: 4
                             }}>
-                                9 Holes
-                            </FontText>
-                        </Pressable>
-                        <Pressable
-                            onPress={() => setHoles(18)}
-                            style={{
-                                flex: 1,
-                                borderWidth: 1,
-                                borderColor:
-                                    holes === 18
-                                        ? colors.toggleable.toggled.border
-                                        : colors.toggleable.border,
-                                borderRadius: 12,
-                                paddingHorizontal: 8,
-                                paddingVertical: 8,
-                                backgroundColor:
-                                    holes === 18
-                                        ?  colors.toggleable.toggled.background
-                                        : colors.toggleable.background,
-                            }}>
-                            {holes === 18 && (
-                                <View
-                                    style={{
-                                        position: "absolute",
-                                        right: -7,
-                                        top: -7,
-                                        backgroundColor: "#40C2FF",
-                                        padding: 3,
-                                        borderRadius: 50,
-                                    }}>
-                                    <Svg
-                                        width={18}
-                                        height={18}
-                                        stroke={colors.checkmark.color}
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="3">
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                    </Svg>
-                                </View>
-                            )}
-                            <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>
-                                18 Holes
-                            </FontText>
-                        </Pressable>
-                    </View>
-                    {holes < 18 && (
+                            Holes
+                        </FontText>
+                    )}
+                    {maleTees[0].number_of_holes !== 9 && (
+                        <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
+                            <Pressable
+                                onPress={() => setHoles(9)}
+                                style={{
+                                    flex: 1,
+                                    borderWidth: 1,
+                                    borderColor:
+                                        holes === 9
+                                            ? colors.toggleable.toggled.border
+                                            : colors.toggleable.border,
+                                    borderRadius: 12,
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 8,
+                                    backgroundColor:
+                                        holes === 9
+                                            ? colors.toggleable.toggled.background
+                                            : colors.toggleable.background,
+                                }}>
+                                {holes === 9 && (
+                                    <View
+                                        style={{
+                                            position: "absolute",
+                                            right: -7,
+                                            top: -7,
+                                            backgroundColor: "#40C2FF",
+                                            padding: 3,
+                                            borderRadius: 50,
+                                        }}>
+                                        <Svg
+                                            width={18}
+                                            height={18}
+                                            stroke={colors.checkmark.color}
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="3">
+                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg>
+                                    </View>
+                                )}
+                                <FontText style={{
+                                    textAlign: "center",
+                                    color: colors.text.primary,
+                                    fontSize: 16,
+                                }}>
+                                    9 Holes
+                                </FontText>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => setHoles(18)}
+                                style={{
+                                    flex: 1,
+                                    borderWidth: 1,
+                                    borderColor:
+                                        holes === 18
+                                            ? colors.toggleable.toggled.border
+                                            : colors.toggleable.border,
+                                    borderRadius: 12,
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 8,
+                                    backgroundColor:
+                                        holes === 18
+                                            ?  colors.toggleable.toggled.background
+                                            : colors.toggleable.background,
+                                }}>
+                                {holes === 18 && (
+                                    <View
+                                        style={{
+                                            position: "absolute",
+                                            right: -7,
+                                            top: -7,
+                                            backgroundColor: "#40C2FF",
+                                            padding: 3,
+                                            borderRadius: 50,
+                                        }}>
+                                        <Svg
+                                            width={18}
+                                            height={18}
+                                            stroke={colors.checkmark.color}
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="3">
+                                            <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                        </Svg>
+                                    </View>
+                                )}
+                                <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>
+                                    18 Holes
+                                </FontText>
+                            </Pressable>
+                        </View>
+                    )}
+                    {holes < 18 && maleTees[0].number_of_holes > 9 && (
                         <>
                             <FontText
                                 style={{
@@ -263,7 +274,7 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                         columnWrapperStyle={{ gap: 12, marginBottom: 8, paddingHorizontal: 0, overflow: "visible", justifyContent: "space-between" }}
                         contentContainerStyle={{ gap: 12 }}
                         renderItem={({ item, index }) => {
-                            const isSelected = tee === "" ? index === 0 : tee.name === item.name;
+                            const isSelected = tee.name === item.name;
                             return (
                                 <Pressable
                                     onPress={() => setTee(item)}
@@ -363,14 +374,16 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                     </Pressable>
                     <PrimaryButton
                         title={"Start Session"}
+                        disabled={tee === ""}
                         onPress={() => {
+                            if (tee === "") return;
                             newFullRoundRef.current?.dismiss();
                             router.push({
                                 pathname: `/simulation/full`,
                                 params: {
-                                    stringHoles: holes,
+                                    stringHoles: maleTees[0].number_of_holes === 9 ? 9 : holes,
                                     stringTee: JSON.stringify(tee),
-                                    stringFront: front,
+                                    stringFront: maleTees[0].number_of_holes === 9 ? true : front,
                                     stringCourse: JSON.stringify(course),
                                 },
                             });

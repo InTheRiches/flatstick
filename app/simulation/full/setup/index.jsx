@@ -57,6 +57,7 @@ function parseTees(teesData) {
                 rating: tee.course_rating,
                 slope: tee.slope_rating,
                 yards: tee.total_yards,
+                number_of_holes: tee.number_of_holes,
                 holes: tee.holes,
             });
         }
@@ -185,7 +186,21 @@ export default function GolfCourseSearchScreen() {
                         renderItem={({item}) => {
                             if (!item.club_name) return null; // skip if no club name
                             if (!item.location || !item.location.city || !item.location.state) return null; // skip if no location
-                            const clubName = item.club_name.replace(/\s*\(\d+\)$/, "");
+                            let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
+                            let courseName = item.course_name.replace(/\s*\(\d+\)$/, "").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
+
+                            if (courseName.startsWith(clubName) && courseName !== clubName) {
+                                courseName = courseName.substring(clubName.length).trim();
+                                if (courseName.startsWith("-")) {
+                                    courseName = courseName.substring(1).trim();
+                                }
+                            }
+
+                            let namesTheSame = clubName.toLowerCase() === courseName.toLowerCase();
+                            // if the course ends in golf club and the club name ends in golf course, they are the same, so update namesTheSame
+                            if ((courseName.toLowerCase().endsWith("golf club") && clubName.toLowerCase().endsWith("golf course")) || (clubName.toLowerCase().endsWith("golf club") && courseName.toLowerCase().endsWith("golf course"))) {
+                                namesTheSame = true;
+                            }
                             return (
                                 <Pressable key={"course-" + item.id} style={({pressed}) => [{
                                     padding: 8,
@@ -201,9 +216,9 @@ export default function GolfCourseSearchScreen() {
                                     setTees(parseTees(item.tees));
                                     newFullRoundRef.current.present();
                                 }}>
-                                    <View style={{flexDirection: "row", flex: 1}}>
+                                    <View style={{flexDirection: "row", flex: 1, alignItems: "center"}}>
                                         <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                             fill={colors.text.secondary} width={48} height={48}>
+                                             fill={colors.text.primary} width={48} height={48}>
                                             <Path fillRule="evenodd"
                                                   d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 0 1-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 0 1-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 0 1-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584ZM12 18a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
                                                   clipRule="evenodd"/>
@@ -214,6 +229,13 @@ export default function GolfCourseSearchScreen() {
                                                 fontSize: 16,
                                                 fontWeight: 500
                                             }}>{clubName}</FontText>
+                                            {!namesTheSame && (
+                                                <FontText style={{
+                                                    color: colors.text.secondary,
+                                                    fontSize: 14,
+                                                    fontWeight: 600
+                                                }}>{courseName}</FontText>
+                                            )}
                                             <View style={{
                                                 flexDirection: "row",
                                                 alignItems: "center",
