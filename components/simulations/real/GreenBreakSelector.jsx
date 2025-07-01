@@ -1,5 +1,5 @@
-import React, {useRef, useState} from "react";
-import {Image, View} from "react-native";
+import React, {useEffect, useRef, useState} from "react";
+import {Dimensions, Image, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
 import {canvas2Polar, normalizeRad} from "react-native-redash";
@@ -22,8 +22,6 @@ export function GreenBreakSelector({theta, setTheta}) {
         setTheta(newTheta);
     }
 
-    const [baseX, setBaseX] = useState(0);
-    const [baseY, setBaseY] = useState(0);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
 
@@ -31,12 +29,6 @@ export function GreenBreakSelector({theta, setTheta}) {
     const [imageAbsoluteY, setImageAbsoluteY] = useState(0);
 
     const imageRef = useRef(null);
-
-    const onLayout = (event) => {
-        const {x, y} = event.nativeEvent.layout;
-        setBaseX(x);
-        setBaseY(y);
-    };
 
     const measurePosition = () => {
         if (imageRef.current) {
@@ -51,8 +43,10 @@ export function GreenBreakSelector({theta, setTheta}) {
     };
 
     const pan = Gesture.Pan().onUpdate((event) => {
-        let x = event.absoluteX - baseX;
-        let y = event.absoluteY - baseY;
+        let x = event.absoluteX;
+        let y = event.absoluteY;
+
+        console.log(`x: ${x}, y: ${y}, imageAbsoluteX: ${imageAbsoluteX}, imageAbsoluteY: ${imageAbsoluteY}`);
 
         const newVal = normalizeRad(
             canvas2Polar({x, y}, {x: imageAbsoluteX + (width / 2), y: imageAbsoluteY + (height / 2)}).theta
@@ -77,7 +71,7 @@ export function GreenBreakSelector({theta, setTheta}) {
     return (
         <View style={{justifyContent: "center", alignItems: "center"}}>
             <GestureDetector gesture={gesture}>
-                <View onLayout={onLayout} ref={imageRef}>
+                <View ref={imageRef}>
                     <Image
                         source={angleImages[theta]}
                         style={{
@@ -86,7 +80,7 @@ export function GreenBreakSelector({theta, setTheta}) {
                             opacity: 0,
                         }} // height and width must be non-zero or else onLoad does not fire on Android
                         onLoad={() => {
-                            if (width === 0) measurePosition()
+                            if (width === 0 || (imageAbsoluteY / Dimensions.get("window").height) > 0.5) measurePosition()
                             setVisibleImageSource(angleImages[theta]);
                         }}
                     />
@@ -102,4 +96,4 @@ export function GreenBreakSelector({theta, setTheta}) {
             </GestureDetector>
         </View>
     );
-};
+}

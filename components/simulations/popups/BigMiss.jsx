@@ -139,6 +139,7 @@ export function BigMissModal({
             }
             setOpen(!open);
         }}
+        stackBehavior={"push"}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
         keyboardBlurBehavior={"restore"}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {ActivityIndicator, FlatList, Pressable, StyleSheet, TextInput, View,} from "react-native";
+import {ActivityIndicator, FlatList, Pressable, TextInput, View,} from "react-native";
 import {useNavigation} from "@react-navigation/native";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import Svg, {Path} from "react-native-svg";
@@ -9,7 +9,7 @@ import {NewFullRound} from "../../../../components/tabs/home/popups/NewFullRound
 
 const GOLF_API_KEY = "P3YWERWFDOPBUUV66UDLRJDTLY"; // Replace with your real key
 
-async function searchGolfCourses(query) {
+async function searchGolfCourses(query, userLocation) {
     if (!query) return [];
 
     try {
@@ -21,8 +21,36 @@ async function searchGolfCourses(query) {
                 },
             }
         );
+        const map = new Map();
         const data = (await res.json()).courses;
-        return Array.isArray(data) ? data : [];
+        if (!Array.isArray(data)) return [];
+
+        data.forEach(course => {
+            const { club_name, ...rest } = course;
+
+            const distance = Math.round(haversine(
+                userLocation.latitude,
+                userLocation.longitude,
+                course.location.latitude,
+                course.location.longitude
+            ) / 1000);
+
+            if (!map.has(club_name)) {
+                map.set(club_name, {
+                    club_name,
+                    distance,
+                    id: course.id,
+                    courses: []
+                });
+            }
+
+            map.get(club_name).courses.push({
+                ...rest,
+                tees: parseTees(course.tees) // replace tees here
+            });
+        });
+
+        return Array.from(map.values());
     } catch (err) {
         console.error("Search failed:", err);
         return [];
@@ -74,7 +102,6 @@ export default function GolfCourseSearchScreen() {
     const colors = useColors();
     const newFullRoundRef = useRef(null);
     const navigation = useNavigation();
-    const [tees, setTees] = useState({});
     const [course, setCourse] = useState({});
 
     const setSearchQuery = (newQuery) => {
@@ -110,23 +137,9 @@ export default function GolfCourseSearchScreen() {
         const timeout = setTimeout(() => {
             if (query.length > 2) {
                 setLoading(true);
-                searchGolfCourses(query).then((data) => {
-                    const sortedCourses = data
-                        .map((item) => {
-                            const distance = Math.round(haversine(
-                                location.latitude,
-                                location.longitude,
-                                item.location.latitude,
-                                item.location.longitude
-                            ) / 1000);
-                            return {...item, distance};
-                        })
-                        .sort((a, b) => a.distance - b.distance);
-
-                    setResults(sortedCourses);
+                searchGolfCourses(query, location).then((data) => {
+                    setResults(data.sort((a, b) => a.distance - b.distance));
                     setLoading(false);
-                }).catch((e) => {
-                    console.log("error: " + e);
                 });
             } else {
                 setResults([]);
@@ -183,26 +196,11 @@ export default function GolfCourseSearchScreen() {
                     <FlatList
                         data={results}
                         keyExtractor={(item) => item.id.toString()}
-                        renderItem={({item}) => {
+                        renderItem={({item, index}) => {
                             if (!item.club_name) return null; // skip if no club name
-                            if (!item.location || !item.location.city || !item.location.state) return null; // skip if no location
-                            let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
-                            let courseName = item.course_name.replace(/\s*\(\d+\)$/, "").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
-
-                            if (courseName.startsWith(clubName) && courseName !== clubName) {
-                                courseName = courseName.substring(clubName.length).trim();
-                                if (courseName.startsWith("-")) {
-                                    courseName = courseName.substring(1).trim();
-                                }
-                            }
-
-                            let namesTheSame = clubName.toLowerCase() === courseName.toLowerCase();
-                            // if the course ends in golf club and the club name ends in golf course, they are the same, so update namesTheSame
-                            if ((courseName.toLowerCase().endsWith("golf club") && clubName.toLowerCase().endsWith("golf course")) || (clubName.toLowerCase().endsWith("golf club") && courseName.toLowerCase().endsWith("golf course"))) {
-                                namesTheSame = true;
-                            }
+                            let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("G&Cc", "Golf and Country Club").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
                             return (
-                                <Pressable key={"course-" + item.id} style={({pressed}) => [{
+                                <Pressable key={"course-" + index} style={({pressed}) => [{
                                     padding: 8,
                                     backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary,
                                     borderRadius: 14,
@@ -213,7 +211,6 @@ export default function GolfCourseSearchScreen() {
                                     gap: 12
                                 }]} onPress={() => {
                                     setCourse(item);
-                                    setTees(parseTees(item.tees));
                                     newFullRoundRef.current.present();
                                 }}>
                                     <View style={{flexDirection: "row", flex: 1, alignItems: "center"}}>
@@ -229,13 +226,6 @@ export default function GolfCourseSearchScreen() {
                                                 fontSize: 16,
                                                 fontWeight: 500
                                             }}>{clubName}</FontText>
-                                            {!namesTheSame && (
-                                                <FontText style={{
-                                                    color: colors.text.secondary,
-                                                    fontSize: 14,
-                                                    fontWeight: 600
-                                                }}>{courseName}</FontText>
-                                            )}
                                             <View style={{
                                                 flexDirection: "row",
                                                 alignItems: "center",
@@ -245,7 +235,7 @@ export default function GolfCourseSearchScreen() {
                                                 <FontText style={{
                                                     color: colors.text.secondary,
                                                     fontSize: 14
-                                                }}>{item.location.city}, {item.location.state}</FontText>
+                                                }}>{item.courses[0].location.city}, {item.courses[0].location.state}</FontText>
                                                 <FontText style={{
                                                     color: colors.text.secondary,
                                                     fontSize: 14
@@ -274,34 +264,7 @@ export default function GolfCourseSearchScreen() {
                     />
                 </View>
             </ScreenWrapper>
-            <NewFullRound newFullRoundRef={newFullRoundRef} tees={tees} course={course}></NewFullRound>
+            <NewFullRound newFullRoundRef={newFullRoundRef} fullData={course}></NewFullRound>
         </>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: 16,
-        backgroundColor: "#fff",
-    },
-    searchBar: {
-        marginHorizontal: 16,
-        marginBottom: 8,
-    },
-    center: {
-        padding: 20,
-        alignItems: "center",
-    },
-    card: {
-        backgroundColor: "#f0f0f0",
-        borderRadius: 10,
-        padding: 16,
-        marginBottom: 12,
-    },
-    title: {
-        fontWeight: "bold",
-        fontSize: 18,
-        marginBottom: 4,
-    },
-});

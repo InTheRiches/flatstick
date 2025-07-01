@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {FlatList, Image, Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
@@ -9,14 +9,54 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {useAppContext} from "@/contexts/AppCtx";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import FontText from "../../../general/FontText";
+import DropDownPicker from "react-native-dropdown-picker";
 
-export function NewFullRound({newFullRoundRef, tees, course}) {
+export function NewFullRound({newFullRoundRef, fullData}) {
     const colors = useColors();
     const [holes, setHoles] = useState(18);
     const [front, setFront] = useState(true);
     const router = useRouter();
     const {putters, grips, userData, updateData} = useAppContext();
     const [tee, setTee] = useState("");
+    const [teeOpen, setTeeOpen] = useState(false);
+    const [courseOpen, setCourseOpen] = useState(false);
+    const [teeItems, setTeeItems] = useState([]);
+    const [courseItems, setCourseItems] = useState([]);
+    const [course, setCourse] = useState({});
+
+    useEffect(() => {
+        if (fullData && fullData.courses) {
+            if (fullData.courses.length === 1) {
+                setCourse(fullData.courses[0]);
+            }
+            else {
+                setCourseItems(
+                    fullData.courses.map((course) => ({
+                        label: course.course_name.replace(/\s*\(\d+\)$/, "").replace("G&Cc", "Golf and Country Club").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club"),
+                        value: course.course_name,
+                        full: course,
+                    }))
+                )
+            }
+        }
+    }, [fullData]);
+
+    useEffect(() => {
+        console.log(Object.keys(course).length !== 0);
+        if (Object.keys(course).length !== 0) {
+            console.log("setting tees");
+            setTeeItems(
+                course.tees["male"].map((tee) => ({
+                    label: `${tee.name} - ${tee.yards} yds`,
+                    value: tee.name,
+                    full: tee,
+                }))
+            );
+        }
+    }, [course]);
+
+    const [value, setValue] = useState(null);
+    const [value2, setValue2] = useState(null);
 
     const myBackdrop = useCallback(
         ({animatedIndex, style}) => {
@@ -31,9 +71,7 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
         []
     );
 
-    console.log("tees: " + JSON.stringify(tees["male"]));
-
-    const maleTees = tees["male"] || [];
+    const maleTees = (course && course.tees && course.tees["male"]) ? course.tees["male"] : [];
 
     // renders
     return (
@@ -44,6 +82,9 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                 setHoles(18);
                 setFront(true);
                 setTee("");
+                setTeeOpen(false);
+                setCourseOpen(false);
+                setCourse({});
             }}
             backgroundStyle={{backgroundColor: colors.background.primary, overflow: "visible"}}
             handleIndicatorStyle={{backgroundColor: colors.text.primary}}
@@ -55,10 +96,46 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                     <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>
                         New Full Round
                     </FontText>
-                    {maleTees[0].number_of_holes !== 9 && (
+                    {fullData && fullData.courses && fullData.courses.length !== 1 && (<View style={{ zIndex: 20, marginBottom: 12 }}>
+                        <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Course</FontText>
+                        <DropDownPicker
+                            open={courseOpen}
+                            value={value2}
+                            items={courseItems}
+                            setOpen={() => {
+                                setCourseOpen(!courseOpen);
+                                if (teeOpen) {
+                                    setTeeOpen(false);
+                                }
+                            }}
+                            setValue={setValue2}
+                            setItems={setCourse}
+                            onChangeValue={(val) => {
+                                const selected = courseItems.find((item) => item.value === val);
+                                if (selected) setCourse(selected.full);
+                            }}
+                            placeholder="Select a course"
+                            style={{
+                                backgroundColor: colors.background.secondary,
+                                borderColor: colors.border.default,
+                                marginBottom: 0, // courseOpen && courseItems.length > 4 ? 64 : 0
+                                borderRadius: 12,
+                            }}
+                            dropDownContainerStyle={{
+                                backgroundColor: colors.background.secondary,
+                                borderColor: colors.border.default,
+                                zIndex: 1000,
+                                borderRadius: 12,
+                            }}
+                            textStyle={{
+                                color: colors.text.primary,
+                                fontSize: 16,
+                            }}
+                        />
+                    </View>)}
+                    {maleTees && maleTees[0] && maleTees[0].number_of_holes !== 9 && (
                         <FontText
                             style={{
-                                marginTop: 12,
                                 fontSize: 18,
                                 color: colors.text.primary,
                                 marginBottom: 4
@@ -66,7 +143,7 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                             Holes
                         </FontText>
                     )}
-                    {maleTees[0].number_of_holes !== 9 && (
+                    {maleTees && maleTees[0] && maleTees[0].number_of_holes !== 9 && (
                         <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
                             <Pressable
                                 onPress={() => setHoles(9)}
@@ -265,73 +342,44 @@ export function NewFullRound({newFullRoundRef, tees, course}) {
                             </View>
                         </>
                     )}
-                    <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Tee Box</FontText>
-                    <FlatList
-                        style={{ overflow: "visible" }}
-                        data={maleTees}
-                        numColumns={2}
-                        keyExtractor={(item, index) => item.name + index}
-                        columnWrapperStyle={{ gap: 12, marginBottom: 8, paddingHorizontal: 0, overflow: "visible", justifyContent: "space-between" }}
-                        contentContainerStyle={{ gap: 12 }}
-                        renderItem={({ item, index }) => {
-                            const isSelected = tee.name === item.name;
-                            return (
-                                <Pressable
-                                    onPress={() => setTee(item)}
-                                    style={{
-                                        flex: 1,
-                                        borderWidth: 1,
-                                        borderColor: isSelected
-                                            ? colors.toggleable.toggled.border
-                                            : colors.toggleable.border,
-                                        borderRadius: 12,
-                                        paddingHorizontal: 8,
-                                        paddingVertical: 8,
-                                        backgroundColor: isSelected
-                                            ? colors.toggleable.toggled.background
-                                            : colors.toggleable.background,
-                                    }}>
-                                    {isSelected && (
-                                        <View
-                                            style={{
-                                                position: "absolute",
-                                                right: -7,
-                                                top: -7,
-                                                backgroundColor: "#40C2FF",
-                                                padding: 3,
-                                                borderRadius: 50,
-                                            }}
-                                        >
-                                            <Svg
-                                                width={18}
-                                                height={18}
-                                                stroke={colors.checkmark.color}
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="3"
-                                            >
-                                                <Path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="m4.5 12.75 6 6 9-13.5"
-                                                />
-                                            </Svg>
-                                        </View>
-                                    )}
-                                    <FontText style={{
-                                            textAlign: "center",
-                                            color: colors.text.primary,
-                                            fontSize: 16,
-                                        }}>
-                                        {item.name}
-                                    </FontText>
-                                </Pressable>
-                            );
-                        }}
-                    />
+                    {maleTees && Object.keys(course).length !== 0 && (<View style={{ zIndex: 10, marginBottom: 12 }}>
+                        <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Tee Box</FontText>
+                        <DropDownPicker
+                            open={teeOpen}
+                            value={value}
+                            items={teeItems}
+                            setOpen={() => {
+                                setTeeOpen(!teeOpen);
+                                if (courseOpen) {
+                                    setCourseOpen(false);
+                                }
+                            }}
+                            setValue={setValue}
+                            setItems={setTeeItems}
+                            onChangeValue={(val) => {
+                                const selected = teeItems.find((item) => item.value === val);
+                                if (selected) setTee(selected.full);
+                            }}
+                            placeholder="Select a tee box"
+                            style={{
+                                backgroundColor: colors.background.secondary,
+                                borderColor: colors.border.default,
+                                marginBottom: teeOpen && teeItems.length > 4 ? 64 : 0,
+                                borderRadius: 12,
+                            }}
+                            dropDownContainerStyle={{
+                                backgroundColor: colors.background.secondary,
+                                borderColor: colors.border.default,
+                                zIndex: 1000,
+                                borderRadius: 12,
+                            }}
+                            textStyle={{
+                                color: colors.text.primary,
+                                fontSize: 16,
+                            }}
+                        />
+                    </View>)}
                     <FontText style={{
-                        marginTop: 12,
                         fontSize: 18,
                         color: colors.text.primary,
                         marginBottom: 4,

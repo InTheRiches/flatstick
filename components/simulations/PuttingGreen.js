@@ -7,7 +7,17 @@ import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
 import FontText from "../general/FontText";
 
-export function PuttingGreen({updateField, width: realWidth, height, point, center}) {
+export function PuttingGreen({
+                                 updateField,
+                                 width: realWidth,
+                                 height,
+                                 point,
+                                 center,
+                                 setWidth: setWidthProp,
+                                 setHeight: setHeightProp,
+                                 setPoint,
+                                 setCenter
+                             }) {
     const colors = useColors();
     const {userData} = useAppContext();
     const [ballSize, setBallSize] = useState(0);
@@ -15,13 +25,36 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
 
     const difference = (width - height) / 2;
 
+    const update = (key, value) => {
+        if (updateField) {
+            updateField(key, value);
+        } else {
+            switch (key) {
+                case "width":
+                    setWidthProp?.(value);
+                    break;
+                case "height":
+                    setHeightProp?.(value);
+                    break;
+                case "point":
+                    setPoint?.(value);
+                    break;
+                case "center":
+                    setCenter?.(value);
+                    break;
+                default:
+                    console.warn("Unknown update key:", key);
+            }
+        }
+    };
+
     // TODO see if we can delete puttingGreenWidth
     const onLayout = (event) => {
         const {width: rawWidth, height: rawHeight} = event.nativeEvent.layout;
 
         setWidth(rawWidth);
-        updateField("height", rawHeight);
-        updateField("width", rawHeight);
+        update("height", rawHeight);
+        update("width", rawHeight);
     };
 
     const singleTap = userData.preferences.units === 0 ? Gesture.Tap()
@@ -29,7 +62,7 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
             // ignore it if the point is outside of the green
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
-            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
+            runOnJS(update)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
 
             const boxWidth = height / 10;
             const boxHeight = height / 10;
@@ -38,10 +71,10 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
             const snappedX = Math.round((data.x - difference) / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
-            runOnJS(updateField)("point", {x: snappedX, y: snappedY});
+            runOnJS(update)("point", {x: snappedX, y: snappedY});
         }) : Gesture.Tap()
         .onStart((data) => {
-            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
+            runOnJS(update)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
             const boxWidth = height / 8;
@@ -51,11 +84,11 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
             const snappedX = Math.round((data.x - difference) / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
-            runOnJS(updateField)("point", {x: snappedX, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
+            runOnJS(update)("point", {x: snappedX, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
 
     return (
-        <View style={{flex: 1, maxHeight: width}}>
+        <View style={{flex: updateField ? 1 : 0, maxHeight: width}}>
             <View style={{
                 alignSelf: "center",
                 flexDirection: "row",
@@ -93,7 +126,8 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
                           alignItems: "center",
                           justifyContent: "center",
                           flexDirection: "col",
-                          flex: 1,
+                          flex: updateField ? 1 : 0,
+                          aspectRatio: updateField ? "auto" : 1,
                           width: "100%",
                       }}>
                     <Image

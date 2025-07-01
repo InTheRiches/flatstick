@@ -1,7 +1,7 @@
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
 import useColors from "../../../hooks/useColors";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {Pressable, View} from "react-native";
+import {BackHandler, Keyboard, Platform, Pressable, View} from "react-native";
 import FontText from "../../../components/general/FontText";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
 import Svg, {Line, Path} from "react-native-svg";
@@ -12,14 +12,28 @@ import {useAppContext} from "../../../contexts/AppCtx";
 import ApproachAccuracyButton from "../../../components/simulations/full/ApproachAccuracyButton";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
+import {PuttTrackingModal} from "../../../components/simulations/full/popups/PuttTrackingModal";
+import {
+    AdEventType,
+    BannerAd,
+    BannerAdSize,
+    InterstitialAd,
+    TestIds,
+    useForeground
+} from "react-native-google-mobile-ads";
+import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
+
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 export default function FullRound() {
     const colors = useColors();
-    const navigation = useNavigation();
     const router = useRouter();
     const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
     const {userData, newFullRound} = useAppContext();
     const confirmExitRef = useRef(null);
+    const puttTrackingRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
     const holes = parseInt(stringHoles);
@@ -37,8 +51,20 @@ export default function FullRound() {
     const [penalties, setPenalties] = useState(0);
     const [approachAccuracy, setApproachAccuracy] = useState("green");
     const [fairwayAccuracy, setFairwayAccuracy] = useState("green");
+    const [puttData, setPuttData] = useState({
+        theta: 999,
+        distance: 0,
+        distanceInvalid: true
+    });
 
     const [roundData, setRoundData] = useState([]);
+
+    const [adLoaded, setAdLoaded] = useState(false);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     useEffect(() => {
         const isNineHoleCourse = tee.number_of_holes === 9;
@@ -63,6 +89,30 @@ export default function FullRound() {
         updateTotalScores(initialRoundData);
     }, []);
 
+    useEffect(() => {
+        const onBackPress = () => {
+            confirmExitRef.current.present();
+
+            return true;
+        };
+
+        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+        });
+
+        interstitial.load();
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            onBackPress
+        );
+
+        return () => {
+            unsubscribeLoaded();
+            backHandler.remove();
+        }
+    }, []);
+
     const saveHole = (scoreOfHole = holeScore) => {
         const timeElapsed = new Date().getTime() - holeStartTime;
 
@@ -75,6 +125,7 @@ export default function FullRound() {
             fairwayAccuracy,
             penalties,
             timeElapsed,
+            puttData
         };
         setRoundData(updatedRoundData);
         updateTotalScores(updatedRoundData);
@@ -103,6 +154,9 @@ export default function FullRound() {
             setFairwayAccuracy(roundData[hole].fairwayAccuracy);
             setPenalties(roundData[hole].penalties);
             setHoleStartTime(new Date().getTime() - roundData[hole].timeElapsed);
+            setPuttData(roundData[hole].puttData);
+
+            puttTrackingRef.current.setData(roundData[hole].puttData);
         } else {
             //reset data
             setHoleScore(tee.holes[hole].par)
@@ -111,6 +165,13 @@ export default function FullRound() {
             setFairwayAccuracy("green");
             setPenalties(0);
             setHoleStartTime(new Date().getTime());
+            setPuttData({
+                theta: 999,
+                distance: 0,
+                distanceInvalid: true
+            });
+
+            puttTrackingRef.current.resetData();
         }
 
         setHole(hole + 1);
@@ -130,6 +191,8 @@ export default function FullRound() {
         setFairwayAccuracy(roundData[hole-2].fairwayAccuracy);
         setPenalties(roundData[hole-2].penalties);
         setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
+
+        puttTrackingRef.current.setData(roundData[hole-2].puttData);
 
         setHole(hole - 1);
     }
@@ -170,8 +233,12 @@ export default function FullRound() {
     };
 
     const fullReset = () => {
-        navigation.goBack();
+        router.replace("/");
     };
+
+    const updatePuttData = (data) => {
+        setPuttData(data)
+    }
 
     return (
         <>
@@ -218,7 +285,7 @@ export default function FullRound() {
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 16, width: "100%", paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                         <View>
                             <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.firstName} {userData.lastName === "Unknown" ? "" : userData.lastName}</FontText>
-                            <FontText style={{color: colors.text.secondary, fontWeight: 500}}>Handicap: {userData.strokesGained}</FontText>
+                            <FontText style={{fontSize: 15, color: colors.text.secondary, fontWeight: 500}}>Handicap: {userData.strokesGained}</FontText>
                         </View>
                         <View style={{backgroundColor: colors.button.secondary.background, width: 48, height: 48, borderRadius: 32, justifyContent: "center", alignItems: "center"}}>
                             <FontText style={{fontSize: (totalStrokes-totalParStrokes) === 0 ? 24 : (totalStrokes-totalParStrokes) > 9 || (totalStrokes-totalParStrokes) < -9 ? 20 : 22, fontWeight: 600, color: colors.button.secondary.text, textAlign: "center"}}>{totalStrokes-totalParStrokes > 0 ? "+" : ""}{totalStrokes - totalParStrokes === 0 ? "E" : (totalStrokes - totalParStrokes)}</FontText>
@@ -303,9 +370,11 @@ export default function FullRound() {
                             </Svg>
                             <FontText style={{fontSize: 14, color: colors.button.secondary.text}}>Track Putting</FontText>
                         </>
-                    }></SecondaryButton>
+                    } onPress={() => puttTrackingRef.current.open()}></SecondaryButton>
                 </View>
-
+                <View style={{marginLeft: -24}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
+                </View>
                 <View style={{flexDirection: "row", justifyContent: "space-between", gap: 4, paddingHorizontal: 16}}>
                     <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1, maxWidth: 128}}
                                    title="Back"
@@ -318,6 +387,7 @@ export default function FullRound() {
                 </View>
             </ScreenWrapper>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit()} end={fullReset}></ConfirmExit>
+            <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData}/>
         </>
     )
 }

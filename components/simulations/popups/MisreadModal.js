@@ -24,6 +24,7 @@ export function MisreadModal({ misreadRef, setMisreadSlope, misreadSlope, setMis
         ref={misreadRef}
         backdropComponent={myBackdrop}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
+        stackBehavior={"push"}
         keyboardBlurBehavior={"restore"}>
         <BottomSheetView style={{paddingBottom: 20, backgroundColor: colors.background.secondary,}}>
             <View style={{paddingHorizontal: 32, flexDirection: "column", alignItems: "center",}}>
