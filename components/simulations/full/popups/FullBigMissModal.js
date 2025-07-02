@@ -19,10 +19,8 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
 
     const [open, setOpen] = useState(false);
 
-    const [invalid, setInvalid] = useState(false);
-
     const [distanceFocused, setDistanceFocused] = useState(false);
-    const [distanceInvalid, setDistanceInvalid] = useState(false);
+    const [distanceInvalid, setDistanceInvalid] = useState(true);
 
     useImperativeHandle(bigMissRef, () => ({
         open: () => {
@@ -36,7 +34,7 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
         },
         resetData: () => {
             setDistanceInvalid(false);
-            setDistanceFocused(false);
+            setDistanceFocused(true);
         }
     }));
 
@@ -59,6 +57,13 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
 
     const close = () => {
         Keyboard.dismiss();
+        // if the data isnt complete, clear it all
+        if (largeMiss.dir === "" || largeMiss.distance === -1 || distanceInvalid) {
+            setLargeMiss({
+                distance: -1,
+                dir: "",
+            })
+        }
     };
 
     const updateDistance = (newDistance) => {
@@ -344,14 +349,14 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
                         ></PrimaryButton>
                         <SecondaryButton
                             onPress={() => {
-                                if (!isEqual(largeMiss.dir, "") && !invalid && largeMiss.distance.length !== 0 && !distanceInvalid) {
+                                if (largeMiss.dir !== "" && largeMiss.distance.length !== 0 && !distanceInvalid) {
                                     console.log("next hole");
                                     puttTrackingModalRef.current?.close();
                                     puttTrackingModalRef.current?.largeMiss();
                                     bottomSheetRef.current?.dismiss();
                                 }
                             }}
-                            disabled={isEqual(largeMiss.dir, "") || invalid || largeMiss.distance === -1 || distanceInvalid}
+                            disabled={largeMiss.dir === "" || largeMiss.distance === -1 || distanceInvalid}
                             title={"Save & Close"}
                         ></SecondaryButton>
                     </View>

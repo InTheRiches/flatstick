@@ -1,5 +1,5 @@
 import React, {useCallback, useImperativeHandle, useRef, useState} from "react";
-import {Pressable, View} from "react-native";
+import {Pressable, StyleSheet, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
@@ -67,7 +67,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
         setData: (data) => {
             setTheta(data.theta || 999);
             setDistance(data.distance || 0);
-            setDistanceInvalid(data.distanceInvalid || true);
+            setDistanceInvalid(data.distanceInvalid);
             setPoint(data.point || {});
             setCenter(data.center || false);
             setMisHit(data.misHit || false);
@@ -76,6 +76,10 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
             setMisReadSlope(data.misReadSlope || false);
             setHeight(data.height || 0);
             setWidth(data.width || 0);
+            setLargeMiss(data.largeMiss || {
+                dir: "",
+                distance: -1
+            });
         },
         resetData: () => {
             setTheta(999);
@@ -87,6 +91,11 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
             setMisHit(false);
             setMisReadLine(false);
             setMisReadSlope(false);
+            fullBigMissModalRef.current.resetData();
+            setLargeMiss({
+                dir: "",
+                distance: -1
+            });
         }
     }));
 
@@ -107,7 +116,8 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                         misReadSlope,
                         center,
                         point,
-                    })
+                        ...(largeMiss.distance !== -1 && { largeMiss }),
+                    });
                 }}
                 backdropComponent={myBackdrop}
                 backgroundStyle={{backgroundColor: colors.background.primary}}
@@ -120,6 +130,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                          distanceInvalid={distanceInvalid}
                                          setDistance={setDistance}
                                          setDistanceInvalid={setDistanceInvalid}/>
+
                         <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 12}}>
                             <Pressable onPress={() => setMisHit(!misHit)} style={{
                                 paddingRight: 5,
@@ -198,22 +209,45 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                             </Pressable>
                         </View>
                         <View style={{width: "100%", alignSelf: "flex-start", marginTop: 10}}>
-                            <PuttingGreen center={center} setCenter={setCenter} setHeight={setHeight} setWidth={setWidth} setPoint={setPoint} height={height} width={width} point={point}></PuttingGreen>
+                            <PuttingGreen largeMiss={largeMiss} setLargeMiss={setLargeMiss} center={center} setCenter={setCenter} setHeight={setHeight} setWidth={setWidth} setPoint={setPoint} height={height} width={width} point={point}></PuttingGreen>
                         </View>
                     </View>
                     <View>
-                        {((distance < 1) || (Object.keys(point).length < 1 && !center)) && !holedOut && <View style={{flexDirection: "row", paddingHorizontal: 2, marginTop: 10, paddingRight: 24, alignItems: "center", marginBottom: 12}}>
-                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 strokeWidth={1.5} stroke="red" width={30} height={30}>
-                                <Path strokeLinecap="round" strokeLinejoin="round"
-                                      d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
-                            </Svg>
-                            <FontText style={{color: "red", fontSize: 14, textAlign: "left", marginLeft: 6}}>Putt data is <FontText style={{fontWeight: 600}}>incomplete</FontText>, if you continue, this putt will be <FontText style={{fontWeight: 600}}>invalidated</FontText>.</FontText>
-                        </View>}
+                        {(
+                            (distance < 1 ||
+                                ((Object.keys(point).length < 1 && !center) && largeMiss.distance === -1))
+                            && !holedOut
+                        ) && (
+                            <View style={{flexDirection: "row", paddingHorizontal: 2, marginTop: 10, paddingRight: 24, alignItems: "center", marginBottom: 12}}>
+                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth={1.5} stroke="red" width={30} height={30}>
+                                    <Path strokeLinecap="round" strokeLinejoin="round"
+                                          d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                                </Svg>
+                                <FontText style={{color: "red", fontSize: 14, textAlign: "left", marginLeft: 6}}>
+                                    Putt data is <FontText style={{fontWeight: 600}}>incomplete</FontText>, if you continue, this putt will be <FontText style={{fontWeight: 600}}>invalidated</FontText>.
+                                </FontText>
+                            </View>
+                        )}
                         <View style={{flexDirection: "row", gap: 12, justifyContent: "center" }}>
-                            <DangerButton onPress={() => {
-                                fullBigMissModalRef.current.open();
-                            }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 32, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></DangerButton>
+                            { largeMiss.distance !== -1 ? (
+                                <DangerButton onPress={() => {
+                                    fullBigMissModalRef.current.open();
+                                }} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}} children={<View style={{flexDirection: "row"}}>
+                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         strokeWidth={2}
+                                         width={20}
+                                         height={20} stroke={colors.button.danger.text}>
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                    </Svg>
+                                    <FontText style={{color: colors.button.danger.text, marginLeft: 4}}>Miss > {userData.preferences.units === 0 ? "3ft" : "1m"}</FontText>
+                                </View>}></DangerButton>
+                            ) : (
+                                <PrimaryButton onPress={() => {
+                                    fullBigMissModalRef.current.open();
+                                }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></PrimaryButton>
+                            )
+                            }
                             <SecondaryButton title={"Save & Close"} onPress={() => {
                                 bottomSheetRef.current.dismiss();
                                 // we do this because if the person sets their big miss data, but then saves the hole with < 3ft data, we ignore the big miss data

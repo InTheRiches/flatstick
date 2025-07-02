@@ -1,4 +1,4 @@
-import {Image, Text, View} from "react-native";
+import {Image, StyleSheet, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import React, {useState} from "react";
@@ -9,6 +9,8 @@ import FontText from "../general/FontText";
 
 export function PuttingGreen({
                                  updateField,
+                                 largeMiss,
+                                 setLargeMiss,
                                  width: realWidth,
                                  height,
                                  point,
@@ -59,6 +61,13 @@ export function PuttingGreen({
 
     const singleTap = userData.preferences.units === 0 ? Gesture.Tap()
         .onStart((data) => {
+            if (largeMiss && largeMiss.distance !== -1) {
+                runOnJS(setLargeMiss)({
+                    distance: -1,
+                    dir: ""
+                });
+                return;
+            }
             // ignore it if the point is outside of the green
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
@@ -74,6 +83,13 @@ export function PuttingGreen({
             runOnJS(update)("point", {x: snappedX, y: snappedY});
         }) : Gesture.Tap()
         .onStart((data) => {
+            if (largeMiss && largeMiss.distance !== -1) {
+                runOnJS(setLargeMiss)({
+                    distance: -1,
+                    dir: ""
+                });
+                return;
+            }
             runOnJS(update)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
@@ -130,6 +146,20 @@ export function PuttingGreen({
                           aspectRatio: updateField ? "auto" : 1,
                           width: "100%",
                       }}>
+                    {largeMiss && largeMiss.distance !== -1 && (
+                        <View style={{
+                            ...StyleSheet.absoluteFill,
+                            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 99,
+                            borderRadius: 12,
+                        }}>
+                            <FontText style={{fontSize: 18, fontWeight: '700', color: '#333'}}>Miss logged as >3ft</FontText>
+                            <FontText style={{fontSize: 14, color: '#555'}}>No need to mark your putt</FontText>
+                            <FontText style={{fontSize: 14, color: '#555'}}>If you want to override that, tap on grid.</FontText>
+                        </View>
+                    )}
                     <Image
                         source={userData.preferences.units === 0 ? require('@/assets/images/putting-grid.png') : require('@/assets/images/putting-grid-metric.png')}
                         style={{
