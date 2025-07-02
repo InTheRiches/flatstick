@@ -13,7 +13,7 @@
       "usesAppleSignIn": true,
       "bundleIdentifier": "com.intheriches.flatstick",
       "supportsTablet": false,
-      "googleServicesFile": "./GoogleService-Info.plist",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "androidNavigationBar": {
       "backgroundColor": "#ffffff"
@@ -38,7 +38,9 @@
       [
         "expo-font",
         {
-          "fonts": ["assets/fonts/Geist[wght].ttf"]
+          "fonts": [
+            "assets/fonts/Geist[wght].ttf"
+          ]
         }
       ],
       [
@@ -49,8 +51,15 @@
         }
       ],
       "expo-secure-store",
-      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }],
-      ["./android-manifest-launch-mode-plugin"],
+      [
+        "react-native-bootsplash",
+        {
+          "assetsDir": "assets/bootsplash"
+        }
+      ],
+      [
+        "./android-manifest-launch-mode-plugin"
+      ],
       "@react-native-google-signin/google-signin",
       [
         "expo-location",

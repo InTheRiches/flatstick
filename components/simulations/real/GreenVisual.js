@@ -278,13 +278,13 @@ export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvali
     const colorScheme = "light";
     const {userData} = useAppContext();
 
-    const [distanceInput, setDistanceInput] = useState("");
+    const [distanceInput, setDistanceInput] = useState(distance.toString());
 
     const slope = slopes[theta];
     const puttBreak = breaks[theta];
 
     const validateDistance = (text) => {
-        setDistanceInput(text);
+        setDistanceInput(text === "-" ? "" : text);
         // if it's not a number, make it invalid
         if (text === "") {
             setDistance(-1);
@@ -297,7 +297,6 @@ export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvali
         }
 
         const num = parseInt(text);
-        console.log("num: ", num);
         setDistance(num);
         setDistanceInvalid(num < 1 || num > 99);
     }

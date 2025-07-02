@@ -17,6 +17,7 @@ import {
     useFonts,
 } from '@expo-google-fonts/inter';
 import {Platform} from "react-native";
+import BootSplash from "react-native-bootsplash";
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);

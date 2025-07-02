@@ -14,11 +14,16 @@ import {PrimaryButton} from "../../../general/buttons/PrimaryButton";
 import {MisreadModal} from "../../popups/MisreadModal";
 import {PuttingGreen} from "../../PuttingGreen";
 import {BigMissModal} from "../../popups";
+import DangerButton from "../../../general/buttons/DangerButton";
+import {useAppContext} from "@/contexts/AppCtx";
+import {FullBigMissModal} from "./FullBigMissModal";
 
 export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
     const colors = useColors();
     const bottomSheetRef = useRef(null);
     const misreadRef = useRef(null);
+    const fullBigMissModalRef = useRef(null);
+    const {userData} = useAppContext();
 
     const screenHeight = Dimensions.get("window").height;
     const snapPoints = [`${((screenHeight - useSafeAreaInsets().top) / screenHeight) * 100}%`];
@@ -34,12 +39,14 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
     const [width, setWidth] = useState(0);
     const [center, setCenter] = useState(false);
     const [point, setPoint] = useState({});
-    const [largeMiss, setLargeMiss] = useState(false);
-    const [largeMissBy, setLargeMissBy] = useState(0);
+    const [largeMiss, setLargeMiss] = useState({
+        dir: "",
+        distance: -1
+    });
 
     const myBackdrop = useCallback(({animatedIndex, style}) => {
         return (<CustomBackdrop
-            reference={puttTrackingRef}
+            reference={bottomSheetRef}
             animatedIndex={animatedIndex}
             style={style}
         />);
@@ -47,10 +54,15 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
 
     useImperativeHandle(puttTrackingRef, () => ({
         open: () => {
+            console.log(distance);
             bottomSheetRef.current?.present();
         },
         close: () => {
             bottomSheetRef.current?.dismiss();
+        },
+        largeMiss: () => {
+            setPoint({});
+            setCenter(false);
         },
         setData: (data) => {
             setTheta(data.theta || 999);
@@ -198,13 +210,26 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                             </Svg>
                             <FontText style={{color: "red", fontSize: 14, textAlign: "left", marginLeft: 6}}>Putt data is <FontText style={{fontWeight: 600}}>incomplete</FontText>, if you continue, this putt will be <FontText style={{fontWeight: 600}}>invalidated</FontText>.</FontText>
                         </View>}
-                        <SecondaryButton title={"Save & Close"} onPress={() => bottomSheetRef.current.dismiss()}></SecondaryButton>
+                        <View style={{flexDirection: "row", gap: 12, justifyContent: "center" }}>
+                            <DangerButton onPress={() => {
+                                fullBigMissModalRef.current.open();
+                            }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 32, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></DangerButton>
+                            <SecondaryButton title={"Save & Close"} onPress={() => {
+                                bottomSheetRef.current.dismiss();
+                                // we do this because if the person sets their big miss data, but then saves the hole with < 3ft data, we ignore the big miss data
+                                if (largeMiss.distance !== -1 && (Object.keys(point).length > 0 || center)) {
+                                    setLargeMiss({
+                                        dir: "",
+                                        distance: -1
+                                    });
+                                }
+                            }}></SecondaryButton>
+                        </View>
                     </View>
                 </BottomSheetView>
             </BottomSheetModal>
 
-            <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
-                          rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
+            <FullBigMissModal bigMissRef={fullBigMissModalRef} puttTrackingModalRef={puttTrackingRef} largeMiss={largeMiss} setLargeMiss={setLargeMiss}/>
             <MisreadModal misreadRef={misreadRef} setMisreadSlope={setMisReadSlope} setMisreadLine={setMisReadLine} misreadSlope={misReadSlope} misreadLine={misReadLine}/>
         </View>
     );

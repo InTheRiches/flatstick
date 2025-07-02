@@ -21,7 +21,6 @@ import {
     TestIds,
     useForeground
 } from "react-native-google-mobile-ads";
-import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -56,7 +55,6 @@ export default function FullRound() {
         distance: 0,
         distanceInvalid: true
     });
-
     const [roundData, setRoundData] = useState([]);
 
     const [adLoaded, setAdLoaded] = useState(false);
