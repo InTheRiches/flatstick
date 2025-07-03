@@ -39,6 +39,9 @@ export default function RootInitializer({}) {
 
     // Monitor authentication state changes
     useEffect(() => {
+        if (Platform.OS === "ios") {
+            BootSplash.hide({ fade: true });
+        }
         const unsubscribeNetInfo = NetInfo.addEventListener(state => {
             if (!state.isConnected) {
                 if (localLoading) setLocalLoading(false);
@@ -51,6 +54,7 @@ export default function RootInitializer({}) {
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
+                alert("Found user");
                 user.getIdToken().then((token) => {
                     setSession(token);
                     initialize();
@@ -60,6 +64,7 @@ export default function RootInitializer({}) {
                 });
             }
             else {
+                alert("Didnt find user");
                 setLocalLoading(false);
                 if (Platform.OS === "ios") {
                     setVisible(false);

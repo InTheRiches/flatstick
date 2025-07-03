@@ -26,16 +26,55 @@ const ApproachAccuracyButton = ({ colors, onPress, activeButton, style }) => {
         <View style={[styles.container, style]}>
             <Svg width={size} height={size}>
                 {/* Outer Arcs */}
-                {arcs.map(({id, x, y, start, end, color}) => (
-                    <Path
-                        key={id}
-                        d={describeDonutArc(center, center, x, y, arcInnerRadius, arcOuterRadius, start, end)}
-                        fill={activeButton === id ? color : colors.background.secondary}
-                        stroke={activeButton === id ? colors.checkmark.background : colors.border.default}
-                        strokeWidth={1}
-                        onPressIn={() => onPress(id)}
-                    />
-                ))}
+                {arcs.map(({ id, x, y, start, end, color }) => {
+                    const arcCenterAngle = (start + end) / 2;
+                    const radius = arcOuterRadius + 8; // slightly outside the arc
+                    const angleRad = (arcCenterAngle - 90) * (Math.PI / 180); // rotate -90 to align vertical
+
+                    const chevronX = center + radius * Math.cos(angleRad);
+                    const chevronY = center + radius * Math.sin(angleRad);
+
+                    return (
+                        <G key={id}>
+                            {/* Arc path */}
+                            <Path
+                                d={describeDonutArc(center, center, x, y, arcInnerRadius, arcOuterRadius, start, end)}
+                                fill={activeButton === id ? color : colors.background.secondary}
+                                stroke={activeButton === id ? colors.checkmark.background : colors.border.default}
+                                strokeWidth={1}
+                                onPressIn={() => onPress(id)}
+                            />
+
+                            {/* Chevron centered and rotated */}
+                            <G
+                                transform={`
+                                    translate(${chevronX}, ${chevronY})
+                                    rotate(${arcCenterAngle})
+                                    translate(-15.5, 12)
+                                    scale(1.3)
+                                `}
+                                onPressIn={() => onPress(id)}
+                            >
+                                <Path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={3}
+                                    fill={"transparent"}
+                                    stroke={activeButton === id ? "white" : colors.border.default}
+                                    d="M4.5 18.75 L12 11.25 L19.5 18.75"
+                                />
+                                <Path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={3}
+                                    fill={"transparent"}
+                                    stroke={activeButton === id ? "white" : colors.border.default}
+                                    d="M4.5 12.75 L12 5.25 L19.5 12.75"
+                                />
+                            </G>
+                        </G>
+                    );
+                })}
 
                 {/* Center Circle (Green Hit) */}
                 <Circle
@@ -70,26 +109,6 @@ const ApproachAccuracyButton = ({ colors, onPress, activeButton, style }) => {
                 {/*        tintColor: "#1d4725"*/}
                 {/*    }}*/}
                 {/*/>*/}
-            </Svg>
-            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} onPressIn={() => onPress("left")}
-                 stroke={activeButton === "left" ? "white" : colors.border.default} width={30} height={30} style={{position: "absolute", top: 77, left: 22, transform: [{rotate: '-90deg'}]}}>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5"/>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5"/>
-            </Svg>
-            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} onPressIn={() => onPress("right")}
-                 stroke={activeButton === "right" ? "white" : colors.border.default} width={30} height={30} style={{position: "absolute", top: 77, left: 143, transform: [{rotate: '90deg'}]}}>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5"/>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5"/>
-            </Svg>
-            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} onPressIn={() => onPress("long")}
-                 stroke={activeButton === "long" ? "white" : colors.border.default} width={30} height={30} style={{position: "absolute", top: 16, left: 83, transform: [{rotate: '0deg'}]}}>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5"/>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5"/>
-            </Svg>
-            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} onPressIn={() => onPress("short")}
-                 stroke={activeButton === "short" ? "white" : colors.border.default} width={30} height={30} style={{position: "absolute", top: 137, left: 83, transform: [{rotate: '-180deg'}]}}>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5"/>
-                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5"/>
             </Svg>
         </View>
     );

@@ -51,6 +51,7 @@ export default function FullRound() {
 
     const [holeScore, setHoleScore] = useState(tee.holes[hole-1].par);
     const [totalStrokes, setTotalStrokes] = useState(tee.holes[hole-1].par);
+    const [netScore, setNetScore] = useState(tee.holes[hole-1].par);
     const [totalParStrokes, setTotalParStrokes] = useState(tee.holes[hole-1].par);
     const [putts, setPutts] = useState(2);
     const [penalties, setPenalties] = useState(0);
@@ -110,7 +111,7 @@ export default function FullRound() {
         }
 
         setRoundData(initialRoundData);
-        updateTotalScores(initialRoundData);
+        //updateTotalScores(initialRoundData);
     }, []);
 
     useEffect(() => {
@@ -160,6 +161,12 @@ export default function FullRound() {
     const updateTotalScores = (data) => {
         const totalScore = data.reduce((acc, hole) => acc + hole.score, 0);
         const totalPar = data.reduce((acc, hole) => acc + hole.par, 0);
+        const netScore = data.reduce((acc, hole, index) => {
+            if (hole.puttData === undefined && hole !== index+1) return acc;
+            return acc + hole.score;
+        }, 0);
+
+        setNetScore(netScore);
         setTotalStrokes(totalScore);
         setTotalParStrokes(totalPar);
     };
@@ -331,8 +338,8 @@ export default function FullRound() {
                 <View>
                     <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                         <View style={{flexDirection: "row", marginBottom: 6}}>
-                            <FontText style={{fontSize: 32, color: colors.text.primary, fontWeight: 700}} type="title">{hole}</FontText>
-                            <FontText style={{fontSize: 16, fontWeight: 700, marginTop: 3}}>{hole === 1 ? "ST" : hole === 2 ? "ND" : hole === 3 ? "RD" : "TH"}</FontText>
+                            <FontText style={{fontSize: 40, color: colors.text.primary, fontWeight: 800}} type="title">{hole}</FontText>
+                            <FontText style={{fontSize: 18, fontWeight: 700, marginTop: 6}}>{hole === 1 ? "ST" : hole === 2 ? "ND" : hole === 3 ? "RD" : "TH"}</FontText>
                         </View>
                         <View style={{flexDirection: "row", gap: 10, alignItems: "center"}}>
                             <FontText style={{fontSize: 16}}>Par {tee.holes[hole-1].par}</FontText>
@@ -363,7 +370,7 @@ export default function FullRound() {
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 16, width: "100%", paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                         <View>
                             <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.firstName} {userData.lastName === "Unknown" ? "" : userData.lastName}</FontText>
-                            <FontText style={{fontSize: 15, color: colors.text.secondary, fontWeight: 500}}>Handicap: {userData.strokesGained}</FontText>
+                            <FontText style={{fontSize: 15, color: colors.text.secondary, fontWeight: 500}}>Net score: {netScore}</FontText>
                         </View>
                         <View style={{backgroundColor: colors.button.secondary.background, width: 48, height: 48, borderRadius: 32, justifyContent: "center", alignItems: "center"}}>
                             <FontText style={{fontSize: (totalStrokes-totalParStrokes) === 0 ? 24 : (totalStrokes-totalParStrokes) > 9 || (totalStrokes-totalParStrokes) < -9 ? 20 : 22, fontWeight: 600, color: colors.button.secondary.text, textAlign: "center"}}>{totalStrokes-totalParStrokes > 0 ? "+" : ""}{totalStrokes - totalParStrokes === 0 ? "E" : (totalStrokes - totalParStrokes)}</FontText>

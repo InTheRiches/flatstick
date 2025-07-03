@@ -128,7 +128,7 @@ export default function ScoreIncrementer({adjustScore, holeScore, hole, tee}) {
                     })()}
 
                     {/* Score Text */}
-                    <FontText style={{fontSize: 32, fontWeight: 600, transform: [{ translateY: -1.5 }]}}>{holeScore}</FontText>
+                    <FontText style={{fontSize: 32, fontWeight: 600, transform: [{ translateY: -2 }]}}>{holeScore}</FontText>
                 </View>
 
                 {/* Minus Button */}
