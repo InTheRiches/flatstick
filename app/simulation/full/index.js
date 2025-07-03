@@ -4,7 +4,7 @@ import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import {BackHandler, Keyboard, Platform, Pressable, View} from "react-native";
 import FontText from "../../../components/general/FontText";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
-import Svg, {Line, Path} from "react-native-svg";
+import Svg, {Circle, Line, Path, Rect} from "react-native-svg";
 import React, {useEffect, useRef, useState} from "react";
 import {ConfirmExit} from "../../../components/simulations/popups";
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
@@ -21,6 +21,11 @@ import {
     TestIds,
     useForeground
 } from "react-native-google-mobile-ads";
+import ScoreIncrementer from "../../../components/simulations/full/ScoreIncremeter";
+import NumberIncrementer from "../../../components/simulations/full/NumberIncrementer";
+import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPuttDataModal";
+import {calculateFullRoundStats, calculateStats} from "../../../utils/PuttUtils";
+import {roundTo} from "../../../utils/roundTo";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -30,9 +35,10 @@ export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
     const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
-    const {userData, newFullRound} = useAppContext();
+    const {userData, newFullRound, grips, putters} = useAppContext();
     const confirmExitRef = useRef(null);
     const puttTrackingRef = useRef(null);
+    const noPuttDataModalRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
     const holes = parseInt(stringHoles);
@@ -52,8 +58,17 @@ export default function FullRound() {
     const [fairwayAccuracy, setFairwayAccuracy] = useState("green");
     const [puttData, setPuttData] = useState({
         theta: 999,
-        distance: 0,
-        distanceInvalid: true
+        distance: -1,
+        distanceInvalid: true,
+        misHit: false,
+        misReadLine: false,
+        misReadSlope: false,
+        center: false,
+        point: {},
+        largeMiss: {
+            distance: -1,
+            dir: "",
+        }
     });
     const [roundData, setRoundData] = useState([]);
 
@@ -67,21 +82,32 @@ export default function FullRound() {
     useEffect(() => {
         const isNineHoleCourse = tee.number_of_holes === 9;
 
-        const initialRoundData = isNineHoleCourse
-            ? tee.holes.map((teeHole) => ({
-                par: teeHole.par,
-                score: teeHole.par, // Default score is the par value
-                yardage: teeHole.yardage,
-                handicap: teeHole.handicap,
-            }))
-            : tee.holes
-                .slice(frontNine ? 0 : 9, frontNine ? 9 : 18) // Select front or back nine based on frontNine flag
-                .map((teeHole) => ({
+        let initialRoundData = {};
+
+        if (holes === 9) {
+            initialRoundData = isNineHoleCourse
+                ? tee.holes.map((teeHole) => ({
                     par: teeHole.par,
                     score: teeHole.par, // Default score is the par value
                     yardage: teeHole.yardage,
                     handicap: teeHole.handicap,
-                }));
+                }))
+                : tee.holes
+                    .slice(frontNine ? 0 : 9, frontNine ? 9 : 18) // Select front or back nine based on frontNine flag
+                    .map((teeHole) => ({
+                        par: teeHole.par,
+                        score: teeHole.par, // Default score is the par value
+                        yardage: teeHole.yardage,
+                        handicap: teeHole.handicap,
+                    }));
+        } else {
+            initialRoundData = tee.holes.map((teeHole) => ({
+                par: teeHole.par,
+                score: teeHole.par, // Default score is the par value
+                yardage: teeHole.yardage,
+                handicap: teeHole.handicap,
+            }));
+        }
 
         setRoundData(initialRoundData);
         updateTotalScores(initialRoundData);
@@ -126,6 +152,8 @@ export default function FullRound() {
             puttData
         };
         setRoundData(updatedRoundData);
+
+        console.log("Round data: " + JSON.stringify(updatedRoundData));
         updateTotalScores(updatedRoundData);
     }
 
@@ -143,6 +171,9 @@ export default function FullRound() {
         }
 
         saveHole();
+
+        console.log(holes);
+        console.log(JSON.stringify(roundData))
 
         if (roundData[hole].putts !== undefined) {
             // load the hole
@@ -165,8 +196,17 @@ export default function FullRound() {
             setHoleStartTime(new Date().getTime());
             setPuttData({
                 theta: 999,
-                distance: 0,
-                distanceInvalid: true
+                distance: -1,
+                distanceInvalid: true,
+                misHit: false,
+                misReadLine: false,
+                misReadSlope: false,
+                center: false,
+                point: {},
+                largeMiss: {
+                    distance: -1,
+                    dir: "",
+                }
             });
 
             puttTrackingRef.current.resetData();
@@ -189,7 +229,7 @@ export default function FullRound() {
         setFairwayAccuracy(roundData[hole-2].fairwayAccuracy);
         setPenalties(roundData[hole-2].penalties);
         setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
-
+        setPuttData(roundData[hole-2].puttData);
         puttTrackingRef.current.setData(roundData[hole-2].puttData);
 
         setHole(hole - 1);
@@ -198,8 +238,8 @@ export default function FullRound() {
     const adjustScore = (adjustment) => {
         setHoleScore((prev) => {
             let newScore = prev + adjustment;
-            if (newScore > 10) newScore = 1;
-            if (newScore < 1) newScore = 10;
+            if (newScore > 9) return prev;
+            if (newScore < 1) return prev;
 
             roundData[hole - 1] = { ...roundData[hole - 1], score: newScore };
             saveHole(newScore);
@@ -208,16 +248,53 @@ export default function FullRound() {
     };
 
     const submit = () => {
+        const timeElapsed = new Date().getTime() - holeStartTime;
+
+        const updatedRoundData = [...roundData];
+        updatedRoundData[hole - 1] = {
+            ...updatedRoundData[hole - 1],
+            score: holeScore,
+            putts,
+            approachAccuracy,
+            fairwayAccuracy,
+            penalties,
+            timeElapsed,
+            puttData
+        };
+
+        const {totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const { name, par, rating, slope, yards } = tee;
         const data = {
             id: generatePushID(),
             date: new Date().toISOString(),
-            tee: tee,
+            tee: { name, par, rating, slope, yards, number_of_holes: holes },
+            type: "full-round",
+            units: userData.preferences.units,
             courseID: course.id,
             clubName: course.club_name,
             courseName: course.course_name,
             timestamp: startTime,
-            roundData,
+            putter: putters[userData.preferences.selectedPutter].type,
+            grip: grips[userData.preferences.selectedGrip].type,
+            holes: trimmedHoles,
+            puttStats: {
+                totalPutts: totalPutts,
+                avgMiss: avgMiss,
+                strokesGained: roundTo(strokesGained, 1),
+                madePercent: madePercent,
+                puttCounts: puttCounts,
+                leftRightBias: leftRightBias,
+                shortPastBias: shortPastBias,
+                missData: missData,
+                totalDistance: totalDistance,
+                units: userData.preferences.units,
+                duration: new Date().getTime() - startTime,
+                percentShort: percentShort,
+                percentHigh: percentHigh,
+            },
         }
+
+        console.log("Submitting full round data:", JSON.stringify(data));
 
         newFullRound(data).then(() => {
             // router.push({
@@ -227,6 +304,9 @@ export default function FullRound() {
             //         recap: "true"
             //     }
             // });
+            router.push({
+                pathname: `/`
+            });
         });
     };
 
@@ -300,66 +380,15 @@ export default function FullRound() {
                         </View>
                     </View>
                     <View style={{flexDirection: "row", gap: 32, marginTop: -10}}>
-                        <View style={{alignItems: "center", flex: 1}}>
-                            <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, marginBottom: 8, textAlign: "center"}}>Score</FontText>
-                            <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 16}}>
-                                <Pressable onPress={() => {
-                                    adjustScore(1);
-                                }} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
-                                    <Svg width={32} height={32} viewBox="0 0 24 24">
-                                        <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.primary.text} strokeWidth="2" />
-                                        <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="2" />
-                                    </Svg>
-                                </Pressable>
-                                <FontText style={{fontSize: 32, fontWeight: 600, textAlign: "center"}}>{holeScore}</FontText>
-                                <Pressable onPress={() => {
-                                    adjustScore(-1);
-                                }} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
-                                    <Svg width={32} height={32} viewBox="0 0 24 24">
-                                        <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="3" />
-                                    </Svg>
-                                </Pressable>
-                            </View>
-                        </View>
-                        <View style={{alignItems: "center", flex: 1}}>
-                            <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, marginBottom: 8, textAlign: "center"}}>Putts</FontText>
-                            <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 16}}>
-                                <Pressable onPress={() => setPutts(putts >= 9 ? 0 : putts+1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
-                                    <Svg width={32} height={32} viewBox="0 0 24 24">
-                                        <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.primary.text} strokeWidth="2" />
-                                        <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="2" />
-                                    </Svg>
-                                </Pressable>
-                                <FontText style={{fontSize: 32, fontWeight: 600, textAlign: "center"}}>{putts}</FontText>
-                                <Pressable onPress={() => setPutts(putts <= 0 ? 9 : putts-1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
-                                    <Svg width={32} height={32} viewBox="0 0 24 24">
-                                        <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="3" />
-                                    </Svg>
-                                </Pressable>
-                            </View>
-                        </View>
-                        <View style={{alignItems: "center", flex: 1, justifyContent: "center"}}>
-                            <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, marginBottom: 8, textAlign: "center"}}>Penalties</FontText>
-                            <View style={{borderWidth: 1, borderColor: colors.border.default, padding: 10, borderRadius: 64, backgroundColor: colors.background.secondary, flexDirection: "col", gap: 16}}>
-                                <Pressable onPress={() => setPenalties(penalties >= 9 ? 0 : penalties+1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
-                                    <Svg width={32} height={32} viewBox="0 0 24 24">
-                                        <Line x1="12" y1="5" x2="12" y2="19" stroke={colors.button.primary.text} strokeWidth="2" />
-                                        <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="2" />
-                                    </Svg>
-                                </Pressable>
-                                <FontText style={{fontSize: 32, fontWeight: 600, textAlign: "center"}}>{penalties}</FontText>
-                                <Pressable onPress={() => setPenalties(penalties <= 0 ? 9 : penalties-1)} style={({pressed}) => [{width: 48, height: 48, borderRadius: 32, backgroundColor: pressed ? colors.border.default : colors.background.primary, alignItems: "center", justifyContent: "center"}]}>
-                                    <Svg width={32} height={32} viewBox="0 0 24 24">
-                                        <Line x1="5" y1="12" x2="19" y2="12" stroke={colors.button.primary.text} strokeWidth="3" />
-                                    </Svg>
-                                </Pressable>
-                            </View>
-                        </View>
+                        <ScoreIncrementer adjustScore={adjustScore} holeScore={holeScore} hole={hole} tee={tee}></ScoreIncrementer>
+
+                        <NumberIncrementer title={"Putts"} setNumber={setPutts} number={putts}/>
+                        <NumberIncrementer title={"Penalties"} setNumber={setPenalties} number={penalties}/>
                     </View>
                 </View>
 
                 <View style={{width: "100%", alignItems: "center"}}>
-                    <SecondaryButton style={{borderRadius: 12, flexDirection: "row", gap: 6, paddingVertical: 12, width: "100%", maxWidth: 196}} children={
+                    <SecondaryButton style={{borderRadius: 12, flexDirection: "row", gap: 12, paddingVertical: 12, width: "100%", maxWidth: 196}} children={
                         <>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill={colors.button.secondary.text} viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke={colors.button.secondary.text} width={18} height={18}>
@@ -370,7 +399,7 @@ export default function FullRound() {
                         </>
                     } onPress={() => puttTrackingRef.current.open()}></SecondaryButton>
                 </View>
-                <View style={{marginLeft: -24}}>
+                <View style={{marginLeft: -20}}>
                     <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
                 </View>
                 <View style={{flexDirection: "row", justifyContent: "space-between", gap: 4, paddingHorizontal: 16}}>
@@ -381,9 +410,29 @@ export default function FullRound() {
                     <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1, maxWidth: 128}}
                                     title={hole === holes ? "Submit" : "Next"}
                                     disabled={false}
-                                    onPress={nextHole}></PrimaryButton>
+                                    onPress={() => {
+                                        // if (puttData.distance === -1) {
+                                        //     noPuttDataModalRef.current.present();
+                                        // } else if (Object.keys(puttData.point).length < 1 && !puttData.center) {
+                                        //     if (puttData.largeMiss && puttData.largeMiss.distance !== 0) {
+                                        //         nextHole();
+                                        //     } else {
+                                        //         noPuttDataModalRef.current.present();
+                                        //     }
+                                        // } else {
+                                        //     nextHole();
+                                        // }
+                                        if (puttData.distance === -1 ||
+                                            (Object.keys(puttData.point).length < 1 && puttData.distance !== 0 && !puttData.center && puttData.largeMiss.distance === -1)) {
+                                            console.log(puttData.largeMiss.distance);
+                                            noPuttDataModalRef.current.present();
+                                        } else {
+                                            nextHole();
+                                        }
+                                    }}></PrimaryButton>
                 </View>
             </ScreenWrapper>
+            <NoPuttDataModal nextHole={nextHole} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit()} end={fullReset}></ConfirmExit>
             <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData}/>
         </>

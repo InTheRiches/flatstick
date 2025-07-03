@@ -1,7 +1,7 @@
 import useColors from "../../../../hooks/useColors";
 import {useAppContext} from "../../../../contexts/AppCtx";
 import {Dimensions, ScrollView, View} from "react-native";
-import React, {useMemo} from "react";
+import React, {useEffect, useMemo} from "react";
 import {SGByBreakSlope, SGByDistanceChart} from "./graphs";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
@@ -12,6 +12,21 @@ export const StrokesGainedTab = ({statsToUse}) => {
     const {currentStats, yearlyStats, previousStats} = useAppContext();
     const {width} = Dimensions.get("screen")
     const [graph, setGraph] = React.useState(0);
+
+    const [showOverTime, setShowOverTime] = React.useState(false);
+    // loop through yearlyStats.months and determine how many months have non -999 strokesGained
+    useEffect(() => {
+        let count = 0;
+        for (let i = 0; i < yearlyStats.months.length; i++) {
+            if (yearlyStats.months[i].strokesGained !== -999) {
+                count++;
+            }
+        }
+
+        if (count > 1) {
+            setShowOverTime(true);
+        }
+    }, []);
 
     let difference = 0;
 
@@ -58,7 +73,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
             <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
                 <Toggleable toggled={graph === 0} onToggle={() => setGraph(0)} title={"Distance"}/>
                 <Toggleable toggled={graph === 1} onToggle={() => setGraph(1)} title={"Direction"}/>
-                <Toggleable toggled={graph === 2} onToggle={() => setGraph(2)} title={"Time"}/>
+                {showOverTime && <Toggleable toggled={graph === 2} onToggle={() => setGraph(2)} title={"Time"}/>}
             </View>
             {graph === 0 && sgByDistance}
             {graph === 1 && sgByBreakSlope}

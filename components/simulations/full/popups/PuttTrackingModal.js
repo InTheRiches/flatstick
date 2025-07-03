@@ -17,6 +17,7 @@ import {BigMissModal} from "../../popups";
 import DangerButton from "../../../general/buttons/DangerButton";
 import {useAppContext} from "@/contexts/AppCtx";
 import {FullBigMissModal} from "./FullBigMissModal";
+import {calculateDistanceMissedFeet, calculateDistanceMissedMeters} from "../../../../utils/PuttUtils";
 
 export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
     const colors = useColors();
@@ -44,6 +45,28 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
         distance: -1
     });
 
+    const CheckIcon = React.memo(() => (
+        <View style={{
+            position: "absolute",
+            right: -7,
+            top: -7,
+            backgroundColor: "#40C2FF",
+            padding: 3,
+            borderRadius: 50,
+        }}>
+            <Svg
+                width={18}
+                height={18}
+                stroke={colors.checkmark.color}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="3">
+                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+            </Svg>
+        </View>
+    ));
+
     const myBackdrop = useCallback(({animatedIndex, style}) => {
         return (<CustomBackdrop
             reference={bottomSheetRef}
@@ -54,7 +77,6 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
 
     useImperativeHandle(puttTrackingRef, () => ({
         open: () => {
-            console.log(distance);
             bottomSheetRef.current?.present();
         },
         close: () => {
@@ -63,6 +85,12 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
         largeMiss: () => {
             setPoint({});
             setCenter(false);
+        },
+        getWidth: () => {
+            return width;
+        },
+        getHeight: () => {
+            return height;
         },
         setData: (data) => {
             setTheta(data.theta || 999);
@@ -107,16 +135,21 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                 snapPoints={snapPoints}
                 enableDynamicSizing={false}
                 onDismiss={() => {
+                    let distanceMissed = 0;
+                    if (point.x !== undefined) {
+                        distanceMissed = userData.preferences.units === 0 ? calculateDistanceMissedFeet(center, point, width, height) : calculateDistanceMissedMeters(center, point, width, height);
+                    }
                     updatePuttData({
                         theta,
-                        distance: holedOut ? 0 : distance,
+                        distance: holedOut ? 0 : distance === 0 ? -1 : distance,
                         distanceInvalid,
                         misHit,
                         misReadLine,
                         misReadSlope,
                         center,
                         point,
-                        ...(largeMiss.distance !== -1 && { largeMiss }),
+                        distanceMissed,
+                        largeMiss,
                     });
                 }}
                 backdropComponent={myBackdrop}
@@ -171,25 +204,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                 justifyContent: "center",
                                 alignItems: 'center',
                             }}>
-                                {holedOut && <View style={{
-                                        position: "absolute",
-                                        right: -7,
-                                        top: -7,
-                                        backgroundColor: "#40C2FF",
-                                        padding: 3,
-                                        borderRadius: 50,
-                                    }}>
-                                    <Svg
-                                        width={18}
-                                        height={18}
-                                        stroke={colors.checkmark.color}
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="3">
-                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
-                                    </Svg>
-                                </View>}
+                                {holedOut && <CheckIcon></CheckIcon>}
                                 <FontText style={{color: colors.button.radio.text, marginLeft: 4, fontWeight: 400, textAlign: "center"}}>Holed Out</FontText>
                             </Pressable>
                             <Pressable onPress={() => misreadRef.current.present()} style={({pressed}) => [{
@@ -232,6 +247,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                         <View style={{flexDirection: "row", gap: 12, justifyContent: "center" }}>
                             { largeMiss.distance !== -1 ? (
                                 <DangerButton onPress={() => {
+                                    if (distance < 1) return;
                                     fullBigMissModalRef.current.open();
                                 }} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}} children={<View style={{flexDirection: "row"}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -244,6 +260,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                 </View>}></DangerButton>
                             ) : (
                                 <PrimaryButton onPress={() => {
+                                    if (distance < 1) return;
                                     fullBigMissModalRef.current.open();
                                 }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></PrimaryButton>
                             )

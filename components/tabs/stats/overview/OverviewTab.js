@@ -6,11 +6,15 @@ import {RecentSession} from "./RecentSession";
 import React from "react";
 import FontText from "../../../general/FontText";
 import {SeeAllSessions} from "../../home";
+import {adaptFullRoundSession} from "../../../../utils/sessions/SessionUtils";
 
 export const OverviewTab = ({statsToUse}) => {
     const colors = useColors();
-    const {puttSessions, previousStats, currentStats, userData} = useAppContext();
+    const {puttSessions, fullRoundSessions, previousStats, currentStats, userData} = useAppContext();
     const {width} = Dimensions.get("screen")
+
+    let combined = [...puttSessions, ...fullRoundSessions];
+    combined.sort((a, b) => b.timestamp - a.timestamp); // most recent first
 
     let difference = 0;
 
@@ -20,6 +24,8 @@ export const OverviewTab = ({statsToUse}) => {
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 24}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 20}}>
             <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</FontText>
+            <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 800, marginTop: 2, textAlign: "center"}}>VS</FontText>
+            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>PGA Tour Pro</FontText>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
                 <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.strokesGained.overall > 0 ? "+" : ""}{statsToUse.strokesGained.overall}</FontText>
                 { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
@@ -166,8 +172,8 @@ export const OverviewTab = ({statsToUse}) => {
             <View style={{gap: 12}}>
                 {
                     // sort it by the timestamp which is in milliseconds
-                    puttSessions.sort((a, b) => b.timestamp - a.timestamp).slice(0, 3).map((session, index) => {
-                        return <RecentSession key={"recent-" + index} recentSession={session}></RecentSession>
+                    combined.slice(0, 3).map((session, index) => {
+                        return <RecentSession key={"recent-" + index} recentSession={adaptFullRoundSession(session)}></RecentSession>
                     })
                 }
             </View>

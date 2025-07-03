@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useImperativeHandle, useRef, useState} from "react";
 import {Keyboard, Platform, Pressable, TouchableWithoutFeedback, View} from "react-native";
 import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
@@ -11,10 +11,11 @@ import FontText from "../../general/FontText";
 import {Exclamation} from "../../../assets/svg/SvgComponents";
 
 export function BigMissModal({
-                                         updateField, rawLargeMissBy, bigMissRef, nextHole, lastHole, allPutts, hole,
+                                         updateField, largeMiss, bigMissRef, puttTrackingModalRef, allPutts, hole,
                                      }) {
     const colors = useColors();
     const {userData} = useAppContext();
+    const bottomSheetRef = useRef(null);
 
     const [open, setOpen] = useState(false);
     const [transitioningBack, setTransitioningBack] = useState(false);
@@ -23,58 +24,42 @@ export function BigMissModal({
     const [puttsFocused, setPuttsFocused] = useState(false);
     const [invalid, setInvalid] = useState(false);
 
-    const [distance, setDistance] = useState(-1);
     const [distanceFocused, setDistanceFocused] = useState(false);
     const [distanceInvalid, setDistanceInvalid] = useState(false);
 
-    const [largeMissBy, setLargeMissBy] = useState([0, 0]);
-
-    useEffect(() => {
-        if (allPutts[hole - 1] && allPutts[hole - 1].largeMiss) {
-            setPutts(allPutts[hole - 1].totalPutts);
-            setDistance(allPutts[hole - 1].distanceMissed);
-
-            bigMissRef.current.present();
-
-            // rawLargeMissBy can be like [~,0], [0,-~] with ~ being any number, so we need to convert it to [0,0] or [1,1] etc
-            let fixedLargeMissBy = [0, 0];
-            if (rawLargeMissBy[0] > 0) {
-                fixedLargeMissBy[0] = 1;
-            } else if (rawLargeMissBy[0] < 0) {
-                fixedLargeMissBy[0] = -1;
-            }
-
-            if (rawLargeMissBy[1] > 0) {
-                fixedLargeMissBy[1] = 1;
-            } else if (rawLargeMissBy[1] < 0) {
-                fixedLargeMissBy[1] = -1;
-            }
-
-            setLargeMissBy(fixedLargeMissBy);
-        } else if (allPutts[hole - 1] && !allPutts[hole - 1].largeMiss) {
-            bigMissRef.current.dismiss();
-            close();
-        } else if (!allPutts[hole - 1]) {
+    useImperativeHandle(bigMissRef, () => ({
+        open: () => {
+            bottomSheetRef.current?.present();
+        },
+        close: () => {
+            bottomSheetRef.current?.dismiss();
+        },
+        setData: (data) => {
+            setPutts(data.putts);
+        },
+        resetData: () => {
+            setDistanceInvalid(false);
+            setDistanceFocused(true);
             setPutts(-1);
-            setDistance(-1);
-            bigMissRef.current.dismiss();
+            setPuttsFocused(false);
+            setInvalid(false);
         }
-    }, [hole]);
+    }));
 
     const setMissDirection = (direction) => {
-        setLargeMissBy(direction);
-        updateField("largeMissBy", direction);
+        updateField("largeMiss", {
+            ...largeMiss,
+            dir: direction
+        });
     };
 
     const myBackdrop = useCallback(({animatedIndex, style}) => {
         return (<CustomBackdrop
-            reference={bigMissRef}
+            reference={bottomSheetRef}
             animatedIndex={animatedIndex}
             style={style}
         />);
     }, []);
-
-    const isEqual = (arr, arr2) => Array.isArray(arr) && arr.length === arr2.length && arr.every((val, index) => val === arr2[index]);
 
     const close = () => {
         if (transitioningBack) {
@@ -84,12 +69,12 @@ export function BigMissModal({
 
         Keyboard.dismiss();
 
-        updateField("largeMissBy", [0, 0]);
-        updateField("largeMiss", false);
+        // updateField("largeMissBy", [0, 0]);
+        // updateField("largeMiss", false);
 
         setPutts(-1);
-        setDistance(-1);
-        setLargeMissBy([0, 0]);
+        // setDistance(-1);
+        // setLargeMissBy([0, 0]);
 
         setPuttsFocused(false);
         setInvalid(false);
@@ -115,7 +100,10 @@ export function BigMissModal({
 
     const updateDistance = (newDistance) => {
         if (newDistance === "") {
-            setDistance(-1);
+            updateField("largeMiss", {
+                ...largeMiss,
+                distance: -1,
+            });
             setDistanceInvalid(true);
             return;
         }
@@ -125,13 +113,16 @@ export function BigMissModal({
         }
 
         let fixedDistance = parseInt(newDistance);
-        setDistance(fixedDistance);
+        updateField("largeMiss", {
+            ...largeMiss,
+            distance: fixedDistance,
+        });
         setDistanceInvalid(fixedDistance < (userData.preferences.units === 0 ? 3 : 1) || fixedDistance > 99)
     }
 
     // renders
     return (<BottomSheetModal
-        ref={bigMissRef}
+        ref={bottomSheetRef}
         backdropComponent={myBackdrop}
         onChange={() => {
             if (open) {
@@ -167,11 +158,11 @@ export function BigMissModal({
                     <View style={{flexDirection: "row", gap: 12, marginBottom: 20, alignSelf: "center",}}>
                         <View style={{flexDirection: "column", gap: 12}}>
                             <Pressable
-                                onPress={() => setMissDirection([1, 1])}
+                                onPress={() => setMissDirection("tl")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [1, 1]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "tl" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -180,15 +171,15 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={1}
                                     verticalSlope={0}
-                                    selected={isEqual(largeMissBy, [1, 1])}
+                                    selected={largeMiss.dir === "tl"}
                                 ></ArrowComponent>
                             </Pressable>
                             <Pressable
-                                onPress={() => setMissDirection([1, 0])}
+                                onPress={() => setMissDirection("ml")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [1, 0]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "ml" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -197,15 +188,15 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={1}
                                     verticalSlope={1}
-                                    selected={isEqual(largeMissBy, [1, 0])}
+                                    selected={largeMiss.dir === "ml"}
                                 ></ArrowComponent>
                             </Pressable>
                             <Pressable
-                                onPress={() => setMissDirection([1, -1])}
+                                onPress={() => setMissDirection("bl")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [1, -1]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "bl" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -214,17 +205,17 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={1}
                                     verticalSlope={2}
-                                    selected={isEqual(largeMissBy, [1, -1])}
+                                    selected={largeMiss.dir === "bl"}
                                 ></ArrowComponent>
                             </Pressable>
                         </View>
                         <View style={{ flexDirection: "column", justifyContent: "space-between",}}>
                             <Pressable
-                                onPress={() => setMissDirection([0, 1])}
+                                onPress={() => setMissDirection("t")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [0, 1]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "t" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -233,15 +224,15 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={2}
                                     verticalSlope={0}
-                                    selected={isEqual(largeMissBy, [0, 1])}
+                                    selected={largeMiss.dir === "t"}
                                 ></ArrowComponent>
                             </Pressable>
                             <Pressable
-                                onPress={() => setMissDirection([0, -1])}
+                                onPress={() => setMissDirection("b")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [0, -1]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "b" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -250,17 +241,17 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={2}
                                     verticalSlope={2}
-                                    selected={isEqual(largeMissBy, [0, -1])}
+                                    selected={largeMiss.dir === "b"}
                                 ></ArrowComponent>
                             </Pressable>
                         </View>
                         <View style={{flexDirection: "column", gap: 12}}>
                             <Pressable
-                                onPress={() => setMissDirection([-1, 1])}
+                                onPress={() => setMissDirection("tr")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [-1, 1]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "tr" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -269,15 +260,15 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={0}
                                     verticalSlope={0}
-                                    selected={isEqual(largeMissBy, [-1, 1])}
+                                    selected={largeMiss.dir === "tr"}
                                 ></ArrowComponent>
                             </Pressable>
                             <Pressable
-                                onPress={() => setMissDirection([-1, 0])}
+                                onPress={() => setMissDirection("mr")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [-1, 0]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "mr" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -286,15 +277,15 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={0}
                                     verticalSlope={1}
-                                    selected={isEqual(largeMissBy, [-1, 0])}
+                                    selected={largeMiss.dir === "mr"}
                                 ></ArrowComponent>
                             </Pressable>
                             <Pressable
-                                onPress={() => setMissDirection([-1, -1])}
+                                onPress={() => setMissDirection("br")}
                                 style={{
                                     aspectRatio: 1,
                                     padding: 20,
-                                    backgroundColor: isEqual(largeMissBy, [-1, -1]) ? colors.button.danger.background : "#f3bebe",
+                                    backgroundColor: largeMiss.dir === "br" ? colors.button.danger.background : "#f3bebe",
                                     justifyContent: "center",
                                     flexDirection: "row",
                                     alignItems: "center",
@@ -303,7 +294,7 @@ export function BigMissModal({
                                 <ArrowComponent
                                     horizontalBreak={0}
                                     verticalSlope={2}
-                                    selected={isEqual(largeMissBy, [-1, -1])}
+                                    selected={largeMiss.dir === "br"}
                                 ></ArrowComponent>
                             </Pressable>
                         </View>
@@ -349,13 +340,13 @@ export function BigMissModal({
                                 onFocus={() => setDistanceFocused(true)}
                                 onBlur={() => setDistanceFocused(false)}
                                 onChangeText={(text) => updateDistance(text)}
-                                defaultValue={distance !== -1 ? distance.toString() : ""}
+                                defaultValue={largeMiss.distance !== -1 ? largeMiss.distance.toString() : ""}
                                 keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
                             />
                             <PrimaryButton style={{
                                 aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                             }} onPress={() => {
-                                if (distance === -1) updateDistance(userData.preferences.units === 0 ? "3" : "1"); else if (distance >= 99) updateDistance(userData.preferences.units === 0 ? "3" : "1"); else updateDistance((distance + 1).toString());
+                                if (largeMiss.distance === -1) updateDistance(userData.preferences.units === 0 ? "3" : "1"); else if (largeMiss.distance >= 99) updateDistance(userData.preferences.units === 0 ? "3" : "1"); else updateDistance((largeMiss.distance + 1).toString());
                             }}>
                                 <Svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -454,12 +445,13 @@ export function BigMissModal({
                         ></PrimaryButton>
                         <PrimaryButton
                             onPress={() => {
-                                if (!isEqual(largeMissBy, [0, 0]) && !invalid && putts.length !== 0 && distance.length !== 0 && !distanceInvalid) {
-                                    nextHole(parseInt(putts), parseInt(distance));
+                                if (largeMiss.dir !== "" && !invalid && putts.length !== 0 && largeMiss.distance > 0 && !distanceInvalid) {
+                                    puttTrackingModalRef.current?.largeMiss();
+                                    bottomSheetRef.current?.dismiss();
                                 }
                             }}
-                            disabled={isEqual(largeMissBy, [0, 0]) || invalid || putts === -1 || distance === -1 || distanceInvalid}
-                            title={"Submit"}
+                            disabled={largeMiss.dir === "" || invalid || putts === -1 || largeMiss.distance < 1 || distanceInvalid}
+                            title={"Save"}
                         ></PrimaryButton>
                     </View>
                 </View>

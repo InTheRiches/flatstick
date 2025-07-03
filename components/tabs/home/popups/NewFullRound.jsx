@@ -426,13 +426,17 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                         onPress={() => {
                             if (tee === "") return;
                             newFullRoundRef.current?.dismiss();
+                            const fullCourse = {
+                                ...course,
+                                club_name: fullData.club_name,
+                            };
                             router.push({
                                 pathname: `/simulation/full`,
                                 params: {
                                     stringHoles: maleTees[0].number_of_holes === 9 ? 9 : holes,
                                     stringTee: JSON.stringify(tee),
                                     stringFront: maleTees[0].number_of_holes === 9 ? true : front,
-                                    stringCourse: JSON.stringify(course),
+                                    stringCourse: JSON.stringify(fullCourse),
                                 },
                             });
                         }}

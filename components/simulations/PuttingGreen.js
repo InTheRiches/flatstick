@@ -148,16 +148,27 @@ export function PuttingGreen({
                       }}>
                     {largeMiss && largeMiss.distance !== -1 && (
                         <View style={{
-                            ...StyleSheet.absoluteFill,
+                            position: 'absolute',
+                            top: 0,
+                            left: '50%',
+                            transform: [{ translateX: -height / 2 }],
                             backgroundColor: 'rgba(255, 255, 255, 0.75)',
                             justifyContent: 'center',
                             alignItems: 'center',
                             zIndex: 99,
                             borderRadius: 12,
+                            aspectRatio: 1,
+                            width: height
                         }}>
-                            <FontText style={{fontSize: 18, fontWeight: '700', color: '#333'}}>Miss logged as >3ft</FontText>
-                            <FontText style={{fontSize: 14, color: '#555'}}>No need to mark your putt</FontText>
-                            <FontText style={{fontSize: 14, color: '#555'}}>If you want to override that, tap on grid.</FontText>
+                            <FontText style={{ fontSize: 18, fontWeight: '700', color: '#333' }}>
+                                Miss logged as &gt;3ft
+                            </FontText>
+                            <FontText style={{ fontSize: 14, color: '#555' }}>
+                                No need to mark your putt
+                            </FontText>
+                            <FontText style={{ fontSize: 14, color: '#555' }}>
+                                If you want to override that, tap on grid.
+                            </FontText>
                         </View>
                     )}
                     <Image
@@ -166,7 +177,7 @@ export function PuttingGreen({
                             borderWidth: 1,
                             borderRadius: 12,
                             borderColor: colors.putting.grid.border,
-                            aspectRatio: "1",
+                            aspectRatio: 1,
                             flex: 1,
                             maxHeight: width
                         }}/>

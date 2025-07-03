@@ -1,9 +1,10 @@
 // Example usage:
 import {roundTo} from "./roundTo";
 import {convertUnits} from "@/utils/Conversions";
+import {adaptFullRoundSession} from "@/utils/sessions/SessionUtils";
 
 const sgBaselinePutts = [
-    { distance: 1, strokesGained: 1.00 },
+    { distance: 1, strokesGained: 1.01 },
     { distance: 3, strokesGained: 1.04 },
     { distance: 4, strokesGained: 1.13 },
     { distance: 5, strokesGained: 1.23 },
@@ -96,32 +97,49 @@ function calculateSingleStrokesGained(totalPutts, distance) {
     return baselineStrokesGained - totalPutts;
 }
 
-function calculateTotalStrokesGained(userData, sessions) {
-    if (sessions.length === 0) return 0;
+// TODO should we make stats seperate from each other? (meaning full rounds have seperate stats from real rounds and those have seperate stats from the simulations?)
+function calculateTotalStrokesGained(userData, sessions, fullSessions) {
+    if (sessions.length === 0 && fullSessions.length === 0) return 0;
+
+    let combined = [...sessions, ...fullSessions];
+    combined.sort((a, b) => b.timestamp - a.timestamp); // most recent first
+    let recent = combined.slice(0, 5);
+
     let overallPutts = 0;
     let overallRounds = 0;
 
-    let categories;
-    categories = {
-        distanceOne: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-        distanceTwo: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-        distanceThree: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0},
-        distanceFour: {totalHoles: 0, totalBaselines: 0, totalActualPutts: 0}
-    }
+    let overallStrokesGained = 0;
+    let roundsForOverall = 0;
 
-    sessions.slice(0, 5).forEach(session => {
-        const {totalPutts, holes} = session;
+    const categories = {
+        distanceOne: { totalHoles: 0, totalBaselines: 0, totalActualPutts: 0 },
+        distanceTwo: { totalHoles: 0, totalBaselines: 0, totalActualPutts: 0 },
+        distanceThree: { totalHoles: 0, totalBaselines: 0, totalActualPutts: 0 },
+        distanceFour: { totalHoles: 0, totalBaselines: 0, totalActualPutts: 0 },
+    };
 
+    recent.forEach(session => {
+        const adaptedSession = adaptFullRoundSession(session);
+        let { totalPutts, holes, putts, units } = adaptedSession;
+
+        if (adaptedSession.units === undefined) units = 0; // Default to imperial if units are not defined
+
+        console.log(JSON.stringify(adaptedSession));
+
+        // Normalize for 18 holes
         overallPutts += (18 / holes) * totalPutts;
         overallRounds++;
 
-        session.putts.forEach(putt => {
+        // Skip if session doesn't have detailed putt data
+        if (!putts) return;
+
+        putts.forEach(putt => {
+            console.log("logging a putt", putt);
             const {distance, totalPutts} = putt;
 
-            const convertedDistance = convertUnits(distance, session.units, userData.preferences.units);
+            const convertedDistance = convertUnits(distance, units, userData.preferences.units);
 
             let category;
-
             if (userData.preferences.units === 0) {
                 if (convertedDistance < 6) category = "distanceOne";
                 else if (convertedDistance < 12) category = "distanceTwo";
@@ -134,29 +152,28 @@ function calculateTotalStrokesGained(userData, sessions) {
                 else category = "distanceFour";
             }
 
-            const baselineStrokesGained = calculateBaselineStrokesGained(convertUnits(distance, session.units, 0));
+            const baselineStrokesGained = calculateBaselineStrokesGained(convertUnits(distance, units, 0));
 
             categories[category].totalHoles++;
             categories[category].totalBaselines += baselineStrokesGained;
             categories[category].totalActualPutts += totalPutts;
+
+            const strokesGainedForPutt = calculateBaselineStrokesGained(distance) - totalPutts;
+            overallStrokesGained += strokesGainedForPutt;
+            roundsForOverall++;
         });
     });
 
     const strokesGainedByDistance = {};
-
-    strokesGainedByDistance["overall"] = roundTo(((29 * overallRounds) - overallPutts) / overallRounds, 1);
+    strokesGainedByDistance["overall"] = roundTo(overallStrokesGained / (roundsForOverall/18), 1);
 
     for (const category in categories) {
-        const {totalBaselines, totalActualPutts, totalHoles} = categories[category];
+        const { totalBaselines, totalActualPutts, totalHoles } = categories[category];
         const strokesGained = totalBaselines - totalActualPutts;
 
-        if (totalHoles === 0) {
-            strokesGainedByDistance[category] = 0;
-            continue;
-        }
-
-        strokesGainedByDistance[category] = roundTo(strokesGained / totalHoles, 2);
+        strokesGainedByDistance[category] = totalHoles === 0 ? 0 : roundTo(strokesGained / totalHoles, 2);
     }
+
     return strokesGainedByDistance;
 }
 

@@ -63,6 +63,8 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
                 distance: -1,
                 dir: "",
             })
+        } else {
+            puttTrackingModalRef.current?.largeMiss();
         }
     };
 
@@ -98,7 +100,7 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
             }
             setOpen(!open);
         }}
-        stackBehavior={"switch"}
+        stackBehavior={"push"}
         backgroundStyle={{backgroundColor: colors.background.secondary}}
         keyboardBlurBehavior={"restore"}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -350,14 +352,12 @@ export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, s
                         <SecondaryButton
                             onPress={() => {
                                 if (largeMiss.dir !== "" && largeMiss.distance.length !== 0 && !distanceInvalid) {
-                                    console.log("next hole");
-                                    puttTrackingModalRef.current?.close();
                                     puttTrackingModalRef.current?.largeMiss();
                                     bottomSheetRef.current?.dismiss();
                                 }
                             }}
                             disabled={largeMiss.dir === "" || largeMiss.distance === -1 || distanceInvalid}
-                            title={"Save & Close"}
+                            title={"Save"}
                         ></SecondaryButton>
                     </View>
                 </View>
