@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {FlatList, Image, Pressable, View} from "react-native";
+import {FlatList, Image, Pressable, ScrollView, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
@@ -42,9 +42,7 @@ export function NewFullRound({newFullRoundRef, fullData}) {
     }, [fullData]);
 
     useEffect(() => {
-        console.log(Object.keys(course).length !== 0);
         if (Object.keys(course).length !== 0) {
-            console.log("setting tees");
             setTeeItems(
                 course.tees["male"].map((tee) => ({
                     label: `${tee.name} - ${tee.yards} yds`,
@@ -85,10 +83,11 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                 setTeeOpen(false);
                 setCourseOpen(false);
                 setCourse({});
+                setValue(null);
+                setValue2(null);
             }}
             backgroundStyle={{backgroundColor: colors.background.primary, overflow: "visible"}}
-            handleIndicatorStyle={{backgroundColor: colors.text.primary}}
-            stackBehavior={"push"}>
+            handleIndicatorStyle={{backgroundColor: colors.text.primary}}>
             <BottomSheetView style={{
                 paddingBottom: 12,
             }}>
@@ -102,6 +101,8 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                             open={courseOpen}
                             value={value2}
                             items={courseItems}
+                            dropDownDirection="BOTTOM"
+                            maxHeight={400}
                             setOpen={() => {
                                 setCourseOpen(!courseOpen);
                                 if (teeOpen) {
@@ -404,7 +405,7 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                         color: colors.text.primary,
                         marginBottom: 4,
                     }}>Putter</FontText>
-                    <Pressable onPress={() => router.push({pathname: "/editputters"})} style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 24, alignItems: "center"}}>
+                    <Pressable onPress={() => router.push({pathname: "/editputters"})} style={{flexDirection: "row", gap: 0, borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 48, alignItems: "center"}}>
                         { userData.preferences.selectedPutter === 0 ? (
                             <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500, flex: 1}}>{putters[userData.preferences.selectedPutter].name}</FontText>
                         ) : (

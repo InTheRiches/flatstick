@@ -54,7 +54,6 @@ export default function RootInitializer({}) {
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                alert("Found user");
                 user.getIdToken().then((token) => {
                     setSession(token);
                     initialize();
@@ -64,7 +63,6 @@ export default function RootInitializer({}) {
                 });
             }
             else {
-                alert("Didnt find user");
                 setLocalLoading(false);
                 if (Platform.OS === "ios") {
                     setVisible(false);

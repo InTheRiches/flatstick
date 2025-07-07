@@ -134,7 +134,6 @@ function calculateTotalStrokesGained(userData, sessions, fullSessions) {
         if (!putts) return;
 
         putts.forEach(putt => {
-            console.log("logging a putt", putt);
             const {distance, totalPutts} = putt;
 
             const convertedDistance = convertUnits(distance, units, userData.preferences.units);

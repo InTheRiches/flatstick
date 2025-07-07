@@ -36,7 +36,8 @@ export const NewRound = ({newSessionRef}) => {
     // console.log(userData.preferences, putters, grips);
 
     // renders
-    return (<BottomSheetModal ref={newSessionRef} bottomSheetPosition={bottomSheetPosition} enablePanDownToClose={true} backdropComponent={myBackdrop} handleIndicatorStyle={{backgroundColor: colors.text.primary}} backgroundStyle={{backgroundColor: colors.background.primary}}>
+    return (
+        <BottomSheetModal ref={newSessionRef} bottomSheetPosition={bottomSheetPosition} enablePanDownToClose={true} backdropComponent={myBackdrop} handleIndicatorStyle={{backgroundColor: colors.text.primary}} backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, backgroundColor: colors.background.primary,}}>
                 <View style={{marginHorizontal: 24, paddingBottom: 12}}>
                     <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>New 18 Hole Simulation</FontText>
@@ -232,7 +233,7 @@ export const NewRound = ({newSessionRef}) => {
                     }}>Grip Method</FontText>
                     <Pressable onPress={() => router.push({pathname: "/editgrips"})} style={{flexDirection: "row", borderRadius: 10, backgroundColor: colors.background.secondary, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center"}}>
                         <View style={{flexDirection: "column", flex: 1}}>
-                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips[userData.preferences.selectedGrip].name}</FontText>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, fontWeight: 500}}>{grips[userData.preferences.selectedGrip]?.name}</FontText>
                         </View>
                         <SecondaryButton style={{aspectRatio: 1, borderRadius: 50, width: 32}} onPress={() => router.push({pathname: "/editgrips"})}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}

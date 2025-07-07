@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {ActivityIndicator, FlatList, Pressable, TextInput, View,} from "react-native";
 import {useNavigation} from "@react-navigation/native";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
@@ -6,6 +6,8 @@ import Svg, {Path} from "react-native-svg";
 import FontText from "../../../../components/general/FontText";
 import useColors from "../../../../hooks/useColors";
 import {NewFullRound} from "../../../../components/tabs/home/popups/NewFullRound";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import {useFocusEffect} from "expo-router";
 
 const GOLF_API_KEY = "P3YWERWFDOPBUUV66UDLRJDTLY"; // Replace with your real key
 
@@ -94,6 +96,7 @@ function parseTees(teesData) {
     return parsed;
 }
 
+// TODO add support for when there are no tee boxes in the database
 export default function GolfCourseSearchScreen() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
@@ -102,7 +105,7 @@ export default function GolfCourseSearchScreen() {
     const colors = useColors();
     const newFullRoundRef = useRef(null);
     const navigation = useNavigation();
-    const [course, setCourse] = useState({});
+    const [club, setClub] = useState({});
 
     const setSearchQuery = (newQuery) => {
         if (query === newQuery) {
@@ -133,24 +136,26 @@ export default function GolfCourseSearchScreen() {
         })();
     }, []);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (query.length > 2) {
-                setLoading(true);
-                searchGolfCourses(query, location).then((data) => {
-                    setResults(data.sort((a, b) => a.distance - b.distance));
-                    setLoading(false);
-                });
-            } else {
-                setResults([]);
-            }
-        }, 200); // debounce
-        return () => clearTimeout(timeout);
+    useFocusEffect(
+        useCallback(() => {
+            const timeout = setTimeout(() => {
+                if (query.length > 2) {
+                    setLoading(true);
+                    searchGolfCourses(query, location).then((data) => {
+                        setResults(data.sort((a, b) => a.distance - b.distance));
+                        setLoading(false);
+                    });
+                } else {
+                    setResults([]);
+                }
+            }, 200);
 
-    }, [query, location]);
+            return () => clearTimeout(timeout);
+        }, [query, location])
+    );
 
     return (
-        <>
+        <BottomSheetModalProvider>
             <ScreenWrapper>
                 <View style={{paddingBottom: 25, paddingHorizontal: 20, gap: 12, width: "100%"}}>
                     <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
@@ -200,7 +205,7 @@ export default function GolfCourseSearchScreen() {
                             if (!item.club_name) return null; // skip if no club name
                             let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("G&Cc", "Golf and Country Club").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
                             return (
-                                <Pressable key={"course-" + index} style={({pressed}) => [{
+                                <Pressable key={"club-" + index} style={({pressed}) => [{
                                     padding: 8,
                                     backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary,
                                     borderRadius: 14,
@@ -210,7 +215,11 @@ export default function GolfCourseSearchScreen() {
                                     justifyContent: "space-between",
                                     gap: 12
                                 }]} onPress={() => {
-                                    setCourse(item);
+                                    // this is because React doesnt see a state change so it doesnt update club when you click the same club twice
+                                    setClub(null);
+                                    setTimeout(() => {
+                                        setClub(item);
+                                    }, 0);
                                     newFullRoundRef.current.present();
                                 }}>
                                     <View style={{flexDirection: "row", flex: 1, alignItems: "center"}}>
@@ -264,7 +273,7 @@ export default function GolfCourseSearchScreen() {
                     />
                 </View>
             </ScreenWrapper>
-            <NewFullRound newFullRoundRef={newFullRoundRef} fullData={course}></NewFullRound>
-        </>
+            <NewFullRound newFullRoundRef={newFullRoundRef} fullData={club}></NewFullRound>
+        </BottomSheetModalProvider>
     );
 }

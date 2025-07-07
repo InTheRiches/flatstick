@@ -93,15 +93,15 @@ export default function IndividualSession({}) {
                                     } else {
                                         navigation.goBack();
                                     }
-                                }} style={{position: "absolute", left: 0, top: 0, marginTop: -6, marginLeft: -10, padding: 10}}>
+                                }} style={{position: "absolute", left: 0, top: 0, marginTop: -10, marginLeft: -10, padding: 10}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
                                          stroke={colors.text.primary} width={24} height={24}>
                                         <Path strokeLinecap="round" strokeLinejoin="round"
                                               d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                                     </Svg>
                                 </Pressable>
-                                <FontText style={{marginLeft: 32, fontSize: 24, fontWeight: 500, color: colors.text.primary, textAlign: "left"}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
-                                <FontText style={{color: colors.text.secondary, fontSize: 18, fontWeight: 400, textAlign: "left"}}>{formatTimestamp()}</FontText>
+                                <FontText style={{marginLeft: 32, fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: 800, flex: 1}}>{session.type === "round-simulation" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}</FontText>
+                                <FontText style={{marginLeft: 32, color: colors.text.secondary, fontSize: 16, fontWeight: 600, textAlign: "left"}}>{formatTimestamp()}</FontText>
                             </View>
                             <Pressable onPress={() => infoModalRef.current.present()} style={({pressed}) => [{
                                 width: 40,

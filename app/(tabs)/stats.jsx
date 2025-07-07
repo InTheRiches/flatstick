@@ -128,7 +128,7 @@ export default function Stats({}) {
                 alignItems: "center",
                 paddingHorizontal: 32
             }}>
-                <FontText style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>No Sessions</FontText>
+                <FontText style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Not enough data</FontText>
                 <FontText style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</FontText>
             </View>
         </ScreenWrapper>

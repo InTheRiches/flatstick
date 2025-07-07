@@ -87,7 +87,7 @@ const calculateDistanceMissedMeters = (center, point, width, height) => {
     return distanceMissed * conversionFactor;
 };
 
-const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
+const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, point) => {
     const puttsCopy = [...putts];
 
     puttsCopy[hole - 1] = {
@@ -98,8 +98,8 @@ const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope
         misHit: misHit,
         largeMiss: largeMiss,
         totalPutts: totalPutts,
-        distanceMissed: largeMiss ? largeMissDistance : distanceMissed,
-        point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance) : point
+        distanceMissed: distanceMissed,
+        point: point
     };
     return puttsCopy;
 };
@@ -112,7 +112,7 @@ const loadPuttData = (putt, updateField) => {
         updateField("misReadSlope", false);
         updateField("misHit", false);
         updateField("center", false);
-        updateField("holedOut", false);
+        updateField("holedOut", true);
         updateField("distanceInvalid", true);
         updateField("theta", 999);
         updateField("puttBreak", convertThetaToBreak(0));
@@ -131,6 +131,7 @@ const loadPuttData = (putt, updateField) => {
     updateField("misReadLine", putt.misReadLine);
     updateField("misReadSlope", putt.misReadSlope);
     updateField("misHit", putt.misHit);
+    updateField("holedOut", false);
     updateField("center", putt.distanceMissed === 0);
     updateField("currentPutts", putt.totalPutts);
     if (putt.theta)
@@ -169,8 +170,6 @@ const calculateFullRoundStats = (roundData, width, height) => {
     roundData.forEach((hole, index) => {
         if (hole.puttData === undefined) return;
         const putt = hole.puttData;
-
-        console.log(`Processing hole ${index + 1} with putt data:`, putt);
 
         if (putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))
             return;

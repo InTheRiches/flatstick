@@ -85,6 +85,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
         largeMiss: () => {
             setPoint({});
             setCenter(false);
+            setHoledOut(false);
         },
         getWidth: () => {
             return width;
@@ -190,7 +191,17 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                 }
                                 <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 4, fontWeight: 400}}>Mishit</FontText>
                             </Pressable>
-                            <Pressable onPress={() => setHoledOut(!holedOut)} style={{
+                            <Pressable onPress={() => {
+                                if (!holedOut) {
+                                    setCenter(false);
+                                    setPoint({});
+                                    setLargeMiss({
+                                        dir: "",
+                                        distance: -1
+                                    })
+                                }
+                                setHoledOut(!holedOut);
+                            }} style={{
                                 paddingRight: 5,
                                 paddingLeft: 0,
                                 paddingVertical: 10,
@@ -224,7 +235,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                             </Pressable>
                         </View>
                         <View style={{width: "100%", alignSelf: "flex-start", marginTop: 10}}>
-                            <PuttingGreen largeMiss={largeMiss} setLargeMiss={setLargeMiss} center={center} setCenter={setCenter} setHeight={setHeight} setWidth={setWidth} setPoint={setPoint} height={height} width={width} point={point}></PuttingGreen>
+                            <PuttingGreen holedOut={holedOut} setHoledOut={setHoledOut} largeMiss={largeMiss} setLargeMiss={setLargeMiss} center={center} setCenter={setCenter} setHeight={setHeight} setWidth={setWidth} setPoint={setPoint} height={height} width={width} point={point}></PuttingGreen>
                         </View>
                     </View>
                     <View>

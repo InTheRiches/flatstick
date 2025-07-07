@@ -6,7 +6,6 @@ import {Header, PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/com
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "@/components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
-import {NewFullRound} from "@/components/tabs/home/popups/NewFullRound";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 

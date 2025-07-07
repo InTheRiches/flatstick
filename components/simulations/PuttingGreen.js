@@ -8,6 +8,8 @@ import {useAppContext} from "../../contexts/AppCtx";
 import FontText from "../general/FontText";
 
 export function PuttingGreen({
+                                 holedOut = false,
+                                 setHoledOut,
                                  updateField,
                                  largeMiss,
                                  setLargeMiss,
@@ -44,6 +46,9 @@ export function PuttingGreen({
                 case "center":
                     setCenter?.(value);
                     break;
+                case "holedOut":
+                    setHoledOut?.(value);
+                    break;
                 default:
                     console.warn("Unknown update key:", key);
             }
@@ -68,6 +73,11 @@ export function PuttingGreen({
                 });
                 return;
             }
+            if (holedOut) {
+                runOnJS(update)("holedOut", false);
+
+                return;
+            }
             // ignore it if the point is outside of the green
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
@@ -88,6 +98,11 @@ export function PuttingGreen({
                     distance: -1,
                     dir: ""
                 });
+                return;
+            }
+            if (holedOut) {
+                runOnJS(update)("holedOut", false);
+
                 return;
             }
             runOnJS(update)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
@@ -146,7 +161,7 @@ export function PuttingGreen({
                           aspectRatio: updateField ? "auto" : 1,
                           width: "100%",
                       }}>
-                    {largeMiss && largeMiss.distance !== -1 && (
+                    {((largeMiss && largeMiss.distance !== -1) || holedOut) && (
                         <View style={{
                             position: 'absolute',
                             top: 0,
@@ -161,7 +176,7 @@ export function PuttingGreen({
                             width: height
                         }}>
                             <FontText style={{ fontSize: 18, fontWeight: '700', color: '#333' }}>
-                                Miss logged as &gt;3ft
+                                {holedOut ? "You holed out" : "Miss logged as >3ft"}
                             </FontText>
                             <FontText style={{ fontSize: 14, color: '#555' }}>
                                 No need to mark your putt
