@@ -1,7 +1,7 @@
 import {Platform, Pressable, ScrollView, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../../hooks/useColors";
-import {auth, getProfilesByUsername} from "../../../../utils/firebase";
+import {auth, getProfilesByDisplayName, getProfilesByUsername} from "../../../../utils/firebase";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
@@ -27,7 +27,7 @@ export default function SearchUsers({}) {
         // search for profiles that match that name
         setUsername(text);
         if (text.length > 1) {
-            getProfilesByUsername(text).then(fetchedProfiles => {
+            getProfilesByDisplayName(text).then(fetchedProfiles => {
                 // remove the current user from the list
                 const currentUser = auth.currentUser;
                 const filteredProfiles = fetchedProfiles.filter(profile => profile.id !== currentUser.uid);

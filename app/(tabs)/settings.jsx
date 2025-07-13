@@ -25,6 +25,7 @@ import FontText from "../../components/general/FontText";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
+// TODO add prompt for sign out button to confirm
 export default function HomeScreen() {
     const colors = useColors();
     const {userData, updateData} = useAppContext();

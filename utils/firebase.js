@@ -56,6 +56,36 @@ function deepMergeDefaults(target, defaults) {
     return target;
 }
 
+async function getProfilesByDisplayName(displayName) {
+    const profilesRef = collection(firestore, "users");
+
+    // Convert search term to lowercase
+    const searchTerm = displayName.toLowerCase();
+
+    // Query using the lowercase field
+    const q = query(
+        profilesRef,
+        where("displayNameLower", ">=", searchTerm),
+        where("displayNameLower", "<=", searchTerm + "\uf8ff")
+    );
+
+    try {
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) return [];
+
+        const profiles = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.deleted) return;
+            profiles.push({ ...data, id: doc.id });
+        });
+
+        return profiles;
+    } catch (e) {
+        console.error("Error fetching profiles: " + e);
+        return [];
+    }
+}
 
 async function getProfilesByUsername(username) {
     let firstName, lastName;
@@ -101,4 +131,4 @@ async function getProfilesByUsername(username) {
     }
 }
 
-export {firestore, auth, deepMergeDefaults, getApp, getAuth, getProfilesByUsername};
+export {firestore, auth, deepMergeDefaults, getProfilesByDisplayName, getApp, getAuth, getProfilesByUsername};

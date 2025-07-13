@@ -38,8 +38,8 @@ export default function MissBiasTab({statsToUse}) {
                         <View style={{flexDirection: "row"}}>
                             <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.percentHigh !== undefined ? roundTo(statsToUse.percentHigh*100, 0) + "%" : "N/A"}</FontText>
                             { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
-                                <View style={{backgroundColor: difference > 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                                    <FontText style={{color: difference > 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(0)}%` : `${difference.toFixed(0)}%`}</FontText>
+                                <View style={{backgroundColor: difference > 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4, marginLeft: 4}}>
+                                    <FontText style={{color: difference > 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+${difference.toFixed(0)}%` : `${difference.toFixed(0)}%`}</FontText>
                                 </View>
                             }
                         </View>

@@ -4,7 +4,7 @@ import React, {useRef, useState} from "react";
 import {useAppContext} from "../../../contexts/AppCtx";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
-import {auth} from "../../../utils/firebase";
+import {auth, getAuth} from "../../../utils/firebase";
 import {updateEmail, updateProfile} from "firebase/auth";
 import Loading from "../../../components/general/popups/Loading";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -27,6 +27,9 @@ export default function UserSettings({}) {
     const [lastName, setLastName] = useState(userData.lastName);
     const [firstNameInvalid, setFirstNameInvalid] = useState(false);
     const [lastNameInvalid, setLastNameInvalid] = useState(false);
+    const [displayName, setDisplayName] = useState(auth.currentUser.displayName || "");
+    const [displayNameInvalid, setDisplayNameInvalid] = useState(false);
+    const [displayNameFocused, setDisplayNameFocused] = useState(false);
     const [email, setEmail] = useState(auth.currentUser.email);
     const [loading, setLoading] = useState(false);
     const bannerRef = useRef(null);
@@ -57,42 +60,43 @@ export default function UserSettings({}) {
         setEmailInvalid(!re.test(newEmail));
     }
 
+    const updateDisplayName = (newName) => {
+        setDisplayName(newName);
+        setDisplayNameInvalid(newName.length < 5);
+    }
+
     const save = () => {
-        if (firstNameInvalid || lastNameInvalid || emailInvalid) return;
-        if (firstName === userData.firstName && lastName === userData.lastName && email === auth.currentUser.email) {
+        if (firstNameInvalid || lastNameInvalid || emailInvalid || displayNameInvalid) return;
+        if (firstName === userData.firstName && lastName === userData.lastName && displayName === auth.currentUser.displayName && email === auth.currentUser.email) {
             navigation.goBack();
             return;
         }
 
         setLoading(true);
 
-        updateData({firstName, lastName});
-
-        // Save changes to the database
-        updateProfile(auth.currentUser, {displayName: firstName + " " + lastName})
-            .then(() => {
-                if (isGoogle || isApple) {
+        updateData({firstName, lastName, displayName, displayNameLower: displayName.toLowerCase()}).then(() => {
+            if (isGoogle || isApple) {
+                navigation.goBack();
+                return;
+            }
+            updateEmail(auth.currentUser, email)
+                .then(() => {
                     navigation.goBack();
-                    return;
-                }
-                updateEmail(auth.currentUser, email)
-                    .then(() => {
-                        navigation.goBack();
-                    }).catch((error) => {
-                        emailErrorCode = error.code;
-                        setEmailInvalid(true);
-                        setLoading(false);
-                    });
-            }).catch((error) => {
-                nameErrorCode = error.code;
+                }).catch((error) => {
+                emailErrorCode = error.code;
+                setEmailInvalid(true);
                 setLoading(false);
             });
+        }).catch((error => {
+            console.log("Error updating user data:", error);
+            navigation.goBack();
+        }));
     }
 
     return loading ? <Loading></Loading> : (
         <SafeAreaView style={{flex: 1, paddingHorizontal: 20, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
-                <Pressable onPress={save} style={{padding: 4, paddingLeft: 0, opacity: emailInvalid || firstNameInvalid || lastNameInvalid ? 0.25 : 1}}>
+                <Pressable onPress={save} style={{padding: 4, paddingLeft: 0, opacity: emailInvalid || firstNameInvalid || displayNameInvalid || lastNameInvalid ? 0.25 : 1}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
                          stroke={colors.text.primary} width={24} height={24}>
                         <Path strokeLinecap="round" strokeLinejoin="round"
@@ -136,7 +140,7 @@ export default function UserSettings({}) {
             {firstNameInvalid &&
                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{firstName.length === 0 ? "Please enter a first name!" : "Don't include any spaces!"}</FontText>
             }
-            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>LAST NAME</FontText>
+            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 12, marginBottom: 6}}>LAST NAME</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{
@@ -171,7 +175,42 @@ export default function UserSettings({}) {
             {lastNameInvalid &&
                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{lastName.length === 0 ? "Please enter a last name!" : "Don't include any spaces!"}</FontText>
             }
-            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>EMAIL ADDRESS</FontText>
+            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 12, marginBottom: 6}}>DISPLAY NAME</FontText>
+            <View style={{flexDirection: "row"}}>
+                <TextInput
+                    style={{
+                        flex: 1,
+                        borderWidth: 1,
+                        borderColor: displayNameFocused ? displayNameInvalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : displayNameInvalid ? colors.input.invalid.border : colors.input.border,
+                        borderRadius: 10,
+                        paddingVertical: 8,
+                        paddingHorizontal: 10,
+                        fontSize: 16,
+                        color: displayNameInvalid ? colors.input.invalid.text : colors.input.text,
+                        backgroundColor: displayNameInvalid ? colors.input.invalid.background : displayNameFocused ? colors.input.focused.background : colors.input.background
+                    }}
+                    onFocus={() => setDisplayNameFocused(true)}
+                    onBlur={() => setDisplayNameFocused(false)}
+                    value={displayName}
+                    onChangeText={(text) => updateDisplayName(text)}
+                />
+                {displayNameInvalid && <FontText style={{
+                    position: "absolute",
+                    right: 12,
+                    top: 7.5,
+                    color: "white",
+                    backgroundColor: "#EF4444",
+                    borderRadius: 50,
+                    aspectRatio: 1,
+                    width: 22,
+                    textAlign: "center",
+                    fontSize: 16
+                }}>!</FontText>}
+            </View>
+            {displayNameInvalid &&
+                <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>{displayName.length === 0 ? "Please enter a display name!" : "Please enter a display name longer than 4 characters."}</FontText>
+            }
+            <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 12, marginBottom: 6}}>EMAIL ADDRESS</FontText>
             <View style={{flexDirection: "row"}}>
                 <TextInput
                     style={{

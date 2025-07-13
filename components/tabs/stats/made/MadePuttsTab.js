@@ -48,7 +48,7 @@ export const MadePuttsTab = ({statsToUse}) => {
                 <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{roundTo(statsToUse.madePutts.overall*100, 0)}%</FontText>
                 { previousStats !== undefined && previousStats.length > 0 && difference != 0 &&
                     <View style={{backgroundColor: difference > 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                        <FontText style={{color: difference > 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference}%` : `${difference}%`}</FontText>
+                        <FontText style={{color: difference > 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+${difference}%` : `${difference}%`}</FontText>
                     </View>
                 }
             </View>
@@ -65,7 +65,7 @@ export const MadePuttsTab = ({statsToUse}) => {
                     <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
                     <FontText style={{fontSize: 14, fontWeight: 500}}>By Distance</FontText>
                 </View>
-                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Your make percents by distance have been plotted next to the PGA Tour averages. Being at or above the Tour Pro bar means you make more putts at that distance than Tour Pros.</FontText>
+                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Your make percents by distance are plotted next to the PGA Tour averages. Being at or above the Tour Pro bar means you make more putts at that distance than Tour Pros.</FontText>
             </View>
             <View style={{marginTop: 10, marginBottom: 24}}>
                 <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>

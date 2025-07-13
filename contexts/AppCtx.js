@@ -86,6 +86,27 @@ const AuthContext = createContext({
     isLoading: true,
 });
 
+const getDefaultData = (firstName, lastName) => ({
+    date: new Date().toISOString(),
+    totalPutts: 0,
+    sessions: 0,
+    firstName: firstName.trim(),
+    lastName: lastName.trim(),
+    displayName: `${firstName.trim()} ${lastName.trim()}`,
+    displayNameLower: `${firstName.trim()} ${lastName.trim()}`.toLowerCase(),
+    strokesGained: 0,
+    hasSeenRoundTutorial: false,
+    hasSeenRealTutorial: false,
+    preferences: {
+        countMishits: true,
+        selectedPutter: 0,
+        theme: 0,
+        units: 0,
+        reminders: false,
+        selectedGrip: 0,
+    }
+});
+
 // Hook to access AppContext
 export const useAppContext = () => useContext(AppContext);
 
@@ -133,29 +154,7 @@ export function AppProvider({children}) {
                 // Signed up
                 const user = userCredential.user;
 
-                updateProfile(user, {
-                    displayName: firstName.trim() + " " + lastName.trim()
-                }).catch((error) => {
-                });
-
-                setDoc(doc(firestore, `users/${user.uid}`), {
-                    date: new Date().toISOString(),
-                    totalPutts: 0,
-                    sessions: 0,
-                    firstName: firstName.trim(),
-                    lastName: firstName.trim(),
-                    strokesGained: 0,
-                    hasSeenRoundTutorial: false,
-                    hasSeenRealTutorial: false,
-                    preferences: {
-                        countMishits: true,
-                        selectedPutter: 0,
-                        theme: 0,
-                        units: 0,
-                        reminders: false,
-                        selectedGrip: 0,
-                    }
-                }).then(() => {
+                setDoc(doc(firestore, `users/${user.uid}`), getDefaultData(firstName, lastName)).then(() => {
                     setDoc(doc(firestore, `users/${user.uid}/stats/current`), createSimpleRefinedStats()).then(() => {
                         updateStats()
                     });
@@ -204,22 +203,7 @@ export function AppProvider({children}) {
                         });
                         return;
                     }
-                    setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
-                        date: new Date().toISOString(),
-                        totalPutts: 0,
-                        sessions: 0,
-                        firstName: firstName,
-                        lastName: lastName,
-                        strokesGained: 0,
-                        preferences: {
-                            countMishits: true,
-                            selectedPutter: 0,
-                            theme: 0,
-                            units: 0,
-                            reminders: false,
-                            selectedGrip: 0,
-                        }
-                    }).then(() => {
+                    setDoc(doc(firestore, `users/${userCredential.user.uid}`), getDefaultData(firstName, lastName)).then(() => {
                         userCredential.user.getIdToken().then((token) => {
                             setSession(token || null);
                             router.replace({pathname: `/`});
@@ -457,8 +441,6 @@ export function AppProvider({children}) {
 
                 refreshData().then(() => {
                     getPreviousStats().then(() => {
-                        // TODO remove this
-                        refreshStats();
                         console.log("Initialization complete!");
                         setLoading(false);
                     })
@@ -529,7 +511,9 @@ export function AppProvider({children}) {
         try {
             const data = await getDoc(docRef);
             newData = data.data();
-            setUserData(data.data());
+            // check for needed updates to user data
+            const updatedUserData = deepMergeDefaults({ ...data.data() }, getDefaultData(newData.firstName, newData.lastName));
+            setUserData(updatedUserData);
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }
