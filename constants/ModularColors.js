@@ -2,6 +2,7 @@ export const LightTheme = {
   text: {
     primary: '#111827',
     secondary: '#687076',
+    tertiary: '#90999a',
     placeholder: '#b0b0b0',
     link: '#42aaf5',
   },

@@ -1,7 +1,7 @@
-import {useState} from "react";
-import {Animated, Dimensions, Platform} from "react-native";
-import BootSplash from "react-native-bootsplash";
+import React, {useEffect, useState} from "react";
+import {Animated, Dimensions, Platform, View, Image, StyleSheet} from "react-native";
 
+// Config
 const useNativeDriver = Platform.OS !== "web";
 
 type Props = {
@@ -9,18 +9,15 @@ type Props = {
     ready: boolean;
 };
 
-export const AnimatedBootSplash = ({ onAnimationEnd, ready }: Props) => {
+export const AnimatedBootSplash = ({onAnimationEnd, ready}: Props) => {
     const [opacity] = useState(() => new Animated.Value(1));
     const [translateY] = useState(() => new Animated.Value(0));
 
-    const {container, logo /*, brand */} = BootSplash.useHideAnimation({
-        manifest: require("../../../assets/bootsplash/manifest.json"),
-        ready: ready,
-        logo: require("../../../assets/bootsplash/logo.png"),
-
-        animate: () => {
+    useEffect(() => {
+        if (ready) {
             const {height} = Dimensions.get("window");
 
+            // Start animation
             Animated.stagger(250, [
                 Animated.spring(translateY, {
                     useNativeDriver,
@@ -40,15 +37,30 @@ export const AnimatedBootSplash = ({ onAnimationEnd, ready }: Props) => {
             }).start(() => {
                 onAnimationEnd();
             });
-        },
-    });
+        }
+    }, [ready]);
 
     return (
-        <Animated.View {...container} style={[container.style, {opacity, zIndex: 50}]}>
+        <Animated.View style={[styles.container, {opacity}]}>
             <Animated.Image
-                {...logo}
-                style={[logo.style, {transform: [{translateY}]}]}
+                source={require("../../../assets/bootsplash/logo.png")} // your splash logo
+                style={[styles.logo, {transform: [{translateY}]}]}
+                resizeMode="contain"
             />
         </Animated.View>
     );
-}
+};
+
+const styles = StyleSheet.create({
+    container: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "#ffffff", // match your splash background color
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 50,
+    },
+    logo: {
+        "width": 192,
+        "height": 48
+    },
+});

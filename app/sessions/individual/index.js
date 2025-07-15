@@ -94,7 +94,7 @@ export default function IndividualSession({}) {
                                         navigation.goBack();
                                     }
                                 }} style={{position: "absolute", left: 0, top: 0, marginTop: -10, marginLeft: -10, padding: 10}}>
-                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                                          stroke={colors.text.primary} width={24} height={24}>
                                         <Path strokeLinecap="round" strokeLinejoin="round"
                                               d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>

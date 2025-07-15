@@ -1,31 +1,27 @@
-import {Platform, Pressable, ScrollView, TextInput, View} from "react-native";
-import React, {useRef, useState} from "react";
-import useColors from "../../../../hooks/useColors";
-import {auth, getProfilesByDisplayName, getProfilesByUsername} from "../../../../utils/firebase";
+import {Pressable, ScrollView, TextInput, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
-import {useNavigation, useRouter} from "expo-router";
-import ScreenWrapper from "../../../../components/general/ScreenWrapper";
-import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
-import FontText from "../../../../components/general/FontText";
+import FontText from "../../../components/general/FontText";
+import React, {useState} from "react";
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import useColors from "../../../hooks/useColors";
+import {useNavigation} from "expo-router";
+import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
+import {useAppContext} from "../../../contexts/AppCtx";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
+import {auth, getProfilesByDisplayName} from "../../../utils/firebase";
 
-const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
-
-export default function SearchUsers({}) {
+export default function SearchFriends({}) {
     const colors = useColors();
+    const navigation = useNavigation();
+    const {userData} = useAppContext();
 
     const [profiles, setProfiles] = useState([]);
-    const [username, setUsername] = useState("");
-    const router = useRouter();
-    const navigation = useNavigation();
-    const bannerRef = useRef(null);
+    const [displayName, setDisplayName] = useState("");
 
-    useForeground(() => {
-        bannerRef.current?.load();
-    });
-
-    const updateUsername = (text) => {
+    const updateDisplayName = (text) => {
         // search for profiles that match that name
-        setUsername(text);
+        setDisplayName(text);
         if (text.length > 1) {
             getProfilesByDisplayName(text).then(fetchedProfiles => {
                 // remove the current user from the list
@@ -39,22 +35,26 @@ export default function SearchUsers({}) {
     };
 
     return (
-        <ScreenWrapper>
-            <View style={{paddingBottom: 25, paddingHorizontal: 20, gap: 12, width: "100%"}}>
-                <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
-                    <Pressable onPress={() => {
-                        navigation.goBack()
-                    }} style={{padding: 4, paddingLeft: 0}}>
+        <BottomSheetModalProvider>
+            <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingHorizontal: 24}}>
+                <View style={{flexDirection: "row"}}>
+                    <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 3, paddingHorizontal: 10}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                              stroke={colors.text.primary} width={24} height={24}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
                         </Svg>
                     </Pressable>
-                    <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Find Users</FontText>
+                    <View style={{flexDirection: "row", flex: 1, alignItems: "center", justifyContent: "space-between", paddingBottom: 10,}}>
+                        <FontText style={{
+                            fontSize: 24,
+                            fontWeight: 600,
+                            color: colors.text.primary
+                        }}>Add Friends</FontText>
+                    </View>
                 </View>
                 <TextInput
-                    placeholder={"Username"}
+                    placeholder={"Search users..."}
                     style={{
                         backgroundColor: colors.input.background,
                         color: colors.input.text,
@@ -62,10 +62,11 @@ export default function SearchUsers({}) {
                         borderColor: colors.input.border,
                         borderRadius: 12,
                         padding: 12,
+                        marginBottom: 12,
                         fontSize: 16,
                     }}
                     placeholderTextColor={colors.text.secondary}
-                    onChangeText={updateUsername}
+                    onChangeText={updateDisplayName}
                 />
                 {profiles.length === 0 && <FontText style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</FontText>}
                 <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
@@ -96,22 +97,24 @@ export default function SearchUsers({}) {
                                         </View>
                                     </View>
                                 </View>
-                                <View style={{backgroundColor: colors.button.secondary.background, alignItems: "center", justifyContent: "center", aspectRatio: 1, borderRadius: 24, paddingHorizontal: 8}}>
-                                    <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
-                                         viewBox="0 0 24 24" strokeWidth={2}
-                                         stroke={colors.button.secondary.text} className="size-6">
-                                        <Path strokeLinecap="round" strokeLinejoin="round"
-                                              d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                                <View style={{
+                                    backgroundColor: colors.button.secondary.background,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    aspectRatio: 1,
+                                    borderRadius: 24,
+                                    paddingHorizontal: 8
+                                }}>
+                                    <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.button.secondary.text} width={20} height={20}>
+                                        <Path
+                                            d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z"/>
                                     </Svg>
                                 </View>
                             </Pressable>
                         )
                     })}
                 </ScrollView>
-            </View>
-            <View style={{position: "absolute", bottom: 0}}>
-                <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
-            </View>
-        </ScreenWrapper>
+            </ScreenWrapper>
+        </BottomSheetModalProvider>
     )
 }

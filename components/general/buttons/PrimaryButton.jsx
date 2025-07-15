@@ -16,7 +16,7 @@ export function PrimaryButton({
             justifyContent: 'center',
             paddingVertical: 10,
             paddingHorizontal: 32,
-            borderRadius: 8,
+            borderRadius: 10,
             borderStyle: "solid",
             borderWidth: 1,
             borderColor: colors.button.primary.border,

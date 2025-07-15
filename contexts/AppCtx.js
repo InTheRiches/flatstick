@@ -97,6 +97,7 @@ const getDefaultData = (firstName, lastName) => ({
     strokesGained: 0,
     hasSeenRoundTutorial: false,
     hasSeenRealTutorial: false,
+    friends: [],
     preferences: {
         countMishits: true,
         selectedPutter: 0,
@@ -374,80 +375,73 @@ export function AppProvider({children}) {
     }
 
     // Initialize user data and sessions
-    const initialize = () => {
+    const initialize = async () => {
         if (!auth.currentUser) {
             console.log("No user signed in!");
             setLoading(false);
             return;
         }
 
-        const setupFolder = async () => {
-            try {
-                const dirExists = await RNFS.exists(sessionDirectory);
-                const otherDirExists = await RNFS.exists(fullRoundDirectory);
-                if (!dirExists) {
-                    await RNFS.mkdir(sessionDirectory);
-                }
-                if (!otherDirExists) {
-                    await RNFS.mkdir(fullRoundDirectory);
-                }
-            } catch (error) {
-                console.error("Error creating session directory:", error);
+        try {
+            const dirExists = await RNFS.exists(sessionDirectory);
+            const otherDirExists = await RNFS.exists(fullRoundDirectory);
+            if (!dirExists) {
+                await RNFS.mkdir(sessionDirectory);
             }
+            if (!otherDirExists) {
+                await RNFS.mkdir(fullRoundDirectory);
+            }
+        } catch (error) {
+            console.error("Error creating session directory:", error);
         }
 
-        setupFolder().then(() => {
-            console.log("Session directory setup complete!");
-            getAllStats().then(async (updatedStats) => {
-                console.log("Stats loaded!");
-                let localPutters = [{type: "default", name: "Standard Putter", stats: updatedStats}];
+        console.log("Session directory setup complete!");
+        const updatedStats = await getAllStats();
+        console.log("Stats loaded!");
+        let localPutters = [{type: "default", name: "Standard Putter", stats: updatedStats}];
 
-                const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
-                try {
-                    const querySnapshot = await getDocs(putterSessionQuery);
+        const putterSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/putters`));
+        try {
+            const querySnapshot = await getDocs(putterSessionQuery);
 
-                    if (querySnapshot.docs.length !== 0)
-                        localPutters = [...localPutters, ...querySnapshot.docs.map((doc) => {
-                            return {
-                                type: doc.id,
-                                name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
-                                stats: doc.data()
-                            }
-                        })];
-                } catch (error) {
-                    console.error("Error refreshing putters:", error);
-                }
+            if (querySnapshot.docs.length !== 0)
+                localPutters = [...localPutters, ...querySnapshot.docs.map((doc) => {
+                    return {
+                        type: doc.id,
+                        name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
+                        stats: doc.data()
+                    }
+                })];
+        } catch (error) {
+            console.error("Error refreshing putters:", error);
+        }
 
-                let localGrips = [{type: "default", name: "Standard Method", stats: updatedStats}];
+        let localGrips = [{type: "default", name: "Standard Method", stats: updatedStats}];
 
-                const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
-                try {
-                    const querySnapshot = await getDocs(gripSessionQuery);
+        const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
+        try {
+            const querySnapshot = await getDocs(gripSessionQuery);
 
-                    if (querySnapshot.docs.length !== 0)
-                        localGrips = [...localGrips, ...querySnapshot.docs.map((doc) => {
-                            return {
-                                type: doc.id,
-                                name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
-                                stats: doc.data()
-                            }
-                        })];
-                } catch (error) {
-                    console.error("Error refreshing grips:", error);
-                }
+            if (querySnapshot.docs.length !== 0)
+                localGrips = [...localGrips, ...querySnapshot.docs.map((doc) => {
+                    return {
+                        type: doc.id,
+                        name: doc.id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" "),
+                        stats: doc.data()
+                    }
+                })];
+        } catch (error) {
+            console.error("Error refreshing grips:", error);
+        }
 
-                setGrips(localGrips);
-                setPutters(localPutters);
+        setGrips(localGrips);
+        setPutters(localPutters);
 
-                refreshData().then(() => {
-                    getPreviousStats().then(() => {
-                        console.log("Initialization complete!");
-                        setLoading(false);
-                    })
-                });
-            });
-        }).catch((error) => {
-            console.error("Error during initialization:", error);
+        refreshData().then(() => {
+            getPreviousStats().then(() => {
+                console.log("Initialization complete!");
+                setLoading(false);
+            })
         });
     };
 

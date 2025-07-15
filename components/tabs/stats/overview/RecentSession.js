@@ -20,7 +20,7 @@ export const RecentSession = ({recentSession}) => {
     }
 
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8}}>
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8}}>
             <View style={{
                 paddingHorizontal: 12,
                 borderBottomWidth: 1,
@@ -61,7 +61,7 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12,
                 }}>
-                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</FontText>
+                    <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.secondary}}>SG</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
@@ -77,7 +77,7 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>{"Difficulty"}</FontText>
+                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.secondary}}>DIFFICULTY</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
@@ -91,7 +91,7 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Putts</FontText>
+                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.secondary}}>TOTAL PUTTS</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,

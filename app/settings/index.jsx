@@ -11,8 +11,8 @@ import {
     ReauthenticateForProfile,
     SetTheme,
     SetUnits
-} from "../../components/tabs/settings/popups/";
-import {useRouter} from "expo-router";
+} from "../../components/tabs/settings/popups";
+import {useNavigation, useRouter} from "expo-router";
 import DangerButton from "../../components/general/buttons/DangerButton";
 import {useSession} from "../../contexts/AppCtx";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
@@ -22,6 +22,7 @@ import {deleteUser} from "firebase/auth";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
+import {GestureDetector} from "react-native-gesture-handler";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
@@ -40,6 +41,8 @@ export default function HomeScreen() {
     const reauthenticateDeletionRef = React.useRef(null);
     const confirmDeleteRef = React.useRef(null);
     const bannerRef = useRef(null);
+
+    const navigation = useNavigation();
 
     useForeground(() => {
         bannerRef.current?.load();
@@ -74,12 +77,21 @@ export default function HomeScreen() {
                     flex: 1
                 }}>
                     <ScrollView keyboardShouldPersistTaps={'handled'}>
-                        <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, paddingBottom: 10,}}>
-                            <FontText style={{
-                                fontSize: 24,
-                                fontWeight: 600,
-                                color: colors.text.primary
-                            }}>Settings</FontText>
+                        <View style={{flexDirection: "row"}}>
+                            <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 3, paddingHorizontal: 10}}>
+                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
+                                     stroke={colors.text.primary} width={24} height={24}>
+                                    <Path strokeLinecap="round" strokeLinejoin="round"
+                                          d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
+                                </Svg>
+                            </Pressable>
+                            <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, paddingBottom: 10,}}>
+                                <FontText style={{
+                                    fontSize: 24,
+                                    fontWeight: 600,
+                                    color: colors.text.primary
+                                }}>Settings</FontText>
+                            </View>
                         </View>
                         <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>USER DATA</FontText>
                         <Pressable onPress={() => {

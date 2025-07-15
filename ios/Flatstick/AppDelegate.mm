@@ -66,5 +66,6 @@
   [super customizeRootView:rootView];
   [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
 }
+
 // @generated end bootsplash-init
 @end

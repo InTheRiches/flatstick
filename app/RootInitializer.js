@@ -39,15 +39,9 @@ export default function RootInitializer({}) {
 
     // Monitor authentication state changes
     useEffect(() => {
-        if (Platform.OS === "ios") {
-            BootSplash.hide({ fade: true });
-        }
         const unsubscribeNetInfo = NetInfo.addEventListener(state => {
             if (!state.isConnected) {
                 if (localLoading) setLocalLoading(false);
-                if (Platform.OS === "ios") {
-                    setVisible(false);
-                }
                 router.push({pathname: "/offline"});
             }
         });
@@ -57,15 +51,11 @@ export default function RootInitializer({}) {
                 user.getIdToken().then((token) => {
                     setSession(token);
                     initialize();
-                    if (Platform.OS === "ios") {
-                        setVisible(false);
-                    }
                 });
             }
             else {
                 setLocalLoading(false);
                 if (Platform.OS === "ios") {
-                    setVisible(false);
                     router.push({pathname: "/signup"});
                 }
             }
