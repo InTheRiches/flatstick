@@ -7,6 +7,7 @@ import {useRouter} from "expo-router";
 import FontText from "../../general/FontText";
 import {convertUnits} from "../../../utils/Conversions";
 import {adaptFullRoundSession} from "../../../utils/sessions/SessionUtils";
+import {auth} from "../../../utils/firebase";
 
 export function RecentSessionSummary({unfinished}) {
     const {puttSessions, fullRoundSessions, userData} = useAppContext();
@@ -54,8 +55,9 @@ export function RecentSessionSummary({unfinished}) {
 }
 
 function getHoleSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
+
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})} style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
                 paddingTop: 8,
@@ -136,7 +138,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
 
 function getRealSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})}
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})}
             style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
@@ -235,7 +237,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
 
 function getFullSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual/full", params: {jsonSession: JSON.stringify(recentSession), recap: false}})}
+        <Pressable onPress={() => router.push({pathname: "sessions/individual/full", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})}
                    style={{
                        backgroundColor: colors.background.secondary,
                        paddingHorizontal: 16,

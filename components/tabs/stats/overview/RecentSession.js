@@ -10,6 +10,8 @@ export const RecentSession = ({recentSession}) => {
     const colors = useColors();
     const router = useRouter();
 
+    const {putters, grips, userData} = useAppContext();
+
     const formattedName = () => {
         if (recentSession.type === "real-simulation" || recentSession.type === "full-round") {
             return recentSession.holes + " Hole Round";
@@ -20,7 +22,7 @@ export const RecentSession = ({recentSession}) => {
     }
 
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8}}>
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, preferencesString: JSON.stringify(userData.preferences), gripsString: JSON.stringify(grips), puttersString: JSON.stringify(putters)}})} style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8}}>
             <View style={{
                 paddingHorizontal: 12,
                 borderBottomWidth: 1,

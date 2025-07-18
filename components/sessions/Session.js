@@ -4,7 +4,7 @@ import {Pressable} from "react-native";
 import React from "react";
 import FontText from "../general/FontText";
 
-export function Session({session}) {
+export function Session({session, grips, putters, preferences}) {
     const colors = useColors();
     const router = useRouter();
     const colorScheme = "light";
@@ -14,7 +14,7 @@ export function Session({session}) {
         "round-simulation": "Sim"
     }
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(session), recap: false}})}
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: session, recap: false, preferencesString: preferences, gripsString: grips, puttersString: putters}})}
                    style={({pressed}) =>
                        [{
                            backgroundColor: colorScheme === "light" ? pressed ? colors.button.primary.depressed : colors.button.primary.background : pressed ? colors.button.primary.depressed : colors.button.primary.background,

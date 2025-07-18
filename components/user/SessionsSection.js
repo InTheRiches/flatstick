@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import {RecentSession} from "../tabs/stats/overview";
 import useColors from "../../hooks/useColors";
 
-export default function SessionsSection({ sessions }) {
+export default function SessionsSection({ sessions, isSelf = true }) {
     const router = useRouter();
     const colors = useColors();
 

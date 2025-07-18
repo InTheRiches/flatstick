@@ -1,7 +1,7 @@
 import {useAppContext} from "../../contexts/AppCtx";
 import {FlatList, Pressable, View} from "react-native";
 import useColors from "../../hooks/useColors";
-import {useNavigation} from "expo-router";
+import {useLocalSearchParams, useNavigation} from "expo-router";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {Session} from "../../components/sessions";
@@ -10,12 +10,15 @@ import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 export default function Sessions({}) {
-    const {puttSessions} = useAppContext();
+    // const {puttSessions} = useAppContext();
     const colors = useColors();
     const navigation = useNavigation();
 
+    const { puttSessionsString, preferencesString, puttersString, gripsString } = useLocalSearchParams();
+    const puttSessions = JSON.parse(puttSessionsString);
+
     const renderItem = ({ item, index }) => (
-        <Session key={"session_" + index} session={item} />
+        <Session key={"session_" + index} session={item} grips={gripsString} putters={puttersString} preferences={preferencesString} />
     );
 
     return (

@@ -8,12 +8,12 @@ import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import {getFriends} from "../../../utils/friends/friendServices";
+import {auth} from "../../../utils/firebase";
 
 export default function UserFriends({}) {
     const colors = useColors();
     const navigation = useNavigation();
     const {data} = useLocalSearchParams();
-    console.log("data: ", data)
     const userData = JSON.parse(data);
 
     const router = useRouter();
@@ -61,6 +61,7 @@ export default function UserFriends({}) {
                         )}
                         { friends.length > 0 && friends.map((friend, index) => {
                             const date = new Date(friend.date);
+
                             return (
                                 <Pressable key={"user-" + index} style={({pressed}) => [{
                                     padding: 8,
@@ -74,9 +75,10 @@ export default function UserFriends({}) {
                                     justifyContent: "space-between",
                                     gap: 12
                                 }]} onPress={() => {
-                                    router.push({pathname: "/user", params: {userDataString: JSON.stringify(friend)}})
+                                    if (friend.uid === auth.currentUser.uid) router.push("/(tabs)/profile")
+                                    else router.push({pathname: "/user", params: {userDataString: JSON.stringify(friend)}})
                                 }}>
-                                    <View style={{flexDirection: "row", flex: 1}}>
+                                    <View style={{flexDirection: "row", flex: 1, alignItems: "center"}}>
                                         <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
                                             <Path fillRule="evenodd"
                                                   d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 0 1-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 0 1-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 0 1-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584ZM12 18a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
@@ -88,6 +90,14 @@ export default function UserFriends({}) {
                                                 <FontText style={{color: colors.text.secondary, fontSize: 14}}>SG: {friend.strokesGained}</FontText>
                                                 <FontText style={{color: colors.text.secondary, fontSize: 14}}>Joined: {(date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
                                             </View>
+                                        </View>
+                                        <View style={{borderRadius: 30, padding: 6, marginLeft: 12, backgroundColor: colors.button.primary.text, aspectRatio: 1}}>
+                                            <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                 viewBox="0 0 24 24" strokeWidth={2}
+                                                 stroke={colors.button.primary.background} className="size-6">
+                                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                                      d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                                            </Svg>
                                         </View>
                                     </View>
                                 </Pressable>

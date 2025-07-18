@@ -23,10 +23,13 @@ import {auth} from "../../utils/firebase";
 import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
 import {CancelRequestModal} from "../../components/friends/CancelRequestModal";
 import {useImage} from "expo-image";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import Svg, {Path} from "react-native-svg";
 
 export default function UserScreen({}) {
     const colors = useColors();
     const {userDataString, id} = useLocalSearchParams();
+    const navigation = useNavigation();
 
     const friendData = JSON.parse(userDataString);
 
@@ -39,6 +42,8 @@ export default function UserScreen({}) {
     const removeFriendRef = useRef(null);
     const cancelRequestRef = useRef(null);
     const userScreenRef = useRef(null);
+
+    console.log("Friend Data:", userDataString);
 
     useImperativeHandle(userScreenRef, () => ({
         acceptRequest,
@@ -127,6 +132,10 @@ export default function UserScreen({}) {
                     <StatsCard title="COMPARE STATS" stats={[]} />
                     <StatsCard title="ACHIEVEMENTS" stats={[]} />
                 </ScrollView>
+                <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 24}}>
+                    <SecondaryButton onPress={() => navigation.goBack()} title={"Back"}
+                                     style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
+                </View>
             </ScreenWrapper>
             <RemoveFriendModal removeFriendRef={removeFriendRef} remove={removeAsFriend}/>
             <CancelRequestModal cancelRequestRef={cancelRequestRef} cancel={removeRequest}/>

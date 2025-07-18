@@ -9,14 +9,14 @@ import FontText from "../../general/FontText";
 
 export function SeeAllSessions({}) {
     const router = useRouter();
-    const {puttSessions} = useAppContext();
+    const {puttSessions, grips, putters, userData} = useAppContext();
     const colors = useColors();
 
     if (puttSessions.length === 0)
         return <></>
 
     return (
-        <SecondaryButton onPress={() => router.push({pathname: "sessions"})} style={{
+        <SecondaryButton onPress={() => router.push({pathname: "sessions", params: {puttSessionsString: puttSessions, preferencesString: userData.preferences, puttersString: putters, gripsString: grips}})} style={{
                 borderRadius: 50,
                 flexDirection: "row",
                 alignSelf: "center",

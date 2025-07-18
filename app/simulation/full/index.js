@@ -326,8 +326,6 @@ export default function FullRound() {
             setPuttData(data.puttData);
             puttTrackingRef.current.setData(data.puttData);
         } else {
-            console.log(tee.holes);
-            console.log(data.score, tee.holes[h-1].par);
             // New hole setup
             setHoleScore(tee.holes[h-1].par);
             setPutts(2);

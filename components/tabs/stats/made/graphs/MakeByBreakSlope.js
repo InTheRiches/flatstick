@@ -55,7 +55,6 @@ function createPuttsMadeByBreak(currentStats) {
     }
 
     max += 5;
-    console.log(max)
 
     // make another copy of mySlopes
     const mySlopesCopy = JSON.parse(JSON.stringify(mySlopes));

@@ -65,18 +65,18 @@ export default function Friends({}) {
                         alignItems: "center",
                         justifyContent: "space-between",
                         flexDirection: "row"
-                    }} children={[
+                    }} onPress={() => router.push("/friends/requests")}>
                         <FontText key={"1"} style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16}}>FRIEND
-                            REQUESTS</FontText>,
+                            REQUESTS</FontText>
                         <View key={"2"} style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.primary.text}}>
                             <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24" strokeWidth={1.5}
+                                 viewBox="0 0 24 24" strokeWidth={2}
                                  stroke={colors.button.primary.background} className="size-6">
                                 <Path strokeLinecap="round" strokeLinejoin="round"
                                       d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
                             </Svg>
                         </View>
-                    ]} onPress={() => router.push("/friends/requests")}/>
+                    </PrimaryButton>
                     <View style={{marginBottom: 20, marginTop: 20}}>
                         <FontText style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16, marginBottom: 14, width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 8}}>{friends.length} FRIEND{friends.length === 1 ? "" : "S"}</FontText>
                         { !loading && friends.length < 1 && (

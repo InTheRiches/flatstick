@@ -9,8 +9,6 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
     const colors = useColors();
     const router = useRouter();
 
-    console.log(userScreenRef?.current?.friendData);
-    console.log(JSON.stringify(userScreenRef?.current?.friendData));
     return (
         <View style={{ flexDirection: 'row', flex: 1, backgroundColor: colors.button.primary.background, borderRadius: 12, borderWidth: 1, borderColor: colors.border.default }}>
             {!isSelf && (
@@ -24,10 +22,10 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
                     borderBottomLeftRadius: 12,
                     backgroundColor: pressed ? colors.button.primary.depressed : colors.button.primary.background,
                 })} onPress={() => {
-                    if (isFriend) userScreenRef.current.removeFriend();
-                    else if (userScreenRef.current.isPendingSent) userScreenRef.current.removeRequest();
-                    else if (userScreenRef.current.isPendingReceived) userScreenRef.current.acceptRequest();
-                    else userScreenRef.current.addFriend();
+                    if (isFriend) userScreenRef.current?.removeFriend();
+                    else if (userScreenRef.current?.isPendingSent) userScreenRef.current?.removeRequest();
+                    else if (userScreenRef.current?.isPendingReceived) userScreenRef.current?.acceptRequest();
+                    else userScreenRef.current?.addFriend();
                 }}>
                     {isFriend ? (
                         <Svg xmlns="http://www.w3.org/2000/svg" fill={colors.text.primary} viewBox="0 0 24 24" strokeWidth={1.5}
@@ -35,14 +33,14 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z"/>
                         </Svg>
-                    ) : userScreenRef.current.isPendingSent ? (
+                    ) : userScreenRef.current?.isPendingSent ? (
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                              strokeWidth={3} stroke={colors.text.primary} width={24}
                              height={24} style={{marginHorizontal: 4}}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M6 18 18 6M6 6l12 12"/>
                         </Svg>
-                    ) : userScreenRef.current.isPendingReceived ? (
+                    ) : userScreenRef.current?.isPendingReceived ? (
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                              strokeWidth={3} stroke={colors.text.primary} width={24} height={24}
                              style={{marginHorizontal: 4}}>
@@ -71,7 +69,7 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
                 })}
                 onPress={() => isSelf ? router.push('/friends') : router.push({
                     pathname: '/friends/user',
-                    params: {data: JSON.stringify(userScreenRef.current.friendData)}
+                    params: {data: JSON.stringify(userScreenRef.current?.friendData)}
                     })}
             >
                 <View>

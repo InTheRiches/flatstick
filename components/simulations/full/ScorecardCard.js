@@ -85,7 +85,6 @@ const ScorecardCard = ({scorecardRef, holes, setHoleNumber, front = true}) => {
     // ]
     // find the + / - over par
     if (!holes || holes.length === 0) return <></>
-    console.log(JSON.stringify(holes));
 
     const totalScore = data.reduce((acc, hole) => hole.puttData ? acc + hole.score : acc, 0);
     const totalPar = data.reduce((acc, hole) => hole.puttData ? acc + hole.par : acc, 0);
