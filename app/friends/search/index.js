@@ -1,7 +1,7 @@
 import {Pressable, ScrollView, TextInput, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../../components/general/FontText";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import useColors from "../../../hooks/useColors";
@@ -10,6 +10,13 @@ import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import {auth, getProfilesByDisplayName} from "../../../utils/firebase";
+import {
+    cancelFriendRequest,
+    getRequests,
+    rejectFriendRequest,
+    sendFriendRequest
+} from "../../../utils/friends/friendServices";
+import {CancelRequestModal} from "../../../components/friends/CancelRequestModal";
 
 export default function SearchFriends({}) {
     const colors = useColors();
@@ -18,6 +25,14 @@ export default function SearchFriends({}) {
 
     const [profiles, setProfiles] = useState([]);
     const [displayName, setDisplayName] = useState("");
+    const [friendRequests, setFriendRequests] = useState([]);
+    const cancelRequestRef = React.useRef(null);
+
+    useEffect(() => {
+        getRequests(auth.currentUser.uid).then(setFriendRequests)
+    }, []);
+
+    const currentUser = auth.currentUser;
 
     const updateDisplayName = (text) => {
         // search for profiles that match that name
@@ -25,7 +40,6 @@ export default function SearchFriends({}) {
         if (text.length > 1) {
             getProfilesByDisplayName(text).then(fetchedProfiles => {
                 // remove the current user from the list
-                const currentUser = auth.currentUser;
                 const filteredProfiles = fetchedProfiles.filter(profile => profile.id !== currentUser.uid);
                 setProfiles(filteredProfiles);
             });
@@ -34,11 +48,20 @@ export default function SearchFriends({}) {
         }
     };
 
+    const cancelRequest = (id) => {
+        cancelFriendRequest(auth.currentUser.uid, id);
+        setFriendRequests((prev) => ({
+            ...prev,
+            sentRequests: prev.sentRequests.filter(r => r.to !== id)
+        }));
+        cancelRequestRef.current?.close();
+    }
+
     return (
         <BottomSheetModalProvider>
             <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingHorizontal: 24}}>
                 <View style={{flexDirection: "row"}}>
-                    <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 3, paddingHorizontal: 10}}>
+                    <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 4, paddingHorizontal: 10}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                              stroke={colors.text.primary} width={24} height={24}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
@@ -72,17 +95,20 @@ export default function SearchFriends({}) {
                 <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
                         const date = new Date(profile.date);
+                        const isPending = friendRequests.sentRequests.some(request => request.to === profile.id);
+                        const isFriend = profile.friends && profile.friends.includes(currentUser.uid);
+
                         return (
-                            <Pressable key={"user-" + index} style={({pressed}) => [{
+                            <View key={"user-" + index} style={{
                                 padding: 8,
-                                backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary,
+                                backgroundColor: colors.background.secondary,
                                 borderRadius: 14,
                                 marginBottom: 8,
                                 flexDirection: "row",
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 gap: 12
-                            }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.id, jsonProfile: JSON.stringify(profile)}})}>
+                            }}>
                                 <View style={{flexDirection: "row", flex: 1}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
                                         <Path fillRule="evenodd"
@@ -90,31 +116,66 @@ export default function SearchFriends({}) {
                                               clipRule="evenodd"/>
                                     </Svg>
                                     <View style={{marginLeft: 6, flex: 1}}>
-                                        <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.firstName + " " + profile.lastName}</FontText>
+                                        <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>{profile.displayName}</FontText>
                                         <View style={{flexDirection: "row", alignItems: "center", marginTop: 4, justifyContent: "space-between"}}>
                                             <FontText style={{color: colors.text.secondary, fontSize: 14}}>SG: {profile.strokesGained}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontSize: 14}}>Joined: {(date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</FontText>
+                                            {isFriend ?
+                                                <FontText style={{color: colors.text.secondary, fontSize: 14}}>Already friends...</FontText>
+                                                : isPending ?
+                                                    <FontText style={{color: colors.text.secondary, fontSize: 14}}>Request pending...</FontText>
+                                                    : <FontText style={{color: colors.text.secondary, fontSize: 14}}>Joined: {(date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</FontText>}
                                         </View>
                                     </View>
                                 </View>
-                                <View style={{
-                                    backgroundColor: colors.button.secondary.background,
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    aspectRatio: 1,
-                                    borderRadius: 24,
-                                    paddingHorizontal: 8
-                                }}>
-                                    <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.button.secondary.text} width={20} height={20}>
-                                        <Path
-                                            d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z"/>
+                                { isFriend ? (
+                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke={colors.text.primary} width={24} height={24} style={{marginRight: 4}}>
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
                                     </Svg>
-                                </View>
-                            </Pressable>
+                                    ) : isPending ? (
+                                    <Pressable style={({pressed}) => [{
+                                        backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background,
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        aspectRatio: 1,
+                                        borderRadius: 24,
+                                        paddingHorizontal: 8
+                                    }]} onPress={() => {
+                                        cancelRequestRef.current?.open(profile.id);
+                                    }}>
+                                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             strokeWidth={3} stroke={colors.button.secondary.text} width={20}
+                                             height={20}>
+                                            <Path strokeLinecap="round" strokeLinejoin="round"
+                                                  d="M6 18 18 6M6 6l12 12"/>
+                                        </Svg>
+                                    </Pressable>
+                                ) : (
+                                    <Pressable style={({pressed}) => [{
+                                        backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background,
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        aspectRatio: 1,
+                                        borderRadius: 24,
+                                        paddingHorizontal: 8
+                                    }]} onPress={() => {
+                                        sendFriendRequest(currentUser.uid, profile.id);
+                                        setFriendRequests((prev) => ({
+                                            ...prev,
+                                            sentRequests: [...prev.sentRequests, {to: profile.id}]
+                                        }));
+                                    }}>
+                                        <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.button.secondary.text} width={20} height={20}>
+                                            <Path
+                                                d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z"/>
+                                        </Svg>
+                                    </Pressable>
+                                )}
+                            </View>
                         )
                     })}
                 </ScrollView>
             </ScreenWrapper>
+            <CancelRequestModal cancelRequestRef={cancelRequestRef} cancel={cancelRequest} />
         </BottomSheetModalProvider>
     )
 }

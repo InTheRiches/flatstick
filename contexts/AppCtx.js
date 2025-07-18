@@ -39,6 +39,7 @@ import {Platform} from "react-native";
 import RNFS from "react-native-fs";
 import {appleAuth} from "@invertase/react-native-apple-authentication";
 import {adaptFullRoundSession} from "@/utils/sessions/SessionUtils";
+import {getUserSessionsByID} from "@/utils/users/userServices";
 
 const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
 const fullRoundDirectory = `${RNFS.DocumentDirectoryPath}/fullRounds`;
@@ -382,18 +383,18 @@ export function AppProvider({children}) {
             return;
         }
 
-        try {
-            const dirExists = await RNFS.exists(sessionDirectory);
-            const otherDirExists = await RNFS.exists(fullRoundDirectory);
-            if (!dirExists) {
-                await RNFS.mkdir(sessionDirectory);
-            }
-            if (!otherDirExists) {
-                await RNFS.mkdir(fullRoundDirectory);
-            }
-        } catch (error) {
-            console.error("Error creating session directory:", error);
-        }
+        // try {
+        //     const dirExists = await RNFS.exists(sessionDirectory);
+        //     const otherDirExists = await RNFS.exists(fullRoundDirectory);
+        //     if (!dirExists) {
+        //         await RNFS.mkdir(sessionDirectory);
+        //     }
+        //     if (!otherDirExists) {
+        //         await RNFS.mkdir(fullRoundDirectory);
+        //     }
+        // } catch (error) {
+        //     console.error("Error creating session directory:", error);
+        // }
 
         console.log("Session directory setup complete!");
         const updatedStats = await getAllStats();
@@ -442,6 +443,9 @@ export function AppProvider({children}) {
                 console.log("Initialization complete!");
                 setLoading(false);
             })
+        }).catch((error) => {
+            console.error("Error during initialization:", error);
+            setLoading(false);
         });
     };
 
@@ -502,81 +506,67 @@ export function AppProvider({children}) {
     const refreshData = async () => {
         let newData = {};
         const docRef = doc(firestore, `users/${auth.currentUser.uid}`);
+
         try {
             const data = await getDoc(docRef);
             newData = data.data();
-            // check for needed updates to user data
             const updatedUserData = deepMergeDefaults({ ...data.data() }, getDefaultData(newData.firstName, newData.lastName));
             setUserData(updatedUserData);
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }
 
-        if (newData.sessionsConverted === undefined) {
-            // take all of the sessions in the firebase and make them files, and then delete from firebase
-            const sessionsQuery = query(collection(firestore, `users/${auth.currentUser.uid}/sessions`), orderBy("date", "desc"));
+        // Move from local to cloud if not updated yet
+        if (!newData.sessionsUpdated) {
             try {
-                const querySnapshot = await getDocs(sessionsQuery);
-                if (querySnapshot.docs.length !== 0) {
-                    querySnapshot.forEach(async (doc) => {
-                        const sessionData = doc.data();
-                        await RNFS.writeFile(`${sessionDirectory}/${generatePushID()}.json`, JSON.stringify(sessionData), 'utf8');
-                        await deleteDoc(doc.ref);
-                    });
+                const files = await RNFS.readDir(sessionDirectory);
+                for (const file of files) {
+                    const content = await RNFS.readFile(file.path, 'utf8');
+                    const sessionData = JSON.parse(content);
+
+                    const sessionId = file.name.split('.')[0];
+
+                    // Optionally skip if sessionData already contains synced flag
+                    if (!sessionData.synced) {
+                        const cloudRef = doc(firestore, `users/${auth.currentUser.uid}/sessions`, sessionId);
+                        await setDoc(cloudRef, {
+                            ...sessionData,
+                            synced: true, // You can keep this flag if you want to avoid future uploads
+                        });
+
+                        await RNFS.unlink(file.path);
+                    }
                 }
+
+                const fullRoundFiles = await RNFS.readDir(fullRoundDirectory);
+                for (const file of fullRoundFiles) {
+                    const content = await RNFS.readFile(file.path, 'utf8');
+                    const fullRoundData = JSON.parse(content);
+
+                    const sessionId = file.name.split('.')[0];
+                    if (!fullRoundData.synced) {
+                        const cloudRef = doc(firestore, `users/${auth.currentUser.uid}/fullRoundSessions`, sessionId);
+                        await setDoc(cloudRef, {
+                            ...fullRoundData,
+                            synced: true,
+                        });
+
+                        await RNFS.unlink(file.path);
+                    }
+                }
+
+                // Update user flag
+                newData.sessionsUpdated = true;
+                await updateData(newData);
             } catch (error) {
-                console.error("Error refreshing sessions:", error);
+                console.error("Error uploading local sessions to cloud:", error);
             }
-
-            // update the user data to reflect that the sessions have been converted
-            newData.sessionsConverted = true;
-            await updateData(newData);
         }
 
-        let sessions = {};
-        let fullRoundSessions = {};
+        const {sessions, fullRoundSessions} = await getUserSessionsByID(auth.currentUser.uid);
 
-        try {
-            const files = await RNFS.readDir(sessionDirectory);
-            sessions = await Promise.all(files.map(async (file) => {
-                const content = await RNFS.readFile(file.path, 'utf8');
-                // get the file name from the path
-                const fileName = file.name.split('.')[0];
-                // add the file name to the session data
-                const sessionData = JSON.parse(content);
-                sessionData.id = fileName;
-                // return the session data with the file name
-                return sessionData;
-            }));
-
-            // sort by timestamp
-            sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            setPuttSessions(sessions);
-        } catch (error) {
-            console.error("Error refreshing sessions:", error);
-        }
-
-        try {
-            const files = await RNFS.readDir(fullRoundDirectory);
-            fullRoundSessions = await Promise.all(files.map(async (file) => {
-                const content = await RNFS.readFile(file.path, 'utf8');
-                // get the file name from the path
-                const fileName = file.name.split('.')[0];
-                // add the file name to the session data
-                const fullRoundSessionData = JSON.parse(content);
-                fullRoundSessionData.id = fileName;
-                // return the session data with the file name
-                return fullRoundSessionData;
-            }));
-
-            // sort by timestamp
-            fullRoundSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            setFullRoundSessions(fullRoundSessions);
-        } catch (error) {
-            console.error("Error refreshing full sessions:", error);
-        }
+        setPuttSessions(sessions);
+        setFullRoundSessions(fullRoundSessions);
 
         return {sessions, fullRoundSessions, newData};
     };
@@ -715,7 +705,8 @@ export function AppProvider({children}) {
     };
 
     const newSession = async (data) => {
-        RNFS.writeFile(`${sessionDirectory}/${data.id}.json`, JSON.stringify(data), 'utf8')
+        await setDoc(doc(firestore, `users/${auth.currentUser.uid}/sessions/`, data.id), data)
+        setPuttSessions(prev => [...prev, data]);
         // await setDoc(doc(firestore, file, generatePushID()), data)
         let newStats;
         try {
@@ -725,13 +716,8 @@ export function AppProvider({children}) {
             return false;
         }
 
-        RNFS.readDir(sessionDirectory).then((files) => {
-            if (files.length % 5 === 0) {
-                setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
-            }
-        }).catch((error) => {
-            console.error("Error reading session files:", error);
-        });
+        if ((puttSessions.length + fullRoundSessions.length % 5) === 0)
+            setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
 
         // Update the best session
         await updateBestSession(data);
@@ -740,7 +726,8 @@ export function AppProvider({children}) {
     }
 
     const newFullRound = async (data) => {
-        RNFS.writeFile(`${fullRoundDirectory}/${data.id}.json`, JSON.stringify(data), 'utf8')
+        await setDoc(doc(firestore, `users/${auth.currentUser.uid}/fullRoundSessions/`, data.id), data)
+        setFullRoundSessions(prev => [...prev, data]);
         // await setDoc(doc(firestore, file, generatePushID()), data)
         let newStats;
         try {
@@ -750,16 +737,11 @@ export function AppProvider({children}) {
             return false;
         }
 
-        RNFS.readDir(fullRoundDirectory).then((files) => {
-            if (files.length % 5 === 0) {
-                setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
-            }
-        }).catch((error) => {
-            console.error("Error reading session files:", error);
-        });
+        if ((puttSessions.length + fullRoundSessions.length % 5) === 0)
+            setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
 
         // Update the best session
-        await updateBestSession(data);
+        updateBestSession(data);
 
         return true;
     }

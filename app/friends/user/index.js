@@ -1,36 +1,28 @@
 import {Pressable, ScrollView, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
-import FontText from "../../components/general/FontText";
+import FontText from "../../../components/general/FontText";
 import React, {useEffect, useRef} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
-import ScreenWrapper from "../../components/general/ScreenWrapper";
-import useColors from "../../hooks/useColors";
-import {useNavigation, useRouter} from "expo-router";
-import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
-import {useAppContext} from "../../contexts/AppCtx";
-import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
-import {getFriends, removeFriend, sendFriendRequest} from "../../utils/friends/friendServices";
-import {auth} from "../../utils/firebase";
-import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
+import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import useColors from "../../../hooks/useColors";
+import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
+import {getFriends} from "../../../utils/friends/friendServices";
 
-export default function Friends({}) {
+export default function UserFriends({}) {
     const colors = useColors();
     const navigation = useNavigation();
-    const router = useRouter();
-    const {userData} = useAppContext();
-    const [loading, setLoading] = React.useState(true);
-    const removeFriendRef = useRef(null);
+    const {data} = useLocalSearchParams();
+    console.log("data: ", data)
+    const userData = JSON.parse(data);
 
+    const router = useRouter();
+    const [loading, setLoading] = React.useState(true);
     const [friends, setFriends] = React.useState([]);
 
     useEffect(() => {
-        getFriends(auth.currentUser.uid).then(setFriends).then(() => setLoading(false));
+        getFriends(userData.uid).then(setFriends).then(() => setLoading(false));
     }, []);
-
-    const remove = (friendId) => {
-        removeFriend(auth.currentUser.uid, friendId);
-        setFriends(friends.filter(friend => friend.id !== friendId));
-    }
 
     return (
         <BottomSheetModalProvider>
@@ -46,10 +38,11 @@ export default function Friends({}) {
                         </Pressable>
                         <View style={{flexDirection: "row", flex: 1, alignItems: "center", justifyContent: "space-between", paddingBottom: 10,}}>
                             <FontText style={{
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: 600,
-                                color: colors.text.primary
-                            }}>Friends</FontText>
+                                color: colors.text.primary,
+                                flex: 1,
+                            }}>{userData.displayName}'s Friends</FontText>
                             <Pressable onPress={() => router.push("friends/search")} style={({pressed}) => [{backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background, padding: 8, alignItems: "center", justifyContent: "center", aspectRatio: 1, borderRadius: 50}]}>
                                 <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.button.secondary.text} width={24} height={24}>
                                     <Path
@@ -58,26 +51,7 @@ export default function Friends({}) {
                             </Pressable>
                         </View>
                     </View>
-                    <PrimaryButton style={{
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        borderRadius: 14,
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexDirection: "row"
-                    }} children={[
-                        <FontText key={"1"} style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16}}>FRIEND
-                            REQUESTS</FontText>,
-                        <View key={"2"} style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.primary.text}}>
-                            <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24" strokeWidth={1.5}
-                                 stroke={colors.button.primary.background} className="size-6">
-                                <Path strokeLinecap="round" strokeLinejoin="round"
-                                      d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
-                            </Svg>
-                        </View>
-                    ]} onPress={() => router.push("/friends/requests")}/>
-                    <View style={{marginBottom: 20, marginTop: 20}}>
+                    <View style={{marginBottom: 20, marginTop: 6}}>
                         <FontText style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16, marginBottom: 14, width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 8}}>{friends.length} FRIEND{friends.length === 1 ? "" : "S"}</FontText>
                         { !loading && friends.length < 1 && (
                             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 12, borderWidth: 1, borderColor: colors.border.default}}>
@@ -116,29 +90,12 @@ export default function Friends({}) {
                                             </View>
                                         </View>
                                     </View>
-                                    <Pressable style={({pressed}) => [{
-                                        backgroundColor: pressed ? colors.button.secondary.depressed : colors.button.secondary.background,
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        aspectRatio: 1,
-                                        borderRadius: 24,
-                                        paddingHorizontal: 8
-                                    }]} onPress={() => {
-                                        removeFriendRef.current.open()
-                                    }}>
-                                        <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                             fill={colors.button.secondary.text} width={20} height={20}>
-                                            <Path
-                                                d="M10.375 2.25a4.125 4.125 0 1 0 0 8.25 4.125 4.125 0 0 0 0-8.25ZM10.375 12a7.125 7.125 0 0 0-7.124 7.247.75.75 0 0 0 .363.63 13.067 13.067 0 0 0 6.761 1.873c2.472 0 4.786-.684 6.76-1.873a.75.75 0 0 0 .364-.63l.001-.12v-.002A7.125 7.125 0 0 0 10.375 12ZM16 9.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z"/>
-                                        </Svg>
-                                    </Pressable>
                                 </Pressable>
                             )
                         })}
                     </View>
                 </ScrollView>
             </ScreenWrapper>
-            <RemoveFriendModal remove={remove} removeFriendRef={removeFriendRef}/>
         </BottomSheetModalProvider>
     )
 }
