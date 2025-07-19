@@ -29,8 +29,6 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
         }
     }
 
-    console.log("mn: " + maxNumber)
-
     return (
         <BarChart
             minNumber={0}

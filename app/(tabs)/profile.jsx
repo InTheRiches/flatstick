@@ -9,6 +9,7 @@ import StrokesGainedCard from '../../components/user/StrokesGainedCard';
 import SessionsSection from '../../components/user/SessionsSection';
 import StatsCard from "../../components/user/StatsCard";
 import useColors from "../../hooks/useColors";
+import {auth} from "../../utils/firebase";
 
 export default function ProfileScreen() {
     const { userData, currentStats, puttSessions, fullRoundSessions } = useAppContext();

@@ -15,6 +15,8 @@ admin.initializeApp();
 
 setGlobalOptions({maxInstances: 2});
 
+// TODO make two separate collections, one for sent and one for received,
+//  that way this doesnt get triggered twice for every friend request
 exports.sendFriendRequestNotification = functions.firestore
     .onDocumentCreated(
         "users/{userId}/friendRequests/{requestId}",

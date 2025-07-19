@@ -15,6 +15,7 @@ import ActionButtons from "../../../components/sessions/individual/new/ActionBut
 import Modals from "../../../components/sessions/individual/new/Modals";
 import IndividualHeader from "../../../components/sessions/individual/new/IndividualHeader";
 import {getGripsByID, getPuttersByID, getUserDataByID} from "../../../utils/users/userServices";
+import {useAppContext} from "../../../contexts/AppCtx";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
     ? "ca-app-pub-2701716227191721/6686596809"
@@ -25,10 +26,12 @@ export default function IndividualSession() {
     const navigation = useNavigation();
     const { jsonSession, recap, userId } = useLocalSearchParams();
     const session = JSON.parse(jsonSession);
+    const {userData: appUserData} = useAppContext();
 
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState(userId === undefined ? appUserData : null);
 
     useEffect(() => {
+        if (userId === undefined) return;
         Promise.all([
             getUserDataByID(userId).then(setUserData).catch(error => {
                 console.error("Error fetching user data:", error);
@@ -42,7 +45,7 @@ export default function IndividualSession() {
     const isRecap = recap === "true";
 
     const [bestSession, setBestSession] = useState({ strokesGained: "~" });
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(userId !== undefined);
 
     const shareSessionRef = useRef();
     const confirmDeleteRef = useRef();

@@ -5,7 +5,7 @@ import FontText from '../../components/general/FontText';
 import useColors from '../../hooks/useColors';
 import { useRouter } from 'expo-router';
 
-export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSelf }) {
+export default function FriendsCard({ pending, userScreenRef, friendCount, isFriend, isSelf }) {
     const colors = useColors();
     const router = useRouter();
 
@@ -23,8 +23,8 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
                     backgroundColor: pressed ? colors.button.primary.depressed : colors.button.primary.background,
                 })} onPress={() => {
                     if (isFriend) userScreenRef.current?.removeFriend();
-                    else if (userScreenRef.current?.isPendingSent) userScreenRef.current?.removeRequest();
-                    else if (userScreenRef.current?.isPendingReceived) userScreenRef.current?.acceptRequest();
+                    else if (pending === "sent") userScreenRef.current?.removeRequest();
+                    else if (pending === "received") userScreenRef.current?.acceptRequest();
                     else userScreenRef.current?.addFriend();
                 }}>
                     {isFriend ? (
@@ -33,14 +33,14 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z"/>
                         </Svg>
-                    ) : userScreenRef.current?.isPendingSent ? (
+                    ) : pending === "sent" ? (
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             strokeWidth={3} stroke={colors.text.secondary} width={24}
+                             strokeWidth={3} stroke={colors.text.primary} width={24}
                              height={24} style={{marginHorizontal: 4}}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M6 18 18 6M6 6l12 12"/>
                         </Svg>
-                    ) : userScreenRef.current?.isPendingReceived ? (
+                    ) : pending === "received" ? (
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                              strokeWidth={3} stroke={colors.text.primary} width={24} height={24}
                              style={{marginHorizontal: 4}}>

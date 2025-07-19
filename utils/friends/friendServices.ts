@@ -104,6 +104,7 @@ export const rejectFriendRequest = async (currentUid: string, requesterUid: stri
     });
 };
 
+// use async storage for the user's friend requests for simplicity and quicker results
 export const getRequests = async (currentUid: string) => {
     const q = query(collection(firestore, `users/${currentUid}/friendRequests`), where('status', '==', 'pending'));
     const snapshot = await getDocs(q);

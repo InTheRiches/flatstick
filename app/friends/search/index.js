@@ -5,10 +5,8 @@ import React, {useEffect, useState} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import useColors from "../../../hooks/useColors";
-import {useNavigation} from "expo-router";
-import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
+import {useRouter} from "expo-router";
 import {useAppContext} from "../../../contexts/AppCtx";
-import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import {auth, getProfilesByDisplayName} from "../../../utils/firebase";
 import {
     cancelFriendRequest,
@@ -20,8 +18,7 @@ import {CancelRequestModal} from "../../../components/friends/CancelRequestModal
 
 export default function SearchFriends({}) {
     const colors = useColors();
-    const navigation = useNavigation();
-    const {userData} = useAppContext();
+    const router = useRouter()
 
     const [profiles, setProfiles] = useState([]);
     const [displayName, setDisplayName] = useState("");
@@ -40,7 +37,7 @@ export default function SearchFriends({}) {
         if (text.length > 1) {
             getProfilesByDisplayName(text).then(fetchedProfiles => {
                 // remove the current user from the list
-                const filteredProfiles = fetchedProfiles; //fetchedProfiles.filter(profile => profile.id !== currentUser.uid);
+                const filteredProfiles = fetchedProfiles; //fetchedProfiles.filter(profile => profile.uid !== currentUser.uid);
                 setProfiles(filteredProfiles);
             });
         } else {
@@ -61,7 +58,7 @@ export default function SearchFriends({}) {
         <BottomSheetModalProvider>
             <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingHorizontal: 24}}>
                 <View style={{flexDirection: "row"}}>
-                    <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 4, paddingHorizontal: 10}}>
+                    <Pressable onPress={() => router.back()} style={{marginLeft: -10, marginTop: 4, paddingHorizontal: 10}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                              stroke={colors.text.primary} width={24} height={24}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
@@ -95,19 +92,23 @@ export default function SearchFriends({}) {
                 <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
                         const date = new Date(profile.date);
-                        const isPending = friendRequests.sentRequests.some(request => request.to === profile.id);
+                        const isPending = friendRequests.sentRequests.some(request => request.to === profile.uid);
                         const isFriend = profile.friends && profile.friends.includes(currentUser.uid);
 
                         return (
-                            <View key={"user-" + index} style={{
+                            <Pressable key={"user-" + index} style={({pressed}) => [{
                                 padding: 8,
-                                backgroundColor: colors.background.secondary,
+                                backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary,
                                 borderRadius: 14,
                                 marginBottom: 8,
+                                borderWidth: 1,
+                                borderColor: colors.border.default,
                                 flexDirection: "row",
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 gap: 12
+                            }]} onPress={() => {
+                                router.push({pathname: "/user", params: {userDataString: JSON.stringify(profile)}})
                             }}>
                                 <View style={{flexDirection: "row", flex: 1}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
@@ -140,7 +141,7 @@ export default function SearchFriends({}) {
                                         borderRadius: 24,
                                         paddingHorizontal: 8
                                     }]} onPress={() => {
-                                        cancelRequestRef.current?.open(profile.id);
+                                        cancelRequestRef.current?.open(profile.uid);
                                     }}>
                                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              strokeWidth={3} stroke={colors.button.secondary.text} width={20}
@@ -158,10 +159,10 @@ export default function SearchFriends({}) {
                                         borderRadius: 24,
                                         paddingHorizontal: 8
                                     }]} onPress={() => {
-                                        sendFriendRequest(currentUser.uid, profile.id);
+                                        sendFriendRequest(currentUser.uid, profile.uid);
                                         setFriendRequests((prev) => ({
                                             ...prev,
-                                            sentRequests: [...prev.sentRequests, {to: profile.id}]
+                                            sentRequests: [...prev.sentRequests, {to: profile.uid}]
                                         }));
                                     }}>
                                         <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.button.secondary.text} width={20} height={20}>
@@ -170,7 +171,7 @@ export default function SearchFriends({}) {
                                         </Svg>
                                     </Pressable>
                                 )}
-                            </View>
+                            </Pressable>
                         )
                     })}
                 </ScrollView>

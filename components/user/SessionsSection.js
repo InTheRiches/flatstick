@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import {RecentSession} from "../tabs/stats/overview";
 import useColors from "../../hooks/useColors";
 
-export default function SessionsSection({ sessions, isSelf = true }) {
+export default function SessionsSection({ sessions, userId = "" }) {
     const router = useRouter();
     const colors = useColors();
 
@@ -20,7 +20,7 @@ export default function SessionsSection({ sessions, isSelf = true }) {
                 ))}
             </View>
             {sessions.length > 0 ? (
-                <SecondaryButton onPress={() => router.push({pathname: "sessions"})} style={{
+                <SecondaryButton onPress={() => router.push({pathname: "sessions", params: {puttSessionsString: JSON.stringify(sessions), userId: userId}})} style={{
                     borderRadius: 50,
                     flexDirection: "row",
                     alignSelf: "center",

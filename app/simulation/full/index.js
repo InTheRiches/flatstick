@@ -414,8 +414,6 @@ export default function FullRound() {
             },
         }
 
-        console.log("Submitting full round data:", JSON.stringify(data));
-
         newFullRound(data).then(() => {
             // router.push({
             //     pathname: `/sessions/individual`,

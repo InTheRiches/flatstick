@@ -41,8 +41,36 @@ export default function RootInitializer({}) {
     // Monitor authentication state changes
     useEffect(() => {
         let screenToPush = "/";
+        // TODO use AsyncStorage to make sure this isnt handled more than once (meaning if I open the app
+        // next time, will it still follow this behavior even though the notification was already handled?)
+        // this might not be necessary, you need to test fully closing and reopening the app after a notification
+
+
+        // const screen = response?.notification?.request?.content?.data?.screen;
+        // const id = response?.notification?.request?.identifier;
+        //
+        // if (!screen || !id) return;
+        //
+        // try {
+        //     const lastHandledId = await AsyncStorage.getItem(LAST_HANDLED_NOTIFICATION_KEY);
+        //     if (lastHandledId === id) {
+        //         console.log("Notification already handled:", id);
+        //         return;
+        //     }
+        //
+        //     console.log("Handling notification:", id);
+        //     await AsyncStorage.setItem(LAST_HANDLED_NOTIFICATION_KEY, id);
+        //     notificationScreen = screen;
+        //
+        // } catch (err) {
+        //     console.error("Error checking handled notification:", err);
+        // }
+        // Cold start
+        //     Notifications.getLastNotificationResponseAsync().then(response => {
+        //         if (response) handleNotification(response);
+        //     });
+
         Notifications.getLastNotificationResponseAsync().then(response => {
-            console.log("Notification content screen: ", response?.notification?.request?.content?.data?.screen);
             if (response?.notification?.request?.content?.data?.screen) {
                 screenToPush = response?.notification?.request?.content?.data?.screen;
             }
@@ -52,7 +80,6 @@ export default function RootInitializer({}) {
         const subscription = Notifications.addNotificationResponseReceivedListener(response => {
             const screen = response.notification.request.content.data.screen;
             if (screen) {
-                console.log("setting screen to: ", screen);
                 router.push({pathname: screen})
             }
         });

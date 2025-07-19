@@ -28,16 +28,17 @@ import Svg, {Path} from "react-native-svg";
 
 export default function UserScreen({}) {
     const colors = useColors();
-    const {userDataString, id} = useLocalSearchParams();
+    const {userDataString} = useLocalSearchParams();
     const navigation = useNavigation();
 
     const friendData = JSON.parse(userDataString);
 
+    console.log("UserScreen: friendData:", friendData);
+
     const [combinedSessions, setCombinedSessions] = React.useState([]);
     const [stats, setStats] = React.useState(createSimpleStats());
     const [isFriend, setIsFriend] = React.useState(friendData.friends.includes(auth.currentUser.uid));
-    const [isPendingReceived, setIsPendingReceived] = React.useState(false);
-    const [isPendingSent, setIsPendingSent] = React.useState(false);
+    const [pending, setPending] = React.useState("none");
     const removeFriendRef = useRef(null);
     const cancelRequestRef = useRef(null);
     const userScreenRef = useRef(null);
@@ -47,15 +48,15 @@ export default function UserScreen({}) {
         removeFriend: () => removeFriendRef.current.open(),
         removeRequest: () => cancelRequestRef.current.open(),
         addFriend,
-        isPendingSent,
-        isPendingReceived,
         friendData
     }));
 
     useEffect(() => {
+        console.log("UserScreen: friendData:", friendData);
         if (!friendData.uid) return; // avoid double runs with invalid ID
 
         getUserSessionsByID(friendData.uid).then((newSessions) => {
+            console.log("Fetched sessions for user:", friendData.uid, newSessions);
             if (newSessions.sessions.length > 0 || newSessions.fullRoundSessions.length > 0)
                 setCombinedSessions([...newSessions.sessions, ...newSessions.fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp).map(adaptFullRoundSession))
             // todo maybe making a loading thingy here for the sessions?
@@ -68,8 +69,12 @@ export default function UserScreen({}) {
         });
 
         getRequests(friendData.uid).then((requests) => {
-            setIsPendingSent(requests.receivedRequests.some(request => request.from === auth.currentUser.uid));
-            setIsPendingReceived(requests.sentRequests.some(request => request.to === auth.currentUser.uid));
+            if (requests.receivedRequests.some(request => request.from === auth.currentUser.uid)) {
+                setPending("sent");
+            }
+            else if (requests.sentRequests.some(request => request.to === auth.currentUser.uid)) {
+                setPending("received");
+            }
         });
     }, []);
 
@@ -83,7 +88,7 @@ export default function UserScreen({}) {
                 console.error("Error sending friend request:", error);
             });
         setIsFriend(false);
-        setIsPendingSent(true);
+        setPending("sent");
     }
 
     const removeAsFriend = () => {
@@ -101,15 +106,14 @@ export default function UserScreen({}) {
         cancelRequestRef.current.close();
 
         cancelFriendRequest(auth.currentUser.uid, friendData.uid);
-        setIsPendingSent(false);
+        setPending("none");
         console.log("Friend request removed.");
     }
 
     const acceptRequest = () => {
         acceptFriendRequest(auth.currentUser.uid, friendData.uid)
         setIsFriend(true);
-        setIsPendingReceived(false);
-        setIsPendingSent(false);
+        setPending("none");
         console.log("Friend request accepted.");
     }
 
@@ -119,7 +123,7 @@ export default function UserScreen({}) {
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
                     <ProfileHeader userData={friendData} isSelf={false} />
                     <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12 }}>
-                        <FriendsCard userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
+                        <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
                         <StrokesGainedCard value={stats.strokesGained.overall} />
                     </View>
                     <SessionsSection sessions={combinedSessions} />

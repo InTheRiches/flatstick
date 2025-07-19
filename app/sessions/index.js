@@ -8,17 +8,18 @@ import {Session} from "../../components/sessions";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
+import {auth} from "../../utils/firebase";
 
 export default function Sessions({}) {
     // const {puttSessions} = useAppContext();
     const colors = useColors();
     const navigation = useNavigation();
 
-    const { puttSessionsString, preferencesString, puttersString, gripsString } = useLocalSearchParams();
+    const { puttSessionsString, userId } = useLocalSearchParams();
     const puttSessions = JSON.parse(puttSessionsString);
 
     const renderItem = ({ item, index }) => (
-        <Session key={"session_" + index} session={item} grips={gripsString} putters={puttersString} preferences={preferencesString} />
+        <Session key={"session_" + index} session={item} userId={userId} />
     );
 
     return (
