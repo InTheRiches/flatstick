@@ -1,16 +1,13 @@
 // only 18 hole simulations and real simulations, no other practices
 import {Pressable, View} from "react-native";
 import useColors from "../../../../hooks/useColors";
-import {convertUnits} from "../../../../utils/Conversions";
-import {useAppContext} from "../../../../contexts/AppCtx";
 import FontText from "../../../general/FontText";
 import {useRouter} from "expo-router";
+import {auth} from "../../../../utils/firebase";
 
 export const RecentSession = ({recentSession}) => {
     const colors = useColors();
     const router = useRouter();
-
-    const {putters, grips, userData} = useAppContext();
 
     const formattedName = () => {
         if (recentSession.type === "real-simulation" || recentSession.type === "full-round") {
@@ -22,7 +19,7 @@ export const RecentSession = ({recentSession}) => {
     }
 
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, preferencesString: JSON.stringify(userData.preferences), gripsString: JSON.stringify(grips), puttersString: JSON.stringify(putters)}})} style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8}}>
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})} style={({pressed}) => ({backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8})}>
             <View style={{
                 paddingHorizontal: 12,
                 borderBottomWidth: 1,

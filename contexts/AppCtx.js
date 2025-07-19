@@ -40,6 +40,8 @@ import RNFS from "react-native-fs";
 import {appleAuth} from "@invertase/react-native-apple-authentication";
 import {adaptFullRoundSession} from "@/utils/sessions/SessionUtils";
 import {getUserSessionsByID} from "@/utils/users/userServices";
+import {deepEqual} from "@/utils/RandomUtilities";
+import {registerForPushNotificationsAsync} from "@/utils/notifications/RegisterNotifications";
 
 const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
 const fullRoundDirectory = `${RNFS.DocumentDirectoryPath}/fullRounds`;
@@ -383,19 +385,6 @@ export function AppProvider({children}) {
             return;
         }
 
-        // try {
-        //     const dirExists = await RNFS.exists(sessionDirectory);
-        //     const otherDirExists = await RNFS.exists(fullRoundDirectory);
-        //     if (!dirExists) {
-        //         await RNFS.mkdir(sessionDirectory);
-        //     }
-        //     if (!otherDirExists) {
-        //         await RNFS.mkdir(fullRoundDirectory);
-        //     }
-        // } catch (error) {
-        //     console.error("Error creating session directory:", error);
-        // }
-
         console.log("Session directory setup complete!");
         const updatedStats = await getAllStats();
         console.log("Stats loaded!");
@@ -417,6 +406,8 @@ export function AppProvider({children}) {
             console.error("Error refreshing putters:", error);
         }
 
+        console.log("Loaded putters");
+
         let localGrips = [{type: "default", name: "Standard Method", stats: updatedStats}];
 
         const gripSessionQuery = query(collection(firestore, `users/${auth.currentUser.uid}/grips`));
@@ -435,8 +426,15 @@ export function AppProvider({children}) {
             console.error("Error refreshing grips:", error);
         }
 
+        console.log("Loaded grips");
+
         setGrips(localGrips);
         setPutters(localPutters);
+
+        console.log("Attempting to register for push notifications...");
+
+        await registerForPushNotificationsAsync(auth.currentUser.uid);
+        console.log("Push notifications registered successfully!");
 
         refreshData().then(() => {
             getPreviousStats().then(() => {
@@ -510,7 +508,15 @@ export function AppProvider({children}) {
         try {
             const data = await getDoc(docRef);
             newData = data.data();
+            // if they are different, update the db with the new data
             const updatedUserData = deepMergeDefaults({ ...data.data() }, getDefaultData(newData.firstName, newData.lastName));
+            if (!deepEqual(newData, updatedUserData)) {
+                updateData(updatedUserData).catch((error) => {
+                    console.error("Error updating user data:", error);
+                });
+
+                console.log("User data updated:", key, "from", newData[key], "to", updatedUserData[key]);
+            }
             setUserData(updatedUserData);
         } catch (error) {
             console.error("Error refreshing user data:", error);

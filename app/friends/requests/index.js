@@ -5,7 +5,7 @@ import React, {useEffect, useRef} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import useColors from "../../../hooks/useColors";
-import {useNavigation, useRouter} from "expo-router";
+import {useFocusEffect, useNavigation, useRouter} from "expo-router";
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
 import {useAppContext} from "../../../contexts/AppCtx";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
@@ -42,38 +42,57 @@ export default function FriendRequests({}) {
         cancelRequestRef.current?.close();
     }
 
-    useEffect(() => {
+    useFocusEffect(() => {
+        let isMounted = true;
+
         getRequests(auth.currentUser.uid).then(async (res) => {
-            // Fetch profiles for each of the received requests
-            const receivedRequestsWithProfiles = await Promise.all(
-                res.receivedRequests.map(async (request) => {
-                    const profile = await getUserDataByID(request.from);
-                    return {
-                        ...request,
-                        ...profile
-                    };
-                })
-            );
+            if (!isMounted) return;
 
-            const sentRequestsWithProfiles = await Promise.all(
-                res.sentRequests.map(async (request) => {
-                    const profile = await getUserDataByID(request.to);
-                    return {
-                        ...request,
-                        ...profile
-                    };
-                })
-            );
+            setRequests((prevRequests) => {
+                const getCachedOrFetchProfile = async (request, type) => {
+                    const userId = type === "received" ? request.from : request.to;
+                    const existingList = type === "received" ? prevRequests?.receivedRequests : prevRequests?.sentRequests;
 
-            // Update the requests state with the modified received requests
-            setRequests({
-                sentRequests: sentRequestsWithProfiles,
-                receivedRequests: receivedRequestsWithProfiles
+                    const cached = existingList?.find((r) => r.from === userId || r.to === userId);
+
+                    if (cached) {
+                        return { ...request, ...cached };
+                    }
+
+                    const profile = await getUserDataByID(userId);
+                    return { ...request, ...profile };
+                };
+
+                const loadProfiles = async () => {
+                    const receivedWithProfiles = await Promise.all(
+                        res.receivedRequests.map((r) => getCachedOrFetchProfile(r, "received"))
+                    );
+
+                    const sentWithProfiles = await Promise.all(
+                        res.sentRequests.map((r) => getCachedOrFetchProfile(r, "sent"))
+                    );
+
+                    if (isMounted) {
+                        setRequests({
+                            sentRequests: sentWithProfiles,
+                            receivedRequests: receivedWithProfiles
+                        });
+
+                        console.log("Received Requests:", JSON.stringify(receivedWithProfiles));
+                    }
+                };
+
+                loadProfiles();
+
+                // Return previous state immediately while async updates
+                return prevRequests;
             });
-
-            console.log("Received Requests:", JSON.stringify(receivedRequestsWithProfiles));
         });
-    }, []);
+
+        return () => {
+            isMounted = false;
+        };
+    });
 
     return (
         <BottomSheetModalProvider>

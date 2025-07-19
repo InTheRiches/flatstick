@@ -35,7 +35,7 @@ export default function FriendsCard({ userScreenRef, friendCount, isFriend, isSe
                         </Svg>
                     ) : userScreenRef.current?.isPendingSent ? (
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             strokeWidth={3} stroke={colors.text.primary} width={24}
+                             strokeWidth={3} stroke={colors.text.secondary} width={24}
                              height={24} style={{marginHorizontal: 4}}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M6 18 18 6M6 6l12 12"/>

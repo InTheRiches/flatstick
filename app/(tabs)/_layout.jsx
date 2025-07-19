@@ -1,5 +1,5 @@
-import {Tabs} from 'expo-router';
-import React from 'react';
+import {Tabs, useRouter} from 'expo-router';
+import React, {useEffect} from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
@@ -8,10 +8,10 @@ import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
+import * as Notifications from "expo-notifications";
 
 export default function TabLayout() {
     const colors = useColors();
-    const insets = useSafeAreaInsets();
     const {isLoading} = useSession();
     const isKeyboardVisible = useKeyboardVisible();
 

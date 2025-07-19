@@ -5,7 +5,7 @@ import React, {useEffect, useRef} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import useColors from "../../hooks/useColors";
-import {useNavigation, useRouter} from "expo-router";
+import {useFocusEffect, useNavigation, useRouter} from "expo-router";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useAppContext} from "../../contexts/AppCtx";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
@@ -23,9 +23,9 @@ export default function Friends({}) {
 
     const [friends, setFriends] = React.useState([]);
 
-    useEffect(() => {
+    useFocusEffect(() => {
         getFriends(auth.currentUser.uid).then(setFriends).then(() => setLoading(false));
-    }, []);
+    });
 
     const remove = (friendId) => {
         removeFriend(auth.currentUser.uid, friendId);

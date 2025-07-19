@@ -25,7 +25,7 @@
   "dependencies": {
     "@expo-google-fonts/inter": "~0.2.3",
     "@expo/config-plugins": "~9.0.0",
-    "@expo/plist": "^0.2.1",
+    "@expo/plist": "~0.2.1",
     "@expo/vector-icons": "^14.0.2",
     "@gorhom/bottom-sheet": "^5.0.6",
     "@invertase/react-native-apple-authentication": "^2.4.0",
@@ -43,6 +43,7 @@
     "expo-linking": "~7.0.5",
     "expo-location": "~18.0.10",
     "expo-navigation-bar": "~4.0.9",
+    "expo-notifications": "~0.29.14",
     "expo-router": "~4.0.21",
     "expo-secure-store": "~14.0.1",
     "expo-sharing": "~13.0.1",

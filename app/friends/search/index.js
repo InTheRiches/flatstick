@@ -40,7 +40,7 @@ export default function SearchFriends({}) {
         if (text.length > 1) {
             getProfilesByDisplayName(text).then(fetchedProfiles => {
                 // remove the current user from the list
-                const filteredProfiles = fetchedProfiles.filter(profile => profile.id !== currentUser.uid);
+                const filteredProfiles = fetchedProfiles; //fetchedProfiles.filter(profile => profile.id !== currentUser.uid);
                 setProfiles(filteredProfiles);
             });
         } else {

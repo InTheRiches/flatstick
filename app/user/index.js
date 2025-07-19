@@ -33,7 +33,6 @@ export default function UserScreen({}) {
 
     const friendData = JSON.parse(userDataString);
 
-    const [sessions, setSessions] = React.useState([]);
     const [combinedSessions, setCombinedSessions] = React.useState([]);
     const [stats, setStats] = React.useState(createSimpleStats());
     const [isFriend, setIsFriend] = React.useState(friendData.friends.includes(auth.currentUser.uid));
@@ -42,8 +41,6 @@ export default function UserScreen({}) {
     const removeFriendRef = useRef(null);
     const cancelRequestRef = useRef(null);
     const userScreenRef = useRef(null);
-
-    console.log("Friend Data:", userDataString);
 
     useImperativeHandle(userScreenRef, () => ({
         acceptRequest,
@@ -61,8 +58,7 @@ export default function UserScreen({}) {
         getUserSessionsByID(friendData.uid).then((newSessions) => {
             if (newSessions.sessions.length > 0 || newSessions.fullRoundSessions.length > 0)
                 setCombinedSessions([...newSessions.sessions, ...newSessions.fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp).map(adaptFullRoundSession))
-
-            setSessions(newSessions);
+            // todo maybe making a loading thingy here for the sessions?
         }).catch((error) => {
             console.error("Error fetching user sessions:", error);
         });
@@ -120,7 +116,7 @@ export default function UserScreen({}) {
     return (
         <>
             <ScreenWrapper style={{ paddingHorizontal: 24 }}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
                     <ProfileHeader userData={friendData} isSelf={false} />
                     <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12 }}>
                         <FriendsCard userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />

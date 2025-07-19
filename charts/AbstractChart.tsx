@@ -172,7 +172,7 @@ class AbstractChart<
       );
     });
 
-    console.log("zeroline: " + iOfZero)
+    //console.log("zeroline: " + iOfZero)
 
     // Add 0 line if within range
     // TODO this doesnt always work, the line says even though it shouldnt, when min is -2,
@@ -253,8 +253,8 @@ class AbstractChart<
           ? ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data, 0))
           : ((this.calcScaler(data) / count) * i) + (minNumber !== undefined ? minNumber : Math.min(...data));
 
-        console.log("scalar:" + (this.calcScaler(data) / count))
-        console.log("min: " + (minNumber !== undefined ? minNumber : Math.min(...data)))
+        //console.log("scalar:" + (this.calcScaler(data) / count))
+        //console.log("min: " + (minNumber !== undefined ? minNumber : Math.min(...data)))
 
         label = Math.round(label)
 

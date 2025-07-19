@@ -16,7 +16,7 @@ export function SeeAllSessions({}) {
         return <></>
 
     return (
-        <SecondaryButton onPress={() => router.push({pathname: "sessions", params: {puttSessionsString: puttSessions, preferencesString: userData.preferences, puttersString: putters, gripsString: grips}})} style={{
+        <SecondaryButton onPress={() => router.push({pathname: "sessions", params: {puttSessionsString: puttSessions, }})} style={{
                 borderRadius: 50,
                 flexDirection: "row",
                 alignSelf: "center",
