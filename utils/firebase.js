@@ -1,7 +1,7 @@
 // Optionally import the services that you want to use
-import {collection, getDocs, initializeFirestore, query, where} from "firebase/firestore";
+import {collection, getDocs, initializeFirestore, query, where, connectFirestoreEmulator} from "firebase/firestore";
 import {getApp, initializeApp} from "firebase/app";
-import {getAuth, getReactNativePersistence, initializeAuth} from 'firebase/auth';
+import {getAuth, getReactNativePersistence, connectAuthEmulator, initializeAuth} from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
@@ -43,8 +43,8 @@ const auth = initializeAuth(app, {
 // firebase emulators:start http://localhost:4000/
 // if (__DEV__) {
 //     console.log("Running in development mode, connecting to Firebase emulators");
-//     connectAuthEmulator(auth, 'http://192.168.1.56:9099');
-//     connectFirestoreEmulator(firestore, '192.168.1.56', 8080);
+//     connectAuthEmulator(auth, 'http://localhost:9099');
+//     connectFirestoreEmulator(firestore, 'localhost', 8080);
 // }
 
 // Recursively merge defaults into target without overwriting existing values.

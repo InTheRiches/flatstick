@@ -114,9 +114,9 @@ export default function RootInitializer({}) {
             }
             else {
                 setLocalLoading(false);
-                if (Platform.OS === "ios") {
-                    router.push({pathname: "/signup"});
-                }
+                // if (Platform.OS === "ios") {
+                //     router.push({pathname: "/signup"});
+                // }
             }
         });
         return () => {
