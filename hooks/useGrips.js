@@ -22,5 +22,5 @@ export const useGrips = () => {
         setGrips((prev) => prev.filter((grip) => grip.type !== type));
     };
 
-    return { grips, newGrip: addGrip, deleteGrip: removeGrip, initializeGrips };
+    return { grips, setGrips, newGrip: addGrip, deleteGrip: removeGrip, initializeGrips };
 };

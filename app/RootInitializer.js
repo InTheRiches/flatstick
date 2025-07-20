@@ -25,7 +25,7 @@ export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
     const [localLoading, setLocalLoading] = React.useState(true);
     const {setSession} = useSession();
-    const {initialize, userData, updateData, isLoading} = useAppContext();
+    const {initialize, userData, updateData, isLoading, refreshStats} = useAppContext();
     const router = useRouter();
     let [fontsLoaded] = useFonts({
         Inter_100Thin,
@@ -100,16 +100,16 @@ export default function RootInitializer({}) {
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                user.getIdToken().then((token) => {
+                user.getIdToken().then(async (token) => {
+                    await refreshStats();
                     setSession(token);
-                    initialize().then(() => {
-                        if (screenToPush === "/") return;
-
-                        router.push({pathname: screenToPush});
-                    }).catch((error) => {
+                    await initialize().catch((error) => {
                         console.error("Initialization error:", error);
                         setLocalLoading(false);
                     });
+                    if (screenToPush === "/") return;
+
+                    router.push({pathname: screenToPush});
                 });
             }
             else {

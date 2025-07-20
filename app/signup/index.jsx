@@ -4,11 +4,11 @@ import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
-import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useSession} from "../../contexts/AuthContext";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {AppleButton} from "@invertase/react-native-apple-authentication";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 
 const initialState = {
     skill: -1,
@@ -113,7 +113,9 @@ export default function CreateAccount() {
 
         setLoading(true);
 
-        createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail);
+        createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail).then(() => {
+            refreshStats
+        });
     }
 
     const signInWithApple = () => {
@@ -368,7 +370,7 @@ export default function CreateAccount() {
                             a lowercase</FontText>
                     </View>
 
-                    <PrimaryButton
+                    <SecondaryButton
                         onPress={createAccount}
                         disabled={invalidPassword || invalidEmail || lastNameInvalid || firstNameInvalid || lastName.length === 0 || firstName.length === 0 || state.email.length === 0 || state.email.password === 0}
                         style={{
@@ -376,7 +378,7 @@ export default function CreateAccount() {
                             borderRadius: 10,
                             marginTop: 12
                         }}
-                        title={"Create your account"}></PrimaryButton>
+                        title={"Create your account"}></SecondaryButton>
                 </ScrollView>
             </ScreenWrapper>
         </KeyboardAvoidingView>

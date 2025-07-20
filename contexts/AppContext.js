@@ -25,7 +25,7 @@ const AppContext = createContext({
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
     setUserData: () => {},
-    updateStats: () => Promise.resolve(),
+    refreshStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
@@ -47,13 +47,13 @@ export function AppContextProvider({ children }) {
 
     const { userData, setUserData, updateData, initialize: initializeUser } = useUser();
     const { puttSessions, fullRoundSessions, refreshData, newSession, newFullRound, deleteSession } = useSessions();
-    const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, updateStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
+    const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, rawRefreshStatistics, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
         puttSessions,
         fullRoundSessions
     );
-    const { putters, newPutter, deletePutter, initializePutters } = usePutters();
-    const { grips, newGrip, deleteGrip, initializeGrips } = useGrips();
+    const { putters, setPutters, newPutter, deletePutter, initializePutters } = usePutters();
+    const { grips, setGrips, newGrip, deleteGrip, initializeGrips } = useGrips();
     const [isLoading, setIsLoading] = useState(true);
 
     const initialize = async () => {
@@ -61,10 +61,15 @@ export function AppContextProvider({ children }) {
         await initializeStats();
         await initializePutters(currentStats);
         await initializeGrips(currentStats);
+        await rawRefreshStatistics(putters, grips, setPutters, setGrips);
         await refreshData();
         console.log('AppContext initialized');
         setIsLoading(false);
     };
+
+    const refreshStats = async () => {
+        await rawRefreshStatistics(putters, grips, setPutters, setGrips)
+    }
 
     const appContextValue = useMemo(
         () => ({
@@ -86,7 +91,7 @@ export function AppContextProvider({ children }) {
             refreshData,
             updateData,
             setUserData,
-            updateStats,
+            refreshStats,
             getAllStats,
             newPutter,
             newSession,
@@ -98,7 +103,7 @@ export function AppContextProvider({ children }) {
             deleteGrip,
             calculateSpecificStats,
         }),
-        [userData, puttSessions, fullRoundSessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, updateStats, getAllStats, newPutter, newSession, newFullRound, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading]
+        [userData, puttSessions, fullRoundSessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, newFullRound, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading]
     );
 
     return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>;

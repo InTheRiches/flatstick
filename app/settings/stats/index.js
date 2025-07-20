@@ -13,7 +13,7 @@ const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pu
 
 export default function StatSettings({}) {
     const colors = useColors();
-    const {putters, grips, userData, updateData, updateStats, nonPersistentData} = useAppContext();
+    const {putters, grips, userData, updateData, refreshStats, nonPersistentData} = useAppContext();
 
     const [initialData, setInitialData] = useState(userData.preferences);
 
@@ -41,7 +41,7 @@ export default function StatSettings({}) {
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
                         if (initialData !== userData.preferences) {
-                            updateStats().catch(e => {
+                            refreshStats().catch(e => {
                                 console.log("Error overall updating stats: " + e)
                             });
                         }
