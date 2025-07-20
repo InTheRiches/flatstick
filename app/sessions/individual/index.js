@@ -12,8 +12,8 @@ import BiasSection from "../../../components/sessions/individual/new/BiasSection
 import ActionButtons from "../../../components/sessions/individual/new/ActionButtons";
 import Modals from "../../../components/sessions/individual/new/Modals";
 import IndividualHeader from "../../../components/sessions/individual/new/IndividualHeader";
-import {getUserDataByID} from "../../../utils/users/userServices";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {getUserDataByID} from "../../../services/userService";
+import {useAppContext} from "../../../contexts/AppContext";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
     ? "ca-app-pub-2701716227191721/6686596809"

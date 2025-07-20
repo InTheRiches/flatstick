@@ -4,7 +4,7 @@ import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Image, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import {roundTo} from "../../../utils/roundTo";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import {convertUnits} from "../../../utils/Conversions";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";

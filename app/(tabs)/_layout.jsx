@@ -3,7 +3,7 @@ import React from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
-import {useAppContext, useSession} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
@@ -11,9 +11,8 @@ import ProfileTabIcon from "@/components/tabs/ProfileTabIcon";
 
 export default function TabLayout() {
     const colors = useColors();
-    const {isLoading} = useSession();
+    const {isLoading} = useAppContext();
     const isKeyboardVisible = useKeyboardVisible();
-    const {userData} = useAppContext();
 
     return (
         <GestureHandlerRootView>

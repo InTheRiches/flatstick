@@ -3,13 +3,13 @@ import React, {useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
-import {useSession} from "../../contexts/AppCtx";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import ResetPassword from "../../components/signin/ResetPassword";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import FontText from "../../components/general/FontText";
 import {AppleButton} from "@invertase/react-native-apple-authentication";
+import {useSession} from "../../contexts/AuthContext";
 
 const initialState = {
     password: "",
@@ -23,7 +23,7 @@ const initialState = {
 export default function Login() {
     const colors = useColors();
     const router = useRouter();
-    const {signIn, googleSignIn, appleSignIn} = useSession();
+    const {signIn, googleSignIn, appleSignIn, setSession} = useSession();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
@@ -43,7 +43,10 @@ export default function Login() {
 
         setLoading(true);
 
-        signIn(state.email, state.password).catch((error) => {
+        signIn(state.email, state.password).then((token) => {
+            setSession(token);
+            router.push("/");
+        }).catch((error) => {
             setErrorCode(error.code)
             setLoading(false);
         });
@@ -62,6 +65,29 @@ export default function Login() {
         updateField("password", password);
 
         if (errorCode !== "") setErrorCode("");
+    }
+
+    const signInWithApple = () => {
+        setLoading(true);
+        appleSignIn().then(token => {
+            setLoading(false);
+            setSession(token || null);
+            router.replace({pathname: `/`});
+            // TODO refreshStats() here
+        }).catch(error => {
+            setLoading(false);
+            console.error("Apple Sign In Error:", error);
+        });
+    }
+
+    const signInWithGoogle = () => {
+        setLoading(true);
+        googleSignIn(setLoading).then(token => {
+            setLoading(false);
+            setSession(token || null);
+            router.replace({pathname: `/`});
+            // TODO refreshStats() here
+        });
     }
 
     // TODO this translucent does jack squat because there is nothing underneath it
@@ -85,7 +111,7 @@ export default function Login() {
                         </Pressable>
                         <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                             <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
-                                        onPress={() => googleSignIn(setLoading)}>
+                                        onPress={signInWithGoogle}>
                                 <Svg xmlns="http://www.w3.org/2000/svg"
                                      viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                     <Defs>
@@ -109,7 +135,7 @@ export default function Login() {
                                         flex: 1,
                                         height: 45, // You must specify a height
                                     }}
-                                    onPress={() => appleSignIn()}
+                                    onPress={signInWithApple}
                                 />
                             }
                         </View>

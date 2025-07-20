@@ -2,7 +2,7 @@ import React from "react";
 import ShareSession from "../ShareSession";
 import {ConfirmDelete} from "../ConfirmDelete";
 import InfoModal from "../InfoModal";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 
 export default function Modals({
                                    session,

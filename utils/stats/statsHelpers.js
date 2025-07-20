@@ -30,14 +30,14 @@ const initializeSlopeAndBreak = () => ({
     made: 0
 })
 
-const initializePutters = (putters) => {
+const initializeBlankPutters = (putters) => {
     return JSON.parse(JSON.stringify(putters)).slice(1).map((putter) => {
         putter.stats = createSimpleStats();
         return putter;
     });
 }
 
-const initializeGrips = (grips) => {
+const initializeBlankGrips = (grips) => {
     return JSON.parse(JSON.stringify(grips)).slice(1).map((grip) => {
         grip.stats = createSimpleStats();
         return grip;
@@ -58,4 +58,4 @@ const categorizeDistance = (distance, units) => {
     }
 };
 
-export {categorizeDistance, initializeGrips, initializePutters};
+export {categorizeDistance, initializeBlankGrips, initializeBlankPutters};

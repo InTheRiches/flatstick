@@ -4,10 +4,9 @@ import {BottomSheetModal, BottomSheetView,} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
-import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {useSharedValue} from "react-native-reanimated";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import FontText from "../../../general/FontText";
 
@@ -18,6 +17,7 @@ export const NewRound = ({newSessionRef}) => {
     const [mode, setMode] = useState("random");
     const bottomSheetPosition = useSharedValue(0);
     const {putters, grips, userData, updateData} = useAppContext();
+    const [holes, setHoles] = useState(9);
 
     const router = useRouter();
 
@@ -40,8 +40,109 @@ export const NewRound = ({newSessionRef}) => {
         <BottomSheetModal ref={newSessionRef} bottomSheetPosition={bottomSheetPosition} enablePanDownToClose={true} backdropComponent={myBackdrop} handleIndicatorStyle={{backgroundColor: colors.text.primary}} backgroundStyle={{backgroundColor: colors.background.primary}}>
             <BottomSheetView style={{paddingBottom: 12, backgroundColor: colors.background.primary,}}>
                 <View style={{marginHorizontal: 24, paddingBottom: 12}}>
-                    <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>New 18 Hole Simulation</FontText>
-                    <FontText style={{marginTop: 18, fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Mode</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: 500, color: colors.text.primary,}}>New Putting Simulation</FontText>
+                    <FontText
+                        style={{
+                            marginTop: 12,
+                            fontSize: 18,
+                            color: colors.text.primary,
+                            marginBottom: 4
+                        }}>
+                        Holes
+                    </FontText>
+                    <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
+                        <Pressable
+                            onPress={() => setHoles(9)}
+                            style={{
+                                flex: 1,
+                                borderWidth: 1,
+                                borderColor:
+                                    holes === 9
+                                        ? colors.toggleable.toggled.border
+                                        : colors.toggleable.border,
+                                borderRadius: 12,
+                                paddingHorizontal: 8,
+                                paddingVertical: 8,
+                                backgroundColor:
+                                    holes === 9
+                                        ? colors.toggleable.toggled.background
+                                        : colors.toggleable.background,
+                            }}>
+                            {holes === 9 && (
+                                <View
+                                    style={{
+                                        position: "absolute",
+                                        right: -7,
+                                        top: -7,
+                                        backgroundColor: "#40C2FF",
+                                        padding: 3,
+                                        borderRadius: 50,
+                                    }}>
+                                    <Svg
+                                        width={18}
+                                        height={18}
+                                        stroke={colors.checkmark.color}
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="3">
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                    </Svg>
+                                </View>
+                            )}
+                            <FontText style={{
+                                textAlign: "center",
+                                color: colors.text.primary,
+                                fontSize: 16,
+                            }}>
+                                9 Holes
+                            </FontText>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => setHoles(18)}
+                            style={{
+                                flex: 1,
+                                borderWidth: 1,
+                                borderColor:
+                                    holes === 18
+                                        ? colors.toggleable.toggled.border
+                                        : colors.toggleable.border,
+                                borderRadius: 12,
+                                paddingHorizontal: 8,
+                                paddingVertical: 8,
+                                backgroundColor:
+                                    holes === 18
+                                        ?  colors.toggleable.toggled.background
+                                        : colors.toggleable.background,
+                            }}>
+                            {holes === 18 && (
+                                <View
+                                    style={{
+                                        position: "absolute",
+                                        right: -7,
+                                        top: -7,
+                                        backgroundColor: "#40C2FF",
+                                        padding: 3,
+                                        borderRadius: 50,
+                                    }}>
+                                    <Svg
+                                        width={18}
+                                        height={18}
+                                        stroke={colors.checkmark.color}
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="3">
+                                        <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                    </Svg>
+                                </View>
+                            )}
+                            <FontText style={{textAlign: "center", color: colors.text.primary, fontSize: 16,}}>
+                                18 Holes
+                            </FontText>
+                        </Pressable>
+                    </View>
+                    <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Mode</FontText>
                     <View style={{flexDirection: "row", gap: 12, marginBottom: 8}}>
                         <Pressable
                             onPress={() => setMode("random")}
@@ -109,7 +210,7 @@ export const NewRound = ({newSessionRef}) => {
                     </View>
                     {   mode === "random" &&
                         <>
-                            <FontText style={{marginTop: 12, fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Difficulty</FontText>
+                            <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Difficulty</FontText>
                             <View style={{flexDirection: "row", gap: 12}}>
                                 <Pressable
                                     onPress={() => setDifficulty("easy")}
@@ -267,26 +368,26 @@ export const NewRound = ({newSessionRef}) => {
                             </Svg>
                         </SecondaryButton>
                     </Pressable>
-                    <PrimaryButton
+                    <SecondaryButton
                         title={"Start Session"}
                         onPress={() => {
                             newSessionRef.current?.dismiss();
                             if (userData.hasSeenRoundTutorial) {
                                 router.push({
                                     pathname: `/simulation/round`, params: {
-                                        localHoles: 18, difficulty: difficulty, mode: mode,
+                                        localHoles: holes, difficulty: difficulty, mode: mode,
                                     },
                                 });
                             } else {
                                 router.push({
                                     pathname: `/simulation/round/demo`, params: {
-                                        justInfo: false, localHoles: 18, difficulty: difficulty, mode: mode,
+                                        justInfo: false, holes, difficulty: difficulty, mode: mode,
                                     },
                                 });
                                 updateData({hasSeenRoundTutorial: true});
                             }
                         }}
-                    ></PrimaryButton>
+                    ></SecondaryButton>
                 </View>
             </BottomSheetView>
         </BottomSheetModal>);

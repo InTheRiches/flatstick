@@ -5,9 +5,10 @@ import useColors from "../../../../hooks/useColors";
 import {Platform, TextInput, View} from "react-native";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
-import {EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth';
-import {useAppContext, useSession} from "../../../../contexts/AppCtx";
+import {deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth';
+import {useAppContext} from "../../../../contexts/AppContext";
 import FontText from "../../../general/FontText";
+import {useSession} from "../../../../contexts/AuthContext";
 
 export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef}) {
     const colors = useColors();
@@ -35,20 +36,23 @@ export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef})
 
             confirmDeleteRef.current.present();
 
-            // await updateData({ deleted: true });
-            //
-            // const currentUser = auth.currentUser;
-            //
-            // await signOut();
-            //
-            // deleteUser(currentUser).then(() => {
-            //     // User deleted.
-            //     console.log("User deleted");
-            // }).catch((error) => {
-            //     // An error ocurred
-            //     // ...
-            //     console.log(error);
-            // });
+            await updateData({ deleted: true });
+
+            const currentUser = auth.currentUser;
+
+            await signOut();
+
+            deleteUser(currentUser).then(() => {
+                // User deleted.
+                console.log("User deleted");
+                setSession(null);
+                if (Platform.OS !== "ios") {
+                    router.replace({pathname: "/login"});
+                }
+            }).catch((error) => {
+                // An error ocurred
+                console.log(error);
+            });
         }).catch((error) => {
             setPasswordInvalid(true);
         });

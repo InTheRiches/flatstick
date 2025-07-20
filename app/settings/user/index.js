@@ -1,11 +1,11 @@
 import {Platform, Pressable, TextInput, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
-import {auth, getAuth} from "../../../utils/firebase";
-import {updateEmail, updateProfile} from "firebase/auth";
+import {auth} from "../../../utils/firebase";
+import {updateEmail} from "firebase/auth";
 import Loading from "../../../components/general/popups/Loading";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";

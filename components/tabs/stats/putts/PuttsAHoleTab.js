@@ -4,7 +4,7 @@ import React from "react";
 import {PuttsByBreakSlope, PuttsByDistance} from "./graphs";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 
 export const PuttsAHoleTab = ({statsToUse}) => {
     const colors = useColors();

@@ -1,7 +1,7 @@
 import {View} from "react-native";
 import {PracticeMode} from "./PracticeMode";
 import React from "react";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import useColors from "../../../hooks/useColors";
 import FontText from "../../general/FontText";
 import {useRouter} from "expo-router";
@@ -30,8 +30,8 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
                 onInfo={() => router.push({pathname: "/simulation/real/demo", params: {justInfo: true}})}
                 onPress={() => newRealRoundRef.current.present()}/>
             <PracticeMode
-                description={"A realistic mode simulating 18 unique holes to track putting performance and improve skills."}
-                name={"18 Hole Simulation"}
+                description={"A realistic mode simulating 9-18 unique holes to track putting performance and improve skills."}
+                name={"Putting Simulation"}
                 distance={userData.preferences.units === 0 ? "3 - 40ft" : "1 - 12m"}
                 time={"10 - 20min"}
                 focus={"Adaptability"}

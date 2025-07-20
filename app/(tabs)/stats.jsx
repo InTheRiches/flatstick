@@ -1,6 +1,6 @@
 import {Dimensions, FlatList, Pressable, View} from "react-native";
 import useColors from "../../hooks/useColors";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Toggleable} from "../../components/general/buttons/Toggleable";
 import {StrokesGainedTab} from "../../components/tabs/stats/sg";
@@ -20,7 +20,7 @@ export default function Stats({}) {
     const router = useRouter();
     const navigation = useNavigation()
 
-    const {currentStats, puttSessions, putters, grips, userData, nonPersistentData, calculateSpecificStats} = useAppContext();
+    const {currentStats, puttSessions, putters, grips, nonPersistentData, calculateSpecificStats} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     const [tab, setTab] = useState(0);
@@ -41,7 +41,7 @@ export default function Stats({}) {
         setStatsToUse(
             nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
                 nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
-                    nonPersistentData.filtering.grips !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
+                    nonPersistentData.filtering.grip !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
     }, [nonPersistentData, currentStats]);
 
     const tabs  = [

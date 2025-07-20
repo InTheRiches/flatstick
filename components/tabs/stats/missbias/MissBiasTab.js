@@ -1,7 +1,7 @@
 import useColors from "../../../../hooks/useColors";
 import {Dimensions, ScrollView, View} from "react-native";
 import {LeftRightBias, ShortPastBias} from "../../../sessions/individual";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 import FontText from "../../../general/FontText";
 import React from "react";
 import {roundTo} from "../../../../utils/roundTo";

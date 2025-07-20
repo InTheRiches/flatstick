@@ -4,7 +4,7 @@ import {View} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {Exclamation} from "../../assets/svg/SvgComponents";
 import useColors from "../../hooks/useColors";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 
 const ProfileTabIcon = ({ focused }) => {
     const { userData } = useAppContext(); // or pass in as a prop

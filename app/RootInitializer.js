@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
-import {auth} from "../utils/firebase";
+import {auth} from "@/utils/firebase";
 import {useRouter} from "expo-router";
-import {useAppContext, useSession} from "../contexts/AppCtx";
+import {useSession} from "@/contexts/AuthContext";
 import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
 import NetInfo from '@react-native-community/netinfo';
 import {
@@ -19,12 +19,13 @@ import {
 import {Platform} from "react-native";
 import BootSplash from "react-native-bootsplash";
 import * as Notifications from "expo-notifications";
+import {useAppContext} from "@/contexts/AppContext";
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
     const [localLoading, setLocalLoading] = React.useState(true);
-    const {setSession, isLoading} = useSession();
-    const {initialize, userData, updateData} = useAppContext();
+    const {setSession} = useSession();
+    const {initialize, userData, updateData, isLoading} = useAppContext();
     const router = useRouter();
     let [fontsLoaded] = useFonts({
         Inter_100Thin,
@@ -37,8 +38,6 @@ export default function RootInitializer({}) {
         Inter_800ExtraBold,
         Inter_900Black,
     });
-
-
 
     // Monitor authentication state changes
     useEffect(() => {

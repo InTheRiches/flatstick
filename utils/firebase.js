@@ -2,7 +2,7 @@
 import {collection, getDocs, initializeFirestore, query, where} from "firebase/firestore";
 import {getApp, initializeApp} from "firebase/app";
 import {getAuth, getReactNativePersistence, initializeAuth} from 'firebase/auth';
-import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
     apiKey: "AIzaSyD6WWVOyLuOT3tHas31vjZXYL5_BpZ_yZI",
@@ -14,15 +14,30 @@ const firebaseConfig = {
     measurementId: "G-ZM9VDTXJY9"
 };
 
-export const app = initializeApp(firebaseConfig);
+// Initialize Firebase app (only once)
+let app;
+try {
+    console.log("Initializing Firebase app with config:", firebaseConfig);
+    app = initializeApp(firebaseConfig);
+} catch (error) {
+    // If app is already initialized, get the existing instance
+    if (error.code === 'app/duplicate-app') {
+        app = getApp();
+    } else {
+        throw error;
+    }
+}
 
+// Initialize Firestore
 const firestore = initializeFirestore(app, {
     experimentalForceLongPolling: true,
     useFetchStreams: false,
     ignoreUndefinedProperties: true,
 });
+
+// Initialize Auth with AsyncStorage persistence
 const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+    persistence: getReactNativePersistence(AsyncStorage),
 });
 
 // firebase emulators:start http://localhost:4000/
@@ -138,4 +153,4 @@ async function getProfilesByUsername(username) {
     }
 }
 
-export {firestore, auth, deepMergeDefaults, getProfilesByDisplayName, getApp, getAuth, getProfilesByUsername};
+export {firestore, auth, app, deepMergeDefaults, getProfilesByDisplayName, getApp, getAuth, getProfilesByUsername};

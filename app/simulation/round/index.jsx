@@ -7,7 +7,7 @@ import DangerButton from "@/components/general/buttons/DangerButton";
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {
     calculateDistanceMissedFeet,
     calculateDistanceMissedMeters,
@@ -307,7 +307,7 @@ export default function RoundSimulation() {
 
         const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
 
-        //updateField("loading", true);
+        updateField("loading", true);
 
         const data = {
             id: generatePushID(),

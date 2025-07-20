@@ -2,7 +2,7 @@ import {Platform, Pressable, Switch, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {FilterGrips, FilterPutters} from "../../../components/tabs/stats/settings/popups";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
 import {SafeAreaView} from "react-native-safe-area-context";

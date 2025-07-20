@@ -2,7 +2,7 @@ import React from "react";
 import useColors from "../../../hooks/useColors";
 import {Pressable, View} from "react-native";
 import {roundTo} from "../../../utils/roundTo";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {useRouter} from "expo-router";
 import FontText from "../../general/FontText";
 import {convertUnits} from "../../../utils/Conversions";

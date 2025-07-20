@@ -5,7 +5,7 @@ import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import React, {useEffect, useRef, useState} from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 import {useNavigation} from "expo-router";
 import {GripSelector, NewGripModal} from "../../components/editgrips";
 import ScreenWrapper from "../../components/general/ScreenWrapper";

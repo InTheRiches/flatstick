@@ -1,7 +1,7 @@
 import {Image, View} from "react-native";
 import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import {convertUnits} from "../../../utils/Conversions";
 import FontText from "../../general/FontText";
 import {roundTo} from "../../../utils/roundTo";

@@ -2,7 +2,7 @@ import {View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
 import {useRouter} from "expo-router";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 import useColors from "../../../hooks/useColors";
 import FontText from "../../general/FontText";

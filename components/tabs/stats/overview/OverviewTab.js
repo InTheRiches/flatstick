@@ -1,5 +1,5 @@
 import useColors from "../../../../hooks/useColors";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 import {Dimensions, ScrollView, View} from "react-native";
 import {roundTo} from "../../../../utils/roundTo";
 import {RecentSession} from "./RecentSession";

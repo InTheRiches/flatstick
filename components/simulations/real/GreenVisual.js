@@ -1,12 +1,11 @@
 import {Platform, Pressable, TextInput, View} from "react-native";
 import {GreenBreakSelector} from "./GreenBreakSelector";
 import Svg, {Circle, Path} from "react-native-svg";
-import React, {useRef, useState} from "react";
+import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import FontText from "../../general/FontText";
-import {BottomSheetTextInput} from "@gorhom/bottom-sheet";
 
 const breaks = {
     45: "Left to Right",

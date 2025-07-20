@@ -2,7 +2,7 @@ import {Pressable, View} from "react-native";
 import {Image} from "expo-image";
 import React from "react";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import FontText from "../../general/FontText";
 import Svg, {Path} from "react-native-svg";
 

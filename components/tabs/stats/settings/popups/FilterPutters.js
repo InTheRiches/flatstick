@@ -1,4 +1,4 @@
-import {useAppContext} from "../../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../../contexts/AppContext";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Pressable} from "react-native";
 import Svg, {Path} from "react-native-svg";

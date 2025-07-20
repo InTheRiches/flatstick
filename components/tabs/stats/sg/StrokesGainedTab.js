@@ -1,5 +1,5 @@
 import useColors from "../../../../hooks/useColors";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 import {Dimensions, ScrollView, View} from "react-native";
 import React, {useEffect, useMemo} from "react";
 import {SGByBreakSlope, SGByDistanceChart} from "./graphs";

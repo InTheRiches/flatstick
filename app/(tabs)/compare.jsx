@@ -2,7 +2,7 @@ import {Platform, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useRouter} from "expo-router";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 import Svg, {G, Path, Polygon} from "react-native-svg";
 import React, {useRef} from "react";
 import ScreenWrapper from "../../components/general/ScreenWrapper";

@@ -1,13 +1,13 @@
 import {Pressable, ScrollView, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../../components/general/FontText";
-import React, {useEffect, useRef} from "react";
+import React, {useEffect} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import useColors from "../../../hooks/useColors";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
-import {getFriends} from "../../../utils/friends/friendServices";
+import {getFriends} from "../../../services/friendServices";
 import {auth} from "../../../utils/firebase";
 
 export default function UserFriends({}) {

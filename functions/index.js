@@ -19,9 +19,12 @@ setGlobalOptions({maxInstances: 2});
 exports.fanOutFeedItem = functions.firestore
     .onDocumentWritten('users/{userId}/sessions/{sessionId}', async (snap, context) => {
         console.log("Fan out feed triggered, context: ", JSON.stringify(context));
-        console.log("Fan out feed triggered, snap: ", JSON.stringify(snap.data()));
-        const {userId} = snap.data.before._ref._path.segments[1];
-        const {sessionId} = snap.data.before._ref._path.segments[3];
+        console.log("Fan out feed triggered, snap: ", JSON.stringify(snap.data));
+        console.log(snap.data.before.ref);
+        console.log(snap.data.before.ref.path);
+        const {userId} = snap.data.before.ref.path.split('/')[1];
+        const {sessionId} = snap.data.before.ref.path.split('/')[3];
+
         const userDoc = await admin.firestore().doc(`users/${userId}`).get();
         const userData = userDoc.data();
         const friends = userData.friends || [];

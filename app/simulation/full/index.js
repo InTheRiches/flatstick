@@ -1,14 +1,14 @@
-import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
+import {useLocalSearchParams, useRouter} from "expo-router";
 import useColors from "../../../hooks/useColors";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {BackHandler, Keyboard, Platform, Pressable, View} from "react-native";
+import {BackHandler, Platform, Pressable, View} from "react-native";
 import FontText from "../../../components/general/FontText";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
-import Svg, {Circle, Line, Path, Rect} from "react-native-svg";
+import Svg, {Path, Rect} from "react-native-svg";
 import React, {useEffect, useRef, useState} from "react";
 import {ConfirmExit} from "../../../components/simulations/popups";
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import ApproachAccuracyButton from "../../../components/simulations/full/ApproachAccuracyButton";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
@@ -24,7 +24,7 @@ import {
 import ScoreIncrementer from "../../../components/simulations/full/ScoreIncremeter";
 import NumberIncrementer from "../../../components/simulations/full/NumberIncrementer";
 import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPuttDataModal";
-import {calculateFullRoundStats, calculateStats} from "../../../utils/PuttUtils";
+import {calculateFullRoundStats} from "../../../utils/PuttUtils";
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";

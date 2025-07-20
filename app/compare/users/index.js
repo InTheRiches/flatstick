@@ -1,7 +1,7 @@
 import {Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useEffect, useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
 import {useLocalSearchParams, useNavigation} from "expo-router";
@@ -9,7 +9,7 @@ import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
-import {getUserStatsByID} from "../../../utils/users/userServices";
+import {getUserStatsByID} from "../../../services/userService";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 

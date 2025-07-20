@@ -1,16 +1,17 @@
-import { firestore } from '../firebase'; // your Firebase config
+import {firestore} from '../utils/firebase'; // your Firebase config
 import {
-    doc,
-    setDoc,
-    deleteDoc,
-    updateDoc,
+    arrayRemove,
     arrayUnion,
+    collection,
+    deleteDoc,
+    doc,
     getDoc,
     getDocs,
     query,
-    where,
-    collection,
-    serverTimestamp, arrayRemove
+    serverTimestamp,
+    setDoc,
+    updateDoc,
+    where
 } from 'firebase/firestore';
 
 export const sendFriendRequest = async (fromUid: string, toUid: string) => {

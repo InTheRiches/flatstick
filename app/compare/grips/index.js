@@ -1,7 +1,7 @@
 import {Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {SelectGrip} from "../../../components/tabs/compare/popups";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";

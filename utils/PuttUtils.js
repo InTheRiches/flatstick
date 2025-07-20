@@ -554,6 +554,7 @@ const createYearlyStats = () => {
     }
 }
 
+// TODO three+ putt percentage?
 const createSimpleStats = () => {
     return {
         onePutts: 0,

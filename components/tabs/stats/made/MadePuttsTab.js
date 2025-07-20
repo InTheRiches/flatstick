@@ -2,7 +2,7 @@ import useColors from "../../../../hooks/useColors";
 import {Dimensions, ScrollView, View} from "react-native";
 import React, {useMemo} from "react";
 import {MakeByBreakSlope, MakeByDistance} from "./graphs";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 import {roundTo} from "../../../../utils/roundTo";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";

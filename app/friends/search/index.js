@@ -1,20 +1,17 @@
-import {Pressable, ScrollView, TextInput, View} from "react-native";
+import {Platform, Pressable, ScrollView, TextInput, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../../components/general/FontText";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import useColors from "../../../hooks/useColors";
 import {useRouter} from "expo-router";
-import {useAppContext} from "../../../contexts/AppCtx";
 import {auth, getProfilesByDisplayName} from "../../../utils/firebase";
-import {
-    cancelFriendRequest,
-    getRequests,
-    rejectFriendRequest,
-    sendFriendRequest
-} from "../../../utils/friends/friendServices";
+import {cancelFriendRequest, getRequests, sendFriendRequest} from "../../../services/friendServices";
 import {CancelRequestModal} from "../../../components/friends/CancelRequestModal";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function SearchFriends({}) {
     const colors = useColors();
@@ -24,6 +21,11 @@ export default function SearchFriends({}) {
     const [displayName, setDisplayName] = useState("");
     const [friendRequests, setFriendRequests] = useState([]);
     const cancelRequestRef = React.useRef(null);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     useEffect(() => {
         getRequests(auth.currentUser.uid).then(setFriendRequests)
@@ -175,6 +177,9 @@ export default function SearchFriends({}) {
                         )
                     })}
                 </ScrollView>
+                <View style={{position: "absolute", bottom: 0}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
             </ScreenWrapper>
             <CancelRequestModal cancelRequestRef={cancelRequestRef} cancel={cancelRequest} />
         </BottomSheetModalProvider>

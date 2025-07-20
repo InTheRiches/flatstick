@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, View} from "react-native";
+import {Platform, Pressable, ScrollView, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../components/general/FontText";
 import React, {useRef} from "react";
@@ -6,12 +6,15 @@ import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import useColors from "../../hooks/useColors";
 import {useFocusEffect, useNavigation, useRouter} from "expo-router";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
-import {getFriends, removeFriend} from "../../utils/friends/friendServices";
+import {getFriends, removeFriend} from "../../services/friendServices";
 import {auth} from "../../utils/firebase";
 import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
 import {FriendRequestButton} from "../../components/friends/FriendRequestButton";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function Friends({}) {
     const colors = useColors();
@@ -20,6 +23,11 @@ export default function Friends({}) {
     const {userData} = useAppContext();
     const [loading, setLoading] = React.useState(true);
     const removeFriendRef = useRef(null);
+    const bannerRef = useRef(null);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
 
     const [friends, setFriends] = React.useState([]);
 
@@ -28,7 +36,6 @@ export default function Friends({}) {
     });
 
     const remove = (friendId) => {
-        console.log("Removing friend with ID:", friendId);
         removeFriend(auth.currentUser.uid, friendId);
         setFriends(friends.filter(friend => friend.id !== friendId));
         removeFriendRef.current.close();
@@ -37,7 +44,7 @@ export default function Friends({}) {
     return (
         <BottomSheetModalProvider>
             <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
-                <ScrollView keyboardShouldPersistTaps={'handled'} contentContainerStyle={{paddingHorizontal: 24}}>
+                <ScrollView keyboardShouldPersistTaps={'handled'} contentContainerStyle={{paddingHorizontal: 24, paddingBottom: 48}}>
                     <View style={{flexDirection: "row"}}>
                         <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 7, paddingHorizontal: 10}}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
@@ -121,6 +128,9 @@ export default function Friends({}) {
                         })}
                     </View>
                 </ScrollView>
+                <View style={{position: "absolute", bottom: 0}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
             </ScreenWrapper>
             <RemoveFriendModal remove={remove} removeFriendRef={removeFriendRef}/>
         </BottomSheetModalProvider>

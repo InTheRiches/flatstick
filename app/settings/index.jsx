@@ -2,7 +2,7 @@ import {Platform, Pressable, ScrollView, View} from 'react-native';
 
 import React, {useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
@@ -14,7 +14,7 @@ import {
 } from "../../components/tabs/settings/popups";
 import {useNavigation, useRouter} from "expo-router";
 import DangerButton from "../../components/general/buttons/DangerButton";
-import {useSession} from "../../contexts/AppCtx";
+import {useSession} from "../../contexts/AuthContext";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {auth} from "../../utils/firebase";
@@ -22,7 +22,6 @@ import {deleteUser} from "firebase/auth";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
-import {GestureDetector} from "react-native-gesture-handler";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
@@ -30,7 +29,7 @@ const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pu
 export default function HomeScreen() {
     const colors = useColors();
     const {userData, updateData} = useAppContext();
-    const {signOut} = useSession();
+    const {signOut, setSession} = useSession();
     const router = useRouter();
 
     const [unitsPressed, setUnitsPressed] = useState(false);
@@ -60,10 +59,22 @@ export default function HomeScreen() {
         deleteUser(currentUser).then(() => {
             // User deleted.
             console.log("User deleted");
+            setSession(null);
+            if (Platform.OS !== "ios") {
+                router.replace({pathname: "/login"});
+            }
         }).catch((error) => {
             // An error ocurred
             console.log(error);
         });
+    }
+
+    const signOutUser = async () => {
+        await signOut();
+        setSession(null);
+        if (Platform.OS !== "ios") {
+            router.replace({pathname: "/login"});
+        }
     }
 
     return (
@@ -159,7 +170,7 @@ export default function HomeScreen() {
                         </Pressable>
                         <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>ACCOUNT ACTIONS</FontText>
                         <View style={{flexDirection: "row", gap: 12}}>
-                            <PrimaryButton onPress={signOut} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
+                            <PrimaryButton onPress={signOutUser} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
                                 <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</FontText>
                             </PrimaryButton>
                             <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={() => {

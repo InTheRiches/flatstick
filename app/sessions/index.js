@@ -1,4 +1,3 @@
-import {useAppContext} from "../../contexts/AppCtx";
 import {FlatList, Pressable, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import {useLocalSearchParams, useNavigation} from "expo-router";
@@ -8,7 +7,6 @@ import {Session} from "../../components/sessions";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
-import {auth} from "../../utils/firebase";
 
 export default function Sessions({}) {
     // const {puttSessions} = useAppContext();

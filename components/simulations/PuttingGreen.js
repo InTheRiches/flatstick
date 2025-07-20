@@ -1,10 +1,10 @@
-import {Image, StyleSheet, Text, View} from "react-native";
+import {Image, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import React, {useState} from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 import FontText from "../general/FontText";
 
 export function PuttingGreen({

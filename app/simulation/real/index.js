@@ -15,7 +15,7 @@ import DangerButton from '@/components/general/buttons/DangerButton';
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
@@ -24,7 +24,6 @@ import {
     calculateDistanceMissedMeters,
     calculateStats,
     convertThetaToBreak,
-    getLargeMissPoint,
     loadPuttData,
     updatePuttsCopy
 } from '../../../utils/PuttUtils';

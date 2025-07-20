@@ -1,5 +1,5 @@
 import React, {useEffect, useImperativeHandle, useRef} from 'react';
-import {ScrollView, View} from 'react-native';
+import {Platform, ScrollView, View} from 'react-native';
 import ScreenWrapper from '../../components/general/ScreenWrapper';
 import {adaptFullRoundSession} from '../../utils/sessions/SessionUtils';
 import ProfileHeader from '../../components/user/ProfileHeader';
@@ -8,7 +8,7 @@ import StrokesGainedCard from '../../components/user/StrokesGainedCard';
 import SessionsSection from '../../components/user/SessionsSection';
 import StatsCard from "../../components/user/StatsCard";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {getUserSessionsByID, getUserStatsByID} from "../../utils/users/userServices";
+import {getUserSessionsByID, getUserStatsByID} from "../../services/userService";
 import {createSimpleStats} from "../../utils/PuttUtils";
 import {
     acceptFriendRequest,
@@ -16,18 +16,25 @@ import {
     getRequests,
     removeFriend,
     sendFriendRequest
-} from "../../utils/friends/friendServices";
+} from "../../services/friendServices";
 import {auth} from "../../utils/firebase";
 import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
 import {CancelRequestModal} from "../../components/friends/CancelRequestModal";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function UserScreen({}) {
     const {userDataString} = useLocalSearchParams();
     const router = useRouter();
 
     const friendData = JSON.parse(userDataString);
+    const bannerRef = useRef(null);
 
+    useForeground(() => {
+        bannerRef.current?.load();
+    })
     const [combinedSessions, setCombinedSessions] = React.useState([]);
     const [stats, setStats] = React.useState(createSimpleStats());
     const [isFriend, setIsFriend] = React.useState(friendData.friends.includes(auth.currentUser.uid));
@@ -110,6 +117,9 @@ export default function UserScreen({}) {
             <ScreenWrapper style={{ paddingHorizontal: 24 }}>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
                     <ProfileHeader userData={friendData} isSelf={false} />
+                    <View style={{marginBottom: 12}}>
+                        <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}  />
+                    </View>
                     <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12 }}>
                         <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
                         <StrokesGainedCard value={stats.strokesGained.overall} />
