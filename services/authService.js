@@ -38,8 +38,9 @@ export const createEmailAccount = async (email, password, firstName, lastName, s
     } finally {
         setLoading(false);
     }
-};
+}
 
+// TODO when you cancel a google sign in, it keeps the loading screen up
 export const googleSignIn = async () => {
     try {
         await GoogleSignin.hasPlayServices();
