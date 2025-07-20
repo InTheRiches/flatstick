@@ -1,17 +1,17 @@
 import {Pressable, ScrollView, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../components/general/FontText";
-import React, {useEffect, useRef} from "react";
+import React, {useRef} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import useColors from "../../hooks/useColors";
 import {useFocusEffect, useNavigation, useRouter} from "expo-router";
-import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useAppContext} from "../../contexts/AppCtx";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
-import {getFriends, removeFriend, sendFriendRequest} from "../../utils/friends/friendServices";
+import {getFriends, removeFriend} from "../../utils/friends/friendServices";
 import {auth} from "../../utils/firebase";
 import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
+import {FriendRequestButton} from "../../components/friends/FriendRequestButton";
 
 export default function Friends({}) {
     const colors = useColors();
@@ -28,14 +28,16 @@ export default function Friends({}) {
     });
 
     const remove = (friendId) => {
+        console.log("Removing friend with ID:", friendId);
         removeFriend(auth.currentUser.uid, friendId);
         setFriends(friends.filter(friend => friend.id !== friendId));
+        removeFriendRef.current.close();
     }
 
     return (
         <BottomSheetModalProvider>
-            <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingHorizontal: 24}}>
-                <ScrollView keyboardShouldPersistTaps={'handled'}>
+            <ScreenWrapper style={{borderBottomWidth: 1, borderBottomColor: colors.border.default}}>
+                <ScrollView keyboardShouldPersistTaps={'handled'} contentContainerStyle={{paddingHorizontal: 24}}>
                     <View style={{flexDirection: "row"}}>
                         <Pressable onPress={() => navigation.goBack()} style={{marginLeft: -10, marginTop: 7, paddingHorizontal: 10}}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
@@ -58,25 +60,7 @@ export default function Friends({}) {
                             </Pressable>
                         </View>
                     </View>
-                    <PrimaryButton style={{
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        borderRadius: 14,
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexDirection: "row"
-                    }} onPress={() => router.push("/friends/requests")}>
-                        <FontText key={"1"} style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16}}>FRIEND
-                            REQUESTS</FontText>
-                        <View key={"2"} style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.primary.text}}>
-                            <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24" strokeWidth={2}
-                                 stroke={colors.button.primary.background} className="size-6">
-                                <Path strokeLinecap="round" strokeLinejoin="round"
-                                      d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
-                            </Svg>
-                        </View>
-                    </PrimaryButton>
+                    <FriendRequestButton router={router} alert={userData.hasPendingFriendRequests}/>
                     <View style={{marginBottom: 20, marginTop: 20}}>
                         <FontText style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16, marginBottom: 14, width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 8}}>{friends.length} FRIEND{friends.length === 1 ? "" : "S"}</FontText>
                         { !loading && friends.length < 1 && (
@@ -124,7 +108,7 @@ export default function Friends({}) {
                                         borderRadius: 24,
                                         paddingHorizontal: 8
                                     }]} onPress={() => {
-                                        removeFriendRef.current.open()
+                                        removeFriendRef.current.open(friend.uid);
                                     }}>
                                         <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                              fill={colors.button.secondary.text} width={20} height={20}>

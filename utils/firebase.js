@@ -1,5 +1,5 @@
 // Optionally import the services that you want to use
-import {collection, doc, getDoc, getDocs, initializeFirestore, query, where} from "firebase/firestore";
+import {collection, getDocs, initializeFirestore, query, where} from "firebase/firestore";
 import {getApp, initializeApp} from "firebase/app";
 import {getAuth, getReactNativePersistence, initializeAuth} from 'firebase/auth';
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -24,6 +24,13 @@ const firestore = initializeFirestore(app, {
 const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
+
+// firebase emulators:start http://localhost:4000/
+// if (__DEV__) {
+//     console.log("Running in development mode, connecting to Firebase emulators");
+//     connectAuthEmulator(auth, 'http://192.168.1.56:9099');
+//     connectFirestoreEmulator(firestore, '192.168.1.56', 8080);
+// }
 
 // Recursively merge defaults into target without overwriting existing values.
 function deepMergeDefaults(target, defaults) {

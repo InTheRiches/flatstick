@@ -1,21 +1,19 @@
 import {Pressable, ScrollView, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../../components/general/FontText";
-import React, {useEffect, useRef} from "react";
+import React, {useRef} from "react";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import useColors from "../../../hooks/useColors";
 import {useFocusEffect, useNavigation, useRouter} from "expo-router";
-import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
 import {useAppContext} from "../../../contexts/AppCtx";
-import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import {
-    acceptFriendRequest, cancelFriendRequest,
+    acceptFriendRequest,
+    cancelFriendRequest,
     getRequests,
-    rejectFriendRequest,
-    sendFriendRequest
+    rejectFriendRequest
 } from "../../../utils/friends/friendServices";
-import {auth, getProfileById} from "../../../utils/firebase";
+import {auth} from "../../../utils/firebase";
 import {CancelRequestModal} from "../../../components/friends/CancelRequestModal";
 import {getUserDataByID} from "../../../utils/users/userServices";
 
@@ -23,6 +21,7 @@ export default function FriendRequests({}) {
     const colors = useColors();
     const navigation = useNavigation();
     const router = useRouter();
+    const {userData, updateData} = useAppContext();
 
     const [received, setReceived] = React.useState(true);
 
@@ -44,6 +43,11 @@ export default function FriendRequests({}) {
 
     useFocusEffect(() => {
         let isMounted = true;
+
+        if (userData.hasPendingFriendRequests) {
+            userData.hasPendingFriendRequests = false;
+            updateData(userData);
+        }
 
         getRequests(auth.currentUser.uid).then(async (res) => {
             if (!isMounted) return;

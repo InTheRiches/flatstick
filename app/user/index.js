@@ -1,15 +1,13 @@
 import React, {useEffect, useImperativeHandle, useRef} from 'react';
-import { ScrollView, View } from 'react-native';
+import {ScrollView, View} from 'react-native';
 import ScreenWrapper from '../../components/general/ScreenWrapper';
-import useColors from '../../hooks/useColors';
-import { useAppContext } from '../../contexts/AppCtx';
-import { adaptFullRoundSession } from '../../utils/sessions/SessionUtils';
+import {adaptFullRoundSession} from '../../utils/sessions/SessionUtils';
 import ProfileHeader from '../../components/user/ProfileHeader';
 import FriendsCard from '../../components/user/FriendsCard';
 import StrokesGainedCard from '../../components/user/StrokesGainedCard';
 import SessionsSection from '../../components/user/SessionsSection';
 import StatsCard from "../../components/user/StatsCard";
-import {useLocalSearchParams, useNavigation} from "expo-router";
+import {useLocalSearchParams, useRouter} from "expo-router";
 import {getUserSessionsByID, getUserStatsByID} from "../../utils/users/userServices";
 import {createSimpleStats} from "../../utils/PuttUtils";
 import {
@@ -22,18 +20,13 @@ import {
 import {auth} from "../../utils/firebase";
 import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
 import {CancelRequestModal} from "../../components/friends/CancelRequestModal";
-import {useImage} from "expo-image";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
-import Svg, {Path} from "react-native-svg";
 
 export default function UserScreen({}) {
-    const colors = useColors();
     const {userDataString} = useLocalSearchParams();
-    const navigation = useNavigation();
+    const router = useRouter();
 
     const friendData = JSON.parse(userDataString);
-
-    console.log("UserScreen: friendData:", friendData);
 
     const [combinedSessions, setCombinedSessions] = React.useState([]);
     const [stats, setStats] = React.useState(createSimpleStats());
@@ -56,7 +49,6 @@ export default function UserScreen({}) {
         if (!friendData.uid) return; // avoid double runs with invalid ID
 
         getUserSessionsByID(friendData.uid).then((newSessions) => {
-            console.log("Fetched sessions for user:", friendData.uid, newSessions);
             if (newSessions.sessions.length > 0 || newSessions.fullRoundSessions.length > 0)
                 setCombinedSessions([...newSessions.sessions, ...newSessions.fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp).map(adaptFullRoundSession))
             // todo maybe making a loading thingy here for the sessions?
@@ -94,12 +86,10 @@ export default function UserScreen({}) {
     const removeAsFriend = () => {
         removeFriendRef.current.close();
         // Implement remove friend functionality
-        console.log("Removing friend:", friendData.uid);
-        console.log("Current user ID:", auth.currentUser.uid);
         removeFriend(auth.currentUser.uid, friendData.uid)
         friendData.friends = friendData.friends.filter(friend => friend !== auth.currentUser.uid);
-        console.log("Updated friend list:", friendData.friends);
         setIsFriend(false);
+        setPending("none");
     }
 
     const removeRequest = () => {
@@ -107,14 +97,12 @@ export default function UserScreen({}) {
 
         cancelFriendRequest(auth.currentUser.uid, friendData.uid);
         setPending("none");
-        console.log("Friend request removed.");
     }
 
     const acceptRequest = () => {
         acceptFriendRequest(auth.currentUser.uid, friendData.uid)
         setIsFriend(true);
         setPending("none");
-        console.log("Friend request accepted.");
     }
 
     return (
@@ -129,11 +117,11 @@ export default function UserScreen({}) {
                     <SessionsSection sessions={combinedSessions} />
                     <StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />
                     <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} />
-                    <StatsCard title="COMPARE STATS" stats={[]} />
+                    <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>
                     <StatsCard title="ACHIEVEMENTS" stats={[]} />
                 </ScrollView>
                 <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 24}}>
-                    <SecondaryButton onPress={() => navigation.goBack()} title={"Back"}
+                    <SecondaryButton onPress={() => router.back()} title={"Back"}
                                      style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
                 </View>
             </ScreenWrapper>

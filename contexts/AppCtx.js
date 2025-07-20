@@ -4,8 +4,7 @@ import {
     GoogleAuthProvider,
     OAuthProvider,
     signInWithCredential,
-    signInWithEmailAndPassword,
-    updateProfile
+    signInWithEmailAndPassword
 } from "firebase/auth";
 import {
     collection,
@@ -14,20 +13,12 @@ import {
     getDoc,
     getDocs,
     getFirestore,
-    orderBy,
     query,
     runTransaction,
     setDoc
 } from "firebase/firestore";
 import {calculateTotalStrokesGained} from "@/utils/StrokesGainedUtils";
-import {
-    createSimpleRefinedStats,
-    createSimpleStats,
-    createSixMonthStats,
-    createThreeMonthStats,
-    createYearlyStats
-} from "@/utils/PuttUtils";
-import generatePushID from "@/components/general/utils/GeneratePushID";
+import {createSimpleRefinedStats, createSimpleStats, createYearlyStats} from "@/utils/PuttUtils";
 import {updateBestSession} from "@/utils/sessions/best";
 import {deepMergeDefaults, getAuth} from "@/utils/firebase";
 import {initializeGrips, initializePutters} from "@/utils/stats/statsHelpers";
@@ -81,6 +72,7 @@ const AppContext = createContext({
 const AuthContext = createContext({
     signIn: () => Promise.resolve(),
     signOut: () => Promise.resolve(),
+    createEmailAccount: () => Promise.resolve(),
     googleSignIn: () => {},
     appleSignIn: () => {},
     setSession: () => {},
@@ -100,6 +92,7 @@ const getDefaultData = (firstName, lastName) => ({
     strokesGained: 0,
     hasSeenRoundTutorial: false,
     hasSeenRealTutorial: false,
+    hasPendingFriendRequests: false,
     friends: [],
     preferences: {
         countMishits: true,
@@ -125,7 +118,7 @@ export function AppProvider({children}) {
     const [fullRoundSessions, setFullRoundSessions] = useState([]);
     const [currentStats, setCurrentStats] = useState({});
     const [yearlyStats, setYearlyStats] = useState({});
-    const [sixMonthStats, setSixMonthStats] = useState({});
+    const [sixMonthStats, setSixMonthStats] = useState({}); // TODO finish this stuff
     const [threeMonthStats, setThreeMonthStats] = useState({});
     const [session, setSession] = useState({});
     const [isLoading, setLoading] = useState(true);
@@ -173,6 +166,8 @@ export function AppProvider({children}) {
 
                 if (error.code === "auth/email-already-in-use")
                     setInvalidEmail(true);
+
+                console.error("Error creating email account:", error);
 
                 setLoading(false);
             });
@@ -514,8 +509,6 @@ export function AppProvider({children}) {
                 updateData(updatedUserData).catch((error) => {
                     console.error("Error updating user data:", error);
                 });
-
-                console.log("User data updated:", key, "from", newData[key], "to", updatedUserData[key]);
             }
             setUserData(updatedUserData);
         } catch (error) {
@@ -786,19 +779,19 @@ export function AppProvider({children}) {
         newSession,
         newFullRound,
         getPreviousStats,
-        createEmailAccount,
         deletePutter,
         deleteSession,
         newGrip,
         deleteGrip,
         calculateSpecificStats,
-    }), [userData, puttSessions, currentStats, yearlyStats, putters, getPreviousStats, previousStats, grips, nonPersistentData]);
+    }), [userData, puttSessions, currentStats, yearlyStats, putters, getPreviousStats, previousStats, grips, nonPersistentData, fullRoundSessions]);
 
     const authContextValue = useMemo(() => ({
         signIn,
         signOut,
         googleSignIn,
         appleSignIn,
+        createEmailAccount,
         setSession,
         setLoading,
         session,

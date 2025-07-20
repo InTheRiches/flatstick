@@ -3,9 +3,9 @@ import {Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
-import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import FontText from "../../general/FontText";
 import {Exclamation} from "../../../assets/svg/SvgComponents";
+import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
 export function MisreadModal({ misreadRef, setMisreadSlope, misreadSlope, setMisreadLine, misreadLine}) {
     const colors = useColors();
@@ -81,7 +81,7 @@ export function MisreadModal({ misreadRef, setMisreadSlope, misreadSlope, setMis
                             <FontText style={{color: misreadSlope ? colors.button.danger.text : colors.button.danger.disabled.text}}>Speed</FontText>
                         </Pressable>
                     </View>
-                    <PrimaryButton onPress={() => misreadRef.current.close()} title={"Close"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>
+                    <SecondaryButton onPress={() => misreadRef.current.close()} title={"Close"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></SecondaryButton>
                 </View>
             </View>
         </BottomSheetView>

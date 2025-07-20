@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
+import {Image, Pressable, Text, View} from 'react-native';
+import {Path, Svg} from 'react-native-svg';
 import useColors from '../../hooks/useColors';
-import { useRouter } from 'expo-router';
+import {useRouter} from 'expo-router';
 
 export default function ProfileHeader({ userData, isSelf }) {
     const colors = useColors();
@@ -11,7 +11,10 @@ export default function ProfileHeader({ userData, isSelf }) {
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={require('../../assets/images/icon.png')} style={{ width: 72, height: 72, borderRadius: 50 }} />
+                <View style={{borderRadius: 50, backgroundColor: "white", padding: 8}}>
+                    <Image source={require('../../assets/branding/FlatstickMallet.png')} style={{ width: 56, height: 56 }} />
+                </View>
+
                 <View style={{ marginLeft: 8 }}>
                     <Text style={{ fontSize: 24, fontWeight: 'bold' }}>{userData.displayName}</Text>
                     <Text style={{ fontSize: 14, color: colors.text.tertiary, fontWeight: '700', marginTop: -2 }}>

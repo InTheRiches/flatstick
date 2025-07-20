@@ -1,15 +1,15 @@
 import React from 'react';
-import { View } from 'react-native';
-import { PrimaryButton } from '../../components/general/buttons/PrimaryButton';
+import {View} from 'react-native';
+import {PrimaryButton} from '../../components/general/buttons/PrimaryButton';
 import FontText from '../../components/general/FontText';
-import { Svg, Path } from 'react-native-svg';
+import {Path, Svg} from 'react-native-svg';
 import useColors from '../../hooks/useColors';
 
-export default function StatsCard({ title, stats }) {
+export default function StatsCard({ title, stats, onPress = () => {} }) {
     const colors = useColors();
 
     return (
-        <PrimaryButton style={{ marginTop: 12, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, flexDirection: 'row' }}>
+        <PrimaryButton style={{ marginTop: 12, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, flexDirection: 'row' }} onPress={onPress}>
             <View style={{flexDirection: "column", flex: 1, alignItems: "center"}}>
                 <FontText style={{ fontSize: 16, alignSelf: "flex-start", textAlign: "left", fontWeight: 800, color: colors.button.primary.text }}>{title}</FontText>
                 {stats.length > 0  && (

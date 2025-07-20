@@ -40,6 +40,7 @@ import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
@@ -91,7 +92,7 @@ const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-ap
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-// TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
+// TODO add 9 or 18 holes, dont lock it down to 18
 export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
@@ -110,7 +111,7 @@ export default function RoundSimulation() {
     const router = useRouter();
 
     const {localHoles, difficulty, mode} = useLocalSearchParams();
-    const holes = parseInt(localHoles);
+    const holes = 2; //parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
@@ -456,12 +457,12 @@ export default function RoundSimulation() {
                             <FontText style={{color: colors.button.danger.text, marginLeft: 4}}>Miss > {userData.preferences.units === 0 ? "3ft" : "1m"}</FontText>
                         </View>}></DangerButton>
                         ) : (
-                        <PrimaryButton onPress={() => {
+                        <SecondaryButton onPress={() => {
                             bigMissRef.current.open();
-                        }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></PrimaryButton>
+                        }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></SecondaryButton>
                         )
                     }
-                    {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                    <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                     title={hole === holes ? "Submit" : "Next"}
                                     disabled={point.x === undefined && largeMiss.distance === -1}
                                     onPress={() => {
@@ -469,7 +470,7 @@ export default function RoundSimulation() {
 
                                         if (center) nextHole(1);
                                         else totalPuttsRef.current.present()
-                                    }}></PrimaryButton>}
+                                    }}></PrimaryButton>
                 </View>
             </ScreenWrapper>
             <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}

@@ -24,7 +24,7 @@ export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
     const [localLoading, setLocalLoading] = React.useState(true);
     const {setSession, isLoading} = useSession();
-    const {initialize} = useAppContext();
+    const {initialize, userData, updateData} = useAppContext();
     const router = useRouter();
     let [fontsLoaded] = useFonts({
         Inter_100Thin,
@@ -37,6 +37,8 @@ export default function RootInitializer({}) {
         Inter_800ExtraBold,
         Inter_900Black,
     });
+
+
 
     // Monitor authentication state changes
     useEffect(() => {
@@ -80,6 +82,11 @@ export default function RootInitializer({}) {
         const subscription = Notifications.addNotificationResponseReceivedListener(response => {
             const screen = response.notification.request.content.data.screen;
             if (screen) {
+                if (screen === "/friends/requests") {
+                    // we know that a request is sent, so now we have to update the userData object to show alerts in the right places
+                    userData.hasPendingFriendRequests = true;
+                    updateData(userData);
+                }
                 router.push({pathname: screen})
             }
         });

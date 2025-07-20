@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { BackHandler, Platform, ScrollView, View } from "react-native";
-import { useLocalSearchParams, useNavigation } from "expo-router";
-import { AdEventType, InterstitialAd, TestIds } from "react-native-google-mobile-ads";
-import useColors from "../../../hooks/useColors";
+import React, {useEffect, useRef, useState} from "react";
+import {BackHandler, Platform, ScrollView, View} from "react-native";
+import {useLocalSearchParams, useNavigation} from "expo-router";
+import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 import {getBestSession} from "../../../utils/sessions/best";
 import Loading from "../../../components/general/popups/Loading";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {Header} from "../../../components/tabs/home";
 import StrokesGainedSection from "../../../components/sessions/individual/new/StrokesGainedSection";
 import PerformanceSection from "../../../components/sessions/individual/new/PerformanceSection";
 import DistributionSection from "../../../components/sessions/individual/new/DistributionSection";
@@ -14,7 +12,7 @@ import BiasSection from "../../../components/sessions/individual/new/BiasSection
 import ActionButtons from "../../../components/sessions/individual/new/ActionButtons";
 import Modals from "../../../components/sessions/individual/new/Modals";
 import IndividualHeader from "../../../components/sessions/individual/new/IndividualHeader";
-import {getGripsByID, getPuttersByID, getUserDataByID} from "../../../utils/users/userServices";
+import {getUserDataByID} from "../../../utils/users/userServices";
 import {useAppContext} from "../../../contexts/AppCtx";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
@@ -93,6 +91,7 @@ export default function IndividualSession() {
                 </ScrollView>
                 <ActionButtons
                     session={session}
+                    isSelf={userId === undefined}
                     isRecap={isRecap}
                     setLoading={setLoading}
                     navigation={navigation}

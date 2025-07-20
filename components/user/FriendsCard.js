@@ -1,16 +1,22 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
+import {Pressable, View} from 'react-native';
+import {Path, Svg} from 'react-native-svg';
 import FontText from '../../components/general/FontText';
 import useColors from '../../hooks/useColors';
-import { useRouter } from 'expo-router';
+import {useRouter} from 'expo-router';
+import {Exclamation} from "../../assets/svg/SvgComponents";
 
-export default function FriendsCard({ pending, userScreenRef, friendCount, isFriend, isSelf }) {
+export default function FriendsCard({ pending, userScreenRef, friendCount, isFriend, isSelf = true, alert = false }) {
     const colors = useColors();
     const router = useRouter();
 
     return (
         <View style={{ flexDirection: 'row', flex: 1, backgroundColor: colors.button.primary.background, borderRadius: 12, borderWidth: 1, borderColor: colors.border.default }}>
+            {alert && (
+                <View style={{position: "absolute", zIndex: 100, right: -12, top: -12}}>
+                    <Exclamation width={32} height={32}></Exclamation>
+                </View>
+            )}
             {!isSelf && (
                 <Pressable style={({pressed}) => ({
                     alignItems: 'center',
