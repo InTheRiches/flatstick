@@ -22,10 +22,10 @@ import {deleteUser} from "firebase/auth";
 import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
+import {ConfirmSignOut} from "../../components/tabs/settings/popups/ConfirmSignOut";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
-// TODO add prompt for sign out button to confirm
 export default function HomeScreen() {
     const colors = useColors();
     const {userData, updateData} = useAppContext();
@@ -39,6 +39,7 @@ export default function HomeScreen() {
     const reauthenticateRef = React.useRef(null);
     const reauthenticateDeletionRef = React.useRef(null);
     const confirmDeleteRef = React.useRef(null);
+    const confirmSignOutRef = React.useRef(null);
     const bannerRef = useRef(null);
 
     const navigation = useNavigation();
@@ -170,7 +171,7 @@ export default function HomeScreen() {
                         </Pressable>
                         <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>ACCOUNT ACTIONS</FontText>
                         <View style={{flexDirection: "row", gap: 12}}>
-                            <PrimaryButton onPress={signOutUser} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
+                            <PrimaryButton onPress={() => confirmSignOutRef.current.present()} style={{flex: 1, paddingVertical: 10, borderRadius: 12}}>
                                 <FontText style={{color: colors.text.primary, fontSize: 16, fontWeight: 500}}>Sign Out</FontText>
                             </PrimaryButton>
                             <DangerButton style={{flex: 1, paddingVertical: 10, borderRadius: 12}} onPress={() => {
@@ -192,6 +193,7 @@ export default function HomeScreen() {
             <ReauthenticateForProfile reauthenticateRef={reauthenticateRef}/>
             <ReauthenticateForDeletion reauthenticateRef={reauthenticateDeletionRef} confirmDeleteRef={confirmDeleteRef}/>
             <ConfirmDelete onDelete={deleteAccount} cancel={() => confirmDeleteRef.current.dismiss()} confirmDeleteRef={confirmDeleteRef}/>
+            <ConfirmSignOut confirmSignOutRef={confirmSignOutRef} onSignOut={signOutUser} cancel={() => confirmSignOutRef.current.dismiss()}/>
         </BottomSheetModalProvider>
     );
 }

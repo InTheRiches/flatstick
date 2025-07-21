@@ -10,6 +10,7 @@ import ScreenWrapper from "../../components/general/ScreenWrapper";
 import FontText from "../../components/general/FontText";
 import {AppleButton} from "@invertase/react-native-apple-authentication";
 import {useSession} from "../../contexts/AuthContext";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 
 const initialState = {
     password: "",
@@ -73,7 +74,6 @@ export default function Login() {
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-            // TODO refreshStats() here
         }).catch(error => {
             setLoading(false);
             console.error("Apple Sign In Error:", error);
@@ -86,7 +86,6 @@ export default function Login() {
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-            // TODO refreshStats() here
         });
     }
 
@@ -230,14 +229,14 @@ export default function Login() {
                                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                                     and try again.</FontText>}
                         </View>
-                        <PrimaryButton title={"Login"} onPress={() => {
+                        <SecondaryButton title={"Login"} onPress={() => {
                             if (state.invalidEmail) return;
                             login();
                         }} style={{
                             paddingVertical: 10,
                             borderRadius: 10,
                             marginTop: 24,
-                        }} disabled={state.invalidEmail || state.email.length === 0 || state.password.length === 0}></PrimaryButton>
+                        }} disabled={state.invalidEmail || state.email.length === 0 || state.password.length === 0}></SecondaryButton>
 
                         <Pressable onPress={() => router.push({pathname: `/signup`})} style={({pressed}) => [{
                             marginTop: 32,

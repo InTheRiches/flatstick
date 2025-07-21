@@ -5,7 +5,7 @@ import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../../../components/general/FontText";
 import useColors from "../../../../hooks/useColors";
-import {NewFullRound} from "../../../../components/tabs/home/popups/NewFullRound";
+import {NewFullRound} from "../../../../components/simulations/full/popups/NewFullRound";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import {useFocusEffect} from "expo-router";
 
@@ -118,6 +118,7 @@ export default function GolfCourseSearchScreen() {
     // Request location
     useEffect(() => {
         (async () => {
+            // TODO fix this to use the real location
             // const {status} = await Location.requestForegroundPermissionsAsync();
             // if (status !== "granted") {
             //     Alert.alert("Permission denied", "Location permission is required.");
