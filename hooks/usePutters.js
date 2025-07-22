@@ -22,5 +22,5 @@ export const usePutters = () => {
         setPutters((prev) => prev.filter((putter) => putter.type !== type));
     };
 
-    return { putters, newPutter: addPutter, deletePutter: removePutter, initializePutters };
+    return { putters, setPutters, newPutter: addPutter, deletePutter: removePutter, initializePutters };
 };

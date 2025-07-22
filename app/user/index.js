@@ -125,10 +125,10 @@ export default function UserScreen({}) {
                         <StrokesGainedCard value={stats.strokesGained.overall} />
                     </View>
                     <SessionsSection sessions={combinedSessions} />
-                    <StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />
-                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} />
+                    {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
+                    {/*<StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} />*/}
                     <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>
-                    <StatsCard title="ACHIEVEMENTS" stats={[]} />
+                    {/*<StatsCard title="ACHIEVEMENTS" stats={[]} />*/}
                 </ScrollView>
                 <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 24}}>
                     <SecondaryButton onPress={() => router.back()} title={"Back"}

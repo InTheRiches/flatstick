@@ -16,7 +16,7 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
         <View style={{marginTop: 24, gap: 12, marginBottom: 18}}>
             <FontText style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>Record New Session</FontText>
             <PracticeMode
-                description={"Play a round of golf using a GPS rangefinder and score keeping, along with detailed putt tracking."}
+                description={"Play a round of golf using score keeping along with detailed putt tracking."}
                 name={"Full Round Tracking"}
                 time={"90-240 min"}
                 focus={"Realism"}

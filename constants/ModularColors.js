@@ -71,7 +71,7 @@ export const LightTheme = {
     invalid: {
       border: '#CE7070',
       focusedBorder: '#F86868',
-      text: '#FF3D3D',
+      text: '#e33434',
       background: '#F5D3D3',
     },
     focused: {

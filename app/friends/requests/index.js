@@ -132,7 +132,7 @@ export default function FriendRequests({}) {
                     </View>
                     <View style={{marginBottom: 20, marginTop: 20}}>
                         <View style={{marginBottom: 14, width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 8, flexDirection: "row", justifyContent: "space-between"}}>
-                            <FontText style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16}}>{received ? requests.receivedRequests.length : requests.sentRequests.length} FRIEND REQUEST{requests.receivedRequests.length === 1 ? "" : "S"}{received ? "" : " SENT"}</FontText>
+                            <FontText style={{color: colors.button.primary.text, fontWeight: 700, fontSize: 16}}>{received ? requests.receivedRequests.length : requests.sentRequests.length} FRIEND REQUEST{requests.receivedRequests.length === 1 ? "" : "S"}{received ? "" : " SENT"}</FontText>
                             <View style={{flexDirection: "row"}}>
                                 <Pressable onPress={() => setReceived(true)} style={{borderBottomWidth: received ? 1 : 0}}>
                                     <FontText style={{color: received ? colors.text.primary : colors.text.secondary, fontSize: 16, fontWeight: 700}}>Received</FontText>

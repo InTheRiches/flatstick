@@ -44,6 +44,8 @@ export default function Login() {
 
         setLoading(true);
 
+        console.log(state.email);
+
         signIn(state.email, state.password).then((token) => {
             setSession(token);
             router.push("/");
@@ -162,13 +164,13 @@ export default function Login() {
                                     style={{
                                         flex: 1,
                                         borderWidth: 1,
-                                        borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.border : colors.input.border,
+                                        borderColor: state.emailFocused ? state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.focusedBorder : colors.input.focused.border : state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.border : colors.input.border,
                                         borderRadius: 10,
                                         paddingVertical: 10,
                                         paddingHorizontal: 14,
                                         fontSize: 16,
-                                        color: state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.text : colors.input.text,
-                                        backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.background : state.emailFocused ? colors.input.focused.background : colors.input.background
+                                        color: state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.text : colors.input.text,
+                                        backgroundColor: state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.background : state.emailFocused ? colors.input.focused.background : colors.input.background
                                     }}
                                     onFocus={() => updateField("emailFocused", true)}
                                     value={state.email}
@@ -177,7 +179,7 @@ export default function Login() {
                                     onBlur={() => updateField("emailFocused", false)}
                                     onChangeText={(text) => validateEmail(text)}
                                 />
-                                {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password") && <View style={{
+                                {(state.invalidEmail || errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") && <View style={{
                                     position: "absolute",
                                     right: 12,
                                     top: 10,
@@ -187,7 +189,7 @@ export default function Login() {
                                     width: 24,
                                 }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                             </View>
-                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ?
+                            {errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password" ?
                                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                                     and try again.</FontText>
                                 : state.invalidEmail &&
@@ -199,13 +201,13 @@ export default function Login() {
                                     style={{
                                         flex: 1,
                                         borderWidth: 1,
-                                        borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.focusedBorder : colors.input.focused.border : errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.border : colors.input.border,
+                                        borderColor: state.passwordFocused ? errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.focusedBorder : colors.input.focused.border : errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.border : colors.input.border,
                                         borderRadius: 10,
                                         paddingVertical: 10,
                                         paddingHorizontal: 14,
                                         fontSize: 16,
-                                        color: errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.text : colors.input.text,
-                                        backgroundColor: errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" ? colors.input.invalid.background : state.passwordFocused ? colors.input.focused.background : colors.input.background
+                                        color: errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.text : colors.input.text,
+                                        backgroundColor: errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found" ? colors.input.invalid.background : state.passwordFocused ? colors.input.focused.background : colors.input.background
                                     }}
                                     onFocus={() => updateField("passwordFocused", true)}
                                     onBlur={() => updateField("passwordFocused", false)}
@@ -215,7 +217,7 @@ export default function Login() {
                                     placeholderTextColor={errorCode ? "#b65454" : colors.text.placeholder}
                                     onChangeText={(text) => updatePassword(text)}
                                 />
-                                {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" && <View style={{
+                                {(errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") && <View style={{
                                     position: "absolute",
                                     right: 12,
                                     top: 10,
@@ -225,7 +227,7 @@ export default function Login() {
                                     width: 24,
                                 }}><FontText style={{textAlign: "center", color: "white", fontSize: 16}}>!</FontText></View>}
                             </View>
-                            {errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" &&
+                            {(errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") &&
                                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please check your email and password
                                     and try again.</FontText>}
                         </View>
@@ -243,7 +245,9 @@ export default function Login() {
                             elevation: pressed ? 0 : 1,
                             borderRadius: 12,
                             backgroundColor: colors.background.secondary,
-                            paddingVertical: 10
+                            paddingVertical: 10,
+                            borderWidth: 1,
+                            borderColor: colors.button.primary.border
                         }]}>
                             <FontText style={{color: colors.text.primary, textAlign: "center"}}>Don't have an account? Click here to signup.</FontText>
                         </Pressable>

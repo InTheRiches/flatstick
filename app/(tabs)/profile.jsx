@@ -35,10 +35,10 @@ export default function ProfileScreen() {
                     <StrokesGainedCard value={currentStats.strokesGained.overall} />
                 </View>
                 <SessionsSection sessions={combinedSessions} isSelf={true}/>
-                <StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />
-                <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: currentStats.avgPuttsARound }, { label: 'AVG. MISS', value: `${currentStats.avgMiss}ft` }]} />
+                {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
+                <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: currentStats.avgPuttsARound }, { label: 'AVG. MISS', value: `${currentStats.avgMiss}ft` }]} />
                 <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "/(tabs)/compare"})} />
-                <StatsCard title="ACHIEVEMENTS" stats={[]} />
+                {/*<StatsCard title="ACHIEVEMENTS" stats={[]} />*/}
             </ScrollView>
         </ScreenWrapper>
     );

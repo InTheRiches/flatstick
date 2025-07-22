@@ -61,7 +61,7 @@ export const useStats = (userData, puttSessions, fullRoundSessions) => {
         sixMonthStats,
         threeMonthStats,
         previousStats,
-        updateStats: refreshStats,
+        refreshStats,
         fetchAllStats,
         initializeStats,
         updateYearStats,
