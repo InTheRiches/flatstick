@@ -7,9 +7,8 @@ import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
 import SGOverTime from "./graphs/SGOverTime";
 
-export const StrokesGainedTab = ({statsToUse}) => {
+export const StrokesGainedTab = ({statsToUse, showDifference = false, yearlyStats, previousStats}) => {
     const colors = useColors();
-    const {currentStats, yearlyStats, previousStats} = useAppContext();
     const {width} = Dimensions.get("screen")
     const [graph, setGraph] = React.useState(0);
 
@@ -30,7 +29,7 @@ export const StrokesGainedTab = ({statsToUse}) => {
 
     let difference = 0;
 
-    if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
+    if (previousStats !== undefined && previousStats.length > 0 && showDifference)
         difference = statsToUse.strokesGained.overall - previousStats[previousStats.length-1].strokesGained.overall;
 
     const sgByDistance = useMemo(() => {

@@ -67,6 +67,8 @@ export default function RootLayout() {
                     <Stack.Screen name={"sessions/individual/full/index"}/>
                     <Stack.Screen name="+not-found"/>
                     <Stack.Screen name={"editputters/index"}/>
+                    <Stack.Screen name={"user/stats/index"}/>
+                    <Stack.Screen name={"achievements/index"}/>
                     <Stack.Screen name={"editgrips/index"}/>
                     <Stack.Screen name={"sessions/index"}/>
                     <Stack.Screen name={"sessions/individual/index"}/>

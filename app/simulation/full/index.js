@@ -369,21 +369,9 @@ export default function FullRound() {
     };
 
     const submit = () => {
-        const timeElapsed = new Date().getTime() - holeStartTime;
+        saveHole();
 
-        const updatedRoundData = [...roundData];
-        updatedRoundData[hole - 1] = {
-            ...updatedRoundData[hole - 1],
-            score: holeScore,
-            putts,
-            approachAccuracy,
-            fairwayAccuracy,
-            penalties,
-            timeElapsed,
-            puttData
-        };
-
-        const {totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(roundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
         const { name, par, rating, slope, yards } = tee;
         const data = {
             id: generatePushID(),
@@ -398,6 +386,10 @@ export default function FullRound() {
             putter: putters[userData.preferences.selectedPutter].type,
             grip: grips[userData.preferences.selectedGrip].type,
             holes: trimmedHoles,
+            score: totalStrokes,
+            birdies,
+            eagles,
+            pars,
             puttStats: {
                 totalPutts: totalPutts,
                 avgMiss: avgMiss,

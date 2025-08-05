@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import {View} from 'react-native';
 import {SvgArrow} from "../../../assets/svg/SvgComponents";
 
 // Define mappings for horizontal break and slope

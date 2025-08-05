@@ -62,8 +62,6 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
         (session.type === "round-simulation" || session.type === "real-simulation" || session.type === "full-round") &&
         session.holes > 3;
 
-    console.log("averaging: " + averaging);
-
     const filteringHoles = session.filteredHoles !== undefined ? session.filteredHoles : session.holes;
     if (averaging) {
         newStats.rounds++;

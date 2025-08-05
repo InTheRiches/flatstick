@@ -4,7 +4,6 @@ import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
-import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {useAppContext} from "@/contexts/AppContext";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet} from 'react-native';
 import FontText from "../general/FontText";
 
 const ElapsedTimeClock = ({ startTime, styles }) => {

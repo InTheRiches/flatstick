@@ -5,6 +5,8 @@ import {useSessions} from '@/hooks/useSessions';
 import {useStats} from '@/hooks/useStats';
 import {usePutters} from '@/hooks/usePutters';
 import {useGrips} from '@/hooks/useGrips';
+import data from "@/assets/achievements.json";
+import {useAchievements} from "@/services/achievementService";
 
 const AppContext = createContext({
     userData: {},
@@ -32,6 +34,7 @@ const AppContext = createContext({
     newFullRound: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
     deleteSession: () => Promise.resolve(),
+    checkAchievements: () => {},
     deletePutter: () => {},
     newGrip: () => Promise.resolve(),
     deleteGrip: () => {},
@@ -46,6 +49,10 @@ export function AppContextProvider({ children }) {
     });
 
     const { userData, setUserData, updateData, initialize: initializeUser } = useUser();
+    const { checkAchievements } = useAchievements({
+        userData,
+        updateData
+    });
     const { puttSessions, fullRoundSessions, refreshData, newSession, newFullRound, deleteSession } = useSessions();
     const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, refreshStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
@@ -62,12 +69,19 @@ export function AppContextProvider({ children }) {
         await initializePutters(currentStats);
         await initializeGrips(currentStats);
         await refreshData();
+
         console.log('AppContext initialized');
         setIsLoading(false);
     };
 
     const updateStats = async () => {
         await refreshStats(putters, grips, setPutters, setGrips);
+    }
+
+    // this is required so that the achievements get processed
+    const processFullRound = async (session) => {
+        checkAchievements(session);
+        await newFullRound(session);
     }
 
     const appContextValue = useMemo(
@@ -94,8 +108,9 @@ export function AppContextProvider({ children }) {
             getAllStats,
             newPutter,
             newSession,
-            newFullRound,
+            newFullRound: processFullRound,
             getPreviousStats,
+            checkAchievements,
             deletePutter,
             deleteSession,
             newGrip,

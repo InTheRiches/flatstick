@@ -154,6 +154,10 @@ const calculateFullRoundStats = (roundData, width, height) => {
     let puttCounts = [0, 0, 0]
     let totalDistance = 0;
 
+    let eagles = 0;
+    let birdies = 0;
+    let pars = 0;
+
     let farLeft = 0
     let left = 0;
     let center = 0;
@@ -168,13 +172,19 @@ const calculateFullRoundStats = (roundData, width, height) => {
     let percentShort = 0;
 
     roundData.forEach((hole, index) => {
+        if (hole.score - hole.par <= -2) eagles++;
+        if (hole.score - hole.par === -1) birdies++;
+        if (hole.score - hole.par === 0) pars++;
+
+        trimmedHoles.push({...hole});
+
         if (hole.puttData === undefined) return;
         const putt = hole.puttData;
 
         if (putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))
             return;
 
-        // what is this?
+        // what is this? I think it is for big misses
         if (putt.distance === 0) {
             trimmedHoles.push({
                 ...hole,
@@ -300,14 +310,16 @@ const calculateFullRoundStats = (roundData, width, height) => {
     });
 
     avgMiss = roundTo(avgMiss, 1);
-    madePercent /= holes;
+    if (holes > 0) {
+        madePercent /= holes;
 
-    leftRightBias /= holes;
-    shortPastBias /= holes;
-    percentHigh /= holes;
-    percentShort /= holes;
+        leftRightBias /= holes;
+        shortPastBias /= holes;
+        percentHigh /= holes;
+        percentShort /= holes;
+    }
 
-    return { totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
+    return { totalPutts, pars, birdies, eagles, avgMiss, madePercent, trimmedHoles, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
 }
 
 const calculateStats = (puttsCopy, width, height) => {

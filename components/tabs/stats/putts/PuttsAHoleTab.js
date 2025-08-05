@@ -5,19 +5,19 @@ import {PuttsByBreakSlope, PuttsByDistance} from "./graphs";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
 import {useAppContext} from "../../../../contexts/AppContext";
+import {stat} from "react-native-fs";
 
-export const PuttsAHoleTab = ({statsToUse}) => {
+export const PuttsAHoleTab = ({statsToUse, showDifference = false, previousStats}) => {
     const colors = useColors();
     const colorScheme = "light";
     const [byDistance, setByDistance] = React.useState(true);
 
     const {width} = Dimensions.get("screen");
-    const {currentStats, previousStats} = useAppContext();
 
     let difference = 0;
 
-    if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
-        difference = (currentStats.puttsAHole.puttsAHole - previousStats[0].puttsAHole.puttsAHole).toFixed(1);
+    if (previousStats !== undefined && previousStats.length > 0 && showDifference)
+        difference = (statsToUse.puttsAHole.puttsAHole - previousStats[0].puttsAHole.puttsAHole).toFixed(1);
 
     const puttsByDistance = (
         <>
@@ -65,7 +65,7 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts per Hole</FontText>
                         <View style={{flexDirection: "row"}}>
                             <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.puttsAHole.puttsAHole}</FontText>
-                            { previousStats !== undefined && previousStats.length > 0 && difference != 0 &&
+                            { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
                                 <View style={{marginLeft: 4, backgroundColor: difference < 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                                     <FontText style={{color: difference < 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+${difference}` : `${difference}`}</FontText>
                                 </View>
@@ -82,7 +82,7 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                         paddingLeft: 12
                     }}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misread</FontText>
-                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMisread}</FontText>
+                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMisread === 0 ? "?" : statsToUse.puttsAHole.puttsAHoleWhenMisread}</FontText>
                     </View>
                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Mishit</FontText>

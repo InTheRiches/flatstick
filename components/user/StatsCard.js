@@ -16,8 +16,8 @@ export default function StatsCard({ title, stats, onPress = () => {} }) {
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
                         {stats.map(({ label, value }, index) => (
                             <View key={index} style={{ flex: 1 }}>
-                                <FontText style={{ fontSize: 13, fontWeight: 700, color: colors.text.tertiary }}>{label}</FontText>
-                                <FontText style={{ fontSize: 20, fontWeight: 700 }}>{value}</FontText>
+                                <FontText style={{ fontSize: 13, fontWeight: 600, color: colors.text.tertiary }}>{label}</FontText>
+                                <FontText style={{ fontSize: 20, fontWeight: 600 }}>{value}</FontText>
                             </View>
                         ))}
                     </View>

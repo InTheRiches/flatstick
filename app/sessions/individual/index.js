@@ -20,6 +20,7 @@ const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
     : "ca-app-pub-2701716227191721/8364755969";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
+// TODO fix the metric background, and adjust the distances for the distribution. I think 0.5 meters is not big enough. Maybe jump to 1?
 export default function IndividualSession() {
     const navigation = useNavigation();
     const { jsonSession, recap, userId } = useLocalSearchParams();
@@ -39,6 +40,8 @@ export default function IndividualSession() {
             setLoading(false); // Set loading to false when both are loaded
         });
     }, []);
+
+    console.log(userId);
 
     const isRecap = recap === "true";
 

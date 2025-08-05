@@ -3,7 +3,6 @@ import React, {useRef, useState} from "react";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
-import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import ResetPassword from "../../components/signin/ResetPassword";
 import ScreenWrapper from "../../components/general/ScreenWrapper";

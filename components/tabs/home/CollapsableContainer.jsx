@@ -1,11 +1,6 @@
 import React, {useState} from "react";
-import {LayoutChangeEvent, View, Text} from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import {View} from "react-native";
+import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "react-native-reanimated";
 
 export const CollapsableContainer = ({children, expanded}) => {
   const [height, setHeight] = useState(0);

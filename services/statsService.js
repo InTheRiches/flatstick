@@ -24,8 +24,9 @@ export const getAllStats = async (uid, yearlyStats) => {
 
     let newYearlyStats = JSON.parse(JSON.stringify(yearlyStats || {}));
 
+    // this is because yearly stats don't update often, so we just assume that we don't have to update it
     if (Object.keys(yearlyStats).length === 0) {
-        const yearlyDocument = await getDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getFullYear()}`));
+        const yearlyDocument = await getDoc(doc(firestore, `users/${uid}/stats/${new Date().getFullYear()}`));
         if (!yearlyDocument.exists()) {
             await updateFirebaseYearlyStats(createYearlyStats());
             return {currentStats: updatedStats, yearlyStats: newYearlyStats};
@@ -52,7 +53,7 @@ export const updateStats = async (uid, userData, puttSessions, fullRoundSessions
     const strokesGained = calculateTotalStrokesGained(userData, puttSessions, fullRoundSessions);
     const newPutters = initializeBlankPutters(putters);
     const newGrips = initializeBlankGrips(grips);
-    const sessions = [...puttSessions, ...fullRoundSessions.map(adaptFullRoundSession)];
+    const sessions = [...puttSessions, ...fullRoundSessions.filter(session => session.puttStats.totalPutts > 0).map(adaptFullRoundSession)];
 
     sessions.forEach((session) => processSession(session, newStats, newYearlyStats, newPutters, newGrips, userData));
 

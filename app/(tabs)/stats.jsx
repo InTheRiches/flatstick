@@ -14,13 +14,14 @@ import ScreenWrapper from "../../components/general/ScreenWrapper";
 import Loading from "../../components/general/popups/Loading";
 import FontText from "../../components/general/FontText";
 import MissBiasTab from "../../components/tabs/stats/missbias/MissBiasTab";
+import {fetchGrips} from "../../services/gripService";
 
 export default function Stats({}) {
     const colors = useColors();
     const router = useRouter();
     const navigation = useNavigation()
 
-    const {currentStats, puttSessions, putters, grips, nonPersistentData, calculateSpecificStats} = useAppContext();
+    const {currentStats, puttSessions, previousStats, fullRoundSessions, yearlyStats, putters, grips, nonPersistentData, userData, calculateSpecificStats} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     const [tab, setTab] = useState(0);
@@ -49,7 +50,7 @@ export default function Stats({}) {
             id: 1,
             title: "Overview",
             content: useMemo(() => {
-                return <OverviewTab statsToUse={statsToUse}/>
+                return <OverviewTab statsToUse={statsToUse} previousStats={previousStats} fullRoundSessions={fullRoundSessions} puttSessions={puttSessions} userData={userData}/>
                 // KEEP CURRENT STATS IN THE DEPS, OR ELSE WHEN UNITS CHANGE IT WILL NOT UPDATE
             }, [statsToUse, currentStats])
         },
@@ -57,22 +58,22 @@ export default function Stats({}) {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
-                return <StrokesGainedTab statsToUse={statsToUse}/>
+                return <StrokesGainedTab statsToUse={statsToUse} previousStats={previousStats} showDifference={currentStats === statsToUse} yearlyStats={yearlyStats}/>
             }, [statsToUse, currentStats])
         },
         {
             id: 3,
             title: "Putts / Hole",
             content: useMemo(() => {
-                return <PuttsAHoleTab statsToUse={statsToUse}/>
+                return <PuttsAHoleTab statsToUse={statsToUse} previousStats={previousStats} showDifference={currentStats === statsToUse}/>
             }, [statsToUse, currentStats])
         },
         {
             id: 4,
             title: "Made Putts",
             content: useMemo(() => {
-                return <MadePuttsTab statsToUse={statsToUse}/>
-            }, [statsToUse, currentStats])
+                return <MadePuttsTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true}/>
+            }, [statsToUse, previousStats])
         },
         {
             id: 5,
@@ -85,7 +86,7 @@ export default function Stats({}) {
             id: 6,
             title: "Miss Bias",
             content: useMemo(() => {
-                return <MissBiasTab statsToUse={statsToUse}/>
+                return <MissBiasTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true} userData={userData}/>
             }, [statsToUse, currentStats])
         }
     ]

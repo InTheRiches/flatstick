@@ -4,7 +4,6 @@ import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
-import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
 import {useSession} from "../../contexts/AuthContext";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";

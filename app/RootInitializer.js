@@ -16,7 +16,6 @@ import {
     Inter_900Black,
     useFonts,
 } from '@expo-google-fonts/inter';
-import {Platform} from "react-native";
 import BootSplash from "react-native-bootsplash";
 import * as Notifications from "expo-notifications";
 import {useAppContext} from "@/contexts/AppContext";

@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { collection, doc, setDoc } from "firebase/firestore";
+import {doc, setDoc} from "firebase/firestore";
 import {firestore} from "../firebase";
 import {Platform} from "react-native";
 

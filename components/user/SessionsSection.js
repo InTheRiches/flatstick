@@ -1,9 +1,9 @@
 import React from 'react';
-import { View } from 'react-native';
+import {View} from 'react-native';
 import FontText from '../../components/general/FontText';
-import { SecondaryButton } from '../../components/general/buttons/SecondaryButton';
-import { Svg, Path } from 'react-native-svg';
-import { useRouter } from 'expo-router';
+import {SecondaryButton} from '../../components/general/buttons/SecondaryButton';
+import {Path, Svg} from 'react-native-svg';
+import {useRouter} from 'expo-router';
 import {RecentSession} from "../tabs/stats/overview";
 import useColors from "../../hooks/useColors";
 
@@ -12,8 +12,8 @@ export default function SessionsSection({ sessions, userId = "" }) {
     const colors = useColors();
 
     return (
-        <View style={{ marginBottom: 20 }}>
-            <FontText style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>RECENT SESSIONS</FontText>
+        <View style={{ marginBottom: 12 }}>
+            <FontText style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>RECENT SESSIONS</FontText>
             <View style={{ gap: 12 }}>
                 {sessions.slice(0, 3).map((session, i) => (
                     <RecentSession key={`session-${i}`} recentSession={session} />

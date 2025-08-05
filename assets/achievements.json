@@ -1,0 +1,110 @@
+[
+  {
+    "id": "break_90",
+    "category": "scoring",
+    "type": "milestone",
+    "criteria": [
+      {
+        "metric": "score",
+        "operator": "<",
+        "value": 90
+      },
+      {
+        "metric": "holes",
+        "operator": "==",
+        "value": 18
+      },
+      {
+        "metric": "type",
+        "operator": "==",
+        "value": "full-round"
+      }
+    ],
+    "title": "Break 90",
+    "description": "Shoot a round under 90"
+  },
+  {
+    "id": "break_80",
+    "category": "scoring",
+    "type": "milestone",
+    "criteria": [
+      {
+        "metric": "score",
+        "operator": "<",
+        "value": 80
+      },
+      {
+        "metric": "holes",
+        "operator": "==",
+        "value": 18
+      },
+      {
+        "metric": "type",
+        "operator": "==",
+        "value": "full-round"
+      }
+    ],
+    "title": "Break 80",
+    "description": "Shoot a round under 80"
+  },
+  {
+    "id": "break_70",
+    "category": "scoring",
+    "type": "milestone",
+    "criteria": [
+      {
+        "metric": "score",
+        "operator": "<",
+        "value": 70
+      },
+      {
+        "metric": "holes",
+        "operator": "==",
+        "value": 18
+      },
+      {
+        "metric": "type",
+        "operator": "==",
+        "value": "full-round"
+      }
+    ],
+    "title": "Break 70",
+    "description": "Shoot a round under 70"
+  },
+  {
+    "id": "first_birdie",
+    "category": "under-par",
+    "type": "milestone",
+    "criteria": {
+      "metric": "birdies",
+      "operator": ">",
+      "value": 0
+    },
+    "title": "First Birdie!",
+    "description": "Track your first birdie!"
+  },
+  {
+    "id": "five_birdies",
+    "category": "under-par",
+    "type": "milestone",
+    "criteria": {
+      "metric": "birdies",
+      "operator": ">",
+      "value": 5
+    },
+    "title": "Five Birdies",
+    "description": "Track five birdies!"
+  },
+  {
+    "id": "twenty_five_birdies",
+    "category": "under-par",
+    "type": "milestone",
+    "criteria": {
+      "metric": "birdies",
+      "operator": ">",
+      "value": 25
+    },
+    "title": "25 Birdies",
+    "description": "Track 25 birdies!"
+  }
+]

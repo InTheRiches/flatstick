@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Animated, Dimensions, Platform, View, Image, StyleSheet} from "react-native";
+import {Animated, Dimensions, Platform, StyleSheet} from "react-native";
 
 // Config
 const useNativeDriver = Platform.OS !== "web";

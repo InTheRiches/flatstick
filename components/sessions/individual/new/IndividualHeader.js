@@ -1,7 +1,7 @@
 import React from "react";
-import { Pressable, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import { useNavigation } from "expo-router";
+import {Pressable, View} from "react-native";
+import Svg, {Path} from "react-native-svg";
+import {useNavigation} from "expo-router";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 
