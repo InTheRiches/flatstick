@@ -4,12 +4,12 @@ import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
-import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {useAppContext} from "@/contexts/AppContext";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import FontText from "../../../general/FontText";
 import DropDownPicker from "react-native-dropdown-picker";
+import {createNullTees} from "../../../../utils/simulations/FullUtils";
 
 export function NewFullRound({newFullRoundRef, fullData}) {
     const colors = useColors();
@@ -42,7 +42,7 @@ export function NewFullRound({newFullRoundRef, fullData}) {
     }, [fullData]);
 
     useEffect(() => {
-        if (Object.keys(course).length !== 0) {
+        if (Object.keys(course).length !== 0 && course.tees && course.tees["male"]) {
             setTeeItems(
                 course.tees["male"].map((tee) => ({
                     label: `${tee.name} - ${tee.yards} yds`,
@@ -70,6 +70,7 @@ export function NewFullRound({newFullRoundRef, fullData}) {
     );
 
     const maleTees = (course && course.tees && course.tees["male"]) ? course.tees["male"] : [];
+    const hasTees = course && course.tees && Array.isArray(course.tees["male"]);
 
     // renders
     return (
@@ -343,7 +344,7 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                             </View>
                         </>
                     )}
-                    {maleTees && Object.keys(course).length !== 0 && (<View style={{ zIndex: 10, marginBottom: 12 }}>
+                    {maleTees && hasTees && Object.keys(course).length !== 0 && (<View style={{ zIndex: 10, marginBottom: 12 }}>
                         <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 4}}>Tee Box</FontText>
                         <DropDownPicker
                             open={teeOpen}
@@ -421,11 +422,11 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                             </Svg>
                         </SecondaryButton>
                     </Pressable>
-                    <PrimaryButton
+                    <SecondaryButton
                         title={"Start Session"}
-                        disabled={tee === ""}
+                        disabled={tee === "" && hasTees}
                         onPress={() => {
-                            if (tee === "") return;
+                            if (tee === "" && hasTees) return;
                             newFullRoundRef.current?.dismiss();
                             const fullCourse = {
                                 ...course,
@@ -434,14 +435,14 @@ export function NewFullRound({newFullRoundRef, fullData}) {
                             router.push({
                                 pathname: `/simulation/full`,
                                 params: {
-                                    stringHoles: maleTees[0].number_of_holes === 9 ? 9 : holes,
-                                    stringTee: JSON.stringify(tee),
-                                    stringFront: maleTees[0].number_of_holes === 9 ? true : front,
+                                    stringHoles: hasTees && maleTees[0].number_of_holes === 9 ? 9 : holes,
+                                    stringTee: hasTees ? JSON.stringify(tee) : JSON.stringify(createNullTees(hasTees && maleTees[0].number_of_holes === 9 ? 9 : holes)),
+                                    stringFront: hasTees && maleTees[0].number_of_holes === 9 ? true : front,
                                     stringCourse: JSON.stringify(fullCourse),
                                 },
                             });
                         }}
-                    ></PrimaryButton>
+                    ></SecondaryButton>
                 </View>
             </BottomSheetView>
         </BottomSheetModal>

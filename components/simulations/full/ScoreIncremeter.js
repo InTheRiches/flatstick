@@ -68,7 +68,7 @@ export default function ScoreIncrementer({adjustScore, holeScore, hole, tee}) {
                     }}
                 >
                     {/* Background indicators */}
-                    {(() => {
+                    { tee.holes[hole - 1].par !== 0 && (() => {
                         const par = tee.holes[hole - 1].par;
                         const diff = holeScore - par;
                         const absDiff = Math.abs(diff);

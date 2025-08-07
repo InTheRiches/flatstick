@@ -23,7 +23,7 @@ export const FriendRequestButton = ({router, alert = true}) => {
                     <Exclamation width={32} height={32}></Exclamation>
                 </View>
             )}
-            <FontText key={"1"} style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16}}>FRIEND
+            <FontText key={"1"} style={{color: colors.button.primary.text, fontWeight: 700, fontSize: 16}}>FRIEND
                 REQUESTS</FontText>
             <View style={{borderRadius: 30, padding: 6, backgroundColor: colors.button.primary.text}}>
                 <Svg width={20} height={20} xmlns="http://www.w3.org/2000/svg" fill="none"

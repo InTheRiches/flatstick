@@ -6,14 +6,13 @@ import FontText from "../../../general/FontText";
 import React from "react";
 import {roundTo} from "../../../../utils/roundTo";
 
-export default function MissBiasTab({statsToUse}) {
+export default function MissBiasTab({statsToUse, showDifference = false, previousStats, userData}) {
     const {width} = Dimensions.get("screen");
-    const {userData, currentStats, previousStats} = useAppContext();
     const colors = useColors();
 
     let difference = 0;
 
-    if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
+    if (previousStats !== undefined && previousStats.length > 0 && showDifference)
         difference = statsToUse.percentHigh - previousStats[previousStats.length-1].percentHigh;
 
     difference = difference * 100;

@@ -1,11 +1,11 @@
 import React from "react";
-import { View, ViewStyle } from "react-native";
-import { G, Rect, Svg, Text } from "react-native-svg";
+import {View, ViewStyle} from "react-native";
+import {G, Rect, Svg, Text} from "react-native-svg";
 
 import AbstractChart, {
-  AbstractChartConfig,
-  AbstractChartProps,
-  DEFAULT_X_LABELS_HEIGHT_PERCENTAGE
+    AbstractChartConfig,
+    AbstractChartProps,
+    DEFAULT_X_LABELS_HEIGHT_PERCENTAGE
 } from "./AbstractChart";
 
 export interface StackedBarChartData {

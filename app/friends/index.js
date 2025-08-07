@@ -69,7 +69,7 @@ export default function Friends({}) {
                     </View>
                     <FriendRequestButton router={router} alert={userData.hasPendingFriendRequests}/>
                     <View style={{marginBottom: 20, marginTop: 20}}>
-                        <FontText style={{color: colors.button.primary.text, fontWeight: 800, fontSize: 16, marginBottom: 14, width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 8}}>{friends.length} FRIEND{friends.length === 1 ? "" : "S"}</FontText>
+                        <FontText style={{color: colors.button.primary.text, fontWeight: 700, fontSize: 16, marginBottom: 14, width: "100%", borderBottomWidth: 1, borderColor: colors.border.default, paddingBottom: 8}}>{friends.length} FRIEND{friends.length === 1 ? "" : "S"}</FontText>
                         { !loading && friends.length < 1 && (
                             <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 12, borderWidth: 1, borderColor: colors.border.default}}>
                                 <FontText style={{width: "100%", textAlign: "center", color: colors.text.secondary, marginBottom: 16}}>Looking for your friends? Search for them, or invite them to Flatstick!</FontText>

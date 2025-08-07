@@ -1,6 +1,6 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
-import Svg, {Circle, Path, Rect} from "react-native-svg";
+import {Pressable, Text, View} from "react-native";
+import Svg, {Circle, Rect} from "react-native-svg";
 import useColors from "../../../hooks/useColors";
 import {DarkTheme} from "@/constants/ModularColors"; // or define a local colors object
 

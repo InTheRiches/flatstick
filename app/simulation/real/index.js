@@ -319,21 +319,23 @@ export default function RealSimulation() {
     return (loading ? <Loading/> :
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={{flex: 1}}>
-                <View style={{
-                    zIndex: 200,
-                    position: "absolute",
-                    width: "100%",
-                    top: 0,
-                    left: 0,
-                    height: "100%",
-                    flexDirection: "flow",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "black",
-                    opacity: transitioning ? 0.5  : 0
-                }}>
-                    <ActivityIndicator size="large"/>
-                </View>
+                {transitioning && (
+                    <View style={{
+                        zIndex: 200,
+                        position: "absolute",
+                        width: "100%",
+                        top: 0,
+                        left: 0,
+                        height: "100%",
+                        flexDirection: "flow",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "black",
+                        opacity: 0.5
+                    }}>
+                        <ActivityIndicator size="large"/>
+                    </View>
+                )}
                 <ScreenWrapper style={{
                     width: "100%",
                     flex: 1,

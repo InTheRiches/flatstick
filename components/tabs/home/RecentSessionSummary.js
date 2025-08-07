@@ -55,9 +55,8 @@ export function RecentSessionSummary({unfinished}) {
 }
 
 function getHoleSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
-
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})} style={{
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})} style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
                 paddingTop: 8,
@@ -100,35 +99,34 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Difficulty</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary, fontWeight: 600, fontSize: 13}}>DIFFICULTY</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 18,
-                        fontWeight: "bold"
+                        fontWeight: 600
                     }}>{recentSession.difficulty[0].toUpperCase() + recentSession.difficulty.slice(1)}</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Made</FontText>
-                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: "bold"}}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary, fontWeight: 600, fontSize: 13}}>MADE</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: 600}}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>SG</FontText>
+                    <FontText style={{textAlign: "left", fontSize: 13, fontWeight: 600, color: colors.text.tertiary}}>SG</FontText>
                     <FontText
                         style={{
                             textAlign: "left",
                             color: colors.text.primary,
-                            fontSize: 18,
-                            fontWeight: "bold"
+                            fontSize: 18, fontWeight: 600
                         }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary, fontWeight: 600, fontSize: 13}}>AVG MISS</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
                         fontSize: 18,
-                        fontWeight: "bold"
+                        fontWeight: 600
                     }}>{convertUnits(recentSession.avgMiss, recentSession.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
@@ -138,7 +136,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
 
 function getRealSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})}
+        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false}})}
             style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 16,
@@ -237,7 +235,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
 
 function getFullSimulation(userData, colors, colorScheme, date, recentSession, puttSessionsLength, unfinished, router) {
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual/full", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})}
+        <Pressable onPress={() => router.push({pathname: "sessions/individual/full", params: {jsonSession: JSON.stringify(recentSession), recap: false}})}
                    style={{
                        backgroundColor: colors.background.secondary,
                        paddingHorizontal: 16,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import {View} from 'react-native';
 import FontText from '../../general/FontText';
 import useColors from '../../../hooks/useColors';
 

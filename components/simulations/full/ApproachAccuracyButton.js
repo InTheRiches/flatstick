@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Svg, {Circle, G, Path} from 'react-native-svg';
-import ArrowComponent from "../../general/icons/ArrowComponent";
-import {SvgArrow} from "../../../assets/svg/SvgComponents";
 
 const ApproachAccuracyButton = ({ colors, onPress, activeButton, style }) => {
     const size = 180;

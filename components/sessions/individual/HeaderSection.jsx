@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import {Pressable, View} from 'react-native';
+import Svg, {Path} from 'react-native-svg';
 import FontText from '../../general/FontText';
 import useColors from '../../../hooks/useColors';
-import { useNavigation } from 'expo-router';
+import {useNavigation} from 'expo-router';
 
 export default function HeaderSection({ session, isRecap, onInfoPress }) {
     const colors = useColors();

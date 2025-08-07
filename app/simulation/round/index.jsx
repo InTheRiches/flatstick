@@ -111,7 +111,7 @@ export default function RoundSimulation() {
     const router = useRouter();
 
     const {localHoles, difficulty, mode} = useLocalSearchParams();
-    const holes = 2; //parseInt(localHoles);
+    const holes = parseInt(localHoles);
     const totalPuttsRef = useRef(null);
     const bigMissRef = useRef(null);
     const submitRef = useRef(null);
@@ -364,7 +364,7 @@ export default function RoundSimulation() {
                     justifyContent: "center",
                     alignItems: "center",
                     backgroundColor: "black",
-                    opacity: transitioning ? 0.5  : 0
+                    opacity: 0.5
                 }}>
                     <ActivityIndicator size="large"/>
                 </View>

@@ -1,6 +1,6 @@
-import { useEffect, useCallback, useReducer } from 'react';
+import {useCallback, useEffect, useReducer} from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import {Platform} from 'react-native';
 
 function useAsyncState(initialValue = [true, null]) {
   return useReducer(

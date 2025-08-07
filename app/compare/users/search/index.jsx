@@ -1,7 +1,7 @@
 import {Platform, Pressable, ScrollView, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../../hooks/useColors";
-import {auth, getProfilesByDisplayName, getProfilesByUsername} from "../../../../utils/firebase";
+import {auth, getProfilesByDisplayName} from "../../../../utils/firebase";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
@@ -71,6 +71,7 @@ export default function SearchUsers({}) {
                 <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
                         const date = new Date(profile.date);
+
                         return (
                             <Pressable key={"user-" + index} style={({pressed}) => [{
                                 padding: 8,
@@ -81,7 +82,7 @@ export default function SearchUsers({}) {
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 gap: 12
-                            }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.id, jsonProfile: JSON.stringify(profile)}})}>
+                            }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.uid, jsonProfile: JSON.stringify(profile)}})}>
                                 <View style={{flexDirection: "row", flex: 1}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
                                         <Path fillRule="evenodd"

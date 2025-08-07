@@ -22,6 +22,8 @@ import {RemoveFriendModal} from "../../components/friends/RemoveFriendModal";
 import {CancelRequestModal} from "../../components/friends/CancelRequestModal";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import StrokesGainedModal from "../../components/user/StrokesGainedModal";
+import {getAllStats} from "../../services/statsService";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -31,13 +33,16 @@ export default function UserScreen({}) {
 
     const friendData = JSON.parse(userDataString);
     const bannerRef = useRef(null);
+    const strokesGainedRef = useRef(null);
 
     useForeground(() => {
         bannerRef.current?.load();
     })
     const [combinedSessions, setCombinedSessions] = React.useState([]);
+    const [yearlyStats, setYearlyStats] = React.useState({});
     const [stats, setStats] = React.useState(createSimpleStats());
     const [isFriend, setIsFriend] = React.useState(friendData.friends.includes(auth.currentUser.uid));
+    const [adLoaded, setAdLoaded] = React.useState(false);
     const [pending, setPending] = React.useState("none");
     const removeFriendRef = useRef(null);
     const cancelRequestRef = useRef(null);
@@ -63,9 +68,10 @@ export default function UserScreen({}) {
             console.error("Error fetching user sessions:", error);
         });
 
-        getUserStatsByID(friendData.uid).then(setStats).catch((error) => {
-            console.error("Error fetching user stats:", error);
-        });
+        getAllStats(friendData.uid, {}).then(stats => {
+            setStats(stats.currentStats);
+            setYearlyStats(stats.yearlyStats);
+        })
 
         getRequests(friendData.uid).then((requests) => {
             if (requests.receivedRequests.some(request => request.from === auth.currentUser.uid)) {
@@ -115,25 +121,40 @@ export default function UserScreen({}) {
     return (
         <>
             <ScreenWrapper style={{ paddingHorizontal: 24 }}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 150 }}>
                     <ProfileHeader userData={friendData} isSelf={false} />
-                    <View style={{marginBottom: 12}}>
-                        <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}  />
-                    </View>
-                    <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12 }}>
+                    <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12}}>
                         <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
-                        <StrokesGainedCard value={stats.strokesGained.overall} />
+                        <StrokesGainedCard strokesGainedRef={strokesGainedRef} yearlyStats={yearlyStats} value={stats.strokesGained.overall} />
                     </View>
                     <SessionsSection sessions={combinedSessions} />
-                    <StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />
-                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} />
+                    {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
+                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
                     <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>
-                    <StatsCard title="ACHIEVEMENTS" stats={[]} />
+                    {/*<StatsCard title="ACHIEVEMENTS" stats={[]} />*/}
                 </ScrollView>
+                <View style={{
+                    position: 'absolute',
+                    bottom: 72,
+                    left: 24,
+                    right: 0,
+                    width: "100%", // or '100%'
+                    zIndex: 9999,
+                    alignItems: 'center', // optional: center the ad if it’s not full width,
+                }}>
+                    <BannerAd
+                        ref={bannerRef}
+                        unitId={bannerAdId}
+                        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+                        onAdLoaded={() => setAdLoaded(true)}
+                        onAdClosed={() => setAdLoaded(false)}
+                    />
+                </View>
                 <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 24}}>
                     <SecondaryButton onPress={() => router.back()} title={"Back"}
                                      style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
                 </View>
+                <StrokesGainedModal yearlyStats={yearlyStats} strokesGainedRef={strokesGainedRef}/>
             </ScreenWrapper>
             <RemoveFriendModal removeFriendRef={removeFriendRef} remove={removeAsFriend}/>
             <CancelRequestModal cancelRequestRef={cancelRequestRef} cancel={removeRequest}/>

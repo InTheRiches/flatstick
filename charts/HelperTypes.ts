@@ -1,5 +1,5 @@
-import { TextStyle, ViewStyle } from "react-native";
-import { CircleProps, TextProps } from "react-native-svg";
+import {TextStyle, ViewStyle} from "react-native";
+import {CircleProps, TextProps} from "react-native-svg";
 
 export interface Dataset {
   /** The data corresponding to the x-axis label. */

@@ -59,7 +59,7 @@ export const updateCategoryStats = (putt, session, newStats, userData, newPutter
 
 const processSession = (session, newStats, yearlyStats, newPutters, newGrips, userData) => {
     const averaging = newStats.rounds < 5 &&
-        (session.type === "round-simulation" || session.type === "real-simulation") &&
+        (session.type === "round-simulation" || session.type === "real-simulation" || session.type === "full-round") &&
         session.holes > 3;
 
     const filteringHoles = session.filteredHoles !== undefined ? session.filteredHoles : session.holes;

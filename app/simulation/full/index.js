@@ -44,6 +44,7 @@ export default function FullRound() {
     const scorecardRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
+
     const holes = parseInt(stringHoles);
     const course = JSON.parse(stringCourse);
     const frontNine = stringFront === "true";
@@ -197,8 +198,8 @@ export default function FullRound() {
     }
 
     const updateTotalScores = (data) => {
-        const totalScore = data.reduce((acc, hole) => acc + hole.score, 0);
-        const totalPar = data.reduce((acc, hole) => acc + hole.par, 0);
+        const totalScore = data.reduce((acc, hole) => acc + (hole.score === 0 ? 4 : hole.score), 0);
+        const totalPar = data.reduce((acc, hole) => acc + (hole.par === 0 ? 4 : hole.par), 0);
         const netScore = data.reduce((acc, hole, index) => {
             if (hole.puttData === undefined && hole !== index+1) return acc;
             return acc + hole.score;
@@ -368,21 +369,9 @@ export default function FullRound() {
     };
 
     const submit = () => {
-        const timeElapsed = new Date().getTime() - holeStartTime;
+        saveHole();
 
-        const updatedRoundData = [...roundData];
-        updatedRoundData[hole - 1] = {
-            ...updatedRoundData[hole - 1],
-            score: holeScore,
-            putts,
-            approachAccuracy,
-            fairwayAccuracy,
-            penalties,
-            timeElapsed,
-            puttData
-        };
-
-        const {totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(roundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
         const { name, par, rating, slope, yards } = tee;
         const data = {
             id: generatePushID(),
@@ -397,6 +386,10 @@ export default function FullRound() {
             putter: putters[userData.preferences.selectedPutter].type,
             grip: grips[userData.preferences.selectedGrip].type,
             holes: trimmedHoles,
+            score: totalStrokes,
+            birdies,
+            eagles,
+            pars,
             puttStats: {
                 totalPutts: totalPutts,
                 avgMiss: avgMiss,
@@ -468,11 +461,11 @@ export default function FullRound() {
                             <FontText style={{fontSize: 18, fontWeight: 700, marginTop: 6}}>{hole === 1 ? "ST" : hole === 2 ? "ND" : hole === 3 ? "RD" : "TH"}</FontText>
                         </View>
                         <View style={{flexDirection: "row", gap: 10, alignItems: "center"}}>
-                            <FontText style={{fontSize: 16}}>Par {tee.holes[hole-1].par}</FontText>
+                            <FontText style={{fontSize: 16}}>Par {tee.holes[hole-1].par === 0 ? "?" : tee.holes[hole-1].par}</FontText>
                             <View style={{width: 4, height: 4, borderRadius: "50%", backgroundColor: "black"}}></View>
-                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].yardage} yds</FontText>
+                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].yardage === 0 ? "?" : tee.holes[hole-1].yardage} yds</FontText>
                             <View style={{width: 4, height: 4, borderRadius: "50%", backgroundColor: "black"}}></View>
-                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].handicap}</FontText>
+                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].handicap === 0 ? "?" : tee.holes[hole-1].handicap}</FontText>
                         </View>
                         <Pressable onPress={() => confirmExitRef.current.present()}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

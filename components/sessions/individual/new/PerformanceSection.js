@@ -1,9 +1,10 @@
 import React from "react";
-import { View } from "react-native";
+import {View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 import {convertUnits} from "../../../../utils/Conversions";
 import {roundTo} from "../../../../utils/roundTo";
+import ColumnStat from "../../../stats/performance/ColumnStat";
 
 export default function PerformanceSection({ session, numOfHoles, preferences }) {
     const colors = useColors();
@@ -33,27 +34,4 @@ export default function PerformanceSection({ session, numOfHoles, preferences })
             </View>
         </View>
     );
-
-    function ColumnStat({ label, value, percent, right }) {
-        return (
-            <View style={{
-                flexDirection: "column",
-                flex: 1,
-                borderRightWidth: right ? 0 : 1,
-                borderColor: colors.border.default,
-                padding: 6,
-                paddingLeft: 12
-            }}>
-                <FontText style={{ fontSize: 12, color: colors.text.secondary, opacity: 0.8, fontWeight: 700 }}>{label}</FontText>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                    <FontText style={{ fontSize: 20, color: colors.text.primary, fontWeight: "bold" }}>{value}</FontText>
-                    {percent !== undefined && (
-                        <FontText style={{ color: colors.text.secondary, fontWeight: 400, fontSize: 14 }}>
-                            ({roundTo(percent, 0)}%)
-                        </FontText>
-                    )}
-                </View>
-            </View>
-        );
-    }
 }

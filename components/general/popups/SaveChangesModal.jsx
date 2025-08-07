@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Pressable } from "react-native";
-import BottomSheet, {
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import React from "react";
+import {Pressable, Text, View} from "react-native";
+import BottomSheet, {BottomSheetView,} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
-import { useRouter } from "expo-router";
-import Svg, { Path } from "react-native-svg";
-import { PrimaryButton } from "@/components/general/buttons/PrimaryButton";
-import { SecondaryButton } from "../buttons/SecondaryButton";
+import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 
 const SaveChangesModal = ({ saveChangesRef, save, disabled }) => {
   const colors = useColors();

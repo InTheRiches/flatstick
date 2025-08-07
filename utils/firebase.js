@@ -1,7 +1,7 @@
 // Optionally import the services that you want to use
-import {collection, getDocs, initializeFirestore, query, where, connectFirestoreEmulator} from "firebase/firestore";
+import {collection, getDocs, initializeFirestore, query, where} from "firebase/firestore";
 import {getApp, initializeApp} from "firebase/app";
-import {getAuth, getReactNativePersistence, connectAuthEmulator, initializeAuth} from 'firebase/auth';
+import {getAuth, getReactNativePersistence, initializeAuth} from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Color, Rect, Text, TextProps } from "react-native-svg";
+import {Color, Rect, Text, TextProps} from "react-native-svg";
 
 const CIRCLE_WIDTH = 16;
 const PADDING_LEFT = 4;

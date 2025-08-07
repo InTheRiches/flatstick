@@ -124,8 +124,6 @@ function calculateTotalStrokesGained(userData, sessions, fullSessions) {
 
         if (adaptedSession.units === undefined) units = 0; // Default to imperial if units are not defined
 
-        console.log(JSON.stringify(adaptedSession));
-
         // Normalize for 18 holes
         overallPutts += (18 / holes) * totalPutts;
         overallRounds++;

@@ -1,7 +1,7 @@
 import {Pressable, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
-import {useState} from "react";
+import React, {useState} from "react";
 import useColors from "@/hooks/useColors";
 import Animated, {Easing, useAnimatedStyle, useSharedValue, withTiming,} from "react-native-reanimated";
 import {CollapsableContainer} from "./CollapsableContainer";
@@ -46,12 +46,12 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                     <Animated.View style={chevronStyle}>
                         <Svg width={24} height={24}
                              xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" strokeWidth={1.5}
+                             viewBox="0 0 24 24" strokeWidth={2.5}
                              stroke={colors.text.primary}>
                             <Path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                         </Svg>
                     </Animated.View>
-                    <FontText style={{fontSize: 18, color: colors.text.primary}}>{name}</FontText>
+                    <FontText style={{ fontSize: 16, alignSelf: "flex-start", textAlign: "left", fontWeight: 700, color: colors.button.primary.text }}>{name}</FontText>
                 </View>
                 <View style={{ flexDirection: "row", gap: 8}}>
                     {onInfo && (
@@ -115,18 +115,18 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                 <View
                     style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 4, paddingRight: 12}}>
                     <View>
-                        <FontText style={{textAlign: "left", color: colors.text.secondary}}>Time</FontText>
-                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{time}</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.tertiary, fontSize: 13, fontWeight: 600}}>TIME</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: 500}}>{time}</FontText>
                     </View>
                     {distance && (
                         <View>
-                            <FontText style={{textAlign: "left", color: colors.text.secondary}}>Distance</FontText>
-                            <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{distance}</FontText>
+                            <FontText style={{textAlign: "left", color: colors.text.tertiary, fontSize: 13, fontWeight: 600}}>DISTANCE</FontText>
+                            <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: 500}}>{distance}</FontText>
                         </View>
                     )}
                     <View>
-                        <FontText style={{textAlign: "left", color: colors.text.secondary}}>Focus</FontText>
-                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18}}>{focus}</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.tertiary, fontSize: 13, fontWeight: 600}}>FOCUS</FontText>
+                        <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: 500}}>{focus}</FontText>
                     </View>
                 </View>
             </CollapsableContainer>
