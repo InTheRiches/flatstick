@@ -13,12 +13,13 @@ export function SetUnits({setUnitsRef}) {
 
     const setUnits = (units) => {
         setUnitsRef.current.dismiss();
+        const newPreferences = {...userData.preferences, units: units};
+
         try {
-            updateData({preferences: {...userData.preferences, units: units}}).then(r => refreshStats());
+            updateData({preferences: newPreferences}).then(r => refreshStats({...userData, preferences: newPreferences}));
         } catch (e) {
             console.error(e);
         }
-
     }
 
     return (

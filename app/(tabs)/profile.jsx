@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useRef} from 'react';
 import {ScrollView, View} from 'react-native';
 import ScreenWrapper from '../../components/general/ScreenWrapper';
 import {useAppContext} from '../../contexts/AppContext';
@@ -39,7 +39,7 @@ export default function ProfileScreen() {
                 </View>
                 <SessionsSection sessions={combinedSessions} isSelf={true}/>
                 {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
-                <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: currentStats.avgPuttsARound }, { label: 'AVG. MISS', value: `${currentStats.avgMiss}ft` }]} />
+                <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: currentStats.avgPuttsARound }, { label: 'AVG. MISS', value: `${currentStats.avgMiss}${userData.preferences.units === 0 ? "ft" : "m"}` }]} />
                 <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "/(tabs)/compare"})} />
                 <StatsCard title="ACHIEVEMENTS" stats={[]} onPress={() => router.push({pathname: "/achievements"})}/>
             </ScrollView>

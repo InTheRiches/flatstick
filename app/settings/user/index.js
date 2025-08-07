@@ -267,7 +267,7 @@ export default function UserSettings({}) {
                 <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
             </View>
             <View style={{position: "absolute", bottom: 0, width: "100%", marginLeft: 20, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
-                <SecondaryButton onPress={() => router.back()} title={"Back"}
+                <SecondaryButton onPress={save} title={"Save"}
                                  style={{paddingVertical: 10, borderRadius: 10, flex: 0.8}}></SecondaryButton>
             </View>
         </ScreenWrapper>

@@ -75,8 +75,9 @@ export function AppContextProvider({ children }) {
         setIsLoading(false);
     };
 
-    const refreshStats = async () => {
-        await rawRefreshStats(putters, grips, setPutters, setGrips)
+    const refreshStats = async (newUserData = undefined) => {
+        console.log("Refreshing stats with newUserData:", newUserData);
+        await rawRefreshStats(putters, grips, setPutters, setGrips,undefined, undefined, newUserData)
     }
 
     const processFullRound = async (session) => {

@@ -23,6 +23,8 @@ export const useStats = (userData, puttSessions, fullRoundSessions) => {
     }
 
     const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, fullSessions = fullRoundSessions, newUserData = userData) => {
+        console.log("sessions: ", sessions.length, "fullSessions:", fullSessions.length);
+        console.log("newUserData: ", newUserData.preferences.units);
         return await updateStats(
             auth.currentUser.uid,
             newUserData,
