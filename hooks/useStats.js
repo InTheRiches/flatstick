@@ -22,12 +22,12 @@ export const useStats = (userData, puttSessions, fullRoundSessions) => {
         await getPreviousStats();
     }
 
-    const refreshStats = async (putters, grips, setPutters, setGrips) => {
+    const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, fullSessions = fullRoundSessions, newUserData = userData) => {
         return await updateStats(
             auth.currentUser.uid,
-            userData,
-            puttSessions,
-            fullRoundSessions,
+            newUserData,
+            sessions,
+            fullSessions,
             putters,
             grips,
             setCurrentStats,
@@ -61,7 +61,7 @@ export const useStats = (userData, puttSessions, fullRoundSessions) => {
         sixMonthStats,
         threeMonthStats,
         previousStats,
-        refreshStats,
+        rawRefreshStats,
         fetchAllStats,
         initializeStats,
         updateYearStats,

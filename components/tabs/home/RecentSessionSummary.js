@@ -7,7 +7,6 @@ import {useRouter} from "expo-router";
 import FontText from "../../general/FontText";
 import {convertUnits} from "../../../utils/Conversions";
 import {adaptFullRoundSession} from "../../../utils/sessions/SessionUtils";
-import {auth} from "../../../utils/firebase";
 
 export function RecentSessionSummary({unfinished}) {
     const {puttSessions, fullRoundSessions, userData} = useAppContext();
@@ -191,7 +190,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Holes</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Holes</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
@@ -200,7 +199,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                     }}>{recentSession.holes}</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Made</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Made</FontText>
                     <FontText
                         style={{
                             textAlign: "left",
@@ -210,7 +209,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                         }}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>SG</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>SG</FontText>
                     <FontText
                         style={{
                             textAlign: "left",
@@ -290,7 +289,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between"}}>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Holes</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Holes</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,
@@ -299,7 +298,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                     }}>{recentSession.holes}</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Made</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Made</FontText>
                     <FontText
                         style={{
                             textAlign: "left",
@@ -309,7 +308,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                         }}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>SG</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>SG</FontText>
                     <FontText
                         style={{
                             textAlign: "left",
@@ -319,7 +318,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                         }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
                 </View>
                 <View>
-                    <FontText style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Avg. Miss</FontText>
                     <FontText style={{
                         textAlign: "left",
                         color: colors.text.primary,

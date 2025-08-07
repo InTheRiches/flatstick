@@ -100,7 +100,6 @@ export default function RootInitializer({}) {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 user.getIdToken().then(async (token) => {
-                    await refreshStats();
                     setSession(token);
                     await initialize().catch((error) => {
                         console.error("Initialization error:", error);

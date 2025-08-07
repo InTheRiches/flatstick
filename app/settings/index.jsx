@@ -23,6 +23,7 @@ import {ConfirmDelete} from "../../components/tabs/settings/popups/ConfirmDelete
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../components/general/FontText";
 import {ConfirmSignOut} from "../../components/tabs/settings/popups/ConfirmSignOut";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
@@ -184,8 +185,12 @@ export default function HomeScreen() {
                         </View>
                     </ScrollView>
                 </View>
-                <View style={{position: "absolute", bottom: 0}}>
+                <View style={{position: "absolute", bottom: 72}}>
                     <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
+                <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
+                    <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                     style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
                 </View>
             </ScreenWrapper>
             <SetTheme setThemeRef={setThemeRef}/>

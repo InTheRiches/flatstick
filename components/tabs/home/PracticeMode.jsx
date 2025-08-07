@@ -51,7 +51,7 @@ export function PracticeMode({name, description, onPress, onInfo, time, distance
                             <Path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                         </Svg>
                     </Animated.View>
-                    <FontText style={{ fontSize: 16, alignSelf: "flex-start", textAlign: "left", fontWeight: 700, color: colors.button.primary.text }}>{name}</FontText>
+                    <FontText style={{ fontSize: 17, alignSelf: "flex-start", textAlign: "left", fontWeight: 700, color: colors.button.primary.text }}>{name}</FontText>
                 </View>
                 <View style={{ flexDirection: "row", gap: 8}}>
                     {onInfo && (

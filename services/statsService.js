@@ -59,7 +59,7 @@ export const updateStats = async (uid, userData, puttSessions, fullRoundSessions
 
     if (newStats.rounds > 0) finalizeStats(newStats, strokesGained);
 
-    let totalPutts = 0; // Implement calculation
+    let totalPutts = 0; // TODO Implement calculation
     await updateUserData(uid, { totalPutts, sessions: puttSessions.length, strokesGained: strokesGained.overall });
     await setDoc(doc(firestore, `users/${uid}/stats/current`), newStats);
 

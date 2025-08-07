@@ -5,7 +5,6 @@ import {useSessions} from '@/hooks/useSessions';
 import {useStats} from '@/hooks/useStats';
 import {usePutters} from '@/hooks/usePutters';
 import {useGrips} from '@/hooks/useGrips';
-import data from "@/assets/achievements.json";
 import {useAchievements} from "@/services/achievementService";
 
 const AppContext = createContext({
@@ -54,7 +53,7 @@ export function AppContextProvider({ children }) {
         updateData
     });
     const { puttSessions, fullRoundSessions, refreshData, newSession, newFullRound, deleteSession } = useSessions();
-    const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, updateStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
+    const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, rawRefreshStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
         puttSessions,
         fullRoundSessions
@@ -64,19 +63,20 @@ export function AppContextProvider({ children }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const initialize = async () => {
-        await initializeUser();
+        const newUserData = await initializeUser();
         await initializeStats();
         await initializePutters(currentStats);
         await initializeGrips(currentStats);
-        await updateStats(putters, grips, setPutters, setGrips); // TODO remove this
-        await refreshData();
+
+        const {sessions, fullRoundSessions: fullSessions} = await refreshData();
+        await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, fullSessions, newUserData);
 
         console.log('AppContext initialized');
         setIsLoading(false);
     };
 
     const refreshStats = async () => {
-        await updateStats(putters, grips, setPutters, setGrips)
+        await rawRefreshStats(putters, grips, setPutters, setGrips)
     }
 
     const processFullRound = async (session) => {
@@ -117,7 +117,7 @@ export function AppContextProvider({ children }) {
             deleteGrip,
             calculateSpecificStats,
         }),
-        [userData, puttSessions, fullRoundSessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, newFullRound, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading]
+        [userData, puttSessions, fullRoundSessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements]
     );
 
     return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>;

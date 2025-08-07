@@ -8,7 +8,7 @@ import StrokesGainedCard from '../../components/user/StrokesGainedCard';
 import SessionsSection from '../../components/user/SessionsSection';
 import StatsCard from "../../components/user/StatsCard";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {getUserSessionsByID, getUserStatsByID} from "../../services/userService";
+import {getUserSessionsByID} from "../../services/userService";
 import {createSimpleStats} from "../../utils/PuttUtils";
 import {
     acceptFriendRequest,
@@ -127,7 +127,7 @@ export default function UserScreen({}) {
                         <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
                         <StrokesGainedCard strokesGainedRef={strokesGainedRef} yearlyStats={yearlyStats} value={stats.strokesGained.overall} />
                     </View>
-                    <SessionsSection sessions={combinedSessions} />
+                    <SessionsSection userId={friendData.uid} name={friendData.displayName} sessions={combinedSessions} />
                     {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
                     <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
                     <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>

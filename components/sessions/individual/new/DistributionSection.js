@@ -8,8 +8,8 @@ export default function DistributionSection({ session, numOfHoles, preferences }
 
     return (
         <>
-            <FontText style={{ fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 16, marginBottom: 8 }}>
-                1st Putt Distribution
+            <FontText style={{ fontSize: 18, fontWeight: 800, color: colors.text.primary, marginTop: 16, marginBottom: 8 }}>
+                1ST PUTT DISTRIBUTION
             </FontText>
             <MissDistributionDiagram
                 missData={session.missData}

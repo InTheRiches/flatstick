@@ -27,6 +27,7 @@ export const useUser = () => {
         else
             setUserData(data);
         await registerForPushNotificationsAsync(auth.currentUser.uid);
+        return data;
     };
 
     const updateData = async (newData) => {

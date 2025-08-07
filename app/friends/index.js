@@ -128,7 +128,11 @@ export default function Friends({}) {
                         })}
                     </View>
                 </ScrollView>
-                <View style={{position: "absolute", bottom: 0}}>
+                <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
+                    <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                     style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
+                </View>
+                <View style={{position: "absolute", bottom: 72}}>
                     <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
                 </View>
             </ScreenWrapper>

@@ -11,6 +11,7 @@ export const useSessions = () => {
 
     const refreshData = async () => {
         const { sessions, fullRoundSessions } = await refreshSessions(auth.currentUser.uid);
+
         setPuttSessions(sessions);
         setFullRoundSessions(fullRoundSessions);
         return { sessions, fullRoundSessions };

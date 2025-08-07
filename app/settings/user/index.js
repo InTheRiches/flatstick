@@ -3,20 +3,21 @@ import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
-import {useNavigation} from "expo-router";
+import {useRouter} from "expo-router";
 import {auth} from "../../../utils/firebase";
 import {updateEmail} from "firebase/auth";
 import Loading from "../../../components/general/popups/Loading";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../components/general/FontText";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
+import ScreenWrapper from "../../../components/general/ScreenWrapper";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/8611403632";
 
 export default function UserSettings({}) {
     const colors = useColors();
-    const navigation = useNavigation();
+    const router = useRouter();
     const {updateData, userData} = useAppContext();
 
     const [emailFocused, setEmailFocused] = useState(false);
@@ -68,7 +69,7 @@ export default function UserSettings({}) {
     const save = () => {
         if (firstNameInvalid || lastNameInvalid || emailInvalid || displayNameInvalid) return;
         if (firstName === userData.firstName && lastName === userData.lastName && displayName === auth.currentUser.displayName && email === auth.currentUser.email) {
-            navigation.goBack();
+            router.back();
             return;
         }
 
@@ -76,12 +77,12 @@ export default function UserSettings({}) {
 
         updateData({firstName, lastName, displayName, displayNameLower: displayName.toLowerCase()}).then(() => {
             if (isGoogle || isApple) {
-                navigation.goBack();
+                router.back();
                 return;
             }
             updateEmail(auth.currentUser, email)
                 .then(() => {
-                    navigation.goBack();
+                    router.back();
                 }).catch((error) => {
                 emailErrorCode = error.code;
                 setEmailInvalid(true);
@@ -89,12 +90,12 @@ export default function UserSettings({}) {
             });
         }).catch((error => {
             console.log("Error updating user data:", error);
-            navigation.goBack();
+            router.back();
         }));
     }
 
     return loading ? <Loading></Loading> : (
-        <SafeAreaView style={{flex: 1, paddingHorizontal: 20, backgroundColor: colors.background.primary}}>
+        <ScreenWrapper style={{flex: 1, paddingHorizontal: 20, backgroundColor: colors.background.primary}}>
             <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                 <Pressable onPress={save} style={{padding: 4, paddingLeft: 0, opacity: emailInvalid || firstNameInvalid || displayNameInvalid || lastNameInvalid ? 0.25 : 1}}>
                     <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
@@ -262,9 +263,13 @@ export default function UserSettings({}) {
                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>Please enter a valid email.</FontText>}
             {emailErrorCode === "auth/email-already-in-use" &&
                 <FontText style={{color: colors.input.invalid.text, marginTop: 4}}>That email is already in use!</FontText>}
-            <View style={{position: "absolute", bottom: 0}}>
+            <View style={{position: "absolute", bottom: 72}}>
                 <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
             </View>
-        </SafeAreaView>
+            <View style={{position: "absolute", bottom: 0, width: "100%", marginLeft: 20, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
+                <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                 style={{paddingVertical: 10, borderRadius: 10, flex: 0.8}}></SecondaryButton>
+            </View>
+        </ScreenWrapper>
     )
 }

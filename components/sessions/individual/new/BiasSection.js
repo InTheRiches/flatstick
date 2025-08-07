@@ -39,7 +39,7 @@ export default function BiasSection({ session }) {
                 paddingLeft: 12,
                 paddingTop: 8
             }}>
-                <FontText style={{ fontSize: 12, opacity: 0.8, fontWeight: 700, color: colors.text.secondary }}>{label}</FontText>
+                <FontText style={{ fontSize: 12, opacity: 0.8, fontWeight: 700, color: colors.text.tertiary }}>{label}</FontText>
                 <FontText style={{ fontSize: 20, color: colors.text.primary, fontWeight: "bold" }}>{value}</FontText>
             </View>
         );

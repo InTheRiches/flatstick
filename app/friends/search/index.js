@@ -10,6 +10,7 @@ import {auth, getProfilesByDisplayName} from "../../../utils/firebase";
 import {cancelFriendRequest, getRequests, sendFriendRequest} from "../../../services/friendServices";
 import {CancelRequestModal} from "../../../components/friends/CancelRequestModal";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -177,9 +178,14 @@ export default function SearchFriends({}) {
                         )
                     })}
                 </ScrollView>
-                <View style={{position: "absolute", bottom: 0}}>
+                <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 20}}>
+                    <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                     style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
+                </View>
+                <View style={{position: "absolute", bottom: 72,}}>
                     <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
                 </View>
+
             </ScreenWrapper>
             <CancelRequestModal cancelRequestRef={cancelRequestRef} cancel={cancelRequest} />
         </BottomSheetModalProvider>

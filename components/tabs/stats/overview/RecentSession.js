@@ -39,7 +39,7 @@ export const RecentSession = ({recentSession}) => {
                 <FontText style={{
                     fontSize: 14,
                     textAlign: "right",
-                    color: colors.text.secondary,
+                    color: colors.text.tertiary,
                     fontWeight: "normal",
                     flex: 1
                 }}>
@@ -60,7 +60,7 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12,
                 }}>
-                    <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.secondary}}>SG</FontText>
+                    <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary}}>SG</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
@@ -76,7 +76,7 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.secondary}}>DIFFICULTY</FontText>
+                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.tertiary}}>DIFFICULTY</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
@@ -90,7 +90,7 @@ export const RecentSession = ({recentSession}) => {
                     paddingTop: 6,
                     paddingLeft: 12
                 }}>
-                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.secondary}}>TOTAL PUTTS</FontText>
+                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.tertiary}}>TOTAL PUTTS</FontText>
                     <FontText style={{
                         fontSize: 20,
                         color: colors.text.primary,
