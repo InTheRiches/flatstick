@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {BackHandler, Platform, ScrollView, View} from "react-native";
-import {useLocalSearchParams, useNavigation} from "expo-router";
+import {useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
 import {getBestSession} from "../../../utils/sessions/best";
 import Loading from "../../../components/general/popups/Loading";
@@ -41,8 +41,6 @@ export default function IndividualSession() {
         });
     }, []);
 
-    console.log(userId);
-
     const isRecap = recap === "true";
 
     const [bestSession, setBestSession] = useState({ strokesGained: "~" });
@@ -52,23 +50,27 @@ export default function IndividualSession() {
     const confirmDeleteRef = useRef();
     const infoModalRef = useRef();
 
-    useEffect(() => {
-        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-            if (isRecap) interstitial.show();
-        });
+    useFocusEffect(
+        React.useCallback(() => {
+            const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+                if (isRecap) interstitial.show();
+            });
 
-        if (isRecap) interstitial.load();
+            if (isRecap) interstitial.load();
 
-        const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-            if (!isRecap) navigation.goBack();
-            return true;
-        });
+            const onBackPress = () => {
+                if (!isRecap) navigation.goBack();
+                return true;
+            };
 
-        return () => {
-            unsubscribeLoaded();
-            backHandler.remove();
-        };
-    }, []);
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => {
+                subscription.remove();
+                unsubscribeLoaded();
+            } // clean up when unfocused
+        }, [navigation])
+    );
 
     useEffect(() => {
         // TODO make this not just get the user's best session, but the best session of whoever the session belongs to (or just remove this for sessions that arent the user's)
@@ -84,7 +86,7 @@ export default function IndividualSession() {
                     <View style={{ marginBottom: 86 }}>
                         <IndividualHeader session={session} isRecap={isRecap} infoModalRef={infoModalRef} />
                         <View style={{flexDirection: "row"}}>
-                            <StrokesGainedSection session={session} bestSession={bestSession} />
+                            <StrokesGainedSection session={session} bestSession={bestSession} showBest={userId === undefined}/>
                             <PerformanceSection session={session} numOfHoles={numOfHoles} preferences={userData.preferences} />
                         </View>
 

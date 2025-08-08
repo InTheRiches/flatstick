@@ -31,7 +31,7 @@ export default function HomeScreen() {
                     borderBottomColor: colors.border.default,
                     paddingHorizontal: 20,
                 }}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 64}}>
+                    <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingBottom: 64}}>
                         <Header></Header>
                         <RecentSessionSummary unfinished={false}></RecentSessionSummary>
                         <SeeAllSessions/>

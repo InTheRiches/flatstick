@@ -1,7 +1,6 @@
 // Example usage:
 import {roundTo} from "./roundTo";
 import {convertUnits} from "@/utils/Conversions";
-import {adaptFullRoundSession} from "@/utils/sessions/SessionUtils";
 
 const sgBaselinePutts = [
     { distance: 1, strokesGained: 1.01 },
@@ -97,13 +96,12 @@ function calculateSingleStrokesGained(totalPutts, distance) {
     return baselineStrokesGained - totalPutts;
 }
 
-// TODO should we make stats seperate from each other? (meaning full rounds have seperate stats from real rounds and those have seperate stats from the simulations?)
-function calculateTotalStrokesGained(userData, sessions, fullSessions) {
-    if (sessions.length === 0 && fullSessions.length === 0) return 0;
+// TODO should we make stats separate from each other? (meaning full rounds have separate stats from real rounds and those have separate stats from the simulations?)
+function calculateTotalStrokesGained(userData, sessions) {
+    if (sessions.length === 0) return 0;
 
-    let combined = [...sessions, ...fullSessions];
-    combined.sort((a, b) => b.timestamp - a.timestamp); // most recent first
-    let recent = combined.slice(0, 5);
+    sessions.sort((a, b) => b.timestamp - a.timestamp); // most recent first
+    let recent = sessions.slice(0, 5);
 
     let overallPutts = 0;
     let overallRounds = 0;
@@ -119,10 +117,9 @@ function calculateTotalStrokesGained(userData, sessions, fullSessions) {
     };
 
     recent.forEach(session => {
-        const adaptedSession = adaptFullRoundSession(session);
-        let { totalPutts, holes, putts, units } = adaptedSession;
+        let { totalPutts, holes, putts, units } = session;
 
-        if (adaptedSession.units === undefined) units = 0; // Default to imperial if units are not defined
+        if (session.units === undefined) units = 0; // Default to imperial if units are not defined
 
         // Normalize for 18 holes
         overallPutts += (18 / holes) * totalPutts;

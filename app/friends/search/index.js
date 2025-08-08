@@ -91,6 +91,9 @@ export default function SearchFriends({}) {
                     placeholderTextColor={colors.text.secondary}
                     onChangeText={updateDisplayName}
                 />
+                <View style={{marginLeft: -24, marginBottom: 12}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
                 {profiles.length === 0 && <FontText style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</FontText>}
                 <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
@@ -181,9 +184,6 @@ export default function SearchFriends({}) {
                 <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 20}}>
                     <SecondaryButton onPress={() => router.back()} title={"Back"}
                                      style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
-                </View>
-                <View style={{position: "absolute", bottom: 72,}}>
-                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
                 </View>
 
             </ScreenWrapper>

@@ -1,4 +1,4 @@
-import {useLocalSearchParams, useRouter} from "expo-router";
+import {useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
 import useColors from "../../../hooks/useColors";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import {BackHandler, Platform, Pressable, View} from "react-native";
@@ -154,27 +154,29 @@ export default function FullRound() {
         //updateTotalScores(initialRoundData);
     }, []);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                confirmExitRef.current.present();
+                console.log("still running")
+                return true;
+            };
+
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => subscription.remove(); // clean up when unfocused
+        }, [])
+    );
+
     useEffect(() => {
-        const onBackPress = () => {
-            confirmExitRef.current.present();
-
-            return true;
-        };
-
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
         });
 
         interstitial.load();
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
-
         return () => {
             unsubscribeLoaded();
-            backHandler.remove();
         }
     }, []);
 
@@ -371,7 +373,23 @@ export default function FullRound() {
     const submit = () => {
         saveHole();
 
-        const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(roundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const timeElapsed = new Date().getTime() - holeStartTime;
+
+        const updatedRoundData = [...roundData];
+        updatedRoundData[hole - 1] = {
+            ...updatedRoundData[hole - 1],
+            score: holeScore,
+            putts,
+            approachAccuracy,
+            fairwayAccuracy,
+            penalties,
+            timeElapsed,
+            puttData
+        };
+
+        const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.score === 0 ? 4 : hole.score), 0);
+
+        const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
         const { name, par, rating, slope, yards } = tee;
         const data = {
             id: generatePushID(),
@@ -386,7 +404,7 @@ export default function FullRound() {
             putter: putters[userData.preferences.selectedPutter].type,
             grip: grips[userData.preferences.selectedGrip].type,
             holes: trimmedHoles,
-            score: totalStrokes,
+            score: totalScore,
             birdies,
             eagles,
             pars,
@@ -415,7 +433,7 @@ export default function FullRound() {
             //         recap: "true"
             //     }
             // });
-            router.push({
+            router.replace({
                 pathname: `/`
             });
         });

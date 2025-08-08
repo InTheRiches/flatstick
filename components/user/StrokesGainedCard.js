@@ -25,8 +25,6 @@ export default function StrokesGainedCard({ value, strokesGainedRef, yearlyStats
     useEffect(() => {
         if (!yearlyStats.months) return;
 
-        console.log("finally loaded")
-
         let count = 0;
         for (let i = 0; i < yearlyStats.months.length; i++) {
             if (yearlyStats.months[i].strokesGained !== -999) {

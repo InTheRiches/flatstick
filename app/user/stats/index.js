@@ -2,7 +2,6 @@ import {Dimensions, FlatList, Pressable, View} from "react-native";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import Svg, {Path} from "react-native-svg";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
-import {useAppContext} from "../../../contexts/AppContext";
 import useColors from "../../../hooks/useColors";
 import {Toggleable} from "../../../components/general/buttons/Toggleable";
 import FontText from "../../../components/general/FontText";
@@ -16,9 +15,8 @@ import {StrokesGainedTab} from "../../../components/tabs/stats/sg";
 import {OverviewTab} from "../../../components/tabs/stats/overview";
 import {fetchGrips} from "../../../services/gripService";
 import {fetchPutters} from "../../../services/putterService";
-import {getUserSessionsByID, getUserStatsByID} from "../../../services/userService";
+import {getUserSessionsByID} from "../../../services/userService";
 import {getAllStats, getPreviousStats} from "../../../services/statsService";
-import {adaptFullRoundSession} from "../../../utils/sessions/SessionUtils";
 
 // todo make sure that on the user's profile it doesnt allow them to go here if the sessions are less than 2
 export default function UserStats({}) {
@@ -44,7 +42,6 @@ export default function UserStats({}) {
             fetchGrips(uid).then(setGrips),
             fetchPutters(uid).then(setPutters),
             getAllStats(uid, {}).then((stats) => {
-                console.log("stats for person: " + JSON.stringify(stats.yearlyStats));
                 setCurrentStats(stats.currentStats);
                 setYearlyStats(stats.yearlyStats);
             }).catch((err) => {

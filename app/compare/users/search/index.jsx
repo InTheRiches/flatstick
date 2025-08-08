@@ -7,6 +7,7 @@ import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../../components/general/FontText";
+import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -68,7 +69,7 @@ export default function SearchUsers({}) {
                     onChangeText={updateUsername}
                 />
                 {profiles.length === 0 && <FontText style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</FontText>}
-                <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
+                <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 120}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
                         const date = new Date(profile.date);
 
@@ -110,8 +111,12 @@ export default function SearchUsers({}) {
                     })}
                 </ScrollView>
             </View>
-            <View style={{position: "absolute", bottom: 0}}>
+            <View style={{position: "absolute", bottom: 72}}>
                 <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+            </View>
+            <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
+                <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                 style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
             </View>
         </ScreenWrapper>
     )

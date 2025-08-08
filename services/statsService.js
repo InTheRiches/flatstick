@@ -48,12 +48,13 @@ export const getAllStats = async (uid, yearlyStats) => {
 };
 
 export const updateStats = async (uid, userData, puttSessions, fullRoundSessions, putters, grips, setCurrentStats, setYearlyStats, setPutters, setGrips) => {
+    const sessions = [...puttSessions, ...fullRoundSessions.filter(session => session.puttStats.totalPutts > 0).map(adaptFullRoundSession)];
+
     const newStats = createSimpleStats();
     const newYearlyStats = createYearlyStats();
-    const strokesGained = calculateTotalStrokesGained(userData, puttSessions, fullRoundSessions);
+    const strokesGained = calculateTotalStrokesGained(userData, sessions);
     const newPutters = initializeBlankPutters(putters);
     const newGrips = initializeBlankGrips(grips);
-    const sessions = [...puttSessions, ...fullRoundSessions.filter(session => session.puttStats.totalPutts > 0).map(adaptFullRoundSession)];
 
     sessions.forEach((session) => processSession(session, newStats, newYearlyStats, newPutters, newGrips, userData));
 

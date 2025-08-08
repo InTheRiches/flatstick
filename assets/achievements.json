@@ -10,7 +10,7 @@
         "value": 90
       },
       {
-        "metric": "holes",
+        "metric": ["tee", "number_of_holes"],
         "operator": "==",
         "value": 18
       },
@@ -34,7 +34,7 @@
         "value": 80
       },
       {
-        "metric": "holes",
+        "metric": ["tee", "number_of_holes"],
         "operator": "==",
         "value": 18
       },
@@ -58,7 +58,7 @@
         "value": 70
       },
       {
-        "metric": "holes",
+        "metric": ["tee", "number_of_holes"],
         "operator": "==",
         "value": 18
       },
@@ -80,7 +80,7 @@
       "operator": ">",
       "value": 0
     },
-    "title": "First Birdie!",
+    "title": "1st Birdie!",
     "description": "Track your first birdie!"
   },
   {
@@ -92,7 +92,7 @@
       "operator": ">",
       "value": 5
     },
-    "title": "Five Birdies",
+    "title": "5 Birdies!",
     "description": "Track five birdies!"
   },
   {
@@ -104,7 +104,7 @@
       "operator": ">",
       "value": 25
     },
-    "title": "25 Birdies",
+    "title": "25 Birdies!",
     "description": "Track 25 birdies!"
   }
 ]

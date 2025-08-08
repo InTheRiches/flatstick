@@ -1,4 +1,4 @@
-import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {useFocusEffect, useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {
     ActivityIndicator,
     BackHandler,
@@ -155,23 +155,27 @@ export default function RealSimulation() {
         }));
     };
 
-    useEffect(() => {
-        const onBackPress = () => {
-            confirmExitRef.current.present();
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                confirmExitRef.current.present();
+                console.log("still running")
+                return true;
+            };
 
-            return true;
-        };
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => subscription.remove(); // clean up when unfocused
+        }, [])
+    );
+
+    useEffect(() => {
 
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
         });
 
         interstitial.load();
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
 
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
             setKeyboardIsVisible(true);
@@ -183,7 +187,6 @@ export default function RealSimulation() {
 
         return () => {
             unsubscribeLoaded();
-            backHandler.remove();
             keyboardDidShowListener.remove();
             keyboardDidHideListener.remove();
         }

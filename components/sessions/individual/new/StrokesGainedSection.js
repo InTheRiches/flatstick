@@ -3,7 +3,7 @@ import {View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 
-export default function StrokesGainedSection({ session, bestSession }) {
+export default function StrokesGainedSection({ session, bestSession, showBest=true }) {
     const colors = useColors();
 
     return (

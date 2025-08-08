@@ -8,7 +8,7 @@ function adaptFullRoundSession(session) {
 
     let filteredHoles = 0;
     session.holes.forEach(hole => {
-        if (hole.puttData !== undefined) filteredHoles++;
+        if (!isHolePuttDataInvalid(hole.puttData)) filteredHoles++;
     });
 
     // turn a full round session into the format of the others
@@ -22,8 +22,14 @@ function adaptFullRoundSession(session) {
         putter: session.putter,
         grip: session.grip,
         putts: putts,
+        score: session.score,
         ...session.puttStats
     }
+}
+
+function isHolePuttDataInvalid(puttData) {
+    return puttData.distance === -1 ||
+        (Object.keys(puttData.point).length < 1 && puttData.distance !== 0 && !puttData.center && puttData.largeMiss.distance === -1)
 }
 
 export {adaptFullRoundSession}

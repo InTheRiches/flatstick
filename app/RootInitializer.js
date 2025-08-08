@@ -24,7 +24,7 @@ export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
     const [localLoading, setLocalLoading] = React.useState(true);
     const {setSession} = useSession();
-    const {initialize, userData, updateData, isLoading, refreshStats} = useAppContext();
+    const {initialize, userData, updateData, isLoading} = useAppContext();
     const router = useRouter();
     let [fontsLoaded] = useFonts({
         Inter_100Thin,
@@ -102,7 +102,7 @@ export default function RootInitializer({}) {
                 user.getIdToken().then(async (token) => {
                     setSession(token);
                     await initialize().catch((error) => {
-                        console.error("Initialization error:", error);
+                        console.error("Initialization error:", error.stack);
                         setLocalLoading(false);
                     });
                     if (screenToPush === "/") return;

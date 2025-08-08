@@ -2,7 +2,6 @@ import React, {useRef} from 'react';
 import {ScrollView, View} from 'react-native';
 import ScreenWrapper from '../../components/general/ScreenWrapper';
 import {useAppContext} from '../../contexts/AppContext';
-import {adaptFullRoundSession} from '../../utils/sessions/SessionUtils';
 import ProfileHeader from '../../components/user/ProfileHeader';
 import FriendsCard from '../../components/user/FriendsCard';
 import StrokesGainedCard from '../../components/user/StrokesGainedCard';
@@ -21,7 +20,7 @@ export default function ProfileScreen() {
 
     const strokesGainedRef = useRef(null);
 
-    const combinedSessions = [...puttSessions, ...fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp).map(adaptFullRoundSession);
+    const combinedSessions = [...puttSessions, ...fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp);
 
     const [friends, setFriends] = React.useState([]);
 

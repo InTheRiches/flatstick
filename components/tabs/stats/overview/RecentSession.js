@@ -1,103 +1,145 @@
-// only 18 hole simulations and real simulations, no other practices
 import {Pressable, View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 import {useRouter} from "expo-router";
 import {auth} from "../../../../utils/firebase";
 
-export const RecentSession = ({recentSession}) => {
+export const RECENT_SESSION_CONFIG = {
+    "real-simulation": {
+        title: (s) => `${s.holes} Hole Round`,
+        fields: [
+            { label: "SG", value: (s) => s.strokesGained },
+            { label: "TOTAL PUTTS", value: (s) => s.totalPutts },
+        ],
+    },
+    "full-round": {
+        title: (s) => `${s.tee.number_of_holes} Hole Round`,
+        fields: [
+            { label: "SCORE", value: (s) => s.score, flex: 0.3 },
+            { label: "COURSE", value: (s) => s.courseName },
+        ],
+    },
+    "round-simulation": {
+        title: (s) => `${s.holes} Hole Simulation`,
+        fields: [
+            { label: "SG", value: (s) => s.strokesGained },
+            { label: "DIFFICULTY", value: (s) => s.difficulty },
+            { label: "TOTAL PUTTS", value: (s) => s.totalPutts },
+        ],
+    },
+};
+
+export const RecentSession = ({ recentSession }) => {
     const colors = useColors();
     const router = useRouter();
 
-    const formattedName = () => {
-        if (recentSession.type === "real-simulation" || recentSession.type === "full-round") {
-            return recentSession.holes + " Hole Round";
-        } else if (recentSession.type === "round-simulation") {
-            return recentSession.holes + " Hole Simulation";
-        }
-        return "huggidy buggidy"
-    }
+    const config = RECENT_SESSION_CONFIG[recentSession.type] ?? {
+        title: () => "Unknown Session",
+        fields: [],
+    };
 
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(recentSession), recap: false, userId: auth.currentUser.uid}})} style={({pressed}) => ({backgroundColor: pressed ? colors.button.primary.depressed : colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingTop: 8})}>
-            <View style={{
-                paddingHorizontal: 12,
-                borderBottomWidth: 1,
+        <Pressable
+            onPress={() =>
+                router.push({
+                    pathname: "sessions/individual",
+                    params: {
+                        jsonSession: JSON.stringify(recentSession),
+                        recap: false,
+                        userId: auth.currentUser.uid,
+                    },
+                })
+            }
+            style={({ pressed }) => ({
+                backgroundColor: pressed
+                    ? colors.button.primary.depressed
+                    : colors.background.secondary,
+                borderWidth: 1,
                 borderColor: colors.border.default,
-                paddingBottom: 6,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center"
-            }}>
-                <FontText style={{
-                    fontSize: 16,
-                    textAlign: "left",
-                    color: colors.text.primary,
-                    fontWeight: "bold",
-                    flex: 1
-                }}>{formattedName()}</FontText>
-                <FontText style={{
-                    fontSize: 14,
-                    textAlign: "right",
-                    color: colors.text.tertiary,
-                    fontWeight: "normal",
-                    flex: 1
-                }}>
-                    {new Date(recentSession.timestamp).toLocaleDateString('en-US', {
-                        year: '2-digit',
-                        month: '2-digit',
-                        day: '2-digit'
+                borderRadius: 12,
+                paddingTop: 8,
+            })}
+        >
+            {/* Header */}
+            <View
+                style={{
+                    paddingHorizontal: 12,
+                    borderBottomWidth: 1,
+                    borderColor: colors.border.default,
+                    paddingBottom: 6,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                }}
+            >
+                <FontText
+                    style={{
+                        fontSize: 16,
+                        textAlign: "left",
+                        color: colors.text.primary,
+                        fontWeight: "bold",
+                        flex: 1,
+                    }}
+                >
+                    {config.title(recentSession)}
+                </FontText>
+                <FontText
+                    style={{
+                        fontSize: 14,
+                        textAlign: "right",
+                        color: colors.text.tertiary,
+                        fontWeight: "normal",
+                        flex: 1,
+                    }}
+                >
+                    {new Date(recentSession.timestamp).toLocaleDateString("en-US", {
+                        year: "2-digit",
+                        month: "2-digit",
+                        day: "2-digit",
                     })}
                 </FontText>
             </View>
-            <View style={{flexDirection: "row"}}>
-                <View style={{
-                    flexDirection: "column",
-                    flex: 1,
-                    borderRightWidth: 1,
-                    borderColor: colors.border.default,
-                    paddingBottom: 8,
-                    paddingTop: 6,
-                    paddingLeft: 12,
-                }}>
-                    <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary}}>SG</FontText>
-                    <FontText style={{
-                        fontSize: 20,
-                        color: colors.text.primary,
-                        fontWeight: "bold",
-                    }}>{recentSession.strokesGained}</FontText>
-                </View>
-                {recentSession.type === "round-simulation" && <View style={{
-                    flexDirection: "column",
-                    flex: 1,
-                    borderRightWidth: 1,
-                    borderColor: colors.border.default,
-                    paddingBottom: 8,
-                    paddingTop: 6,
-                    paddingLeft: 12
-                }}>
-                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.tertiary}}>DIFFICULTY</FontText>
-                    <FontText style={{
-                        fontSize: 20,
-                        color: colors.text.primary,
-                        fontWeight: "bold",
-                    }}>{recentSession.difficulty}</FontText>
-                </View>}
-                <View style={{
-                    flexDirection: "column",
-                    flex: 1,
-                    paddingBottom: 8,
-                    paddingTop: 6,
-                    paddingLeft: 12
-                }}>
-                    <FontText style={{fontSize: 13, fontWeight: 700, textAlign: "left", color: colors.text.tertiary}}>TOTAL PUTTS</FontText>
-                    <FontText style={{
-                        fontSize: 20,
-                        color: colors.text.primary,
-                        fontWeight: "bold",
-                    }}>{recentSession.totalPutts}</FontText>
-                </View>
+
+            {/* Dynamic fields */}
+            <View style={{ flexDirection: "row" }}>
+                {config.fields.map((f, i) => (
+                    <View
+                        key={i}
+                        style={{
+                            flexDirection: "column",
+                            flex: f.flex || 1,
+                            borderRightWidth: i < config.fields.length - 1 ? 1 : 0,
+                            borderColor: colors.border.default,
+                            paddingBottom: 8,
+                            paddingTop: 6,
+                            paddingLeft: 12,
+                        }}
+                    >
+                        <FontText
+                            style={{
+                                fontSize: 13,
+                                textAlign: "left",
+                                fontWeight: 700,
+                                color: colors.text.tertiary,
+                            }}
+                        >
+                            {f.label}
+                        </FontText>
+                        <FontText
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                            style={{
+                                fontSize: 20,
+                                color: colors.text.primary,
+                                fontWeight: "bold",
+                                flexShrink: 1, // important for truncation
+                            }}
+                        >
+                            {f.value(recentSession)}
+                        </FontText>
+                    </View>
+                ))}
             </View>
         </Pressable>
-    )
-}
+    );
+};

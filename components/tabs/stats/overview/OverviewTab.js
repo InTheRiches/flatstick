@@ -1,5 +1,4 @@
 import useColors from "../../../../hooks/useColors";
-import {adaptFullRoundSession} from "../../../../utils/sessions/SessionUtils";
 import {roundTo} from "../../../../utils/roundTo";
 import {Dimensions, ScrollView, View} from "react-native";
 import {SeeAllSessions} from "../../home";
@@ -119,7 +118,7 @@ export const OverviewTab = ({
                     </FontText>
                     <View style={{gap: 12}}>
                         {combined.slice(0, 3).map((session, index) => (
-                            <RecentSession key={"recent-" + index} recentSession={adaptFullRoundSession(session)}/>
+                            <RecentSession key={"recent-" + index} recentSession={session}/>
                         ))}
                     </View>
                     <SeeAllSessions />

@@ -156,15 +156,14 @@ export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHo
                             </PrimaryButton>
                         </View>
                     </View>
-                    <SecondaryButton
-                        title={"Next Hole"}
-                        disabled={invalid}
-                        onPress={() => {
+                    <View style={{width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
+                        <SecondaryButton onPress={() => {
                             if (invalid) return;
                             nextHole(parseInt(currentPutts));
                             totalPuttsRef.current?.dismiss();
-                        }}
-                    ></SecondaryButton>
+                        }} title={"Next Hole"}
+                                         style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
+                    </View>
                 </View>
             </BottomSheetView>
         </BottomSheetModal>

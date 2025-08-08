@@ -43,8 +43,6 @@ export default function Login() {
 
         setLoading(true);
 
-        console.log(state.email);
-
         signIn(state.email, state.password).then((token) => {
             setSession(token);
             router.push("/");

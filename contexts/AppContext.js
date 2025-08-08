@@ -5,7 +5,7 @@ import {useSessions} from '@/hooks/useSessions';
 import {useStats} from '@/hooks/useStats';
 import {usePutters} from '@/hooks/usePutters';
 import {useGrips} from '@/hooks/useGrips';
-import {useAchievements} from "@/services/achievementService";
+import {useAchievements} from "@/hooks/useAchievements";
 
 const AppContext = createContext({
     userData: {},
@@ -69,6 +69,11 @@ export function AppContextProvider({ children }) {
         await initializeGrips(currentStats);
 
         const {sessions, fullRoundSessions: fullSessions} = await refreshData();
+        // // loop through full round sessions
+        // for (const session of fullRoundSessions) {
+        //     // if the session is a full round, check if it has putt sessions
+        //     checkAchievements(session);
+        // }
         await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, fullSessions, newUserData);
 
         console.log('AppContext initialized');

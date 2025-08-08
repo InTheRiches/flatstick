@@ -2,25 +2,28 @@ import {useAppContext} from "../../contexts/AppContext";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {getAchievementSVG} from "../../assets/svg/AchievementSvg";
 import React from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import {Pressable, ScrollView, StyleSheet, Text, View} from "react-native";
 import useColors from "../../hooks/useColors";
 import achievementData from "../../assets/achievements.json"
 import {Path, Svg} from "react-native-svg";
+import FontText from "../../components/general/FontText";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import {useRouter} from "expo-router";
 
 const AchievementList = ({ achievements }) => {
     const colors = useColors();
     const grouped = groupAchievementsByCategory(achievementData);
 
-    console.log(grouped);
-
     const formatCategoryLabel = str =>
         str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
+    console.log("Rendering AchievementList with achievements:", achievements);
+
     return (
-        <ScrollView contentContainerStyle={{paddingHorizontal: 24}}>
+        <ScrollView>
             {Object.entries(grouped).map(([category, items]) => (
                 <View key={category} style={{marginBottom: 24}}>
-                    <Text style={{fontSize: 20, fontWeight: "600", marginBottom: 8, color: colors.text.primary}}>{formatCategoryLabel(category)}</Text>
+                    <Text style={{fontSize: 20, fontWeight: "600", marginBottom: 14, color: colors.text.primary}}>{formatCategoryLabel(category)}</Text>
                     <View style={{flexDirection: "row", gap: 24}}>
                         {items.map((ach) => {
                             const achData = achievements.find(a => a.id === ach.id) || {};
@@ -28,14 +31,24 @@ const AchievementList = ({ achievements }) => {
                                 <View key={ach.id} style={{alignItems: "center"}}>
                                     <View style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: achData.earned ? "#ffcc4d" : "transparent", borderRadius: 50, padding: 10, marginBottom: 8}}>
                                         {getAchievementSVG(ach.id, achData.earned)}
-                                        {/*<View style={{position: "absolute", top: 0, right: 0}}>*/}
-                                        {/*    <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"*/}
-                                        {/*         fill={"#ffcc4d"} width={24} height={24}>*/}
-                                        {/*        <Path fillRule="evenodd"*/}
-                                        {/*              d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.6 6.73 6.73 0 0 0 2.743 1.346A6.707 6.707 0 0 1 9.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 0 0-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 0 1-1.112-3.173 6.73 6.73 0 0 0 2.743-1.347 6.753 6.753 0 0 0 6.139-5.6.75.75 0 0 0-.585-.858 47.077 47.077 0 0 0-3.07-.543V2.62a.75.75 0 0 0-.658-.744 49.22 49.22 0 0 0-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 0 0-.657.744Zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 0 1 3.16 5.337a45.6 45.6 0 0 1 2.006-.343v.256Zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 0 1-2.863 3.207 6.72 6.72 0 0 0 .857-3.294Z"*/}
-                                        {/*              clipRule="evenodd"/>*/}
-                                        {/*    </Svg>*/}
-                                        {/*</View>*/}
+                                        { !achData.earned && (
+                                            <View style={{
+                                                position: "absolute",
+                                                top: -10,
+                                                right: -10,
+                                                aspectRatio: 1,
+                                                backgroundColor: "lightgray",
+                                                borderRadius: 50,
+                                                padding: 6
+                                            }}>
+                                                <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                     width={20} height={20} fill={"gray"} style={{top: -1}}>
+                                                    <Path fillRule="evenodd"
+                                                          d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z"
+                                                          clipRule="evenodd"/>
+                                                </Svg>
+                                            </View>
+                                        )}
                                     </View>
 
                                     <Text style={styles.achievementText}>
@@ -80,13 +93,32 @@ const groupAchievementsByCategory = (achievements) => {
 
 export default function Achievements({}) {
     const {userData} = useAppContext();
-
-    // each entry in userData.achievements has a category. Seperate them by category and display a header for each category
-
+    const colors = useColors();
+    const router = useRouter();
 
     return (
-        <ScreenWrapper>
+        <ScreenWrapper style={{paddingHorizontal: 24}}>
+            <View style={{flexDirection: "row"}}>
+                <Pressable onPress={() => router.back()} style={{marginLeft: -10, marginTop: 3, paddingHorizontal: 10}}>
+                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
+                         stroke={colors.text.primary} width={24} height={24}>
+                        <Path strokeLinecap="round" strokeLinejoin="round"
+                              d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
+                    </Svg>
+                </Pressable>
+                <View style={{flexDirection: "col", alignItems: "flex-start", flex: 0, paddingBottom: 10,}}>
+                    <FontText style={{
+                        fontSize: 24,
+                        fontWeight: 600,
+                        color: colors.text.primary
+                    }}>Achievements</FontText>
+                </View>
+            </View>
             <AchievementList achievements={userData.achievements} />
+            <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", marginLeft: 24, alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
+                <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                 style={{paddingVertical: 10, borderRadius: 10, flex: 0.8}}></SecondaryButton>
+            </View>
         </ScreenWrapper>
     )
 }

@@ -1,4 +1,4 @@
-import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {useFocusEffect, useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {ActivityIndicator, BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useImperativeHandle, useMemo, useRef, useState} from 'react';
@@ -161,6 +161,20 @@ export default function RoundSimulation() {
         updateField("distance", generateDistance(difficulty, userData.preferences.units));
     }, []);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                confirmExitRef.current.present();
+                console.log("still running")
+                return true;
+            };
+
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => subscription.remove(); // clean up when unfocused
+        }, [])
+    );
+
     useEffect(() => {
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
@@ -169,21 +183,7 @@ export default function RoundSimulation() {
 
         interstitial.load();
 
-        const onBackPress = () => {
-            confirmExitRef.current.present();
-
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
-
-        return () => {
-            unsubscribeLoaded();
-            backHandler.remove();
-        }
+        return () => unsubscribeLoaded();
     }, []);
 
     const pushHole = (totalPutts) => {
