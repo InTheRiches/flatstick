@@ -17,7 +17,7 @@
       {
         "metric": "type",
         "operator": "==",
-        "value": "full-round"
+        "value": "full"
       }
     ],
     "title": "Break 90",
@@ -41,7 +41,7 @@
       {
         "metric": "type",
         "operator": "==",
-        "value": "full-round"
+        "value": "full"
       }
     ],
     "title": "Break 80",
@@ -65,7 +65,7 @@
       {
         "metric": "type",
         "operator": "==",
-        "value": "full-round"
+        "value": "full"
       }
     ],
     "title": "Break 70",

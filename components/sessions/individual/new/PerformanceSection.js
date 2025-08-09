@@ -3,7 +3,6 @@ import {View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 import {convertUnits} from "../../../../utils/Conversions";
-import {roundTo} from "../../../../utils/roundTo";
 import ColumnStat from "../../../stats/performance/ColumnStat";
 
 export default function PerformanceSection({ session, numOfHoles, preferences }) {
@@ -20,15 +19,15 @@ export default function PerformanceSection({ session, numOfHoles, preferences })
             </View>
 
             <View style={{ flexDirection: "row" }}>
-                <ColumnStat label="1 PUTTS" value={session.puttCounts[0]} percent={(session.puttCounts[0] / numOfHoles) * 100} />
-                <ColumnStat label="3+ PUTTS" value={session.puttCounts[2]} percent={(session.puttCounts[2] / numOfHoles) * 100} right />
+                <ColumnStat label="1 PUTTS" value={session.stats.puttCounts[0]} percent={(session.stats.puttCounts[0] / numOfHoles) * 100} />
+                <ColumnStat label="3+ PUTTS" value={session.stats.puttCounts[2]} percent={(session.stats.puttCounts[2] / numOfHoles) * 100} right />
             </View>
 
             <View style={{ flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default }}>
-                <ColumnStat label="TOTAL PUTTS" value={session.totalPutts} />
+                <ColumnStat label="TOTAL PUTTS" value={session.stats.totalPutts} />
                 <ColumnStat
                     label="AVG. MISS"
-                    value={`${convertUnits(session.avgMiss, session.units, units)}${units === 0 ? "ft" : "m"}`}
+                    value={`${convertUnits(session.stats.avgMiss, session.meta.units, units)}${units === 0 ? "ft" : "m"}`}
                     right
                 />
             </View>

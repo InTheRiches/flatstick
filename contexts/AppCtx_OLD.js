@@ -647,8 +647,6 @@ export function AppProvider({children}) {
             }
         });
 
-        console.log("yearly stats", newYearlyStats);
-
         await updateOtherStats(newYearlyStats);
 
         finalizePutters(setPutters, newStats, newPutters, strokesGained);

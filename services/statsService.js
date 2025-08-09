@@ -2,7 +2,6 @@
 import {collection, doc, getDoc, getDocs, query, runTransaction, setDoc} from 'firebase/firestore';
 import {auth, deepMergeDefaults, firestore} from '@/utils/firebase';
 import {calculateTotalStrokesGained} from '@/utils/StrokesGainedUtils';
-import {adaptFullRoundSession} from '@/utils/sessions/SessionUtils';
 import {createSimpleRefinedStats, createSimpleStats, createYearlyStats} from "@/utils/PuttUtils";
 import {deepEqual} from "@/utils/RandomUtilities";
 import {updateUserData} from "@/services/userService";
@@ -47,9 +46,7 @@ export const getAllStats = async (uid, yearlyStats) => {
     return {currentStats: updatedStats, yearlyStats: newYearlyStats};
 };
 
-export const updateStats = async (uid, userData, puttSessions, fullRoundSessions, putters, grips, setCurrentStats, setYearlyStats, setPutters, setGrips) => {
-    const sessions = [...puttSessions, ...fullRoundSessions.filter(session => session.puttStats.totalPutts > 0).map(adaptFullRoundSession)];
-
+export const updateStats = async (uid, userData, sessions, putters, grips, setCurrentStats, setYearlyStats, setPutters, setGrips) => {
     const newStats = createSimpleStats();
     const newYearlyStats = createYearlyStats();
     const strokesGained = calculateTotalStrokesGained(userData, sessions);
@@ -61,7 +58,7 @@ export const updateStats = async (uid, userData, puttSessions, fullRoundSessions
     if (newStats.rounds > 0) finalizeStats(newStats, strokesGained);
 
     let totalPutts = 0; // TODO Implement calculation
-    await updateUserData(uid, { totalPutts, sessions: puttSessions.length, strokesGained: strokesGained.overall });
+    await updateUserData(uid, { totalPutts, sessions: sessions.length, strokesGained: strokesGained.overall });
     await setDoc(doc(firestore, `users/${uid}/stats/current`), newStats);
 
     newYearlyStats.months.forEach((month, index) => {

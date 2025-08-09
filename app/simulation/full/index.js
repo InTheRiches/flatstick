@@ -28,11 +28,14 @@ import {calculateFullRoundStats} from "../../../utils/PuttUtils";
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
+import {newSession} from "../../../services/sessionService";
+import {SCHEMA_VERSION} from "../../../utils/constants";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
+// TODO add partial rounds
 export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
@@ -50,7 +53,7 @@ export default function FullRound() {
     const frontNine = stringFront === "true";
 
     const [hole, setHole] = useState((holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
-    const [startTime, setStartTime] = useState(new Date().getTime());
+    const [startTime, setStartTime] = useState(new Date());
     const [holeStartTime, setHoleStartTime] = useState(new Date().getTime());
 
     const [holeScore, setHoleScore] = useState(tee.holes[hole-1].par);
@@ -370,6 +373,7 @@ export default function FullRound() {
         });
     };
 
+    // improve the stats for full rounds, like approach accuracy
     const submit = () => {
         saveHole();
 
@@ -391,41 +395,76 @@ export default function FullRound() {
 
         const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
         const { name, par, rating, slope, yards } = tee;
-        const data = {
+
+        const newData = {
             id: generatePushID(),
-            date: new Date().toISOString(),
-            tee: { name, par, rating, slope, yards, number_of_holes: holes },
-            type: "full-round",
-            units: userData.preferences.units,
-            courseID: course.id,
-            clubName: course.club_name,
-            courseName: course.course_name,
-            timestamp: startTime,
-            putter: putters[userData.preferences.selectedPutter].type,
-            grip: grips[userData.preferences.selectedGrip].type,
-            holes: trimmedHoles,
-            score: totalScore,
-            birdies,
-            eagles,
-            pars,
-            puttStats: {
-                totalPutts: totalPutts,
-                avgMiss: avgMiss,
-                strokesGained: roundTo(strokesGained, 1),
-                madePercent: madePercent,
-                puttCounts: puttCounts,
-                leftRightBias: leftRightBias,
-                shortPastBias: shortPastBias,
-                missData: missData,
-                totalDistance: totalDistance,
+            meta: {
+                schemaVersion: SCHEMA_VERSION,
+                type: "full",
+                date: startTime,
+                durationMs: new Date().getTime() - startTime.getTime(),
                 units: userData.preferences.units,
-                duration: new Date().getTime() - startTime,
-                percentShort: percentShort,
-                percentHigh: percentHigh,
+                synced: true, // TODO set this to false if not synced (if offline mode is ever added)
+                tee: { name, par, rating, slope, yards, number_of_holes: holes },
+                courseID: course.id,
+                clubName: course.club_name,
+                courseName: course.course_name,
             },
+            "player": {
+                "putter": putters[userData.preferences.selectedPutter].type,
+                "grip": grips[userData.preferences.selectedGrip].type
+            },
+            "stats": {
+                "holes": holes,
+                "holesPlayed": trimmedHoles.length,
+                "totalPutts": totalPutts,
+                "puttCounts": puttCounts,
+                "madePercent": madePercent,
+                "avgMiss": avgMiss,
+                "strokesGained": roundTo(strokesGained, 1),
+                "missData": missData,
+                "leftRightBias": leftRightBias, // TODO consider moving this stuff to a separate "tendancies" object
+                "shortPastBias": shortPastBias,
+                "totalDistance": totalDistance,
+                "percentShort": percentShort,
+                "percentHigh": percentHigh,
+                birdies: birdies,
+                eagles: eagles,
+                pars: pars,
+                score: totalScore,
+            },
+            holeHistory: trimmedHoles
         }
 
-        newFullRound(data).then(() => {
+        // const data = {
+        //     id: generatePushID(),
+        //     date: new Date().toISOString(),
+        //     tee: { name, par, rating, slope, yards, number_of_holes: holes },
+        //     type: "full",
+        //     units: userData.preferences.units,
+        //     timestamp: startTime,
+        //     putter: putters[userData.preferences.selectedPutter].type,
+        //     grip: grips[userData.preferences.selectedGrip].type,
+        //     holes: trimmedHoles,
+        //     score: totalScore,
+        //     puttStats: {
+        //         totalPutts: totalPutts,
+        //         avgMiss: avgMiss,
+        //         strokesGained: roundTo(strokesGained, 1),
+        //         madePercent: madePercent,
+        //         puttCounts: puttCounts,
+        //         leftRightBias: leftRightBias,
+        //         shortPastBias: shortPastBias,
+        //         missData: missData,
+        //         totalDistance: totalDistance,
+        //         units: userData.preferences.units,
+        //         duration: new Date().getTime() - startTime,
+        //         percentShort: percentShort,
+        //         percentHigh: percentHigh,
+        //     },
+        // }
+
+        newSession(newData).then(() => {
             // router.push({
             //     pathname: `/sessions/individual`,
             //     params: {
@@ -585,6 +624,7 @@ export default function FullRound() {
                                         // }
                                         if (puttData.distance === -1 ||
                                             (Object.keys(puttData.point).length < 1 && puttData.distance !== 0 && !puttData.center && puttData.largeMiss.distance === -1)) {
+                                            // TODO this says next hole even when the last (should say "submit")
                                             noPuttDataModalRef.current.present();
                                         } else {
                                             nextHole();

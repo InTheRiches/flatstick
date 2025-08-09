@@ -14,13 +14,11 @@ import {getFriends} from "../../services/friendServices";
 import StrokesGainedModal from "../../components/user/StrokesGainedModal";
 
 export default function ProfileScreen() {
-    const { userData, currentStats, yearlyStats, puttSessions, fullRoundSessions } = useAppContext();
+    const { userData, currentStats, yearlyStats, sessions } = useAppContext();
     const colors = useColors();
     const router = useRouter();
 
     const strokesGainedRef = useRef(null);
-
-    const combinedSessions = [...puttSessions, ...fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp);
 
     const [friends, setFriends] = React.useState([]);
 
@@ -36,7 +34,7 @@ export default function ProfileScreen() {
                     <FriendsCard alert={userData.hasPendingFriendRequests} friendCount={friends.length} isFriend={false} isSelf={true} />
                     <StrokesGainedCard strokesGainedRef={strokesGainedRef} value={currentStats.strokesGained.overall} yearlyStats={yearlyStats} />
                 </View>
-                <SessionsSection sessions={combinedSessions} isSelf={true}/>
+                <SessionsSection sessions={sessions} isSelf={true}/>
                 {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
                 <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: currentStats.avgPuttsARound }, { label: 'AVG. MISS', value: `${currentStats.avgMiss}${userData.preferences.units === 0 ? "ft" : "m"}` }]} />
                 <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "/(tabs)/compare"})} />

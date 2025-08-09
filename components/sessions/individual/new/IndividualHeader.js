@@ -10,7 +10,7 @@ export default function IndividualHeader({ session, isRecap, infoModalRef }) {
     const navigation = useNavigation();
 
     const formatTimestamp = () => {
-        const date = new Date(session.startedAtTimestamp);
+        const date = new Date(session.meta.date);
         const options = { month: "2-digit", day: "2-digit", hour: "numeric", minute: "2-digit", hour12: true };
         return date.toLocaleString("en-US", options);
     };
@@ -27,7 +27,7 @@ export default function IndividualHeader({ session, isRecap, infoModalRef }) {
                     </Svg>
                 </Pressable>
                 <FontText style={{ marginLeft: 32, fontSize: 20, fontWeight: "800", color: colors.text.primary }}>
-                    {session.type === "round-simulation" ? "18 HOLE SIMULATION" : `${session.holes} HOLE ROUND`}
+                    {session.type === "sim" ? "18 HOLE SIMULATION" : `${session.stats.holes} HOLE ROUND`}
                 </FontText>
                 <FontText style={{ marginLeft: 32, fontSize: 16, fontWeight: "600", color: colors.text.secondary }}>
                     {formatTimestamp()}

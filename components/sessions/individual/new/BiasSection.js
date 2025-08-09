@@ -18,12 +18,12 @@ export default function BiasSection({ session }) {
                 flexDirection: "row",
                 marginTop: 20
             }}>
-                <BiasStat label="PERCENT HIGH-SIDE" value={session.percentHigh !== undefined ? roundTo(session.percentHigh * 100, 0) + "%" : "N/A"} />
-                <BiasStat label="PERCENT LONG" value={session.percentShort !== undefined ? roundTo((1 - session.percentShort) * 100, 0) + "%" : "N/A"} right />
+                <BiasStat label="PERCENT HIGH-SIDE" value={session.stats.percentHigh !== undefined ? roundTo(session.stats.percentHigh * 100, 0) + "%" : "N/A"} />
+                <BiasStat label="PERCENT LONG" value={session.stats.percentShort !== undefined ? roundTo((1 - session.stats.percentShort) * 100, 0) + "%" : "N/A"} right />
             </View>
             <View style={{ marginTop: 20 }}>
-                <LeftRightBias bias={session.leftRightBias} units={session.units} />
-                <ShortPastBias bias={session.shortPastBias} units={session.units} />
+                <LeftRightBias bias={session.stats.leftRightBias} units={session.meta.units} />
+                <ShortPastBias bias={session.stats.shortPastBias} units={session.meta.units} />
             </View>
         </>
     );

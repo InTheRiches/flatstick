@@ -117,7 +117,7 @@ export default function ShareSession({shareSessionRef, session}) {
                             <Image
                                 source={require("../../../assets/branding/FlatstickWithMallet.png")}
                                 style={{width: 100, height: 18}}/>
-                            <FontText style={{fontSize: 14, color: colors.text.primary, fontWeight: 800, flex: 1, textAlign: "right"}}>{session.type === "round-simulation" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}</FontText>
+                            <FontText style={{fontSize: 14, color: colors.text.primary, fontWeight: 800, flex: 1, textAlign: "right"}}>{session.type === "sim" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}</FontText>
                         </View>
                         <View style={{flexDirection: "row"}}>
                             <StatBox label={"1 PUTTS"}>
@@ -125,14 +125,14 @@ export default function ShareSession({shareSessionRef, session}) {
                                     fontSize: 20,
                                     color: colors.text.primary,
                                     fontWeight: "bold",
-                                }}>{session.puttCounts[0]}</FontText>
+                                }}>{session.stats.puttCounts[0]}</FontText>
                             </StatBox>
                             <StatBox label={"3+ PUTTS"}>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
                                     fontWeight: "bold",
-                                }}>{session.puttCounts[2]}</FontText>
+                                }}>{session.stats.puttCounts[2]}</FontText>
                             </StatBox>
                             <StatBox label={"MAKE %"} right={true}>
                                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
@@ -140,7 +140,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                         fontSize: 20,
                                         color: colors.text.primary,
                                         fontWeight: "bold",
-                                    }}>{roundTo(session.madePercent*100, 0)}%</FontText>
+                                    }}>{roundTo(session.stats.madePercent*100, 0)}%</FontText>
                                 </View>
                             </StatBox>
                         </View>
@@ -151,7 +151,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     textAlign: "left"
-                                }}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
+                                }}>{session.stats.strokesGained > 0 ? "+" : ""}{session.stats.strokesGained}</FontText>
                             </StatBox>
                             <StatBox label={"% HIGH"}>
                                 <FontText style={{
@@ -159,7 +159,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     textAlign: "left"
-                                }}>{session.percentHigh !== undefined ? roundTo(session.percentHigh*100, 0) + "%" : "N/A"}</FontText>
+                                }}>{session.stats.percentHigh !== undefined ? roundTo(session.stats.percentHigh*100, 0) + "%" : "N/A"}</FontText>
                             </StatBox>
                             <StatBox label={"% LONG"} right={true}>
                                 <FontText style={{
@@ -167,7 +167,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     textAlign: "left"
-                                }}>{session.percentShort !== undefined ? roundTo((1-session.percentShort)*100, 0) + "%" : "N/A"}</FontText>
+                                }}>{session.stats.percentShort !== undefined ? roundTo((1-session.stats.percentShort)*100, 0) + "%" : "N/A"}</FontText>
                             </StatBox>
                         </View>
                         <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
@@ -177,7 +177,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     textAlign: "left"
-                                }}>{convertUnits(session.avgMiss, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                                }}>{convertUnits(session.stats.avgMiss, session.meta.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                             </StatBox>
                             <StatBox label={"BREAK BIAS"}>
                                 <FontText style={{
@@ -185,7 +185,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     paddingRight: 5
-                                }}>{session.leftRightBias > 0 ? "+" : ""}{convertUnits(session.leftRightBias, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                                }}>{session.stats.leftRightBias > 0 ? "+" : ""}{convertUnits(session.stats.leftRightBias, session.meta.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                                 <BreakBiasIcon value={2.3} />
                             </StatBox>
                             <StatBox label={"SPEED BIAS"} right={true}>
@@ -194,8 +194,8 @@ export default function ShareSession({shareSessionRef, session}) {
                                     color: colors.text.primary,
                                     fontWeight: "bold",
                                     paddingRight: 5
-                                }}>{session.shortPastBias > 0 ? "+" : ""}{convertUnits(session.shortPastBias, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
-                                <SpeedBiasIcon value={session.shortPastBias} />
+                                }}>{session.stats.shortPastBias > 0 ? "+" : ""}{convertUnits(session.stats.shortPastBias, session.meta.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                                <SpeedBiasIcon value={session.stats.shortPastBias} />
                             </StatBox>
                         </View>
                     </ViewShot>

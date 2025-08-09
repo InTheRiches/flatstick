@@ -7,8 +7,6 @@ export default function SGOverTime({statsToUse, months}) {
 
     const currentMonth = new Date().getMonth();
 
-    console.log("Yearly stats:", JSON.stringify(statsToUse));
-
     let data = statsToUse.months.map(month => month.strokesGained);
     let labels = ["Jan.", "", "Mar.", "", "May", "", "July", "", "Sept.", "", "Nov.", ""];
     let bigLabels = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];

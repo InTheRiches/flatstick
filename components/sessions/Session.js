@@ -10,9 +10,9 @@ export function Session({session, userId}) {
     const colorScheme = "light";
 
     const condensedType = {
-        "real-simulation": "Round",
-        "round-simulation": "Sim",
-        "full-round": "Full",
+        "real": "Round",
+        "sim": "Sim",
+        "full": "Full",
     }
     return (
         <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(session), recap: false, userId}})}
@@ -26,15 +26,15 @@ export function Session({session, userId}) {
                            paddingLeft: 12,
                            paddingVertical: 10
                        }]}>
-            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.5, textAlign: "left"}}>{condensedType[session.type]}</FontText>
-            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{new Date(session.timestamp).toLocaleDateString('en-US', {
+            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.5, textAlign: "left"}}>{condensedType[session.meta.type]}</FontText>
+            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 1, textAlign: "center"}}>{new Date(session.meta.date).toLocaleDateString('en-US', {
                 year: '2-digit',
                 month: '2-digit',
                 day: '2-digit'
             })}</FontText>
-            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "center"}}>{session.holes}</FontText>
-            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "center"}}>{session.totalPutts}</FontText>
-            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
+            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "center"}}>{session.stats.holes}</FontText>
+            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "center"}}>{session.stats.totalPutts}</FontText>
+            <FontText style={{color: colors.text.primary, fontSize: 18, flex: 0.7, textAlign: "center"}}>{session.stats.strokesGained > 0 ? "+" : ""}{session.stats.strokesGained}</FontText>
         </Pressable>
     )
 }

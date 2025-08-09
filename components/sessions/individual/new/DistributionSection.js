@@ -12,7 +12,7 @@ export default function DistributionSection({ session, numOfHoles, preferences }
                 1ST PUTT DISTRIBUTION
             </FontText>
             <MissDistributionDiagram
-                missData={session.missData}
+                missData={session.stats.missData}
                 holes={numOfHoles}
                 alone={true}
                 units={preferences.units}

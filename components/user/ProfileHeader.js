@@ -9,15 +9,24 @@ export default function ProfileHeader({ userData, isSelf }) {
     const router = useRouter();
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{borderRadius: 50, backgroundColor: "white", padding: 8}}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <View style={{ borderRadius: 50, backgroundColor: 'white', padding: 8 }}>
                     <Image source={require('../../assets/branding/FlatstickMallet.png')} style={{ width: 56, height: 56 }} />
                 </View>
 
-                <View style={{ marginLeft: 8 }}>
-                    <Text style={{ fontSize: 24, fontWeight: 'bold' }}>{userData.displayName}</Text>
-                    <Text style={{ fontSize: 14, color: colors.text.tertiary, fontWeight: '700', marginTop: -2 }}>
+                <View style={{ marginLeft: 8, flexShrink: 1 }}>
+                    <Text style={{ fontSize: 24, fontWeight: 'bold', flexWrap: 'wrap' }}>
+                        {userData.displayName}
+                    </Text>
+                    <Text
+                        style={{
+                            fontSize: 14,
+                            color: colors.text.tertiary,
+                            fontWeight: '700',
+                            marginTop: -2,
+                        }}
+                    >
                         {`SINCE ${new Date(userData.date).toLocaleDateString('en-US', {
                             month: 'long',
                             year: 'numeric',

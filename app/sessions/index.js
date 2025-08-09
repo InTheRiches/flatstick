@@ -9,7 +9,6 @@ import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 
 export default function Sessions({}) {
-    // const {puttSessions} = useAppContext();
     const colors = useColors();
     const navigation = useNavigation();
 

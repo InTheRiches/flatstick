@@ -14,7 +14,6 @@ import {
     calculateStats,
     loadPuttData
 } from '../../../utils/PuttUtils';
-import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {GreenVisual} from "../../../components/simulations/round";
@@ -41,6 +40,7 @@ import {MisreadModal} from "../../../components/simulations/popups/MisreadModal"
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
+import {SCHEMA_VERSION} from "../../../utils/constants";
 
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
@@ -120,7 +120,7 @@ export default function RoundSimulation() {
 
     const [adLoaded, setAdLoaded] = useState(false);
 
-    const [startTime, setStartTime] = useState(new Date().getTime());
+    const [startTime, setStartTime] = useState(new Date());
 
     const rollProbabilities = useMemo(() => createRollProbabilities(currentStats), [currentStats]);
     const distanceProbabilities = useMemo(() => createDistanceProbabilities(currentStats), [currentStats]);
@@ -305,45 +305,79 @@ export default function RoundSimulation() {
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, filteredHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
 
         updateField("loading", true);
 
-        const data = {
+        const newData = {
             id: generatePushID(),
-            date: new Date().toISOString(),
-            startedAtTimestamp: startTime,
-            timestamp: new Date().getTime(),
-            difficulty: difficulty,
-            holes: partial ? puttsCopy.length : holes,
-            filteredHoles: partial ? puttsCopy.length : holes,
-            mode: mode,
-            putts: trimmedPutts,
-            totalPutts: totalPutts,
-            avgMiss: avgMiss,
-            strokesGained: roundTo(strokesGained, 1),
-            madePercent: madePercent,
-            type: "round-simulation",
-            putter: putters[userData.preferences.selectedPutter].type,
-            grip: grips[userData.preferences.selectedGrip].type,
-            puttCounts: puttCounts,
-            leftRightBias: leftRightBias,
-            shortPastBias: shortPastBias,
-            missData: missData,
-            totalDistance: totalDistance,
-            units: userData.preferences.units,
-            duration: new Date().getTime() - startTime,
-            percentShort: percentShort,
-            percentHigh: percentHigh,
+            meta: {
+                schemaVersion: SCHEMA_VERSION,
+                type: "sim",
+                mode: mode,
+                difficulty: difficulty,
+                date: startTime,
+                durationMs: new Date().getTime() - startTime.getTime(),
+                units: userData.preferences.units,
+                synced: true // TODO set this to false if not synced (if offline mode is ever added)
+            },
+            "player": {
+                "putter": putters[userData.preferences.selectedPutter].type,
+                "grip": grips[userData.preferences.selectedGrip].type
+            },
+            "stats": {
+                "holes": partial ? puttsCopy.length : holes,
+                "holesPlayed": filteredHoles,
+                "totalPutts": totalPutts,
+                "puttCounts": puttCounts,
+                "madePercent": madePercent,
+                "avgMiss": avgMiss,
+                "strokesGained": strokesGained,
+                "missData": missData,
+                "leftRightBias": leftRightBias,
+                "shortPastBias": shortPastBias,
+                "totalDistance": totalDistance,
+                "percentShort": percentShort,
+                "percentHigh": percentHigh,
+            },
+            puttHistory: trimmedPutts
         }
+
+        // const data = {
+        //     id: generatePushID(),
+        //     date: new Date().toISOString(),
+        //     startedAtTimestamp: startTime,
+        //     timestamp: new Date().getTime(),
+        //     difficulty: difficulty,
+        //     holes: partial ? puttsCopy.length : holes,
+        //     filteredHoles: partial ? puttsCopy.length : holes,
+        //     mode: mode,
+        //     putts: trimmedPutts,
+        //     totalPutts: totalPutts,
+        //     avgMiss: avgMiss,
+        //     strokesGained: roundTo(strokesGained, 1),
+        //     madePercent: madePercent,
+        //     type: "sim",
+        //     putter: putters[userData.preferences.selectedPutter].type,
+        //     grip: grips[userData.preferences.selectedGrip].type,
+        //     puttCounts: puttCounts,
+        //     leftRightBias: leftRightBias,
+        //     shortPastBias: shortPastBias,
+        //     missData: missData,
+        //     totalDistance: totalDistance,
+        //     units: userData.preferences.units,
+        //     duration: new Date().getTime() - startTime,
+        //     percentShort: percentShort,
+        //     percentHigh: percentHigh,
+        // }
 
         submitRef.current.dismiss();
 
-        newSession(data).then(() => {
+        newSession(newData).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {
-                    jsonSession: JSON.stringify(data),
+                    jsonSession: JSON.stringify(newData),
                     recap: "true"
                 }
             });

@@ -1,45 +1,41 @@
 // hooks/useSessions.js
 import {useState} from 'react';
 import {getAuth} from '@/utils/firebase';
-import {deleteSession, newFullRound, newSession, refreshSessions} from '../services/sessionService';
-import {updateBestSession} from '../utils/sessions/best';
+import {deleteSession, newSession, refreshSessions} from '@/services/sessionService';
+import {updateBestSession} from '@/utils/sessions/best';
 
 export const useSessions = () => {
-    const [puttSessions, setPuttSessions] = useState([]);
-    const [fullRoundSessions, setFullRoundSessions] = useState([]);
+    const [sessions, setSessions] = useState([]);
     const auth = getAuth();
 
     const refreshData = async () => {
-        const { sessions, fullRoundSessions } = await refreshSessions(auth.currentUser.uid);
+        const sessions = await refreshSessions(auth.currentUser.uid);
 
-        setPuttSessions(sessions);
-        setFullRoundSessions(fullRoundSessions);
-        return { sessions, fullRoundSessions };
+        setSessions(sessions);
+        return sessions;
     };
 
     const addSession = async (data) => {
         await newSession(auth.currentUser.uid, data);
-        setPuttSessions((prev) => [...prev, data]);
+        setSessions((prev) => [...prev, data]);
         await updateBestSession(data);
     };
 
-    const addFullRound = async (data) => {
-        await newFullRound(auth.currentUser.uid, data);
-        setFullRoundSessions((prev) => [...prev, data]);
-        await updateBestSession(data);
-    };
+    // const addFullRound = async (data) => {
+    //     await newFullRound(auth.currentUser.uid, data);
+    //     setFullRoundSessions((prev) => [...prev, data]);
+    //     await updateBestSession(data);
+    // };
 
     const removeSession = async (sessionId) => {
         await deleteSession(auth.currentUser.uid, sessionId);
-        setPuttSessions((prev) => prev.filter((session) => session.id !== sessionId));
+        setSessions((prev) => prev.filter((session) => session.id !== sessionId));
     };
 
     return {
-        puttSessions,
-        fullRoundSessions,
+        sessions,
         refreshData,
         newSession: addSession,
-        newFullRound: addFullRound,
         deleteSession: removeSession,
     };
 };

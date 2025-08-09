@@ -2,49 +2,52 @@
 import {deleteDoc, doc, setDoc} from 'firebase/firestore';
 import {firestore} from '@/utils/firebase';
 import RNFS from 'react-native-fs';
-import {fetchUserData, getUserSessionsByID, updateUserData} from "@/services/userService";
+import {adaptOldSession, getUserSessionsByID} from "@/services/userService";
 
 const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
 const fullRoundDirectory = `${RNFS.DocumentDirectoryPath}/fullRounds`;
 
 export const refreshSessions = async (uid) => {
-    const { sessions, fullRoundSessions } = await getUserSessionsByID(uid);
-    const newData = await fetchUserData(uid);
-    if (!newData.sessionsUpdated) {
-        if (await RNFS.exists(sessionDirectory)) {
-            const files = await RNFS.readDir(sessionDirectory);
-            for (const file of files) {
-                const content = await RNFS.readFile(file.path, 'utf8');
-                const sessionData = JSON.parse(content);
-                const sessionId = file.name.split('.')[0];
-                if (!sessionData.synced) {
-                    await setDoc(doc(firestore, `users/${uid}/sessions`, sessionId), { ...sessionData, synced: true });
-                    await RNFS.unlink(file.path);
-                }
-            }
-            const fullRoundFiles = await RNFS.readDir(fullRoundDirectory);
-            for (const file of fullRoundFiles) {
-                const content = await RNFS.readFile(file.path, 'utf8');
-                const fullRoundData = JSON.parse(content);
-                const sessionId = file.name.split('.')[0];
-                if (!fullRoundData.synced) {
-                    await setDoc(doc(firestore, `users/${uid}/fullRoundSessions`, sessionId), { ...fullRoundData, synced: true });
-                    await RNFS.unlink(file.path);
-                }
-            }
+    const sessions = await getUserSessionsByID(uid);
+    if (await RNFS.exists(sessionDirectory)) {
+        console.log(`Session directory exists: ${sessionDirectory}`);
+
+        const files = await RNFS.readDir(sessionDirectory);
+        for (const file of files) {
+            const sessionData = JSON.parse(await RNFS.readFile(file.path, 'utf8'));
+            const sessionId = file.name.split('.')[0];
+
+            await setDoc(doc(firestore, `users/${uid}/sessions`, sessionId), adaptOldSession(sessionData));
+            await RNFS.unlink(file.path);
         }
-        await updateUserData(uid, { sessionsUpdated: true });
+
+        await RNFS.unlink(sessionDirectory);
     }
-    return { sessions, fullRoundSessions };
+    if (await RNFS.exists(fullRoundDirectory)) {
+        console.log(`Full round directory exists: ${fullRoundDirectory}`);
+
+        const files = await RNFS.readDir(fullRoundDirectory);
+        for (const file of files) {
+            const fullRoundData = JSON.parse(await RNFS.readFile(file.path, 'utf8'));
+            const sessionId = file.name.split('.')[0];
+
+            await setDoc(doc(firestore, `users/${uid}/sessions`, sessionId), adaptOldSession(fullRoundData));
+            await RNFS.unlink(file.path);
+        }
+
+        await RNFS.unlink(fullRoundDirectory);
+    }
+
+    return sessions;
 };
 
 export const newSession = async (uid, data) => {
     await setDoc(doc(firestore, `users/${uid}/sessions`, data.id), data);
 };
 
-export const newFullRound = async (uid, data) => {
-    await setDoc(doc(firestore, `users/${uid}/fullRoundSessions`, data.id), data);
-};
+// export const newFullRound = async (uid, data) => {
+//     await setDoc(doc(firestore, `users/${uid}/fullRoundSessions`, data.id), data);
+// };
 
 export const deleteSession = async (uid, sessionId) => {
     const sessionFilePath = `${sessionDirectory}/${sessionId}.json`;

@@ -26,8 +26,8 @@ export default function Modals({
             />
             <InfoModal
                 infoModalRef={infoModalRef}
-                putter={session.putter}
-                grip={session.grip}
+                putter={session.player.putter}
+                grip={session.player.grip}
             />
         </>
     );

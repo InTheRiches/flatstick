@@ -20,7 +20,7 @@ export default function Stats({}) {
     const router = useRouter();
     const navigation = useNavigation()
 
-    const {currentStats, puttSessions, previousStats, fullRoundSessions, yearlyStats, putters, grips, nonPersistentData, userData, calculateSpecificStats} = useAppContext();
+    const {currentStats, sessions, previousStats, yearlyStats, putters, grips, nonPersistentData, userData, calculateSpecificStats} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     const [tab, setTab] = useState(0);
@@ -49,9 +49,9 @@ export default function Stats({}) {
             id: 1,
             title: "Overview",
             content: useMemo(() => {
-                return <OverviewTab statsToUse={statsToUse} previousStats={previousStats} fullRoundSessions={fullRoundSessions} puttSessions={puttSessions} userData={userData}/>
+                return <OverviewTab statsToUse={statsToUse} previousStats={previousStats} sessions={sessions} userData={userData}/>
                 // KEEP CURRENT STATS IN THE DEPS, OR ELSE WHEN UNITS CHANGE IT WILL NOT UPDATE
-            }, [statsToUse, currentStats])
+            }, [statsToUse, previousStats, sessions, userData])
         },
         {
             id: 2,
@@ -120,7 +120,7 @@ export default function Stats({}) {
                     </Svg>
                 </Pressable>
             </View>
-            { puttSessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1 ? (
+            { sessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1 ? (
                 <View style={{
                         borderBottomWidth: 1,
                         borderBottomColor: colors.border.default,

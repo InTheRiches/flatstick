@@ -1,7 +1,6 @@
 import React, {useEffect, useImperativeHandle, useRef} from 'react';
 import {Platform, ScrollView, View} from 'react-native';
 import ScreenWrapper from '../../components/general/ScreenWrapper';
-import {adaptFullRoundSession} from '../../utils/sessions/SessionUtils';
 import ProfileHeader from '../../components/user/ProfileHeader';
 import FriendsCard from '../../components/user/FriendsCard';
 import StrokesGainedCard from '../../components/user/StrokesGainedCard';
@@ -38,7 +37,7 @@ export default function UserScreen({}) {
     useForeground(() => {
         bannerRef.current?.load();
     })
-    const [combinedSessions, setCombinedSessions] = React.useState([]);
+    const [sessions, setSessions] = React.useState([]);
     const [yearlyStats, setYearlyStats] = React.useState({});
     const [stats, setStats] = React.useState(createSimpleStats());
     const [isFriend, setIsFriend] = React.useState(friendData.friends.includes(auth.currentUser.uid));
@@ -60,11 +59,7 @@ export default function UserScreen({}) {
         console.log("UserScreen: friendData:", friendData);
         if (!friendData.uid) return; // avoid double runs with invalid ID
 
-        getUserSessionsByID(friendData.uid).then((newSessions) => {
-            if (newSessions.sessions.length > 0 || newSessions.fullRoundSessions.length > 0)
-                setCombinedSessions([...newSessions.sessions, ...newSessions.fullRoundSessions].sort((a, b) => b.timestamp - a.timestamp).map(adaptFullRoundSession))
-            // todo maybe making a loading thingy here for the sessions?
-        }).catch((error) => {
+        getUserSessionsByID(friendData.uid).then(setSessions).catch((error) => {
             console.error("Error fetching user sessions:", error);
         });
 
@@ -127,7 +122,7 @@ export default function UserScreen({}) {
                         <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
                         <StrokesGainedCard strokesGainedRef={strokesGainedRef} yearlyStats={yearlyStats} value={stats.strokesGained.overall} />
                     </View>
-                    <SessionsSection userId={friendData.uid} name={friendData.displayName} sessions={combinedSessions} />
+                    <SessionsSection userId={friendData.uid} name={friendData.displayName} sessions={sessions} />
                     {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
                     <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
                     <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>

@@ -9,8 +9,7 @@ import {useAchievements} from "@/hooks/useAchievements";
 
 const AppContext = createContext({
     userData: {},
-    puttSessions: [],
-    fullRoundSessions: [],
+    sessions: [],
     currentStats: {},
     putters: [],
     grips: [],
@@ -26,11 +25,11 @@ const AppContext = createContext({
     refreshData: () => Promise.resolve(),
     updateData: () => Promise.resolve(),
     setUserData: () => {},
+    processSession: () => Promise.resolve(),
     refreshStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
-    newFullRound: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
     deleteSession: () => Promise.resolve(),
     checkAchievements: () => {},
@@ -52,11 +51,10 @@ export function AppContextProvider({ children }) {
         userData,
         updateData
     });
-    const { puttSessions, fullRoundSessions, refreshData, newSession, newFullRound, deleteSession } = useSessions();
+    const { sessions, refreshData, newSession, deleteSession } = useSessions();
     const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, rawRefreshStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
-        puttSessions,
-        fullRoundSessions
+        sessions
     );
     const { putters, setPutters, newPutter, deletePutter, initializePutters } = usePutters();
     const { grips, setGrips, newGrip, deleteGrip, initializeGrips } = useGrips();
@@ -68,13 +66,15 @@ export function AppContextProvider({ children }) {
         await initializePutters(currentStats);
         await initializeGrips(currentStats);
 
-        const {sessions, fullRoundSessions: fullSessions} = await refreshData();
+        const sessions = await refreshData();
         // // loop through full round sessions
         // for (const session of fullRoundSessions) {
         //     // if the session is a full round, check if it has putt sessions
         //     checkAchievements(session);
         // }
-        await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, fullSessions, newUserData);
+        // loop through full round sessions
+
+        await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, newUserData);
 
         console.log('AppContext initialized');
         setIsLoading(false);
@@ -82,19 +82,18 @@ export function AppContextProvider({ children }) {
 
     const refreshStats = async (newUserData = undefined) => {
         console.log("Refreshing stats with newUserData:", newUserData);
-        await rawRefreshStats(putters, grips, setPutters, setGrips,undefined, undefined, newUserData)
+        await rawRefreshStats(putters, grips, setPutters, setGrips,undefined, newUserData)
     }
 
-    const processFullRound = async (session) => {
+    const processSession = async (session) => {
         checkAchievements(session);
-        await newFullRound(session);
+        await newSession(session);
     }
 
     const appContextValue = useMemo(
         () => ({
             userData,
-            puttSessions,
-            fullRoundSessions,
+            sessions,
             currentStats,
             putters,
             grips,
@@ -114,7 +113,7 @@ export function AppContextProvider({ children }) {
             getAllStats,
             newPutter,
             newSession,
-            newFullRound: processFullRound,
+            processSession,
             getPreviousStats,
             checkAchievements,
             deletePutter,
@@ -123,7 +122,7 @@ export function AppContextProvider({ children }) {
             deleteGrip,
             calculateSpecificStats,
         }),
-        [userData, puttSessions, fullRoundSessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements]
+        [userData, sessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements]
     );
 
     return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>;

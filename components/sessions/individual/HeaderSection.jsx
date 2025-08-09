@@ -32,7 +32,7 @@ export default function HeaderSection({ session, isRecap, onInfoPress }) {
                     </Svg>
                 </Pressable>
                 <FontText style={{ marginLeft: 32, fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: 800, flex: 1 }}>
-                    {session.type === "round-simulation" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}
+                    {session.type === "sim" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}
                 </FontText>
                 <FontText style={{ marginLeft: 32, color: colors.text.secondary, fontSize: 16, fontWeight: 600, textAlign: "left" }}>
                     {formatTimestamp()}

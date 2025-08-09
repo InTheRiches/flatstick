@@ -5,26 +5,26 @@ import {useRouter} from "expo-router";
 import {auth} from "../../../../utils/firebase";
 
 export const RECENT_SESSION_CONFIG = {
-    "real-simulation": {
-        title: (s) => `${s.holes} Hole Round`,
+    "real": {
+        title: (s) => `${s.stats.holesPlayed} Hole Round`,
         fields: [
-            { label: "SG", value: (s) => s.strokesGained },
-            { label: "TOTAL PUTTS", value: (s) => s.totalPutts },
+            { label: "SG", value: (s) => s.stats.strokesGained },
+            { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
         ],
     },
-    "full-round": {
-        title: (s) => `${s.tee.number_of_holes} Hole Round`,
+    "full": {
+        title: (s) => `${s.stats.holesPlayed} Hole Round`,
         fields: [
-            { label: "SCORE", value: (s) => s.score, flex: 0.3 },
-            { label: "COURSE", value: (s) => s.courseName },
+            { label: "SCORE", value: (s) => s.stats.score, flex: 0.3 },
+            { label: "COURSE", value: (s) => s.meta.courseName },
         ],
     },
-    "round-simulation": {
-        title: (s) => `${s.holes} Hole Simulation`,
+    "sim": {
+        title: (s) => `${s.stats.holesPlayed} Hole Simulation`,
         fields: [
-            { label: "SG", value: (s) => s.strokesGained },
-            { label: "DIFFICULTY", value: (s) => s.difficulty },
-            { label: "TOTAL PUTTS", value: (s) => s.totalPutts },
+            { label: "SG", value: (s) => s.stats.strokesGained },
+            { label: "DIFFICULTY", value: (s) => s.meta.difficulty },
+            { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
         ],
     },
 };
@@ -33,7 +33,7 @@ export const RecentSession = ({ recentSession }) => {
     const colors = useColors();
     const router = useRouter();
 
-    const config = RECENT_SESSION_CONFIG[recentSession.type] ?? {
+    const config = RECENT_SESSION_CONFIG[recentSession.meta.type] ?? {
         title: () => "Unknown Session",
         fields: [],
     };
@@ -92,7 +92,7 @@ export const RecentSession = ({ recentSession }) => {
                         flex: 1,
                     }}
                 >
-                    {new Date(recentSession.timestamp).toLocaleDateString("en-US", {
+                    {new Date(recentSession.meta.date).toLocaleDateString("en-US", {
                         year: "2-digit",
                         month: "2-digit",
                         day: "2-digit",

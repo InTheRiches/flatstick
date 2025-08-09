@@ -12,8 +12,7 @@ import {convertUnits} from "../../../../utils/Conversions";
 export const OverviewTab = ({
                                 statsToUse,
                                 previousStats,
-                                puttSessions = [],
-                                fullRoundSessions = [],
+                                sessions = [],
                                 userData: personsData
                             }) => {
     const colors = useColors();
@@ -27,9 +26,6 @@ export const OverviewTab = ({
     }
 
     const {userData} = useAppContext();
-
-    let combined = [...puttSessions, ...fullRoundSessions];
-    combined.sort((a, b) => b.timestamp - a.timestamp); // most recent first
 
     let difference = 0;
     if (
@@ -111,13 +107,13 @@ export const OverviewTab = ({
                 </View>
             </View>
 
-            {combined.length > 0 &&
+            {sessions.length > 0 &&
                 <>
                     <FontText style={{ fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8 }}>
                         Recent Sessions
                     </FontText>
                     <View style={{gap: 12}}>
-                        {combined.slice(0, 3).map((session, index) => (
+                        {sessions.slice(0, 3).map((session, index) => (
                             <RecentSession key={"recent-" + index} recentSession={session}/>
                         ))}
                     </View>

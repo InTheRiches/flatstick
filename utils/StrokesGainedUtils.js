@@ -100,7 +100,7 @@ function calculateSingleStrokesGained(totalPutts, distance) {
 function calculateTotalStrokesGained(userData, sessions) {
     if (sessions.length === 0) return 0;
 
-    sessions.sort((a, b) => b.timestamp - a.timestamp); // most recent first
+    sessions.sort((a, b) => new Date(b.meta.date) - new Date(a.meta.date));
     let recent = sessions.slice(0, 5);
 
     let overallPutts = 0;
@@ -117,18 +117,18 @@ function calculateTotalStrokesGained(userData, sessions) {
     };
 
     recent.forEach(session => {
-        let { totalPutts, holes, putts, units } = session;
+        let { stats, puttHistory, meta } = session;
 
-        if (session.units === undefined) units = 0; // Default to imperial if units are not defined
+        let units = meta?.units ?? 0;
 
         // Normalize for 18 holes
-        overallPutts += (18 / holes) * totalPutts;
+        overallPutts += (18 / stats.holesPlayed) * stats.totalPutts;
         overallRounds++;
 
         // Skip if session doesn't have detailed putt data
-        if (!putts) return;
+        if (!puttHistory) return;
 
-        putts.forEach(putt => {
+        puttHistory.forEach(putt => {
             const {distance, totalPutts} = putt;
 
             const convertedDistance = convertUnits(distance, units, userData.preferences.units);

@@ -9,7 +9,7 @@ import {
     updateStats
 } from '@/services/statsService';
 
-export const useStats = (userData, puttSessions, fullRoundSessions) => {
+export const useStats = (userData, puttSessions) => {
     const [currentStats, setCurrentStats] = useState({});
     const [yearlyStats, setYearlyStats] = useState({});
     const [sixMonthStats, setSixMonthStats] = useState({});
@@ -22,12 +22,11 @@ export const useStats = (userData, puttSessions, fullRoundSessions) => {
         await getPreviousStats();
     }
 
-    const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, fullSessions = fullRoundSessions, newUserData = userData) => {
+    const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, newUserData = userData) => {
         return await updateStats(
             auth.currentUser.uid,
             newUserData,
             sessions,
-            fullSessions,
             putters,
             grips,
             setCurrentStats,

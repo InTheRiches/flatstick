@@ -28,7 +28,7 @@ export default function UserSettings({}) {
     const [lastName, setLastName] = useState(userData.lastName);
     const [firstNameInvalid, setFirstNameInvalid] = useState(false);
     const [lastNameInvalid, setLastNameInvalid] = useState(false);
-    const [displayName, setDisplayName] = useState(auth.currentUser.displayName || "");
+    const [displayName, setDisplayName] = useState(userData.displayName || "");
     const [displayNameInvalid, setDisplayNameInvalid] = useState(false);
     const [displayNameFocused, setDisplayNameFocused] = useState(false);
     const [email, setEmail] = useState(auth.currentUser.email);

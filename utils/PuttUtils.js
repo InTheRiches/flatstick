@@ -190,8 +190,8 @@ const calculateFullRoundStats = (roundData, width, height) => {
                 ...hole,
                 puttData: {
                     distance: putt.distance,
-                    xDistance: 0,
-                    yDistance: 0,
+                    missXDistance: 0,
+                    missYDistance: 0,
                     puttBreak: [0, 0],
                     misReadLine: putt.misReadLine,
                     misReadSlope: putt.misReadSlope,
@@ -293,8 +293,8 @@ const calculateFullRoundStats = (roundData, width, height) => {
             ...hole,
             puttData: {
                 distance: putt.distance,
-                xDistance: xDistance,
-                yDistance: yDistance,
+                missXDistance: xDistance,
+                missYDistance: yDistance,
                 puttBreak: puttBreak,
                 misReadLine: putt.misReadLine,
                 misReadSlope: putt.misReadSlope,
@@ -353,15 +353,14 @@ const calculateStats = (puttsCopy, width, height) => {
         if (putt.distance === 0) {
             trimmedPutts.push({
                 distance: putt.distance,
-                xDistance: 0,
-                yDistance: 0,
+                missXDistance: 0,
+                missYDistance: 0,
                 puttBreak: [0,0],
                 misReadLine: putt.misReadLine,
                 misReadSlope: putt.misReadSlope,
                 misHit: putt.misHit,
                 distanceMissed: 0,
                 totalPutts: putt.totalPutts,
-                point: putt.point,
                 ...(putt.largeMiss.distance !== -1 && { largeMiss: putt.largeMiss }),
             });
             return;
@@ -453,8 +452,8 @@ const calculateStats = (puttsCopy, width, height) => {
 
         trimmedPutts.push({
             distance: putt.distance,
-            xDistance: xDistance,
-            yDistance: yDistance,
+            missXDistance: xDistance,
+            missYDistance: yDistance,
             puttBreak: puttBreak,
             misReadLine: putt.misReadLine,
             misReadSlope: putt.misReadSlope,
@@ -928,7 +927,7 @@ function cleanMadePutts(averagePerformance) {
 }
 
 function updateSimpleStats(userData, simpleStats, putt, category) {
-    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts} = putt;
+    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, missXDistance, missYDistance, totalPutts} = putt;
 
     const statBreaks = [
         "leftToRight",
@@ -998,7 +997,7 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         simpleStats.avgMissDistance[distanceIndex] += distanceMissed;
     }
 
-    const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
+    const degrees = Math.atan2(missYDistance, missXDistance) * (180 / Math.PI);
     // if short
     if (degrees <= -22.5 && degrees >= -157) {
         simpleStats.percentShort++;
@@ -1011,8 +1010,8 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         if (puttBreak[0] === 1) simpleStats.percentHigh++;
     }
 
-    simpleStats.leftRightBias += xDistance;
-    simpleStats.shortPastBias += yDistance;
+    simpleStats.leftRightBias += missXDistance;
+    simpleStats.shortPastBias += missYDistance;
 
     simpleStats.totalDistance += distance;
     simpleStats.puttsMisread += misReadLine || misReadSlope ? 1 : 0;

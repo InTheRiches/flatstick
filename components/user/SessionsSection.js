@@ -6,7 +6,6 @@ import {Path, Svg} from 'react-native-svg';
 import {useRouter} from 'expo-router';
 import {RecentSession} from "../tabs/stats/overview";
 import useColors from "../../hooks/useColors";
-import {adaptFullRoundSession} from "../../utils/sessions/SessionUtils";
 
 export default function SessionsSection({ sessions, name, userId = "" }) {
     const router = useRouter();
@@ -21,7 +20,7 @@ export default function SessionsSection({ sessions, name, userId = "" }) {
                 ))}
             </View>
             {sessions.length > 0 ? (
-                <SecondaryButton onPress={() => router.push({pathname: "sessions", params: {puttSessionsString: JSON.stringify(sessions.map(adaptFullRoundSession)), userId: userId, name}})} style={{
+                <SecondaryButton onPress={() => router.push({pathname: "sessions", params: {puttSessionsString: JSON.stringify(sessions), userId: userId, name}})} style={{
                     borderRadius: 50,
                     flexDirection: "row",
                     alignSelf: "center",

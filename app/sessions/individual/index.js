@@ -25,6 +25,7 @@ export default function IndividualSession() {
     const navigation = useNavigation();
     const { jsonSession, recap, userId } = useLocalSearchParams();
     const session = JSON.parse(jsonSession);
+
     const {userData: appUserData} = useAppContext();
 
     const [userData, setUserData] = useState(userId === undefined ? appUserData : null);
@@ -77,7 +78,7 @@ export default function IndividualSession() {
         getBestSession().then(setBestSession);
     }, []);
 
-    const numOfHoles = session.filteredHoles || session.holes;
+    const numOfHoles = session.stats.holesPlayed;
 
     return loading ? <Loading /> : (
         <>

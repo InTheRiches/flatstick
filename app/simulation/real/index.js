@@ -16,7 +16,6 @@ import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppContext";
-import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {
@@ -40,6 +39,8 @@ import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
+import generatePushID from "../../../components/general/utils/GeneratePushID";
+import {SCHEMA_VERSION} from "../../../utils/constants";
 
 const initialState = {
     loading: false,
@@ -123,7 +124,7 @@ export default function RealSimulation() {
     }));
 
     // keep track of the time this session started at
-    const [startTime, setStartTime] = useState(new Date().getTime());
+    const [startTime, setStartTime] = useState(new Date());
 
     const [transitioning, setTransitioning] = useState(false);
 
@@ -283,36 +284,68 @@ export default function RealSimulation() {
 
         updateField("loading", true)
 
-        const data = {
-            date: new Date().toISOString(),
-            startedAtTimestamp: startTime,
-            timestamp: new Date().getTime(),
-            holes: partial ? puttsCopy.length : holes,
-            filteredHoles: filteredHoles,
-            putts: trimmedPutts,
-            totalPutts: totalPutts,
-            strokesGained: roundTo(strokesGained, 1),
-            avgMiss: avgMiss,
-            madePercent: madePercent,
-            type: "real-simulation",
-            putter: putters[userData.preferences.selectedPutter].type,
-            grip: grips[userData.preferences.selectedGrip].type,
-            puttCounts: puttCounts,
-            shortPastBias: shortPastBias,
-            leftRightBias: leftRightBias,
-            missData: missData,
-            totalDistance: totalDistance,
-            units: userData.preferences.units,
-            duration: new Date().getTime() - startTime,
-            percentShort,
-            percentHigh
+        const newData = {
+            id: generatePushID(),
+            meta: {
+                schemaVersion: SCHEMA_VERSION,
+                type: "real",
+                date: startTime,
+                durationMs: new Date().getTime() - startTime.getTime(),
+                units: userData.preferences.units,
+                synced: true // TODO set this to false if not synced (if offline mode is ever added)
+            },
+            "player": {
+                "putter": putters[userData.preferences.selectedPutter].type,
+                "grip": grips[userData.preferences.selectedGrip].type
+            },
+            "stats": {
+                "holes": partial ? puttsCopy.length : holes,
+                "holesPlayed": filteredHoles,
+                "totalPutts": totalPutts,
+                "puttCounts": puttCounts,
+                "madePercent": madePercent,
+                "avgMiss": avgMiss,
+                "strokesGained": strokesGained,
+                "missData": missData,
+                "leftRightBias": leftRightBias,
+                "shortPastBias": shortPastBias,
+                "totalDistance": totalDistance,
+                "percentShort": percentShort,
+                "percentHigh": percentHigh,
+            },
+            puttHistory: trimmedPutts
         }
+        //
+        // const data = {
+        //     date: new Date().toISOString(),
+        //     startedAtTimestamp: startTime,
+        //     timestamp: new Date().getTime(),
+        //     holes: partial ? puttsCopy.length : holes,
+        //     filteredHoles: filteredHoles,
+        //     putts: trimmedPutts,
+        //     totalPutts: totalPutts,
+        //     strokesGained: roundTo(strokesGained, 1),
+        //     avgMiss: avgMiss,
+        //     madePercent: madePercent,
+        //     type: "real",
+        //     putter: putters[userData.preferences.selectedPutter].type,
+        //     grip: grips[userData.preferences.selectedGrip].type,
+        //     puttCounts: puttCounts,
+        //     shortPastBias: shortPastBias,
+        //     leftRightBias: leftRightBias,
+        //     missData: missData,
+        //     totalDistance: totalDistance,
+        //     units: userData.preferences.units,
+        //     duration: new Date().getTime() - startTime,
+        //     percentShort,
+        //     percentHigh
+        // }
 
-        newSession(data).then(() => {
+        newSession(newData).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {
-                    jsonSession: JSON.stringify(data),
+                    jsonSession: JSON.stringify(newData),
                     recap: "true"
                 }
             });

@@ -6,12 +6,9 @@ import {useAppContext} from "@/contexts/AppContext";
 import {useRouter} from "expo-router";
 import FontText from "../../general/FontText";
 import {convertUnits} from "../../../utils/Conversions";
-import {adaptFullRoundSession} from "../../../utils/sessions/SessionUtils";
 
 export function RecentSessionSummary({unfinished}) {
-    const {puttSessions, fullRoundSessions, userData} = useAppContext();
-
-    const sessions = [...puttSessions, ...fullRoundSessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const {sessions, userData} = useAppContext();
 
     const colors = useColors();
     const colorScheme = "light";
@@ -19,7 +16,7 @@ export function RecentSessionSummary({unfinished}) {
 
     let date;
     if (sessions[0] !== null && sessions[0] !== undefined)
-        date = new Date(sessions[0].date);
+        date = new Date(sessions[0].meta.date);
     else
         date = new Date();
 
@@ -43,13 +40,15 @@ export function RecentSessionSummary({unfinished}) {
         )
     }
 
-    switch(sessions[0].type) {
-        case "real-simulation":
+    switch(sessions[0].meta.type) {
+        case "real":
             return getRealSimulation(userData, colors, colorScheme, date, sessions[0], sessions.length, unfinished, router);
-        case "round-simulation":
+        case "sim":
             return getHoleSimulation(userData, colors, colorScheme, date, sessions[0], sessions.length, unfinished, router);
-        case "full-round":
-            return getFullSimulation(userData, colors, colorScheme, date, adaptFullRoundSession(sessions[0]), sessions.length, unfinished, router);
+        case "full":
+            return getFullSimulation(userData, colors, colorScheme, date, sessions[0], sessions.length, unfinished, router);
+        default:
+            return getHoleSimulation(userData, colors, colorScheme, date, sessions[0], sessions.length, unfinished, router);
     }
 }
 
@@ -104,11 +103,11 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: 600
-                    }}>{recentSession.difficulty[0].toUpperCase() + recentSession.difficulty.slice(1)}</FontText>
+                    }}>{recentSession.meta.difficulty[0].toUpperCase() + recentSession.meta.difficulty.slice(1)}</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary, fontWeight: 600, fontSize: 13}}>MADE</FontText>
-                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: 600}}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
+                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 18, fontWeight: 600}}>{roundTo(recentSession.stats.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", fontSize: 13, fontWeight: 600, color: colors.text.tertiary}}>SG</FontText>
@@ -117,7 +116,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
                             textAlign: "left",
                             color: colors.text.primary,
                             fontSize: 18, fontWeight: 600
-                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
+                        }}>{recentSession.stats.strokesGained > 0 && "+"}{recentSession.stats.strokesGained}</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary, fontWeight: 600, fontSize: 13}}>AVG MISS</FontText>
@@ -126,7 +125,7 @@ function getHoleSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: 600
-                    }}>{convertUnits(recentSession.avgMiss, recentSession.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                    }}>{convertUnits(recentSession.stats.avgMiss, recentSession.meta.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>
@@ -196,7 +195,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.holes}</FontText>
+                    }}>{recentSession.stats.holesPlayed}</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Made</FontText>
@@ -206,7 +205,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
+                        }}>{roundTo(recentSession.stats.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary}}>SG</FontText>
@@ -216,7 +215,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
+                        }}>{recentSession.stats.strokesGained > 0 && "+"}{recentSession.stats.strokesGained}</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
@@ -225,7 +224,7 @@ function getRealSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{convertUnits(recentSession.avgMiss, recentSession.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                    }}>{convertUnits(recentSession.stats.avgMiss, recentSession.meta.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>
@@ -295,7 +294,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{recentSession.holes}</FontText>
+                    }}>{recentSession.stats.holes}</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Made</FontText>
@@ -305,7 +304,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{roundTo(recentSession.madePercent * 100, 1)}%</FontText>
+                        }}>{roundTo(recentSession.stats.madePercent * 100, 1)}%</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary}}>SG</FontText>
@@ -315,7 +314,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                             color: colors.text.primary,
                             fontSize: 18,
                             fontWeight: "bold"
-                        }}>{recentSession.strokesGained > 0 && "+"}{recentSession.strokesGained}</FontText>
+                        }}>{recentSession.stats.strokesGained > 0 && "+"}{recentSession.stats.strokesGained}</FontText>
                 </View>
                 <View>
                     <FontText style={{textAlign: "left", color: colors.text.tertiary}}>Avg. Miss</FontText>
@@ -324,7 +323,7 @@ function getFullSimulation(userData, colors, colorScheme, date, recentSession, p
                         color: colors.text.primary,
                         fontSize: 18,
                         fontWeight: "bold"
-                    }}>{convertUnits(recentSession.avgMiss, recentSession.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                    }}>{convertUnits(recentSession.stats.avgMiss, recentSession.meta.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                 </View>
             </View>
         </Pressable>
