@@ -28,6 +28,8 @@ export default function Modals({
                 infoModalRef={infoModalRef}
                 putter={session.player.putter}
                 grip={session.player.grip}
+                difficulty={session.meta.difficulty}
+                mode={session.meta.mode}
             />
         </>
     );

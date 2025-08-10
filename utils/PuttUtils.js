@@ -191,8 +191,6 @@ const calculateFullRoundStats = (roundData, width, height) => {
         if (hole.score - hole.par === -1) birdies++;
         if (hole.score - hole.par === 0) pars++;
 
-        trimmedHoles.push({...hole});
-
         const acc = hole.approachAccuracy;
         if (hole.par > 3 && acc && approachCounts.hasOwnProperty(acc)) {
             approachCounts[acc]++;
@@ -203,7 +201,11 @@ const calculateFullRoundStats = (roundData, width, height) => {
             teeShotCounts[acc2]++;
         }
 
-        if (hole.puttData === undefined) return;
+        if (hole.puttData === undefined) {
+            trimmedHoles.push({...hole});
+            return;
+        }
+
         const putt = hole.puttData;
 
         if (putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))

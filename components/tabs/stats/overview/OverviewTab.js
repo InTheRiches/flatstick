@@ -1,13 +1,13 @@
 import useColors from "../../../../hooks/useColors";
 import {roundTo} from "../../../../utils/roundTo";
 import {Dimensions, ScrollView, View} from "react-native";
-import {SeeAllSessions} from "../../home";
 import {RecentSession} from "./RecentSession";
 import FontText from "../../../general/FontText";
 import ColumnStat from "../../../stats/performance/ColumnStat";
 import React from "react";
 import {useAppContext} from "../../../../contexts/AppContext";
 import {convertUnits} from "../../../../utils/Conversions";
+import {SeeAllSessions} from "../../practice";
 
 export const OverviewTab = ({
                                 statsToUse,

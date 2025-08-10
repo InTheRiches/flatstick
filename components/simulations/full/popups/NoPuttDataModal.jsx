@@ -8,7 +8,7 @@ import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import FontText from "../../../general/FontText";
 import {Exclamation} from "../../../../assets/svg/SvgComponents";
 
-export function NoPuttDataModal({ noPuttDataModalRef, puttTrackingRef, nextHole}) {
+export function NoPuttDataModal({ noPuttDataModalRef, isLastHole, puttTrackingRef, nextHole}) {
     const colors = useColors();
     const colorScheme = "light";
 
@@ -63,7 +63,7 @@ export function NoPuttDataModal({ noPuttDataModalRef, puttTrackingRef, nextHole}
                         marginTop: 16,
                         width: "100%"
                     }]}>
-                        <FontText style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>Next Hole</FontText>
+                        <FontText style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>{isLastHole ? "Submit" : "Next Hole"}</FontText>
                     </Pressable>
                     {colorScheme === "light" ?
                         [<PrimaryButton key={"secondary"} onPress={() => {

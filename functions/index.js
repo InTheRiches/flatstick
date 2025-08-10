@@ -86,7 +86,7 @@ exports.fanOutFeedItem = functions.firestore
                 holesPlayed: sessionData.stats.holesPlayed,
                 avgMiss: sessionData.stats.avgMiss,
                 puttCounts: sessionData.stats.puttCounts,
-                avgDistance: sessionData.stats.totalDistance / sessionData.stats.holesPlayed,
+                avgDistance: roundTo(sessionData.stats.totalDistance / sessionData.stats.holesPlayed, 1),
             },
             specifics: specifics, // Add specifics based on session type
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
@@ -103,6 +103,11 @@ exports.fanOutFeedItem = functions.firestore
 
         await batch.commit();
     });
+
+const roundTo = (num, decimalPlaces) => {
+    const factor = Math.pow(10, decimalPlaces);
+    return Math.round(num * factor) / factor;
+};
 
 // TODO make two separate collections, one for sent and one for received,
 //  that way this doesnt get triggered twice for every friend request

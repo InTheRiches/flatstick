@@ -30,12 +30,15 @@ import {ScorecardModal} from "../../../components/simulations/full/popups/Scorec
 import {DarkTheme} from "../../../constants/ModularColors";
 import {newSession} from "../../../services/sessionService";
 import {SCHEMA_VERSION} from "../../../utils/constants";
+import {auth} from "../../../utils/firebase";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 // TODO add partial rounds
+// TODO when a person marks a holed out putt, it forces putts = 1, but when a person puts putts=1, it doesnt force the hole to be holed out
+// TODO When a person marks that they holed out from off the green, it should also disable the distance field, as that is not needed
 export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
@@ -377,6 +380,7 @@ export default function FullRound() {
     // TODO do we do all around strokes gained, along with putting strokes gained for this
     const submit = () => {
         saveHole();
+        console.log("submitting")
 
         const timeElapsed = new Date().getTime() - holeStartTime;
 
@@ -412,6 +416,7 @@ export default function FullRound() {
                 courseID: course.id,
                 clubName: course.club_name,
                 courseName: course.course_name,
+                frontNine: frontNine
             },
             "player": {
                 "putter": putters[userData.preferences.selectedPutter].type,
@@ -469,7 +474,7 @@ export default function FullRound() {
         //     },
         // }
 
-        newSession(newData).then(() => {
+        newSession(auth.currentUser.uid, newData).then(() => {
             // router.push({
             //     pathname: `/sessions/individual`,
             //     params: {
@@ -480,6 +485,9 @@ export default function FullRound() {
             router.replace({
                 pathname: `/(tabs)/practice`
             });
+        }).catch(error => {
+            console.error("Error saving session:", error);
+            alert("Failed to save session. Please try again later.");
         });
     };
 
@@ -639,7 +647,7 @@ export default function FullRound() {
                                     }}></PrimaryButton>
                 </View>
             </ScreenWrapper>
-            <NoPuttDataModal nextHole={nextHole} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
+            <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit()} end={fullReset}></ConfirmExit>
             <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData}/>
             <ScorecardModal setHoleNumber={setHoleNumber} roundData={roundData} front={frontNine} scorecardRef={scorecardRef}/>

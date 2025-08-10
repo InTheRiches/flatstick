@@ -99,7 +99,7 @@ export default function HomeScreen() {
     const renderFooter = () => {
         if (!loadingMore && !hasMore) {
             return (
-                <View style={{backgroundColor: colors.background.secondary, alignItems: "center", justifyContent: "center", marginTop: 16, paddingHorizontal: 6, paddingVertical: 12, borderRadius: 12}}>
+                <View style={{backgroundColor: colors.background.secondary, alignItems: "center", justifyContent: "center", paddingHorizontal: 6, paddingVertical: 12, borderRadius: 12}}>
                     <Text style={{color: colors.text.secondary, width: "100%", textAlign: "center", fontSize: 16, fontWeight: 500}}>No more activity, come back when you or your friends have posted more sessions!</Text>
                 </View>
             )
@@ -149,7 +149,7 @@ export default function HomeScreen() {
                     paddingHorizontal: 20,
                 }}>
                     <FlatList
-                        ListHeaderComponent={<Header bottomBorder={true}/>}
+                        ListHeaderComponent={<Header bottomBorder={false}/>}
                         data={getDataWithAds(sessions)}
                         keyExtractor={item => item.id}
                         renderItem={renderItem}

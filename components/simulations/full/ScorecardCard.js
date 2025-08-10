@@ -19,8 +19,13 @@ const ScorecardCard = ({scorecardRef, holes, setHoleNumber, front = true}) => {
     const frontNineScore = data.slice(0, 9).reduce((acc, hole) => hole.puttData ? acc + hole.score : acc, 0);
     const backNineScore = data.length > 9 ? data.slice(9).reduce((acc, hole) => hole.puttData ? acc + hole.score : acc, 0) : 0;
 
-    const frontNine = data.slice(0, Math.min(9, data.length));
-    const backNine = data.length > 9 ? data.slice(9) : [];
+    const padArray = (arr, length, padValue) =>
+        arr.length >= length ? arr : [...arr, ...Array(length - arr.length).fill(padValue)];
+
+    const frontNine = padArray(data.slice(0, 9), 9, { score: 0, par: 0});
+    const backNine = data.length > 9 ? padArray(data.slice(9, 18), 9, { score: 0, par: 0}) : [];
+    // const frontNine = data.slice(0, Math.min(9, data.length));
+    // const backNine = data.length > 9 ? data.slice(9) : [];
 
     return (
         <View style={{
@@ -52,6 +57,7 @@ const ScorecardCard = ({scorecardRef, holes, setHoleNumber, front = true}) => {
                 }}>
                     {nine.map((hole, i) => (
                         <Pressable onPress={() => {
+                            if (!setHoleNumber || !scorecardRef.current) return;
                             setHoleNumber(data.length === 9 ? front ? i + 1 : i + 10 : i + 1 + (index === 0 ? 0 : 9));
                             scorecardRef.current.dismiss();
                         }} key={i} style={{
@@ -127,7 +133,7 @@ const ScorecardCard = ({scorecardRef, holes, setHoleNumber, front = true}) => {
     );
 };
 
-export const BareScorecardCard = ({data, front = true}) => {
+export const BareScorecardCard = ({data, front = true, roundedBottom = false, roundedTop = true}) => {
     const colors = useColors();
 
     const totalScore = data.reduce((acc, hole) => hole.score !== -1 ? acc + hole.score : acc, 0);
@@ -143,8 +149,10 @@ export const BareScorecardCard = ({data, front = true}) => {
     return (
         <View style={{
             backgroundColor: "#0B0B0B",
-            borderTopRightRadius: 16,
-            borderTopLeftRadius: 16,
+            borderTopRightRadius: roundedTop ? 16 : 0,
+            borderTopLeftRadius: roundedTop ? 16 : 0,
+            borderBottomRightRadius: roundedBottom ? 16 : 0,
+            borderBottomLeftRadius: roundedBottom ? 16 : 0,
             paddingHorizontal: 16,
             paddingVertical: 10
         }}>

@@ -9,7 +9,7 @@ export default function StrokesGainedSection({ session, bestSession, showBest= f
     return (
         <View style={{ flexDirection: "row", gap: 24, marginTop: 20, flex: 0.55 }}>
             <View style={{ alignItems: "center" }}>
-                <FontText style={{ color: colors.text.secondary, fontSize: 13, fontWeight: 700, opacity: 0.8 }}>STROKES GAINED</FontText>
+                <FontText style={{ color: colors.text.secondary, fontSize: 14, fontWeight: 700, opacity: 0.8 }}>STROKES GAINED</FontText>
                 <FontText style={{ color: colors.text.primary, fontSize: session.strokesGained < -10 ? 40 : 48, fontWeight: 600 }}>
                     {session.stats.strokesGained > 0 ? "+" : ""}{session.stats.strokesGained}
                 </FontText>

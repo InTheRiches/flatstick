@@ -390,8 +390,7 @@ export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvali
                             borderRadius: 16,
                             flex: 0
                         }} onPress={() => {
-                            if (distance === -1) validateDistance((99).toString());
-                            else if (distance === 1) validateDistance((99).toString());
+                            if (distance <= 1) validateDistance((99).toString());
                             else validateDistance((distance - 1).toString());
                         }}>
                             <Svg
