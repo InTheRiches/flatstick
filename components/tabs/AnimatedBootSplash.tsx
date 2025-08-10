@@ -43,7 +43,7 @@ export const AnimatedBootSplash = ({onAnimationEnd, ready}: Props) => {
     return (
         <Animated.View style={[styles.container, {opacity}]}>
             <Animated.Image
-                source={require("../../../assets/bootsplash/logo.png")} // your splash logo
+                source={require("../../assets/bootsplash/logo.png")} // your splash logo
                 style={[styles.logo, {transform: [{translateY}]}]}
                 resizeMode="contain"
             />

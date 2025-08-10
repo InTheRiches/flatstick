@@ -1,20 +1,32 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
-import {ActivityIndicator, FlatList, Image, Platform, RefreshControl, Text, View} from "react-native";
-import {Header} from "@/components/tabs/home";
+import {ActivityIndicator, FlatList, Platform, RefreshControl, Text, View} from "react-native";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "@/components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import {collection, getDocs, limit, orderBy, query, startAfter} from "firebase/firestore";
 import {auth, firestore} from "@/utils/firebase";
-import FontText from "@/components/general/FontText";
-import {BareScorecardCard} from "@/components/simulations/full/ScorecardCard";
 import {useAppContext} from "@/contexts/AppContext";
-import {convertUnits} from "@/utils/Conversions";
+import {Header} from "@/components/tabs/Header";
+import {FullFeedItem} from "@/components/tabs/home/FullFeedItem";
+import {SimFeedItem} from "@/components/tabs/home/SimFeedItem";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 const PAGE_SIZE = 10;
+const INTERVAL = 5; // show ad every 5 items
 
+const getDataWithAds = (sessions) => {
+    const output = [];
+    sessions.forEach((session, index) => {
+        output.push({ type: 'session', ...session });
+        if ((index + 1) % INTERVAL === 0) {
+            output.push({ type: 'ad', id: `ad-${index}` });
+        }
+    });
+    return output;
+};
+
+// TODO add milestones/achievements to the homescreen items
 export default function HomeScreen() {
     const colors = useColors();
     const {userData} = useAppContext();
@@ -88,7 +100,7 @@ export default function HomeScreen() {
         if (!loadingMore && !hasMore) {
             return (
                 <View style={{backgroundColor: colors.background.secondary, alignItems: "center", justifyContent: "center", marginTop: 16, paddingHorizontal: 6, paddingVertical: 12, borderRadius: 12}}>
-                    <Text style={{color: colors.text.secondary, width: "100%", textAlign: "center", fontSize: 16, fontWeight: 500}}>No more activity, come back when your friends post more sessions!</Text>
+                    <Text style={{color: colors.text.secondary, width: "100%", textAlign: "center", fontSize: 16, fontWeight: 500}}>No more activity, come back when you or your friends have posted more sessions!</Text>
                 </View>
             )
         }
@@ -107,54 +119,21 @@ export default function HomeScreen() {
     };
 
     const renderItem = ({ item }) => {
-        if (item.session.type === "full") {
+        if (item.type === 'ad') {
             return (
-                <View style={{ borderBottomWidth: 1, borderColor: '#ddd', paddingBottom: 24 }}>
-                    <View style={{flexDirection: "row", alignItems: "center", marginBottom: 8}}>
-                        <View style={{flex: 1, flexDirection: "row", alignItems: "center"}}>
-                            <View style={{ borderRadius: 50, backgroundColor: 'white', padding: 8 }}>
-                                <Image source={require('../../assets/branding/FlatstickMallet.png')} style={{ width: 40, height: 40 }} />
-                            </View>
-                            <View style={{marginLeft: 8}}>
-                                <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>Hayden Williams</Text>
-                                <Text style={{ color: colors.text.secondary, fontSize: 15}}>At {item.specifics.courseName}</Text>
-                            </View>
-                        </View>
-                        <Text style={{ color: colors.text.secondary, fontSize: 16}}>{new Date(item.session.date).toLocaleDateString()}</Text>
-                    </View>
-                    <BareScorecardCard data={item.specifics.scorecard} front={true}/>
-                    <View style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}}>
-                        <View style={{ flexDirection: "row", borderBottomWidth: 1, borderBottomColor: colors.border.default }}>
-                            <View style={{flexDirection: "column", flex: 0.6, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
-                                <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>HOLES</FontText>
-                                <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.holesPlayed}</FontText>
-                            </View>
-                            <View style={{flexDirection: "column", flex: 1, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
-                                <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>1 PUTTS</FontText>
-                                <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.puttCounts[0]}</FontText>
-                            </View>
-                            <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
-                                <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>AVG DISTANCE</FontText>
-                                <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{convertUnits(item.stats.avgMiss, item.session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
-                            </View>
-                        </View>
-                        <View style={{ flexDirection: "row" }}>
-                            <View style={{flexDirection: "column", flex: 0.6, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
-                                <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>SG</FontText>
-                                <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>12</FontText>
-                            </View>
-                            <View style={{flexDirection: "column", flex: 1, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
-                                <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>PUTTS</FontText>
-                                <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.totalPutts}</FontText>
-                            </View>
-                            <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
-                                <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>AVG MISS</FontText>
-                                <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.avgMiss}</FontText>
-                            </View>
-                        </View>
-                    </View>
+                <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                    <BannerAd
+                        unitId={bannerAdId} // replace with your AdMob unit ID in production
+                        size={BannerAdSize.MEDIUM_RECTANGLE}
+                    />
                 </View>
-            )
+            );
+        }
+        if (item.session.type === "full") {
+            return <FullFeedItem userData={userData} item={item} />;
+        }
+        else if (item.session.type === "sim") {
+            return <SimFeedItem userData={userData} item={item} />;
         }
     };
 
@@ -171,12 +150,14 @@ export default function HomeScreen() {
                 }}>
                     <FlatList
                         ListHeaderComponent={<Header bottomBorder={true}/>}
-                        data={sessions}
+                        data={getDataWithAds(sessions)}
                         keyExtractor={item => item.id}
                         renderItem={renderItem}
                         onEndReached={handleEndReached}
                         onEndReachedThreshold={0.5}
                         ListFooterComponent={renderFooter}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{paddingBottom: 72}}
                         refreshControl={
                             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                         }

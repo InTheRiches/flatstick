@@ -59,7 +59,6 @@ exports.fanOutFeedItem = functions.firestore
                 specifics = {
                     difficulty: sessionData.meta.difficulty, // Assuming difficulty is part of meta
                     mode: sessionData.meta.mode, // Assuming mode is part of meta
-                    scorecard: sessionData.scorecard, // Assuming scorecard is part of stats
                 }
                 break;
             case "full":
@@ -90,7 +89,8 @@ exports.fanOutFeedItem = functions.firestore
                 avgDistance: sessionData.stats.totalDistance / sessionData.stats.holesPlayed,
             },
             specifics: specifics, // Add specifics based on session type
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            scorecard: sessionData.scorecard, // Assuming scorecard is part of stats
         };
 
         const batch = admin.firestore().batch();
@@ -98,6 +98,8 @@ exports.fanOutFeedItem = functions.firestore
             const ref = admin.firestore().collection(`userFeed/${friendId}/feedItems`).doc();
             batch.set(ref, feedItem);
         }
+        const feedItemRef = admin.firestore().collection(`userFeed/${userId}/feedItems`).doc(sessionId);
+        batch.set(feedItemRef, feedItem);
 
         await batch.commit();
     });

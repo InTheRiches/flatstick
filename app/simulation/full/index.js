@@ -394,7 +394,7 @@ export default function FullRound() {
 
         const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.score === 0 ? 4 : hole.score), 0);
 
-        const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const {totalPutts, birdies, eagles, pars, avgMiss, shotPlacementData, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
         const { name, par, rating, slope, yards } = tee;
 
         const scorecard = updatedRoundData.map((hole, index) => ({score: hole.puttData ? hole.score : -1, par: hole.par}));
@@ -404,7 +404,7 @@ export default function FullRound() {
             meta: {
                 schemaVersion: SCHEMA_VERSION,
                 type: "full",
-                date: startTime,
+                date: startTime.toISOString(),
                 durationMs: new Date().getTime() - startTime.getTime(),
                 units: userData.preferences.units,
                 synced: true, // TODO set this to false if not synced (if offline mode is ever added)
@@ -426,7 +426,7 @@ export default function FullRound() {
                 "avgMiss": avgMiss,
                 "strokesGained": roundTo(strokesGained, 1),
                 "missData": missData,
-                "leftRightBias": leftRightBias, // TODO consider moving this stuff to a separate "tendancies" object
+                "leftRightBias": leftRightBias, // TODO consider moving this stuff to a separate "tendencies" object
                 "shortPastBias": shortPastBias,
                 "totalDistance": totalDistance,
                 "percentShort": percentShort,
@@ -435,6 +435,7 @@ export default function FullRound() {
                 eagles: eagles,
                 pars: pars,
                 score: totalScore,
+                shotPlacementData
             },
             holeHistory: trimmedHoles,
             scorecard,
@@ -477,13 +478,13 @@ export default function FullRound() {
             //     }
             // });
             router.replace({
-                pathname: `/`
+                pathname: `/(tabs)/practice`
             });
         });
     };
 
     const fullReset = () => {
-        router.replace("/");
+        router.replace("/(tabs)/practice");
     };
 
     const updatePuttData = (data) => {
@@ -561,10 +562,12 @@ export default function FullRound() {
                             <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, textAlign: "center"}}>Tee Shot</FontText>
                             <ApproachAccuracyButton activeButton={fairwayAccuracy} colors={colors} onPress={(type) => setFairwayAccuracy(type)}/>
                         </View>
-                        <View style={{flex: 1}}>
-                            <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, textAlign: "center"}}>Approach Shot</FontText>
-                            <ApproachAccuracyButton activeButton={approachAccuracy} colors={colors} onPress={(type) => setApproachAccuracy(type)}/>
-                        </View>
+                        { tee.holes[hole-1].par > 3 && (
+                            <View style={{flex: 1}}>
+                                <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, textAlign: "center"}}>Approach Shot</FontText>
+                                <ApproachAccuracyButton activeButton={approachAccuracy} colors={colors} onPress={(type) => setApproachAccuracy(type)}/>
+                            </View>
+                        )}
                     </View>
                     <View style={{flexDirection: "row", gap: 32, marginTop: -10}}>
                         <ScoreIncrementer adjustScore={adjustScore} holeScore={holeScore} hole={hole} tee={tee}></ScoreIncrementer>

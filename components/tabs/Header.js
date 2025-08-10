@@ -1,6 +1,6 @@
 import {Image, View} from "react-native";
 import React from "react";
-import useColors from "../../../hooks/useColors";
+import useColors from "../../hooks/useColors";
 
 export function Header({bottomBorder = false}) {
     const colors = useColors();
@@ -10,7 +10,6 @@ export function Header({bottomBorder = false}) {
             alignItems: "center",
             flexDirection: "row",
             width: "100%",
-            paddingTop: 2,
             paddingBottom: 10,
             borderBottomColor: colors.border.default,
             borderBottomWidth: bottomBorder ? 1 : 0,

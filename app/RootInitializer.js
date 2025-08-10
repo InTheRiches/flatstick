@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {auth} from "@/utils/firebase";
 import {useRouter} from "expo-router";
 import {useSession} from "@/contexts/AuthContext";
-import {AnimatedBootSplash} from "@/components/tabs/home/AnimatedBootSplash";
+import {AnimatedBootSplash} from "@/components/tabs/AnimatedBootSplash";
 import NetInfo from '@react-native-community/netinfo';
 import {
     Inter_100Thin,

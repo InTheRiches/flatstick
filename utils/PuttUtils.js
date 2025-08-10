@@ -166,6 +166,21 @@ const calculateFullRoundStats = (roundData, width, height) => {
     let long = 0;
     let short = 0;
 
+    const approachCounts = {
+        green: 0,
+        right: 0,
+        left: 0,
+        short: 0,
+        long: 0
+    };
+    const teeShotCounts = {
+        green: 0, // technically it is the fairway, but we will use green for simplicity
+        right: 0,
+        left: 0,
+        short: 0,
+        long: 0
+    };
+
     let holes = 0;
 
     let percentHigh = 0;
@@ -178,13 +193,23 @@ const calculateFullRoundStats = (roundData, width, height) => {
 
         trimmedHoles.push({...hole});
 
+        const acc = hole.approachAccuracy;
+        if (hole.par > 3 && acc && approachCounts.hasOwnProperty(acc)) {
+            approachCounts[acc]++;
+        }
+
+        const acc2 = hole.fairwayAccuracy;
+        if (acc2 && teeShotCounts.hasOwnProperty(acc2)) {
+            teeShotCounts[acc2]++;
+        }
+
         if (hole.puttData === undefined) return;
         const putt = hole.puttData;
 
         if (putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))
             return;
 
-        // what is this? I think it is for big misses
+        // what is this? I think it is for big misses (maybe holed out?)
         if (putt.distance === 0) {
             trimmedHoles.push({
                 ...hole,
@@ -309,6 +334,38 @@ const calculateFullRoundStats = (roundData, width, height) => {
         totalDistance += putt.distance;
     });
 
+    // we only do this for approach shots as if there are par 3s it wont have the same number of data as teeShots
+    const approachTotal = approachCounts.green + approachCounts.right + approachCounts.left + approachCounts.short + approachCounts.long;
+    const approachPct = (count) => ((count / approachTotal) * 100).toFixed(1);
+    const shotPct = (count) => ((count / trimmedHoles.length) * 100).toFixed(1);
+
+    const shotPlacementData = {
+        approach: {
+            accuracy: approachPct(approachCounts.green),
+            missBias: approachCounts.right > approachCounts.left ? "Right" : approachCounts.left > approachCounts.right ? "Left" : "Balanced",
+            distanceBias: approachCounts.short > approachCounts.long ? "Short" : approachCounts.long > approachCounts.short ? "Long" : "Balanced",
+            placement: {
+                green: approachPct(approachCounts.green),
+                right: approachPct(approachCounts.right),
+                left: approachPct(approachCounts.left),
+                short: approachPct(approachCounts.short),
+                long: approachPct(approachCounts.long)
+            }
+        },
+        teeShot: {
+            accuracy: shotPct(teeShotCounts.green),
+            missBias: teeShotCounts.right > teeShotCounts.left ? "Right" : teeShotCounts.left > teeShotCounts.right ? "Left" : "Balanced",
+            distanceBias: teeShotCounts.short > teeShotCounts.long ? "Short" : teeShotCounts.long > teeShotCounts.short ? "Long" : "Balanced",
+            placement: {
+                fairway: shotPct(teeShotCounts.green),
+                right: shotPct(teeShotCounts.right),
+                left: shotPct(teeShotCounts.left),
+                short: shotPct(teeShotCounts.short),
+                long: shotPct(teeShotCounts.long)
+            }
+        }
+    }
+
     avgMiss = roundTo(avgMiss, 1);
     if (holes > 0) {
         madePercent /= holes;
@@ -319,7 +376,7 @@ const calculateFullRoundStats = (roundData, width, height) => {
         percentShort /= holes;
     }
 
-    return { totalPutts, pars, birdies, eagles, avgMiss, madePercent, trimmedHoles, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
+    return { totalPutts, pars, birdies, eagles, avgMiss, madePercent, trimmedHoles, strokesGained, shotPlacementData, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
 }
 
 const calculateStats = (puttsCopy, width, height) => {
@@ -475,7 +532,7 @@ const calculateStats = (puttsCopy, width, height) => {
     percentHigh /= holes;
     percentShort /= holes;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained: roundTo(strokesGained, 1), leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
 };
 
 function formatFeetAndInches(feet) {

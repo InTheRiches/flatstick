@@ -9,6 +9,7 @@ import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
 import ProfileTabIcon from "@/components/tabs/ProfileTabIcon";
 
+// TODO show the exclamation indicator on the profile tab if there are new achievements
 export default function TabLayout() {
     const colors = useColors();
     const {isLoading} = useAppContext();

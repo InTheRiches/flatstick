@@ -1,5 +1,5 @@
 import React, {useEffect, useImperativeHandle, useRef} from 'react';
-import {Platform, ScrollView, View} from 'react-native';
+import {Platform, ScrollView, Text, View} from 'react-native';
 import ScreenWrapper from '../../components/general/ScreenWrapper';
 import ProfileHeader from '../../components/user/ProfileHeader';
 import FriendsCard from '../../components/user/FriendsCard';
@@ -7,7 +7,7 @@ import StrokesGainedCard from '../../components/user/StrokesGainedCard';
 import SessionsSection from '../../components/user/SessionsSection';
 import StatsCard from "../../components/user/StatsCard";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {getUserSessionsByID} from "../../services/userService";
+import {getUserDataByID, getUserSessionsByID} from "../../services/userService";
 import {createSimpleStats} from "../../utils/PuttUtils";
 import {
     acceptFriendRequest,
@@ -27,10 +27,33 @@ import {getAllStats} from "../../services/statsService";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 export default function UserScreen({}) {
-    const {userDataString} = useLocalSearchParams();
+    const {userDataString, userId = ""} = useLocalSearchParams();
     const router = useRouter();
 
-    const friendData = JSON.parse(userDataString);
+    console.log("userId:", userId);
+
+    const [friendData, setFriendData] = React.useState(
+        userDataString ? JSON.parse(userDataString) : null
+    );
+    const [loadingUser, setLoadingUser] = React.useState(!userDataString);
+    console.log("initial friendData:", friendData);
+    console.log("loadingUser:", !userDataString);
+
+    useEffect(() => {
+        if (!friendData && userId) {
+            getUserDataByID(userId)
+                .then((data) => {
+                    setFriendData(data);
+                    setIsFriend(data.friends.includes(auth.currentUser.uid));
+                })
+                .catch((err) => console.error("Error fetching user data:", err))
+                .finally(() => setLoadingUser(false));
+        } else if (friendData) {
+            console.log("Initial friendData:", friendData);
+            setIsFriend(friendData.friends.includes(auth.currentUser.uid));
+        }
+    }, [userId]);
+
     const bannerRef = useRef(null);
     const strokesGainedRef = useRef(null);
 
@@ -40,7 +63,7 @@ export default function UserScreen({}) {
     const [sessions, setSessions] = React.useState([]);
     const [yearlyStats, setYearlyStats] = React.useState({});
     const [stats, setStats] = React.useState(createSimpleStats());
-    const [isFriend, setIsFriend] = React.useState(friendData.friends.includes(auth.currentUser.uid));
+    const [isFriend, setIsFriend] = React.useState(false);
     const [adLoaded, setAdLoaded] = React.useState(false);
     const [pending, setPending] = React.useState("none");
     const removeFriendRef = useRef(null);
@@ -56,7 +79,7 @@ export default function UserScreen({}) {
     }));
 
     useEffect(() => {
-        console.log("UserScreen: friendData:", friendData);
+        if (!friendData) return;
         if (!friendData.uid) return; // avoid double runs with invalid ID
 
         getUserSessionsByID(friendData.uid).then(setSessions).catch((error) => {
@@ -76,7 +99,7 @@ export default function UserScreen({}) {
                 setPending("received");
             }
         });
-    }, []);
+    }, [friendData]);
 
     const addFriend = () => {
         // Implement add friend functionality
@@ -111,6 +134,22 @@ export default function UserScreen({}) {
         acceptFriendRequest(auth.currentUser.uid, friendData.uid)
         setIsFriend(true);
         setPending("none");
+    }
+
+    if (loadingUser) {
+        return (
+            <ScreenWrapper>
+                <Text>Loading...</Text>
+            </ScreenWrapper>
+        );
+    }
+
+    if (!friendData) {
+        return (
+            <ScreenWrapper>
+                <Text>User not found</Text>
+            </ScreenWrapper>
+        );
     }
 
     return (

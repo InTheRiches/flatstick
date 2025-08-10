@@ -34,9 +34,11 @@ export const getUserDataByID = async (id) => {
 
     try {
         const docSnap = await getDoc(docRef);
+        console.log("doc snap: " + JSON.stringify(docSnap.data()));
         if (!docSnap.exists()) return null;
 
         const data = docSnap.data();
+        console.log("doc data1: " + JSON.stringify(data));
         if (data.deleted) return null;
 
         console.log("doc data: " + JSON.stringify(data));
@@ -179,6 +181,7 @@ export function adaptOldSession(old) {
                 pars: old.pars ?? null,
                 birdies: old.birdies ?? null,
                 eagles: old.eagles ?? null,
+                shotPlacementData: old.shotPlacementData ?? null,
             },
             puttHistory: adaptedPuttHistory ?? null,
             holeHistory: (newType === "full" ? old.holes ?? null : null),

@@ -1,11 +1,12 @@
 import React, {useRef} from 'react';
 import useColors from "@/hooks/useColors";
-import {NewRealRound, NewRound} from "@/components/tabs/home/popups";
+import {NewRealRound, NewRound} from "@/components/tabs/practice/popups";
 import {Platform, ScrollView, View} from "react-native";
-import {Header, PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/home";
+import {PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/practice";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "@/components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import {Header} from "../../components/tabs/Header";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 

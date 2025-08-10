@@ -274,7 +274,7 @@ export default function RealSimulation() {
     };
 
     const fullReset = () => {
-        navigation.goBack();
+        router.replace("/(tabs)/practice");
     }
 
     const submit = (partial = false) => {
@@ -284,12 +284,14 @@ export default function RealSimulation() {
 
         updateField("loading", true)
 
+        const scorecard = puttsCopy.map((hole, index) => (hole.totalPutts));
+
         const newData = {
             id: generatePushID(),
             meta: {
                 schemaVersion: SCHEMA_VERSION,
                 type: "real",
-                date: startTime,
+                date: startTime.toISOString(),
                 durationMs: new Date().getTime() - startTime.getTime(),
                 units: userData.preferences.units,
                 synced: true // TODO set this to false if not synced (if offline mode is ever added)
@@ -313,7 +315,8 @@ export default function RealSimulation() {
                 "percentShort": percentShort,
                 "percentHigh": percentHigh,
             },
-            puttHistory: trimmedPutts
+            puttHistory: trimmedPutts,
+            scorecard
         }
         //
         // const data = {

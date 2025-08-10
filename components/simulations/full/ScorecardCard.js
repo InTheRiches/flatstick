@@ -26,7 +26,8 @@ const ScorecardCard = ({scorecardRef, holes, setHoleNumber, front = true}) => {
         <View style={{
             backgroundColor: "#0B0B0B",
             borderRadius: 16,
-            padding: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
             marginTop: 20
         }}>
             {/* Top Row */}
@@ -144,7 +145,8 @@ export const BareScorecardCard = ({data, front = true}) => {
             backgroundColor: "#0B0B0B",
             borderTopRightRadius: 16,
             borderTopLeftRadius: 16,
-            padding: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 10
         }}>
             {/* Top Row */}
             <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 12 }}>
@@ -167,10 +169,7 @@ export const BareScorecardCard = ({data, front = true}) => {
                     justifyContent: "space-between"
                 }}>
                     {nine.map((hole, i) => (
-                        <Pressable onPress={() => {
-                            setHoleNumber(data.length === 9 ? front ? i + 1 : i + 10 : i + 1 + (index === 0 ? 0 : 9));
-                            scorecardRef.current.dismiss();
-                        }} key={i} style={{
+                        <View key={i} style={{
                             justifyContent: "center",
                             alignItems: "center",
                             gap: 4
@@ -227,7 +226,124 @@ export const BareScorecardCard = ({data, front = true}) => {
                                     ))
                                 )}
                             </View>
-                        </Pressable>
+                        </View>
+                    ))}
+                    <Text style={{
+                        color: "white",
+                        fontWeight: "bold",
+                        fontSize: 20,
+                        marginLeft: 8,
+                        width: 30,
+                        textAlign: "center"
+                    }}>{index === 0 ? frontNineScore : backNineScore}</Text>
+                </View>
+            ))}
+        </View>
+    );
+};
+
+export const PuttScorecardCard = ({data, strokesGained, totalPutts, front = true}) => {
+    const colors = useColors();
+
+    // const totalPar = data.reduce((acc, hole) => hole.score !== -1 ? acc + hole.par : acc, 0);
+    // const toPar = totalScore - totalPar;
+
+    const frontNineScore = data.slice(0, 9).reduce((acc, hole) => acc + hole, 0);
+    const backNineScore = data.length > 9 ? data.slice(9).reduce((acc, hole) => acc + hole, 0) : 0;
+
+    const padArray = (arr, length, padValue) =>
+        arr.length >= length ? arr : [...arr, ...Array(length - arr.length).fill(padValue)];
+
+    const frontNine = padArray(data.slice(0, 9), 9, -1);
+    const backNine = data.length > 9 ? padArray(data.slice(9, 18), 9, -1) : [];
+
+    return (
+        <View style={{
+            backgroundColor: "#0B0B0B",
+            borderTopRightRadius: 16,
+            borderTopLeftRadius: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 10
+        }}>
+            {/* Top Row */}
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 12 }}>
+                <View>
+                    <Text style={{ color: DarkTheme.text.secondary, fontSize: 16, fontWeight: "bold" }}>Strokes Gained</Text>
+                    <Text style={{ color: DarkTheme.text.primary, fontSize: 24, fontWeight: "bold" }}>{strokesGained > 0 ? `+${strokesGained}` : strokesGained}</Text>
+                </View>
+                <View style={{ alignItems: "flex-end" }}>
+                    <Text style={{ color: DarkTheme.text.secondary, fontSize: 16, fontWeight: "bold" }}>Gross Putts</Text>
+                    <Text style={{ color: DarkTheme.text.primary, fontSize: 24, fontWeight: "bold" }}>{totalPutts}</Text>
+                </View>
+            </View>
+
+            {/* Score Rows */}
+            {[frontNine, backNine].filter(nine => nine.length > 0).map((nine, index) => (
+                <View key={index} style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginBottom: 6,
+                    justifyContent: "space-between"
+                }}>
+                    {nine.map((hole, i) => (
+                        <View key={i} style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 4
+                        }}>
+                            <Text style={{ color: DarkTheme.text.secondary, fontSize: 12 }}>
+                                {data.length === 9 ?
+                                    front ? i + 1 : i + 10
+                                    : i + 1 + (index === 0 ? 0 : 9)}
+                            </Text>
+                            <View style={{
+                                width: 28,
+                                height: 28,
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Text style={{ color: hole !== -1 ? "white" : DarkTheme.text.secondary, fontSize: 18, fontWeight: 600 }}>{hole === -1 ? "?" : hole}</Text>
+                                {  hole !== -1 && hole > 2 && (
+                                    Array.from({ length: Math.min(hole - 2, 3) }).map((_, i) => (
+                                        <Svg
+                                            key={`bogey-${i}`}
+                                            width={40}
+                                            height={40}
+                                            style={{position: "absolute"}}
+                                        >
+                                            <Rect
+                                                x={10 - (2.5 * i)}
+                                                y={10 - (2.5 * i)}
+                                                width={20 + (5 * i)}
+                                                height={20 + (5 * i)}
+                                                stroke={colors.border.default}
+                                                strokeWidth={i === 2 && hole - 2 > 3 ? 2 : 1.5}
+                                                fill="none"
+                                            />
+                                        </Svg>
+                                    ))
+                                )}
+                                { hole !== -1 && hole < 2 && (
+                                    Array.from({ length: 2-hole }).map((_, i) => (
+                                        <Svg
+                                            key={`birdie-${i}`}
+                                            width={30}
+                                            height={30}
+                                            style={{ position: "absolute" }}
+                                        >
+                                            <Circle
+                                                cx={15}
+                                                cy={15}
+                                                r={11 + (3 * i)}
+                                                stroke={colors.border.default}
+                                                strokeWidth={1.5}
+                                                fill="none"
+                                            />
+                                        </Svg>
+                                    ))
+                                )}
+                            </View>
+                        </View>
                     ))}
                     <Text style={{
                         color: "white",

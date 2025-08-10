@@ -12,40 +12,65 @@ import BiasSection from "../../../components/sessions/individual/new/BiasSection
 import ActionButtons from "../../../components/sessions/individual/new/ActionButtons";
 import Modals from "../../../components/sessions/individual/new/Modals";
 import IndividualHeader from "../../../components/sessions/individual/new/IndividualHeader";
-import {getUserDataByID} from "../../../services/userService";
+import {adaptOldSession} from "../../../services/userService";
 import {useAppContext} from "../../../contexts/AppContext";
+import {doc, getDoc} from "firebase/firestore";
+import {auth, firestore} from "../../../utils/firebase";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
     ? "ca-app-pub-2701716227191721/6686596809"
     : "ca-app-pub-2701716227191721/8364755969";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-// TODO fix the metric background, and adjust the distances for the distribution. I think 0.5 meters is not big enough. Maybe jump to 1?
+// adjust the distances for the distribution. I think 0.5 meters is not big enough. Maybe jump to 1?
+// add the difficulty or mode to the info modal for simulations
+// TODO not showing best session anymore, need to fix that (its set to false in the component below)
+// TODO show if you earned an achievement here
 export default function IndividualSession() {
     const navigation = useNavigation();
-    const { jsonSession, recap, userId } = useLocalSearchParams();
-    const session = JSON.parse(jsonSession);
+    const { jsonSession, recap, userId, sessionId } = useLocalSearchParams();
+    const {userData} = useAppContext();
 
-    const {userData: appUserData} = useAppContext();
+    // const [userData, setUserData] = useState(userId === undefined ? appUserData : null);
+    const [session, setSession] = useState(jsonSession ? JSON.parse(jsonSession) : null);
+    const [loading, setLoading] = useState(!jsonSession);
+    const [bestSession, setBestSession] = useState({ strokesGained: "~" });
 
-    const [userData, setUserData] = useState(userId === undefined ? appUserData : null);
-
+    // Fetch session if we don't already have it
     useEffect(() => {
-        if (userId === undefined) return;
-        Promise.all([
-            getUserDataByID(userId).then(setUserData).catch(error => {
-                console.error("Error fetching user data:", error);
-                setUserData(null);
-            })
-        ]).then(() => {
-            setLoading(false); // Set loading to false when both are loaded
-        });
-    }, []);
+        const fetchSession = async () => {
+            if (session) return; // already have it from jsonSession
+            if (!sessionId) {
+                console.error("Missing sessionId to fetch session");
+                return;
+            }
+
+            const usableUserId = userId === undefined ? auth.currentUser.uid : userId;
+
+            try {
+                const docRef = doc(firestore, `users/${usableUserId}/sessions`, sessionId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    let data = docSnap.data();
+                    if (!data.schemaVersion || data.schemaVersion < 2) {
+                        data = adaptOldSession(data);
+                    }
+                    setSession({ id: docSnap.id, ...data });
+                } else {
+                    console.warn("Session not found:", sessionId);
+                }
+            } catch (error) {
+                console.error("Error fetching session:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSession();
+    }, [sessionId, userId]);
 
     const isRecap = recap === "true";
-
-    const [bestSession, setBestSession] = useState({ strokesGained: "~" });
-    const [loading, setLoading] = useState(userId !== undefined);
 
     const shareSessionRef = useRef();
     const confirmDeleteRef = useRef();
@@ -77,6 +102,8 @@ export default function IndividualSession() {
         // TODO make this not just get the user's best session, but the best session of whoever the session belongs to (or just remove this for sessions that arent the user's)
         getBestSession().then(setBestSession);
     }, []);
+
+    if (loading || !session || !userData) return <Loading />;
 
     const numOfHoles = session.stats.holesPlayed;
 

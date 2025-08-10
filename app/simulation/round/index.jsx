@@ -1,4 +1,4 @@
-import {useFocusEffect, useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {useFocusEffect, useLocalSearchParams, useRouter} from 'expo-router';
 import {ActivityIndicator, BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useImperativeHandle, useMemo, useRef, useState} from 'react';
@@ -95,7 +95,6 @@ const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 // TODO add 9 or 18 holes, dont lock it down to 18
 export default function RoundSimulation() {
     const colors = useColors();
-    const navigation = useNavigation();
     const {newSession, putters, userData, currentStats, grips} = useAppContext();
     const roundSimulationRef = useRef(null);
 
@@ -299,7 +298,7 @@ export default function RoundSimulation() {
     };
 
     const fullReset = () => {
-        navigation.goBack();
+        router.replace("/(tabs)/practice");
     }
 
     const submit = (partial = false) => {
@@ -309,6 +308,8 @@ export default function RoundSimulation() {
 
         updateField("loading", true);
 
+        const scorecard = puttsCopy.map((hole, index) => (hole.totalPutts));
+
         const newData = {
             id: generatePushID(),
             meta: {
@@ -316,7 +317,7 @@ export default function RoundSimulation() {
                 type: "sim",
                 mode: mode,
                 difficulty: difficulty,
-                date: startTime,
+                date: startTime.toISOString(),
                 durationMs: new Date().getTime() - startTime.getTime(),
                 units: userData.preferences.units,
                 synced: true // TODO set this to false if not synced (if offline mode is ever added)
@@ -340,7 +341,8 @@ export default function RoundSimulation() {
                 "percentShort": percentShort,
                 "percentHigh": percentHigh,
             },
-            puttHistory: trimmedPutts
+            puttHistory: trimmedPutts,
+            scorecard
         }
 
         // const data = {
