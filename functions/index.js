@@ -51,12 +51,45 @@ exports.fanOutFeedItem = functions.firestore
         }
 
         //const sessionData = snap.data.after;
+        const sessionData = snap.data.after.data();
+
+        let specifics = {};
+        switch(sessionData.meta.type) {
+            case "sim":
+                specifics = {
+                    difficulty: sessionData.meta.difficulty, // Assuming difficulty is part of meta
+                    mode: sessionData.meta.mode, // Assuming mode is part of meta
+                    scorecard: sessionData.scorecard, // Assuming scorecard is part of stats
+                }
+                break;
+            case "full":
+                specifics = {
+                    score: sessionData.stats.score, // Assuming score is part of stats
+                    courseName: sessionData.meta.courseName, // Assuming courseName is part of meta
+                }
+                break;
+        }
 
         const feedItem = {
-            authorId: userId,
-            sessionId: sessionId,
-            displayName: userData.displayName,
-            //TODO add some sort of summary stats for what will show up in the home page, summaryStats: sessionData.summaryStats, // or custom fields
+            user: {
+                id: userId,
+                displayName: userData.displayName,
+            },
+            session: {
+                id: sessionId,
+                type: sessionData.meta.type, // Assuming meta.type is the session type
+                date: sessionData.meta.date, // Assuming meta.date is the session date
+                units: sessionData.meta.units, // Assuming meta.units is the session units
+            },
+            stats: {
+                strokesGained: sessionData.stats.strokesGained,
+                totalPutts: sessionData.stats.totalPutts,
+                holesPlayed: sessionData.stats.holesPlayed,
+                avgMiss: sessionData.stats.avgMiss,
+                puttCounts: sessionData.stats.puttCounts,
+                avgDistance: sessionData.stats.totalDistance / sessionData.stats.holesPlayed,
+            },
+            specifics: specifics, // Add specifics based on session type
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         };
 

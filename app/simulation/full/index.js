@@ -374,6 +374,7 @@ export default function FullRound() {
     };
 
     // improve the stats for full rounds, like approach accuracy
+    // TODO do we do all around strokes gained, along with putting strokes gained for this
     const submit = () => {
         saveHole();
 
@@ -395,6 +396,8 @@ export default function FullRound() {
 
         const {totalPutts, birdies, eagles, pars, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
         const { name, par, rating, slope, yards } = tee;
+
+        const scorecard = updatedRoundData.map((hole, index) => ({score: hole.puttData ? hole.score : -1, par: hole.par}));
 
         const newData = {
             id: generatePushID(),
@@ -433,7 +436,8 @@ export default function FullRound() {
                 pars: pars,
                 score: totalScore,
             },
-            holeHistory: trimmedHoles
+            holeHistory: trimmedHoles,
+            scorecard,
         }
 
         // const data = {

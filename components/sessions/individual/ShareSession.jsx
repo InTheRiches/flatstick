@@ -117,7 +117,7 @@ export default function ShareSession({shareSessionRef, session}) {
                             <Image
                                 source={require("../../../assets/branding/FlatstickWithMallet.png")}
                                 style={{width: 100, height: 18}}/>
-                            <FontText style={{fontSize: 14, color: colors.text.primary, fontWeight: 800, flex: 1, textAlign: "right"}}>{session.type === "sim" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}</FontText>
+                            <FontText style={{fontSize: 14, color: colors.text.primary, fontWeight: 800, flex: 1, textAlign: "right"}}>{session.type === "sim" ? "18 HOLE SIMULATION" : session.stats.holesPlayed + " HOLE ROUND"}</FontText>
                         </View>
                         <View style={{flexDirection: "row"}}>
                             <StatBox label={"1 PUTTS"}>

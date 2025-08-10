@@ -67,6 +67,7 @@ export const getUserStatsByID = async (id) => {
 export const getUserSessionsByID = async (id) => {
     let sessions = [];
 
+    // todo at some point this should change it in the database so we dont have to adapt every time
     const sessionQuery = query(collection(firestore, `users/${id}/sessions`), orderBy("timestamp", "desc"));
     try {
         const querySnapshot = await getDocs(sessionQuery);
