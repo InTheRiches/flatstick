@@ -16,8 +16,10 @@ export const updateCategoryStats = (putt, session, newStats, userData, newPutter
 
     distance = convertUnits(distance, sessionUnits, preferredUnits);
     distanceMissed = convertUnits(distanceMissed, sessionUnits, preferredUnits);
-    missXDistance = convertUnits(missXDistance, sessionUnits, preferredUnits);
-    missYDistance = convertUnits(missYDistance, sessionUnits, preferredUnits);
+    missXDistance = convertUnits(missXDistance, sessionUnits, preferredUnits) ?? 0;
+    missYDistance = convertUnits(missYDistance, sessionUnits, preferredUnits) ?? 0; // TODO remove this fallback
+
+    console.log("Putt values: ", { distance, distanceMissed, misReadLine, misReadSlope, misHit, missXDistance, missYDistance, puttBreak });
 
     // Categorize putt distance
     const category = categorizeDistance(distance, preferredUnits);
@@ -150,9 +152,15 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
         }
     }
 
-    session.puttHistory.forEach(putt => {
-        updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);
-    });
+    if (session.meta.type === "full") {
+        // session.holeHistory.forEach((hole) => {
+        //     updateCategoryStats(hole.puttData, session, newStats, userData, newPutters, newGrips, averaging);
+        // }) TODO implement this (missing values, puttBreak, missXDistance, missYDistance)
+    } else {
+        session.puttHistory.forEach(putt => {
+            updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);
+        });
+    }
 };
 
 export { processSession };

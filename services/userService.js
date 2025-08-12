@@ -70,7 +70,7 @@ export const getUserSessionsByID = async (id) => {
     let sessions = [];
 
     // todo at some point this should change it in the database so we dont have to adapt every time
-    const sessionQuery = query(collection(firestore, `users/${id}/sessions`), orderBy("timestamp", "desc"));
+    const sessionQuery = query(collection(firestore, `users/${id}/sessions`));
     try {
         const querySnapshot = await getDocs(sessionQuery);
         sessions = querySnapshot.docs.map((doc) => {
@@ -78,6 +78,7 @@ export const getUserSessionsByID = async (id) => {
             if (!data.schemaVersion || data.schemaVersion < 2) {
                 data = adaptOldSession(data);
             }
+            console.log("Session id: " + doc.ref.id);
             return ({
                 id: doc.ref.id,
                 ...data
@@ -86,7 +87,7 @@ export const getUserSessionsByID = async (id) => {
     } catch (error) {
         console.error("Error refreshing sessions:", error);
     }
-    sessions = sessions.sort((a, b) => b.meta.date - a.meta.date);
+    sessions = sessions.sort((a, b) => new Date(b.meta.date) - new Date(a.meta.date));
     //
     // const fullRoundSessionQuery = query(collection(firestore, `users/${id}/fullRoundSessions`), orderBy("timestamp", "desc"));
     // try {

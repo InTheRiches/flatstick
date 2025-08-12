@@ -129,8 +129,8 @@ export function PuttingGreen({
             }}>
                 {userData.preferences.units === 0 ? (
                     <>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>5ft</FontText>
                         <Text></Text>
-                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</FontText>
                         <Text></Text>
                         <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</FontText>
                         <Text></Text>
