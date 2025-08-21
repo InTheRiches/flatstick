@@ -5,6 +5,7 @@ import {convertUnits} from "@/utils/Conversions";
 import React from "react";
 import useColors from "@/hooks/useColors";
 import {useRouter} from "expo-router";
+import {roundTo} from "@/utils/roundTo";
 
 export function FullFeedItem({userData, item}) {
     const colors = useColors();
@@ -31,7 +32,7 @@ export function FullFeedItem({userData, item}) {
                 <Text style={{ color: colors.text.secondary, fontSize: 16}}>{new Date(item.session.date).toLocaleDateString()}</Text>
             </Pressable>
             <Pressable onPress={() => {
-                router.push({pathname: "/sessions/individual/full", params: {recap: false, userId: item.user.id, sessionId: item.session.id}});
+                router.push({pathname: "/sessions/individual/full", params: {recap: false, userId: userData.uid === item.session.userId ? undefined : item.user.id, sessionId: item.session.id}});
             }}>
                 <BareScorecardCard data={item.scorecard} front={true}/>
                 <View style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}}>
@@ -46,7 +47,7 @@ export function FullFeedItem({userData, item}) {
                         </View>
                         <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                             <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>AVG DISTANCE</FontText>
-                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{convertUnits(item.stats.avgDistance, item.session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{roundTo(convertUnits(item.stats.avgDistance, item.session.units, userData.preferences.units), 1)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                         </View>
                     </View>
                     <View style={{ flexDirection: "row" }}>

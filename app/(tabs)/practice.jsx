@@ -36,7 +36,6 @@ export default function HomeScreen() {
                         <Header></Header>
                         <RecentSessionSummary unfinished={false}></RecentSessionSummary>
                         <SeeAllSessions/>
-                        {/* TODO Consider making the modes no longer collapsable and make them one big button so it is easier to press them*/}
                         <PracticeModes newRealRoundRef={newRealRoundRef} newSessionRef={newSessionRef}></PracticeModes>
                     </ScrollView>
                 </View>

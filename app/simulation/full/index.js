@@ -36,7 +36,6 @@ const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-ap
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-// TODO add partial rounds
 // TODO when a person marks a holed out putt, it forces putts = 1, but when a person puts putts=1, it doesnt force the hole to be holed out
 // TODO When a person marks that they holed out from off the green, it should also disable the distance field, as that is not needed
 export default function FullRound() {
@@ -376,12 +375,9 @@ export default function FullRound() {
         });
     };
 
-    // improve the stats for full rounds, like approach accuracy
-    // TODO do we do all around strokes gained, along with putting strokes gained for this
+    // TODO improve the stats for full rounds, like approach accuracy
+    // TODO do we do all around strokes gained, along with putting strokes gained for this?
     const submit = () => {
-        saveHole();
-        console.log("submitting")
-
         const timeElapsed = new Date().getTime() - holeStartTime;
 
         const updatedRoundData = [...roundData];
@@ -446,42 +442,14 @@ export default function FullRound() {
             scorecard,
         }
 
-        // const data = {
-        //     id: generatePushID(),
-        //     date: new Date().toISOString(),
-        //     tee: { name, par, rating, slope, yards, number_of_holes: holes },
-        //     type: "full",
-        //     units: userData.preferences.units,
-        //     timestamp: startTime,
-        //     putter: putters[userData.preferences.selectedPutter].type,
-        //     grip: grips[userData.preferences.selectedGrip].type,
-        //     holes: trimmedHoles,
-        //     score: totalScore,
-        //     puttStats: {
-        //         totalPutts: totalPutts,
-        //         avgMiss: avgMiss,
-        //         strokesGained: roundTo(strokesGained, 1),
-        //         madePercent: madePercent,
-        //         puttCounts: puttCounts,
-        //         leftRightBias: leftRightBias,
-        //         shortPastBias: shortPastBias,
-        //         missData: missData,
-        //         totalDistance: totalDistance,
-        //         units: userData.preferences.units,
-        //         duration: new Date().getTime() - startTime,
-        //         percentShort: percentShort,
-        //         percentHigh: percentHigh,
-        //     },
-        // }
-
         newSession(auth.currentUser.uid, newData).then(() => {
-            // router.push({
-            //     pathname: `/sessions/individual`,
-            //     params: {
-            //         jsonSession: JSON.stringify(data),
-            //         recap: "true"
-            //     }
-            // });
+            router.push({
+                pathname: `/sessions/individual/full`,
+                params: {
+                    jsonSession: JSON.stringify(newData),
+                    recap: "true"
+                }
+            });
             router.replace({
                 pathname: `/(tabs)/practice`
             });
@@ -558,7 +526,7 @@ export default function FullRound() {
                     </View>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 16, width: "100%", paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                         <View>
-                            <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.firstName} {userData.lastName === "Unknown" ? "" : userData.lastName}</FontText>
+                            <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.displayName}</FontText>
                             <FontText style={{fontSize: 15, color: colors.text.secondary, fontWeight: 500}}>Net score: {netScore}</FontText>
                         </View>
                         <View style={{backgroundColor: colors.button.secondary.background, width: 48, height: 48, borderRadius: 32, justifyContent: "center", alignItems: "center"}}>

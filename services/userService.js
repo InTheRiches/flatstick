@@ -1,5 +1,5 @@
 // services/userService.js
-import {collection, doc, getDoc, getDocs, orderBy, query, runTransaction} from 'firebase/firestore';
+import {collection, doc, getDoc, getDocs, query, runTransaction} from 'firebase/firestore';
 import {deepMergeDefaults, firestore} from '@/utils/firebase';
 import {getDefaultData} from '@/utils/userUtils';
 import {deepEqual} from '@/utils/RandomUtilities';
@@ -69,18 +69,25 @@ export const getUserStatsByID = async (id) => {
 export const getUserSessionsByID = async (id) => {
     let sessions = [];
 
-    // todo at some point this should change it in the database so we dont have to adapt every time
     const sessionQuery = query(collection(firestore, `users/${id}/sessions`));
+
     try {
         const querySnapshot = await getDocs(sessionQuery);
-        sessions = querySnapshot.docs.map((doc) => {
-            let data = doc.data();
+        sessions = querySnapshot.docs.map((sessionDoc) => {
+            let data = sessionDoc.data();
             if (!data.schemaVersion || data.schemaVersion < 2) {
                 data = adaptOldSession(data);
+                // Update the session in the database to the new format
+                runTransaction(firestore, async (transaction) => {
+                    const sessionDocRef = doc(firestore, `users/${id}/sessions`, sessionDoc.ref.id);
+                    transaction.set(sessionDocRef, removeNulls(data));
+                }).catch((error) => {
+                    console.error("Error updating session to new format:", error);
+                });
             }
-            console.log("Session id: " + doc.ref.id);
+
             return ({
-                id: doc.ref.id,
+                id: sessionDoc.ref.id,
                 ...data
             })
         });
@@ -88,25 +95,23 @@ export const getUserSessionsByID = async (id) => {
         console.error("Error refreshing sessions:", error);
     }
     sessions = sessions.sort((a, b) => new Date(b.meta.date) - new Date(a.meta.date));
-    //
-    // const fullRoundSessionQuery = query(collection(firestore, `users/${id}/fullRoundSessions`), orderBy("timestamp", "desc"));
-    // try {
-    //     const querySnapshot = await getDocs(fullRoundSessionQuery);
-    //     fullRoundSessions = querySnapshot.docs.map((doc) => {
-    //         let data = doc.data();
-    //         if (!data.schemaVersion || data.schemaVersion < 2) {
-    //             data = adaptOldSession(data);
-    //         }
-    //         return ({
-    //             id: doc.ref.id,
-    //             ...data
-    //         })
-    //     });
-    // } catch (error) {
-    //     console.error("Error refreshing full round sessions:", error);
-    // }
 
     return sessions;
+}
+
+function removeNulls(obj) {
+    if (Array.isArray(obj)) {
+        return obj
+            .map(removeNulls) // clean inside arrays too
+            .filter(v => v != null);
+    } else if (obj !== null && typeof obj === "object") {
+        return Object.fromEntries(
+            Object.entries(obj)
+                .filter(([_, v]) => v != null)
+                .map(([k, v]) => [k, removeNulls(v)])
+        );
+    }
+    return obj;
 }
 
 export function adaptOldSession(old) {
@@ -139,7 +144,7 @@ export function adaptOldSession(old) {
             missYDistance: putt.yDistance ?? 0,
         }));
 
-        console.log("Adapting old session: ", old.id, " to new format. Has type");
+        console.log("Adapting old session: ", old.id, " to new format.");
 
         return {
             id: old.id,

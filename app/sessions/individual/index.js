@@ -31,7 +31,6 @@ export default function IndividualSession() {
     const { jsonSession, recap, userId, sessionId } = useLocalSearchParams();
     const {userData} = useAppContext();
 
-    // const [userData, setUserData] = useState(userId === undefined ? appUserData : null);
     const [session, setSession] = useState(jsonSession ? JSON.parse(jsonSession) : null);
     const [loading, setLoading] = useState(!jsonSession);
     const [bestSession, setBestSession] = useState({ strokesGained: "~" });

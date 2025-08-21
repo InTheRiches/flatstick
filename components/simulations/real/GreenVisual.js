@@ -272,7 +272,7 @@ const SlopeDots = ({slope}) => {
     );
 };
 
-export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvalid, distance, distanceInvalid}) {
+export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvalid, distance, distanceInvalid, showDistance = true}) {
     const colors = useColors();
     const colorScheme = "light";
     const {userData} = useAppContext();
@@ -427,7 +427,7 @@ export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvali
                                        placeholderTextColor={colors.text.secondary}
                                        textAlign='center'
                                        onChangeText={validateDistance}
-                                       value={distanceInput}
+                                       value={showDistance ? distanceInput : ""}
                                        keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
                             <View style={{
                                 borderLeftWidth: 1.5,

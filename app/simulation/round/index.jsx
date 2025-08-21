@@ -42,32 +42,6 @@ import {FullBigMissModal} from "../../../components/simulations/full/popups/Full
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import {SCHEMA_VERSION} from "../../../utils/constants";
 
-
-// TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
-const breaks = [
-    "Left to Right",
-    "Right to Left",
-    "Straight",
-]
-
-const slopes = [
-    "Downhill",
-    "Neutral",
-    "Uphill"
-]
-
-const greenMaps = {
-    "0,0": require("@/assets/images/greens/rightForward.png"),
-    "0,1": require("@/assets/images/greens/right.png"),
-    "0,2": require("@/assets/images/greens/backRight.png"),
-    "1,0": require("@/assets/images/greens/leftForward.png"),
-    "1,1": require("@/assets/images/greens/left.png"),
-    "1,2": require("@/assets/images/greens/backLeft.png"),
-    "2,0": require("@/assets/images/greens/forward.png"),
-    "2,1": require("@/assets/images/greens/neutral.png"),
-    "2,2": require("@/assets/images/greens/back.png"),
-}
-
 const initialState = {
     loading: false,
     largeMiss: {
@@ -92,7 +66,6 @@ const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-ap
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-// TODO add 9 or 18 holes, dont lock it down to 18
 export default function RoundSimulation() {
     const colors = useColors();
     const {newSession, putters, userData, currentStats, grips} = useAppContext();

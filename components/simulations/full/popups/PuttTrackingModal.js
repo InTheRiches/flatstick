@@ -161,7 +161,8 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                          distance={distance}
                                          distanceInvalid={distanceInvalid}
                                          setDistance={setDistance}
-                                         setDistanceInvalid={setDistanceInvalid}/>
+                                         setDistanceInvalid={setDistanceInvalid}
+                                         showDistance={!holedOut}/>
 
                         <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 12}}>
                             <Pressable onPress={() => setMisHit(!misHit)} style={{
@@ -193,6 +194,8 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                 if (!holedOut) {
                                     setCenter(false);
                                     setPoint({});
+                                    setDistanceInvalid(false);
+                                    setDistance(-1);
                                     setLargeMiss({
                                         dir: "",
                                         distance: -1
