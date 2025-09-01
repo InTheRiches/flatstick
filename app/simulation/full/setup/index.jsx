@@ -186,7 +186,6 @@ export default function GolfCourseSearchScreen() {
                             }}
                             placeholderTextColor={colors.text.secondary}
                             onChangeText={setSearchQuery}
-
                         />
                         {loading && (
                             <View style={{position: "absolute", right: 10, top: '50%', transform: [{translateY: -10}]}}>
@@ -204,6 +203,8 @@ export default function GolfCourseSearchScreen() {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({item, index}) => {
                             if (!item.club_name) return null; // skip if no club name
+
+                            console.log(JSON.stringify(item));
                             let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("G&Cc", "Golf and Country Club").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
                             return (
                                 <Pressable key={"club-" + index} style={({pressed}) => [{

@@ -12,7 +12,7 @@ import {useAppContext} from "../../../contexts/AppContext";
 import ApproachAccuracyButton from "../../../components/simulations/full/ApproachAccuracyButton";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
-import {PuttTrackingModal} from "../../../components/simulations/full/popups/PuttTrackingModal";
+import {PuttTrackingModal} from "../../../components/simulations/full/popups/PuttTrackingModalV2";
 import {
     AdEventType,
     BannerAd,
@@ -30,7 +30,11 @@ import {ScorecardModal} from "../../../components/simulations/full/popups/Scorec
 import {DarkTheme} from "../../../constants/ModularColors";
 import {newSession} from "../../../services/sessionService";
 import {SCHEMA_VERSION} from "../../../utils/constants";
-import {auth} from "../../../utils/firebase";
+import {auth, firestore} from "../../../utils/firebase";
+import useUserLocation from "../../../hooks/useUserLocation";
+import {fetchCourseElements, getOSMIdByLatLon, processCourseData} from "../../../utils/courses/courseFetching";
+import {doc, getDoc} from "firebase/firestore";
+import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -42,7 +46,7 @@ export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
     const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
-    const {userData, newFullRound, grips, putters} = useAppContext();
+    const {userData, grips, putters} = useAppContext();
     const confirmExitRef = useRef(null);
     const puttTrackingRef = useRef(null);
     const noPuttDataModalRef = useRef(null);
@@ -57,6 +61,11 @@ export default function FullRound() {
     const [hole, setHole] = useState((holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
     const [startTime, setStartTime] = useState(new Date());
     const [holeStartTime, setHoleStartTime] = useState(new Date().getTime());
+
+    const [greens, setGreens] = useState({});
+    const [allBunkers, setAllBunkers] = useState([]);
+    const [holeBunkers, setHoleBunkers] = useState([]);
+    const [fairways, setFairways] = useState([]);
 
     const [holeScore, setHoleScore] = useState(tee.holes[hole-1].par);
     const [totalStrokes, setTotalStrokes] = useState(tee.holes[hole-1].par);
@@ -156,6 +165,38 @@ export default function FullRound() {
         }
 
         setRoundData(initialRoundData);
+
+        // load OSM course data
+        console.log("Starting fetch for course elements...");
+        // check to see if it exists in our db first
+        getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
+            if (!res || res.length === 0) {
+                console.error("No OSM course found at this location.");
+                return;
+            }
+            console.log(res[0].id);
+            const docRef = doc(firestore, "courses/" + res[0].id.toString());
+            getDoc(docRef).then((doc) => {
+                if (!doc.exists) {
+                    console.log("Course not found in Firestore, fetching from OSM...");
+                    // fetchCourseElements(res[0].id).then((res) => {
+                    //     const {rawHoles, foundGreens, rawFairways, rawBunkers} = processCourseData(res);
+                    //     setGreens(foundGreens);
+                    //     setFairways(rawFairways);
+                    //     setAllBunkers(rawBunkers);
+                    //     setHoleBunkers([]);
+                    // })
+                    return;
+                }
+                const data = doc.data();
+                setGreens(data.greens);
+                setFairways(data.rawFairways);
+                setAllBunkers(data.rawBunkers);
+                setHoleBunkers([]);
+
+                recalculateHoleBunkers(data.greens, data.rawBunkers);
+            });
+        })
         //updateTotalScores(initialRoundData);
     }, []);
 
@@ -272,8 +313,46 @@ export default function FullRound() {
 
             puttTrackingRef.current.resetData();
         }
-
+        recalculateHoleBunkers(hole+1);
         setHole(hole + 1);
+    }
+
+    const recalculateHoleBunkers = (newGreens = greens, newBunkers = allBunkers, holeNum = hole) => {
+        // *** NEW: Filter bunkers to find those close to the selected green ***
+        let selectedGreenPolygon = null;
+        for (const g of newGreens) {
+            if (g.hole === holeNum.toString()) {
+                console.log("Selected green for hole " + holeNum);
+                selectedGreenPolygon = g;
+                break;
+            }
+        }
+        if (!selectedGreenPolygon) {
+            setHoleBunkers([]); // No green, no bunkers
+            console.log("No green found for hole " + holeNum);
+            return;
+        }
+
+        const greenCenter = getPolygonCentroid(selectedGreenPolygon.geojson.coordinates);
+        console.log("Green center: " + JSON.stringify(greenCenter));
+        // A threshold in degrees. 0.0004 degrees is roughly 45 meters.
+        // This is a good distance to find bunkers around a green.
+        const proximityThreshold = 0.0004;
+
+        const nearbyBunkers = newBunkers.filter(bunkerPolygon => {
+            //console.log("Bunker: " + JSON.stringify(bunkerPolygon));
+
+            const bunkerCenter = getPolygonCentroid(bunkerPolygon.coordinates);
+            console.log("Bunker center: " + JSON.stringify(bunkerCenter));
+            // Using simple squared Euclidean distance for performance. It's accurate enough for small distances.
+            const distSq =
+                Math.pow(greenCenter.latitude - bunkerCenter.latitude, 2) +
+                Math.pow(greenCenter.longitude - bunkerCenter.longitude, 2);
+            if (distSq < Math.pow(proximityThreshold, 2)) console.log("****** FOUND !!!!! ************")
+            return distSq < Math.pow(proximityThreshold, 2);
+        });
+
+        setHoleBunkers(nearbyBunkers);
     }
 
     const lastHole = () => {
@@ -301,6 +380,7 @@ export default function FullRound() {
         }
         puttTrackingRef.current.setData(roundData[hole-2].puttData);
 
+        recalculateHoleBunkers(hole - 1);
         setHole(hole - 1);
     }
 
@@ -617,7 +697,7 @@ export default function FullRound() {
             </ScreenWrapper>
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit()} end={fullReset}></ConfirmExit>
-            <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData}/>
+            <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData} greens={greens} bunkers={holeBunkers} fairways={fairways} hole={hole}/>
             <ScorecardModal setHoleNumber={setHoleNumber} roundData={roundData} front={frontNine} scorecardRef={scorecardRef}/>
         </>
     )
