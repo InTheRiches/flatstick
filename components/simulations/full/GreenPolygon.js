@@ -1,22 +1,12 @@
-import Animated, {useAnimatedProps, useSharedValue} from "react-native-reanimated";
-import {Dimensions, Text, TouchableOpacity} from "react-native";
+import Animated, {runOnJS, useAnimatedProps, useSharedValue} from "react-native-reanimated";
+import {Dimensions, Pressable, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {isPointInPolygon} from "@/utils/courses/polygonUtils";
 import {clampLineToBounds} from "@/utils/courses/boundsUtils";
 import * as d3 from "d3-shape";
-import Svg, {
-    Circle,
-    Defs,
-    FeComposite,
-    FeFlood,
-    FeGaussianBlur,
-    FeOffset,
-    Filter, G,
-    Line,
-    Path,
-    Pattern,
-    Rect
-} from "react-native-svg";
+import Svg, {Circle, Defs, G, Line, Path, Pattern, Rect} from "react-native-svg";
+import React, {useEffect, useMemo, useState} from "react";
+import FontText from "../../general/FontText";
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 
@@ -31,6 +21,9 @@ const GreenPolygon = ({
                           pinLocation,
                           userLocation,
                           fairways,
+    holedOut,
+    setHoledOut,
+                          misreadRef
                       }) => {
     const scale = useSharedValue(1);
     const translateX = useSharedValue(0);
@@ -44,6 +37,28 @@ const GreenPolygon = ({
     const focalY = useSharedValue(0);
     const isPinching = useSharedValue(false);
 
+    const [showMisread, setShowMisread] = useState(-1);
+
+    useEffect(() => {
+        console.log("showMisread changed:", showMisread);
+        if (showMisread !== -1) {
+            misreadRef.current?.open(showMisread, taps[showMisread]);
+            setShowMisread(-1);
+        }
+    }, [showMisread]);
+
+    const svgSize = Dimensions.get('window').width-48; // make it square and fit within the screen with some padding
+
+    const toSvgPointLatLon = (coord) => {
+        const x = (((coord.longitude) - bounds.minLon) / bounds.range) * svgSize;
+        const y = ((bounds.maxLat - (coord.latitude)) / bounds.range) * svgSize; // Y is inverted
+        return {x, y};
+    }
+    const computedTapPoints = useMemo(
+        () => taps.map((tap) => toSvgPointLatLon(tap)),
+        [taps, bounds]
+    );
+
     const animatedProps = useAnimatedProps(() => ({
         transform: [
             { translateX: translateX.value },
@@ -53,8 +68,6 @@ const GreenPolygon = ({
     }));
 
     if (!bounds || !greenCoords) return null;
-
-    const svgSize = Dimensions.get('window').width-48; // make it square and fit within the screen with some padding
     // TODO make it so when they hold and then pan, it moves the putt that is underneath their finger
 
     // Pinch gesture
@@ -74,6 +87,30 @@ const GreenPolygon = ({
         })
         .onEnd(() => {
             isPinching.value = false; // pinch ended
+        });
+
+    const longPressGesture = Gesture.LongPress()
+        .onStart((event) => {
+            console.log("Long press detected at:", event.x, event.y);
+            const pressThreshold = 20*scale.value; // pixels
+            for (let i = 0; i < computedTapPoints.length; i++) {
+                const tapPoint = computedTapPoints[i];
+                console.log(`Checking tap point ${i} at:`, tapPoint.x, tapPoint.y);
+
+                const correctedTapPointX = (tapPoint.x - translateX.value) / scale.value;
+                const correctedTapPointY = (tapPoint.y - translateY.value) / scale.value;
+                const correctedEventX = (event.x - translateX.value) / scale.value;
+                const correctedEventY = (event.y - translateY.value) / scale.value;
+
+                const dx = correctedTapPointX - correctedEventX;
+                const dy = correctedTapPointY - correctedEventY;
+                if (Math.sqrt(dx * dx + dy * dy) < pressThreshold) {
+                    console.log("Long pressed on tap:", i);
+                    // i is the index of tapPoint
+                    runOnJS(setShowMisread)(i);
+                    return;
+                }
+            }
         });
 
     // Pan gesture
@@ -97,14 +134,12 @@ const GreenPolygon = ({
         return {x, y};
     };
 
-    const toSvgPointLatLon = (coord) => {
-        console.log("Converting coord:", JSON.stringify(coord), "with bounds:", JSON.stringify(bounds));
-        const x = (((coord.longitude) - bounds.minLon) / bounds.range) * svgSize;
-        const y = ((bounds.maxLat - (coord.latitude)) / bounds.range) * svgSize; // Y is inverted
-        return {x, y};
-    }
-
     const handlePress = (event) => {
+        if (holedOut) {
+            setHoledOut(false);
+            return; // don't allow taps if holed out
+        }
+
         const { locationX, locationY } = event.nativeEvent;
 
         // --- Undo pan & zoom ---
@@ -123,7 +158,7 @@ const GreenPolygon = ({
         // check to see if there is already a pin or tap within 5 pixels, if so, remove the putt
         const tapThreshold = 10; // pixels
         for (const tap of taps) {
-            const tapPoint = toSvgPoint(tap);
+            const tapPoint = toSvgPointLatLon(tap);
             const dx = tapPoint.x - x;
             const dy = tapPoint.y - y;
             if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
@@ -134,8 +169,6 @@ const GreenPolygon = ({
 
         onTap({ latitude: lat, longitude: lon });
     };
-
-    console.log(bunkers);
 
     const clippedFairway = clampLineToBounds(fairways, bounds);
     const fairwayPoints = clippedFairway.map(c =>
@@ -158,8 +191,33 @@ const GreenPolygon = ({
     const greenPathData = lineGenerator(greenPoints);
 
     return (
-        <TouchableOpacity onPress={handlePress} activeOpacity={1}>
-            <GestureDetector gesture={Gesture.Simultaneous(panGesture, pinchGesture)}>
+        <Pressable onPress={handlePress}>
+            {(holedOut) && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: '50%',
+                    transform: [{ translateX: -svgSize / 2 }],
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 99,
+                    borderRadius: 12,
+                    aspectRatio: 1,
+                    width: svgSize
+                }}>
+                    <FontText style={{ fontSize: 18, fontWeight: '700', color: '#333' }}>
+                        {holedOut ? "You holed out" : "Miss logged as >3ft"}
+                    </FontText>
+                    <FontText style={{ fontSize: 14, color: '#555' }}>
+                        No need to mark your putts
+                    </FontText>
+                    <FontText style={{ fontSize: 14, color: '#555' }}>
+                        If you want to override that, tap on grid.
+                    </FontText>
+                </View>
+            )}
+            <GestureDetector gesture={Gesture.Simultaneous(longPressGesture, panGesture, pinchGesture)}>
                 <Animated.View>
                     <Svg width={svgSize} height={svgSize} style={{backgroundColor: "#246903", borderRadius: 12}} >
                         <AnimatedG animatedProps={animatedProps}>
@@ -191,11 +249,8 @@ const GreenPolygon = ({
                             })}
                             <Path d={greenPathData} fill="url(#greenPattern)" stroke={"black"} strokeWidth={1.5}/>
                             {bunkers.map((bunkerCoords, index) => {
-                                console.log("--------Bunker SVG Points:", JSON.stringify(bunkerCoords));
                                 const bunkerPoints = bunkerCoords.coordinates.map(c => {
-                                    console.log("Bunker Coord:", JSON.stringify(c));
                                     const p = toSvgPointLatLon(c);
-                                    console.log("Bunker SVG Point:", JSON.stringify(p));
                                     return [p.x, p.y];
                                 });
 
@@ -206,17 +261,16 @@ const GreenPolygon = ({
                                 );
                             })}
 
-                            {taps.map((tap, index) => {
-                                const p = toSvgPoint(tap);
-                                const nextPoint = taps[index + 1] ? toSvgPoint(taps[index + 1]) : pinLocation ? toSvgPoint(pinLocation) : null;
+                            {computedTapPoints.map((tap, index) => {
+                                const nextPoint = computedTapPoints[index + 1] ? computedTapPoints[index + 1] : toSvgPointLatLon(pinLocation) ? toSvgPointLatLon(pinLocation) : null;
 
                                 if (!nextPoint) return null;
 
                                 return (
                                     <Line
                                         key={`line-${index}`}
-                                        x1={p.x}
-                                        y1={p.y}
+                                        x1={tap.x}
+                                        y1={tap.y}
                                         x2={nextPoint.x}
                                         y2={nextPoint.y}
                                         stroke="blue"
@@ -225,46 +279,49 @@ const GreenPolygon = ({
                                 );
                             })}
 
-                            {/*<Circle*/}
-                            {/*    cx={toSvgPoint(userLocation).x}*/}
-                            {/*    cy={toSvgPoint(userLocation).y}*/}
-                            {/*    r={6}*/}
-                            {/*    fill="#76eeff"*/}
-                            {/*    stroke="black"*/}
-                            {/*    strokeWidth={1}*/}
-                            {/*/>*/}
+                            { userLocation !== null && (
+                                    <Circle
+                                        cx={toSvgPointLatLon(userLocation).x}
+                                        cy={toSvgPointLatLon(userLocation).y}
+                                        r={6}
+                                        fill="#76eeff"
+                                        stroke="black"
+                                        strokeWidth={1}
+                                    />
+                                )
+                            }
 
                             {taps.map((tap, index) => {
-                                const p = toSvgPoint(tap);
+                                const p = toSvgPointLatLon(tap);
                                 return (
-                                    <>
+                                    <React.Fragment key={"tap-" + index}>
                                         <Circle
                                             cx={p.x}
                                             cy={p.y}
                                             r={5}
-                                            fill="yellow"
+                                            fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
                                             stroke="black"
                                             strokeWidth={1}
                                         />
                                         <Text
-                                            style={{position: "absolute", left: p.x-3, top: p.y - 7, fontSize: 10, fontWeight: "bold"}}
+                                            style={{color: tap.misreadLine || tap.misreadSlope ? "white" : "black", position: "absolute", left: p.x-3, top: p.y - 7, fontSize: 10, fontWeight: "bold"}}
                                         >
                                             {index + 1}
                                         </Text>
-                                    </>
+                                    </React.Fragment>
                                 );
                             })}
                             {pinLocation && (
                                 <>
                                     <Circle
-                                        cx={toSvgPoint(pinLocation).x}
-                                        cy={toSvgPoint(pinLocation).y}
-                                        r={6}
+                                        cx={toSvgPointLatLon(pinLocation).x}
+                                        cy={toSvgPointLatLon(pinLocation).y}
+                                        r={7}
                                         fill="white"
                                         stroke="black"
                                         strokeWidth={1}
                                     />
-                                    <Path scale={0.35} x={toSvgPoint(pinLocation).x-4} y={toSvgPoint(pinLocation).y-4} fillRule="evenodd"
+                                    <Path scale={0.35} x={toSvgPointLatLon(pinLocation).x-4} y={toSvgPointLatLon(pinLocation).y-4} fillRule="evenodd"
                                           d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
                                           clipRule="evenodd"/>
                                 </>
@@ -273,7 +330,7 @@ const GreenPolygon = ({
                     </Svg>
                 </Animated.View>
             </GestureDetector>
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 

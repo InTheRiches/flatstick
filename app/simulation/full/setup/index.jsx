@@ -204,7 +204,6 @@ export default function GolfCourseSearchScreen() {
                         renderItem={({item, index}) => {
                             if (!item.club_name) return null; // skip if no club name
 
-                            console.log(JSON.stringify(item));
                             let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("G&Cc", "Golf and Country Club").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
                             return (
                                 <Pressable key={"club-" + index} style={({pressed}) => [{

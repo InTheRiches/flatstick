@@ -31,8 +31,7 @@ import {DarkTheme} from "../../../constants/ModularColors";
 import {newSession} from "../../../services/sessionService";
 import {SCHEMA_VERSION} from "../../../utils/constants";
 import {auth, firestore} from "../../../utils/firebase";
-import useUserLocation from "../../../hooks/useUserLocation";
-import {fetchCourseElements, getOSMIdByLatLon, processCourseData} from "../../../utils/courses/courseFetching";
+import {getOSMIdByLatLon} from "../../../utils/courses/courseFetching";
 import {doc, getDoc} from "firebase/firestore";
 import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
 
@@ -76,18 +75,9 @@ export default function FullRound() {
     const [approachAccuracy, setApproachAccuracy] = useState("green");
     const [fairwayAccuracy, setFairwayAccuracy] = useState("green");
     const [puttData, setPuttData] = useState({
-        theta: 999,
-        distance: -1,
-        distanceInvalid: true,
-        misHit: false,
-        misReadLine: false,
-        misReadSlope: false,
-        center: false,
-        point: {},
-        largeMiss: {
-            distance: -1,
-            dir: "",
-        }
+        pinLocation: null,
+        taps: [],
+        holedOut: false,
     });
     const [roundData, setRoundData] = useState([]);
 
@@ -174,12 +164,11 @@ export default function FullRound() {
                 console.error("No OSM course found at this location.");
                 return;
             }
-            console.log(res[0].id);
             const docRef = doc(firestore, "courses/" + res[0].id.toString());
             getDoc(docRef).then((doc) => {
                 if (!doc.exists) {
                     console.log("Course not found in Firestore, fetching from OSM...");
-                    // fetchCourseElements(res[0].id).then((res) => {
+                    // fetchCourseElements(res[0].id).then((res) => { TODO will need to be fixed when implemented
                     //     const {rawHoles, foundGreens, rawFairways, rawBunkers} = processCourseData(res);
                     //     setGreens(foundGreens);
                     //     setFairways(rawFairways);
@@ -268,16 +257,9 @@ export default function FullRound() {
 
         if (roundData[hole].putts !== undefined) {
             // load the hole
-            if (roundData[hole-2].puttData.distance === 0) {// holed out
+            if (roundData[hole].puttData.holedOut) {// holed out
                 setPutts(0);
                 setPuttsLocked(true);
-            }
-            else if (roundData[hole-2].puttData.center) {
-                setPutts(1);
-                setPuttsLocked(true);
-            } else {
-                setPutts(roundData[hole-2].putts);
-                setPuttsLocked(false);
             }
             setHoleScore(roundData[hole].score);
             setApproachAccuracy(roundData[hole].approachAccuracy);
@@ -297,23 +279,14 @@ export default function FullRound() {
             setPenalties(0);
             setHoleStartTime(new Date().getTime());
             setPuttData({
-                theta: 999,
-                distance: -1,
-                distanceInvalid: true,
-                misHit: false,
-                misReadLine: false,
-                misReadSlope: false,
-                center: false,
-                point: {},
-                largeMiss: {
-                    distance: -1,
-                    dir: "",
-                }
+                taps: [],
+                pinLocation: null,
+                holedOut: false,
             });
 
             puttTrackingRef.current.resetData();
         }
-        recalculateHoleBunkers(hole+1);
+        recalculateHoleBunkers(greens, allBunkers, hole+1);
         setHole(hole + 1);
     }
 
@@ -334,7 +307,6 @@ export default function FullRound() {
         }
 
         const greenCenter = getPolygonCentroid(selectedGreenPolygon.geojson.coordinates);
-        console.log("Green center: " + JSON.stringify(greenCenter));
         // A threshold in degrees. 0.0004 degrees is roughly 45 meters.
         // This is a good distance to find bunkers around a green.
         const proximityThreshold = 0.0004;
@@ -343,12 +315,10 @@ export default function FullRound() {
             //console.log("Bunker: " + JSON.stringify(bunkerPolygon));
 
             const bunkerCenter = getPolygonCentroid(bunkerPolygon.coordinates);
-            console.log("Bunker center: " + JSON.stringify(bunkerCenter));
             // Using simple squared Euclidean distance for performance. It's accurate enough for small distances.
             const distSq =
                 Math.pow(greenCenter.latitude - bunkerCenter.latitude, 2) +
                 Math.pow(greenCenter.longitude - bunkerCenter.longitude, 2);
-            if (distSq < Math.pow(proximityThreshold, 2)) console.log("****** FOUND !!!!! ************")
             return distSq < Math.pow(proximityThreshold, 2);
         });
 
@@ -361,27 +331,35 @@ export default function FullRound() {
         // save current hole
         saveHole();
 
+        console.log("testing 1");
+
         setHoleScore(roundData[hole-2].score);
         setApproachAccuracy(roundData[hole-2].approachAccuracy);
         setFairwayAccuracy(roundData[hole-2].fairwayAccuracy);
         setPenalties(roundData[hole-2].penalties);
         setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
         setPuttData(roundData[hole-2].puttData);
-        if (roundData[hole-2].puttData.distance === 0) {// holed out
-            setPutts(0);
-            setPuttsLocked(true);
+        console.log("testing 2");
+        if (Object.keys(roundData[hole-2].puttData).length !== 0) {
+            if (roundData[hole-2].puttData.holedOut) {// holed out
+                setPutts(0);
+                setPuttsLocked(true);
+            }
+            // else if (roundData[hole-2].puttData.center) {
+            //     setPutts(1);
+            //     setPuttsLocked(true);
+            // } else {
+            //     setPutts(roundData[hole-2].putts);
+            //     setPuttsLocked(false);
+            // }
         }
-        else if (roundData[hole-2].puttData.center) {
-            setPutts(1);
-            setPuttsLocked(true);
-        } else {
-            setPutts(roundData[hole-2].putts);
-            setPuttsLocked(false);
-        }
+        console.log("testing 2.5");
         puttTrackingRef.current.setData(roundData[hole-2].puttData);
+        console.log("testing 3");
 
-        recalculateHoleBunkers(hole - 1);
+        recalculateHoleBunkers(greens, allBunkers, hole - 1);
         setHole(hole - 1);
+        console.log("testing 4");
     }
 
     const setHoleNumber = (h) => {
@@ -395,16 +373,17 @@ export default function FullRound() {
 
         if (data?.putts !== undefined) {
             // Previously played hole
-            if (data.puttData?.distance === 0) {
+            if (data.puttData?.holedOut === 0) {
                 setPutts(0);
                 setPuttsLocked(true);
-            } else if (data.puttData?.center) {
-                setPutts(1);
-                setPuttsLocked(true);
-            } else {
-                setPutts(data.putts);
-                setPuttsLocked(false);
             }
+            // else if (data.puttData?.center) {
+            //     setPutts(1);
+            //     setPuttsLocked(true);
+            // } else {
+            //     setPutts(data.putts);
+            //     setPuttsLocked(false);
+            // }
 
             setHoleScore(data.score);
             setApproachAccuracy(data.approachAccuracy);
@@ -423,18 +402,9 @@ export default function FullRound() {
             setPenalties(0);
             setHoleStartTime(new Date().getTime());
             const newPuttData = {
-                theta: 999,
-                distance: -1,
-                distanceInvalid: true,
-                misHit: false,
-                misReadLine: false,
-                misReadSlope: false,
-                center: false,
-                point: {},
-                largeMiss: {
-                    distance: -1,
-                    dir: "",
-                }
+                pinLocation: null,
+                taps: [],
+                holedOut: false,
             };
             setPuttData(newPuttData);
             puttTrackingRef.current.resetData();
@@ -674,19 +644,7 @@ export default function FullRound() {
                                    title={hole === holes ? "Submit" : "Next"}
                                    disabled={false}
                                    onPress={() => {
-                                       // if (puttData.distance === -1) {
-                                       //     noPuttDataModalRef.current.present();
-                                       // } else if (Object.keys(puttData.point).length < 1 && !puttData.center) {
-                                       //     if (puttData.largeMiss && puttData.largeMiss.distance !== 0) {
-                                       //         nextHole();
-                                       //     } else {
-                                        //         noPuttDataModalRef.current.present();
-                                        //     }
-                                        // } else {
-                                        //     nextHole();
-                                        // }
-                                        if (puttData.distance === -1 ||
-                                            (Object.keys(puttData.point).length < 1 && puttData.distance !== 0 && !puttData.center && puttData.largeMiss.distance === -1)) {
+                                        if ((puttData.taps.length === 0 || puttData.pinLocation === null) && !puttData.holedOut) {
                                             // TODO this says next hole even when the last (should say "submit")
                                             noPuttDataModalRef.current.present();
                                         } else {

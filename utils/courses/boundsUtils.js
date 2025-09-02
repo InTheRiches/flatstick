@@ -1,5 +1,4 @@
-import {isPointInPolygon} from "./polygonUtils";
-import {useMemo} from "react";
+import {isPointInPolygonLatLon} from "./polygonUtils";
 
 /** true if point is inside the bounding box */
 const isInside = (p, b) =>
@@ -114,7 +113,7 @@ function clampLineToBounds(points, bounds, closed = true) {
             { latitude: bounds.maxLat, longitude: bounds.maxLon },
         ];
         for (const corner of corners) {
-            if (isPointInPolygon(corner, poly.coordinates)) {
+            if (isPointInPolygonLatLon(corner, poly.coordinates)) {
                 dedup.push(corner);
             }
         }
