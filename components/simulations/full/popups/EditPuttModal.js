@@ -23,7 +23,7 @@ export function EditPuttModal({ editPuttRef, setMisreadSlope, setMisreadLine, de
 
     useImperativeHandle(editPuttRef, () => ({
         open: (index, tap) => {
-            setIndex(index, tap);
+            setIndex(index);
             setOurMisreadSlope(tap.misreadSlope);
             setOurMisreadLine(tap.misreadLine);
             bottomSheetRef.current?.present();

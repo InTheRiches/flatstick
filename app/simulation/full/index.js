@@ -24,7 +24,6 @@ import {
 import ScoreIncrementer from "../../../components/simulations/full/ScoreIncremeter";
 import NumberIncrementer from "../../../components/simulations/full/NumberIncrementer";
 import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPuttDataModal";
-import {calculateFullRoundStats} from "../../../utils/PuttUtils";
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
@@ -34,6 +33,7 @@ import {auth, firestore} from "../../../utils/firebase";
 import {getOSMIdByLatLon} from "../../../utils/courses/courseFetching";
 import {doc, getDoc} from "firebase/firestore";
 import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
+import {analyzeIndividualPutts, calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -442,10 +442,11 @@ export default function FullRound() {
             puttData
         };
 
-        const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.score === 0 ? 4 : hole.score), 0);
+        const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.approachAccuracy === undefined ? 0 : hole.score === 0 ? 4 : hole.score), 0);
 
-        const {totalPutts, birdies, eagles, pars, avgMiss, shotPlacementData, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens);
         const { name, par, rating, slope, yards } = tee;
+        const detailedPutts = analyzeIndividualPutts(updatedRoundData, greens);
 
         const scorecard = updatedRoundData.map((hole, index) => ({score: hole.puttData ? hole.score : -1, par: hole.par}));
 
@@ -470,39 +471,36 @@ export default function FullRound() {
             },
             "stats": {
                 "holes": holes,
-                "holesPlayed": trimmedHoles.length,
+                "holesPlayed": holesPlayed, // TODO this is holed putted, not just played, probably should rename or fix
                 "totalPutts": totalPutts,
                 "puttCounts": puttCounts,
                 "madePercent": madePercent,
-                "avgMiss": avgMiss,
+                "avgMiss": avgMissFeet,
                 "strokesGained": roundTo(strokesGained, 1),
-                "missData": missData,
-                "leftRightBias": leftRightBias, // TODO consider moving this stuff to a separate "tendencies" object
-                "shortPastBias": shortPastBias,
-                "totalDistance": totalDistance,
+                "missData": missDistribution,
+                "leftRightBias": leftRightBiasInches, // TODO consider moving this stuff to a separate "tendencies" object
+                "shortPastBias": shortPastBiasInches,
+                "totalDistance": totalDistanceFeet,
                 "percentShort": percentShort,
                 "percentHigh": percentHigh,
-                birdies: birdies,
-                eagles: eagles,
-                pars: pars,
+                birdies: 3,
+                eagles: 2,
+                pars: 1, // TODO fix this
                 score: totalScore,
                 shotPlacementData
             },
-            holeHistory: trimmedHoles,
+            holeHistory: detailedPutts,
             scorecard,
         }
 
         newSession(auth.currentUser.uid, newData).then(() => {
-            router.push({
-                pathname: `/sessions/individual/full`,
-                params: {
-                    jsonSession: JSON.stringify(newData),
-                    recap: "true"
-                }
-            });
-            router.replace({
-                pathname: `/(tabs)/practice`
-            });
+            // router.push({
+            //     pathname: `/sessions/individual/full`,
+            //     params: {
+            //         jsonSession: JSON.stringify(newData),
+            //         recap: "true"
+            //     }
+            // });
         }).catch(error => {
             console.error("Error saving session:", error);
             alert("Failed to save session. Please try again later.");
@@ -654,7 +652,13 @@ export default function FullRound() {
                 </View>
             </ScreenWrapper>
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
-            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit()} end={fullReset}></ConfirmExit>
+            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
+                try {
+                    submit();
+                } catch(e) {
+                    console.error("Error submitting partial round: " + e);
+                }
+            }} end={fullReset}></ConfirmExit>
             <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData} greens={greens} bunkers={holeBunkers} fairways={fairways} hole={hole}/>
             <ScorecardModal setHoleNumber={setHoleNumber} roundData={roundData} front={frontNine} scorecardRef={scorecardRef}/>
         </>

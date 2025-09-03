@@ -1,5 +1,5 @@
 import Animated, {runOnJS, useAnimatedProps, useSharedValue} from "react-native-reanimated";
-import {Dimensions, Pressable, Text, View} from "react-native";
+import {Dimensions, Pressable, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {isPointInPolygon} from "@/utils/courses/polygonUtils";
 import {clampLineToBounds} from "@/utils/courses/boundsUtils";
@@ -9,6 +9,8 @@ import React, {useEffect, useMemo, useState} from "react";
 import FontText from "../../general/FontText";
 
 const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 // *** MODIFIED: The GreenPolygon component now also renders bunkers ***
 const GreenPolygon = ({
@@ -67,8 +69,33 @@ const GreenPolygon = ({
         ],
     }));
 
+    const pinLocationShared = useSharedValue(pinLocation);
+
+    useEffect(() => {
+        if (!pinLocation) return;
+        pinLocationShared.value = toSvgPointLatLon(pinLocation);
+    }, [pinLocation]);
+
+    const pathAnimatedProps = useAnimatedProps(() => {
+        if (!pinLocationShared.value) return {transform: 'translate(0,0) scale(1) translate(0,0)'};
+
+        const s = 0.35 / scale.value; // base scale / current zoom
+        const x = pinLocationShared.value.x;
+        const y = pinLocationShared.value.y;
+
+        return {
+            transform: `translate(${x}, ${y}) scale(${s}) translate(${-x}, ${-y})`,
+        };
+    });
+
+    const inverseAnimatedProps = useAnimatedProps(() => {
+        return {
+            r: 6 / scale.value, // shrink radius as parent grows
+            strokeWidth: 1 / scale.value, // keep stroke width consistent
+        };
+    }, []);
+
     if (!bounds || !greenCoords) return null;
-    // TODO make it so when they hold and then pan, it moves the putt that is underneath their finger
 
     // Pinch gesture
     const pinchGesture = Gesture.Pinch()
@@ -92,21 +119,28 @@ const GreenPolygon = ({
     const longPressGesture = Gesture.LongPress()
         .onStart((event) => {
             console.log("Long press detected at:", event.x, event.y);
-            const pressThreshold = 20*scale.value; // pixels
+            const pressThreshold = 10; // pixels
+
+            // --- Undo pan & zoom ---
+            const x = (event.x - translateX.value) / scale.value;
+            const y = (event.y - translateY.value) / scale.value;
+
+            // --- Convert to Lat/Lon ---
+            const lon = (x / svgSize) * bounds.range + bounds.minLon;
+            const lat = bounds.maxLat - (y / svgSize) * bounds.range;
+
+            // if (!isPointInPolygon({ latitude: lat, longitude: lon }, greenCoords)) {
+            //     console.warn("Tapped point is outside the green polygon.");
+            //     return;
+            // }
+
+            // check to see if there is already a pin or tap within 5 pixels, if so, remove the putt
+            const tapThreshold = 10; // pixels
             for (let i = 0; i < computedTapPoints.length; i++) {
                 const tapPoint = computedTapPoints[i];
-                console.log(`Checking tap point ${i} at:`, tapPoint.x, tapPoint.y);
-
-                const correctedTapPointX = (tapPoint.x - translateX.value) / scale.value;
-                const correctedTapPointY = (tapPoint.y - translateY.value) / scale.value;
-                const correctedEventX = (event.x - translateX.value) / scale.value;
-                const correctedEventY = (event.y - translateY.value) / scale.value;
-
-                const dx = correctedTapPointX - correctedEventX;
-                const dy = correctedTapPointY - correctedEventY;
-                if (Math.sqrt(dx * dx + dy * dy) < pressThreshold) {
-                    console.log("Long pressed on tap:", i);
-                    // i is the index of tapPoint
+                const dx = tapPoint.x - x;
+                const dy = tapPoint.y - y;
+                if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
                     runOnJS(setShowMisread)(i);
                     return;
                 }
@@ -168,6 +202,10 @@ const GreenPolygon = ({
         }
 
         onTap({ latitude: lat, longitude: lon });
+        // delay 0 ms to ensure tap is added before opening misread
+        setTimeout(() => {
+            scale.value = scale.value+0.001; // trigger re-calculation of inverseAnimatedProps
+        }, 100);
     };
 
     const clippedFairway = clampLineToBounds(fairways, bounds);
@@ -280,50 +318,41 @@ const GreenPolygon = ({
                             })}
 
                             { userLocation !== null && (
-                                    <Circle
+                                    <AnimatedCircle
                                         cx={toSvgPointLatLon(userLocation).x}
                                         cy={toSvgPointLatLon(userLocation).y}
-                                        r={6}
                                         fill="#76eeff"
                                         stroke="black"
-                                        strokeWidth={1}
+                                        animatedProps={inverseAnimatedProps}
                                     />
                                 )
                             }
 
                             {taps.map((tap, index) => {
                                 const p = toSvgPointLatLon(tap);
+
                                 return (
                                     <React.Fragment key={"tap-" + index}>
-                                        <Circle
+                                        <AnimatedCircle
                                             cx={p.x}
                                             cy={p.y}
-                                            r={5}
+                                            r={1}
                                             fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
                                             stroke="black"
-                                            strokeWidth={1}
+                                            animatedProps={inverseAnimatedProps}
                                         />
-                                        <Text
-                                            style={{color: tap.misreadLine || tap.misreadSlope ? "white" : "black", position: "absolute", left: p.x-3, top: p.y - 7, fontSize: 10, fontWeight: "bold"}}
-                                        >
-                                            {index + 1}
-                                        </Text>
                                     </React.Fragment>
                                 );
                             })}
                             {pinLocation && (
                                 <>
-                                    <Circle
+                                    <AnimatedCircle
                                         cx={toSvgPointLatLon(pinLocation).x}
                                         cy={toSvgPointLatLon(pinLocation).y}
-                                        r={7}
-                                        fill="white"
+                                        fill="gold"
                                         stroke="black"
-                                        strokeWidth={1}
+                                        animatedProps={inverseAnimatedProps}
                                     />
-                                    <Path scale={0.35} x={toSvgPointLatLon(pinLocation).x-4} y={toSvgPointLatLon(pinLocation).y-4} fillRule="evenodd"
-                                          d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
-                                          clipRule="evenodd"/>
                                 </>
                             )}
                         </AnimatedG>

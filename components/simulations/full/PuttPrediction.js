@@ -1,5 +1,5 @@
 import React from 'react';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
 /**
  * A component to display putt prediction data in a clean, readable card.
@@ -10,10 +10,7 @@ const PuttPrediction = ({ prediction }) => {
     // Show a loading indicator if the prediction is not yet available.
     if (!prediction) {
         return (
-            <View style={[styles.container, styles.loadingContainer]}>
-                <ActivityIndicator size="large" color="#006400" />
-                <Text style={styles.loadingText}>Calculating Putt...</Text>
-            </View>
+            <></>
         );
     }
 
@@ -23,19 +20,16 @@ const PuttPrediction = ({ prediction }) => {
     const elevationStyle = isUphill ? styles.uphillText : styles.downhillText;
 
     // Determine break direction icon
-    const breakIcon = prediction.breakDirection === 'Left' ? '⬅️' : '➡️';
+    const breakIcon = prediction.breakDirection === 'left' ? '⬅️' : '➡️';
 
     return (
         <View style={styles.container}>
             {/* Main Aiming Instruction */}
-            <Text style={styles.title}>Aiming Read</Text>
+            <Text style={styles.title}>Putt Break Prediction</Text>
             <View style={styles.aimingContainer}>
                 <Text style={styles.aimingText}>
                     <Text style={styles.aimingValue}>{prediction.aimingBreakInches.toFixed(1)}</Text>
-                    <Text style={styles.aimingUnit}> inches</Text>
-                </Text>
-                <Text style={styles.directionText}>
-                    {breakIcon} {prediction.breakDirection}
+                    <Text style={styles.aimingUnit}> inches {prediction.breakDirection}</Text>
                 </Text>
             </View>
 
@@ -65,7 +59,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         borderRadius: 15,
         padding: 12,
-        margin: 15,
+        marginTop: -16,
         // Shadow for iOS
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -88,11 +82,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#888',
         textAlign: 'center',
-        marginBottom: 15,
     },
     aimingContainer: {
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 4,
+        marginTop: -8
     },
     aimingText: {
         fontSize: 48,

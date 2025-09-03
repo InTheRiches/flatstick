@@ -288,9 +288,13 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                     return newTaps;
                 });
             }} deletePutt={index => {
+                console.log("taps before delete:", index);
                 setTaps(prev => {
-                    const newTaps = [...prev];
-                    newTaps.splice(index, 1);
+                    const newTaps = [];
+                    for (let i = 0; i < prev.length; i++) {
+                        if (i === index) continue;
+                        newTaps.push(prev[i]);
+                    }
                     return newTaps;
                 });
             }}/>

@@ -392,7 +392,7 @@ const calculateStats = (puttsCopy, width, height) => {
     let puttCounts = [0, 0, 0]
     let totalDistance = 0;
 
-    let farLeft = 0
+    let farLeft = 0;
     let left = 0;
     let center = 0;
     let right = 0;

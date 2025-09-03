@@ -2,6 +2,8 @@
 // import path from "path";
 
 // Utility: load CSV as grid points
+import {getElevationBilinear, getGradient, METERS_PER_DEGREE} from "./gpsStatsEngine";
+
 async function loadGreenData(holeNumber) {
     const content = "Easting,Northing,Elevation\n" +
         "-85.62307726647686,42.20865466647684,270.459136963\n" +
@@ -317,106 +319,6 @@ async function loadGreenData(holeNumber) {
 }
 
 /**
- * Performs bilinear interpolation on a regularly spaced, but potentially non-square, grid of points.
- * @param {number} x The x-coordinate of the point to interpolate.
- * @param {number} y The y-coordinate of the point to interpolate.
- * @param {Array<{x: number, y: number, z: number}>} grid The grid data, sorted first by y, then by x.
- * @returns {number} The interpolated z-value (elevation).
- */
-function getElevationBilinear(x, y, grid) {
-    // --- 1. Basic validation and grid dimension calculation ---
-    if (!grid || grid.length < 4) {
-        // Need at least a 2x2 grid to interpolate.
-        return grid?.[0]?.z ?? 0;
-    }
-
-    const firstY = grid[0].location.y;
-    const width = grid.findIndex(p => p.location.y !== firstY);
-    // If all points are on the same line, findIndex returns -1.
-    if (width === -1) return grid[0].value;
-
-    const height = grid.length / width;
-    if (!Number.isInteger(height)) {
-        // Grid is not rectangular, cannot interpolate reliably.
-        console.error("Grid is not rectangular.");
-        return grid[0].value;
-    }
-
-    // --- 2. Calculate grid spacing and origin ---
-    const xOrigin = grid[0].location.x;
-    const yOrigin = grid[0].location.y;
-    const xSpacing = grid[1].location.x - xOrigin;
-    const ySpacing = grid[width].location.y - yOrigin;
-
-    // --- 3. Calculate fractional position in the grid (without clamping yet) ---
-    const col = (x - xOrigin) / xSpacing;
-    const row = (y - yOrigin) / ySpacing;
-
-    // --- 4. Get integer indices of the top-left corner of the cell ---
-    let i = Math.floor(col);
-    let j = Math.floor(row);
-
-    // --- 5. Get the fractional parts (interpolation weights) ---
-    const u = col - i; // x-component (horizontal weight)
-    const v = row - j; // y-component (vertical weight)
-
-    // --- 6. Clamp indices to be within the valid grid bounds ---
-    // This ensures we can always fetch four points.
-    i = Math.max(0, Math.min(i, width - 2));
-    j = Math.max(0, Math.min(j, height - 2));
-
-    // --- 7. Fetch the four surrounding points (the 2x2 cell) ---
-    //  (i, j)   ---   (i+1, j)
-    //    |              |
-    // (i, j+1)  ---  (i+1, j+1)
-    const z00 = grid[j * width + i].z;       // Top-left
-    const z10 = grid[j * width + (i + 1)].z;     // Top-right
-    const z01 = grid[(j + 1) * width + i].z;   // Bottom-left
-    const z11 = grid[(j + 1) * width + (i + 1)].z; // Bottom-right
-
-    // --- 8. Perform the interpolation ---
-    // Interpolate horizontally along the top edge of the cell
-    const zTop = z00 * (1 - u) + z10 * u;
-
-    // Interpolate horizontally along the bottom edge of the cell
-    const zBottom = z01 * (1 - u) + z11 * u;
-
-    console.log(`Interpolating between (${zTop}, ${zBottom}):`);
-
-    // Interpolate vertically between the two horizontal results
-    return zTop * (1 - v) + zBottom * v;
-}
-const METERS_PER_DEGREE = 111320; // Approximate conversion for latitude
-
-/**
- * Correctly computes the slope vector (gradient) at a point using meters.
- * @param {number} x - Longitude of the point.
- * @param {number} y - Latitude of the point.
- * @param {Array} grid - The elevation grid data.
- * @param {number} h_meters - The step distance for finite difference, in meters.
- * @returns {{dx: number, dy: number}} The gradient as a unitless slope (m/m).
- */
-function getGradient(x, y, grid, h_meters = 0.01) { // Use a small step, e.g., 1 cm
-    const lat_rad = y * (Math.PI / 180);
-
-    // Convert step from meters to degrees for both longitude and latitude
-    const h_lat = h_meters / METERS_PER_DEGREE;
-    const h_lon = h_meters / (METERS_PER_DEGREE * Math.cos(lat_rad));
-
-    // elevations at points +/- h meters away
-    const zx1 = getElevationBilinear(x + h_lon, y, grid);
-    const zx2 = getElevationBilinear(x - h_lon, y, grid);
-    const zy1 = getElevationBilinear(x, y + h_lat, grid);
-    const zy2 = getElevationBilinear(x, y - h_lat, grid);
-
-    // Calculate slope (dz / dx) in meters/meters
-    const dx = (zx1 - zx2) / (2 * h_meters);
-    const dy = (zy1 - zy2) / (2 * h_meters);
-
-    return { dx, dy };
-}
-
-/**
  * Predicts the putt's break in inches based on green topography.
  * @param lidarGrid
  * @param {{latitude: number, longitude: number}} tap - The ball's position.
@@ -466,7 +368,7 @@ export async function predictPutt(lidarGrid, tap, pin, stimp = 10) {
 
     // --- 4. Determine Break Direction ---
     // A positive sideSlope means the ground is higher on the right, so the ball breaks left.
-    const breakDirection = breakInches > 0 ? 'Left' : 'Right';
+    const breakDirection = breakInches > 0 ? 'left' : 'right';
 
     return {
         puttDistanceFeet: flatDistFeet,
