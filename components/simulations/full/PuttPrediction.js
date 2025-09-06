@@ -25,15 +25,15 @@ const PuttPrediction = ({ prediction }) => {
     return (
         <View style={styles.container}>
             {/* Main Aiming Instruction */}
-            <Text style={styles.title}>Putt Break Prediction</Text>
-            <View style={styles.aimingContainer}>
-                <Text style={styles.aimingText}>
-                    <Text style={styles.aimingValue}>{prediction.aimingBreakInches.toFixed(1)}</Text>
-                    <Text style={styles.aimingUnit}> inches {prediction.breakDirection}</Text>
-                </Text>
-            </View>
+            <Text style={styles.title}>Putt Data</Text>
+            {/*<View style={styles.aimingContainer}>*/}
+            {/*    <Text style={styles.aimingText}>*/}
+            {/*        <Text style={styles.aimingValue}>{prediction.aimingBreakInches.toFixed(1)}</Text>*/}
+            {/*        <Text style={styles.aimingUnit}> inches {prediction.breakDirection}</Text>*/}
+            {/*    </Text>*/}
+            {/*</View>*/}
 
-            <View style={styles.separator} />
+            {/*<View style={styles.separator} />*/}
 
             {/* Secondary Stats */}
             <View style={styles.statsContainer}>
@@ -65,8 +65,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
-        // Shadow for Android
-        elevation: 5,
     },
     loadingContainer: {
         justifyContent: 'center',
@@ -78,10 +76,11 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     title: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
-        color: '#888',
+        color: 'black',
         textAlign: 'center',
+        marginBottom: 12,
     },
     aimingContainer: {
         alignItems: 'center',
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
     statsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 15,
+        marginTop: 0,
     },
     statBlock: {
         alignItems: 'center',

@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {ActivityIndicator, Alert, FlatList, Pressable, TextInput, View,} from "react-native";
+import React, {useCallback, useRef, useState} from "react";
+import {ActivityIndicator, FlatList, Pressable, TextInput, View,} from "react-native";
 import {useNavigation} from "@react-navigation/native";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import Svg, {Path} from "react-native-svg";
@@ -8,7 +8,7 @@ import useColors from "../../../../hooks/useColors";
 import {NewFullRound} from "../../../../components/simulations/full/popups/NewFullRound";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import {useFocusEffect} from "expo-router";
-import * as Location from 'expo-location';
+import useUserLocation from "../../../../hooks/useUserLocation";
 
 const GOLF_API_KEY = "P3YWERWFDOPBUUV66UDLRJDTLY"; // Replace with your real key
 
@@ -102,11 +102,11 @@ export default function GolfCourseSearchScreen() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [location, setLocation] = useState(null);
     const colors = useColors();
     const newFullRoundRef = useRef(null);
     const navigation = useNavigation();
     const [club, setClub] = useState({});
+    const userLocation = useUserLocation();
 
     const setSearchQuery = (newQuery) => {
         if (query === newQuery) {
@@ -116,33 +116,13 @@ export default function GolfCourseSearchScreen() {
         setQuery(newQuery);
     }
 
-    // Request location
-    useEffect(() => {
-        (async () => {
-            const {status} = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                Alert.alert("Permission denied", "Location permission is required for certain functions.");
-                setLoading(false);
-                return;
-            }
-            // 42.204390, -85.630628
-            const userLoc = await Location.getCurrentPositionAsync({});
-            // const userLoc = {
-            //     coords: {
-            //         latitude: 42.204390,
-            //         longitude: -85.630628
-            //     }
-            // }
-            setLocation(userLoc.coords);
-        })();
-    }, []);
-
     useFocusEffect(
         useCallback(() => {
             const timeout = setTimeout(() => {
                 if (query.length > 2) {
                     setLoading(true);
-                    searchGolfCourses(query, location).then((data) => {
+                    console.log("Searching for:", query, "at location:", userLocation);
+                    searchGolfCourses(query, userLocation).then((data) => {
                         setResults(data.sort((a, b) => a.distance - b.distance));
                         setLoading(false);
                     });
@@ -152,7 +132,7 @@ export default function GolfCourseSearchScreen() {
             }, 200);
 
             return () => clearTimeout(timeout);
-        }, [query, location])
+        }, [query, userLocation])
     );
 
     return (

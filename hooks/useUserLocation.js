@@ -44,5 +44,5 @@ export default function useUserLocation() {
         };
     }, []);
 
-    return {"latitude": 42.203252532938336, "longitude": -85.6281164443875}; //userLocation;
+    return userLocation;
 }

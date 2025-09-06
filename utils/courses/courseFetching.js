@@ -25,7 +25,19 @@ async function getOSMIdByLatLon(lat, lon, margin = 0.01) {
     }));
 }
 
-import {isPointInPolygon} from "./polygonUtils";
+export function isCoursePointInPolygon(point, polygon) {
+    let inside = false;
+    const x = point.longitude, y = point.latitude;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].longitude, yi = polygon[i].latitude;
+        const xj = polygon[j].longitude, yj = polygon[j].latitude;
+        const intersect =
+            (yi > y) !== (yj > y) &&
+            x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
 
 async function fetchCourseElements(courseRelationId) {
     // *** MODIFIED: Added "bunker" to the query ***
@@ -60,6 +72,32 @@ async function fetchCourseElements(courseRelationId) {
     }
 }
 
+// ———————————————————————————————
+// 3DEP direct sample query
+async function get3DEPElevationData(bboxArr) {
+    const {xmin, ymin, xmax, ymax} = bboxArr;
+    const baseUrl = 'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/getSamples';
+    const geometry = { xmin, ymin, xmax, ymax, spatialReference: { wkid: 4326 } };
+    const params = new URLSearchParams({
+        geometry: JSON.stringify(geometry),
+        geometryType: 'esriGeometryEnvelope',
+        returnFirstValueOnly: false,
+        f: 'json'
+    });
+    const fullUrl = `${baseUrl}?${params.toString()}`;
+
+    try {
+        const resp = await fetch(fullUrl);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status} - ${resp.statusText}`);
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error.message || 'Unknown API error');
+        return data.samples || [];
+    } catch (err) {
+        console.error("3DEP error:", err.message);
+        return [];
+    }
+}
+
 function processCourseData(courseData) {
     if (!courseData) return;
 
@@ -89,8 +127,8 @@ function processCourseData(courseData) {
 
             if (coordinates.length > 2) { // Polygons need at least 3 points
                 if (el.tags?.['golf'] === 'green') rawGreens.push(coordinates);
-                else if (el.tags?.['golf'] === 'bunker') rawBunkers.push(coordinates);
-                else if (el.tags?.['golf'] === 'fairway') rawFairways.push(coordinates);
+                else if (el.tags?.['golf'] === 'bunker') rawBunkers.push({id: el.id, coordinates});
+                else if (el.tags?.['golf'] === 'fairway') rawFairways.push({id: el.id, coordinates}); // Fairways can be polygons too
             }
         }
         if (el.type === 'relation' && el.tags?.['golf'] === 'fairway' && el.members) {
@@ -105,7 +143,7 @@ function processCourseData(courseData) {
                         const coordinates = way.nodes
                             .map(nodeId => nodesMap.get(nodeId))
                             .filter((coord) => coord !== undefined);
-                        if (coordinates.length > 2) rawFairways.push(coordinates);
+                        if (coordinates.length > 2) rawFairways.push({id: way.id, coordinates}); // Only add if it's a polygon
                     }
                 }
             });
@@ -113,26 +151,25 @@ function processCourseData(courseData) {
     });
 
     // ... (rest of the green association logic is unchanged)
-    const foundGreens = {};
+    const identifiedGreens = [];
     rawGreens.forEach(greenPolygon => {
-        const associatedHole = rawHoles.find(hole => hole.nodes.some(node => isPointInPolygon(node, greenPolygon)));
-        if (associatedHole && !foundGreens[associatedHole.ref]) {
-            foundGreens[associatedHole.ref] = greenPolygon;
-            console.log(`Found green for hole ${associatedHole.ref}`);
+        const associatedHole = rawHoles.find(hole => hole.nodes.some(node => isCoursePointInPolygon(node, greenPolygon)));
+
+        if (associatedHole && !identifiedGreens.find(g => g.hole === associatedHole.ref)) {
+            identifiedGreens.push({
+                hole: associatedHole.ref,
+                bbox: {
+                    ymin: Math.min(...greenPolygon.map(pt => pt.latitude)),
+                    ymax: Math.max(...greenPolygon.map(pt => pt.latitude)),
+                    xmin: Math.min(...greenPolygon.map(pt => pt.longitude)),
+                    xmax: Math.max(...greenPolygon.map(pt => pt.longitude)),
+                },
+                geojson: {type: "Polygon", coordinates: greenPolygon.map(pt => ({x: pt.longitude, y: pt.latitude}))}
+            });
         }
     });
 
-    courseData.elements.forEach(el => {
-        if (el.type === 'way' && el.tags?.['golf'] === 'green' && el.tags?.['ref'] && el.nodes) {
-            const holeNumber = el.tags['ref'];
-            if (!foundGreens[holeNumber]) {
-                const coordinates = el.nodes.map(nodeId => nodesMap.get(nodeId)).filter((coord) => coord !== undefined);
-                if (coordinates.length > 2) foundGreens[holeNumber] = coordinates;
-            }
-        }
-    });
-
-    return {rawHoles, foundGreens, rawBunkers, rawFairways};
+    return {identifiedGreens, rawBunkers, rawFairways};
 }
 
-export {fetchCourseElements, processCourseData, getOSMIdByLatLon}
+export {fetchCourseElements, get3DEPElevationData, processCourseData, getOSMIdByLatLon}

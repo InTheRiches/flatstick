@@ -1,7 +1,7 @@
 import {useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
 import useColors from "../../../hooks/useColors";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {BackHandler, Platform, Pressable, View} from "react-native";
+import {ActivityIndicator, BackHandler, Platform, Pressable, View} from "react-native";
 import FontText from "../../../components/general/FontText";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
 import Svg, {Path, Rect} from "react-native-svg";
@@ -30,8 +30,13 @@ import {DarkTheme} from "../../../constants/ModularColors";
 import {newSession} from "../../../services/sessionService";
 import {SCHEMA_VERSION} from "../../../utils/constants";
 import {auth, firestore} from "../../../utils/firebase";
-import {getOSMIdByLatLon} from "../../../utils/courses/courseFetching";
-import {doc, getDoc} from "firebase/firestore";
+import {
+    fetchCourseElements,
+    get3DEPElevationData,
+    getOSMIdByLatLon,
+    processCourseData
+} from "../../../utils/courses/courseFetching";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
 import {analyzeIndividualPutts, calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 
@@ -158,35 +163,77 @@ export default function FullRound() {
 
         // load OSM course data
         console.log("Starting fetch for course elements...");
+        console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
         // check to see if it exists in our db first
         getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
+            console.log(res);
             if (!res || res.length === 0) {
                 console.error("No OSM course found at this location.");
+                alert("No course data found for this location. Please try again later or contact support.");
+                router.replace("/");
                 return;
             }
             const docRef = doc(firestore, "courses/" + res[0].id.toString());
-            getDoc(docRef).then((doc) => {
-                if (!doc.exists) {
+            getDoc(docRef).then((document) => {
+                if (!document.exists()) {
                     console.log("Course not found in Firestore, fetching from OSM...");
-                    // fetchCourseElements(res[0].id).then((res) => { TODO will need to be fixed when implemented
-                    //     const {rawHoles, foundGreens, rawFairways, rawBunkers} = processCourseData(res);
-                    //     setGreens(foundGreens);
-                    //     setFairways(rawFairways);
-                    //     setAllBunkers(rawBunkers);
-                    //     setHoleBunkers([]);
-                    // })
+                    fetchCourseElements(res[0].id).then(async (newRes) => { //TODO will need to be fixed when implemented
+                        const {identifiedGreens, rawFairways, rawBunkers} = processCourseData(newRes);
+
+                        const processedGreens = [];
+
+                        for (const green of identifiedGreens) {
+                            const samples = await get3DEPElevationData(green.bbox);
+
+                            if (!samples.length) {
+                                console.warn("     No 3DEP samples returned.");
+                                continue;
+                            }
+
+                            const lidarObject = [];
+                            samples.forEach(s => {
+                                lidarObject.push({
+                                    location: {x: s.location.x, y: s.location.y},
+                                    value: parseFloat(s.value).toFixed(4)
+                                });
+                            });
+
+                            processedGreens.push({hole: green.hole, lidar: lidarObject, geojson: green.geojson});
+                        }
+                        // save to firestore for next time
+                        await setDoc(doc(firestore, `courses/${res[0].id}`), {
+                            name: course.course_name,
+                            osm_id: res[0].id,
+                            lastUpdated: Date.now(),
+                            greens: processedGreens,
+                            rawBunkers,
+                            rawFairways
+                        });
+
+                        setGreens(processedGreens);
+                        setFairways(rawFairways);
+                        setAllBunkers(rawBunkers);
+                        setHoleBunkers([]);
+                    }).catch((err) => {
+                        console.error("Error fetching course data from OSM:", err);
+                        alert("Failed to fetch course data. Please try again later or contact support.");
+                        router.replace("/");
+                    })
                     return;
                 }
-                const data = doc.data();
+                const data = document.data();
                 setGreens(data.greens);
                 setFairways(data.rawFairways);
                 setAllBunkers(data.rawBunkers);
                 setHoleBunkers([]);
 
                 recalculateHoleBunkers(data.greens, data.rawBunkers);
+            }).catch((err) => {
+                console.error("Error fetching course data from OSM:", err);
+                alert("Failed to fetch course data. Please try again later or contact support.");
+                router.replace("/");
             });
         })
-        //updateTotalScores(initialRoundData);
     }, []);
 
     useFocusEffect(
@@ -527,6 +574,22 @@ export default function FullRound() {
 
     return (
         <>
+            {(Object.keys(greens).length === 0 && allBunkers.length === 0) ? (
+                <View style={{
+                    width: "100%",
+                    height: "100%",
+                    flexDirection: "flow",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "absolute",
+                    zIndex: 100,
+                    backgroundColor: colors.background.primary,
+                    opacity: 0.9
+                }}>
+                    <ActivityIndicator size="large"/>
+                    <FontText style={{fontSize: 20, fontWeight: 600, marginBottom: 16, color: colors.text.primary}}>Loading course data...</FontText>
+                </View>
+            ) : null}
             <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,
