@@ -81,7 +81,6 @@ export function AppContextProvider({ children }) {
     };
 
     const refreshStats = async (newUserData = undefined) => {
-        console.log("Refreshing stats with newUserData:", newUserData);
         await rawRefreshStats(putters, grips, setPutters, setGrips,undefined, newUserData)
     }
 

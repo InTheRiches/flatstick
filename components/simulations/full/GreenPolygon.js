@@ -42,7 +42,6 @@ const GreenPolygon = ({
     const [showMisread, setShowMisread] = useState(-1);
 
     useEffect(() => {
-        console.log("showMisread changed:", showMisread);
         if (showMisread !== -1) {
             misreadRef.current?.open(showMisread, taps[showMisread]);
             setShowMisread(-1);
@@ -118,7 +117,6 @@ const GreenPolygon = ({
 
     const longPressGesture = Gesture.LongPress()
         .onStart((event) => {
-            console.log("Long press detected at:", event.x, event.y);
             const pressThreshold = 10; // pixels
 
             // --- Undo pan & zoom ---

@@ -117,7 +117,7 @@ function calculateTotalStrokesGained(userData, sessions) {
     };
 
     recent.forEach(session => {
-        let { stats, puttHistory, meta } = session;
+        let { stats, puttHistory, holeHistory, meta } = session;
 
         let units = meta?.units ?? 0;
 
@@ -126,7 +126,43 @@ function calculateTotalStrokesGained(userData, sessions) {
         overallRounds++;
 
         // Skip if session doesn't have detailed putt data
-        if (!puttHistory) return;
+        if (!puttHistory) {
+            if (holeHistory) { // Use hole history if available
+                for (const hole of holeHistory) {
+                    const {putts, puttData} = hole;
+                    if (!putts || !puttData || putts.length < 1) continue;
+
+                    const putt = putts[0]; // First putt of the hole shows the farthest distance
+                    if (!putt || !putt.distance || !puttData.totalPutts) continue;
+
+                    const convertedDistance = convertUnits(putt.distance, units, userData.preferences.units);
+
+                    let category;
+                    if (userData.preferences.units === 0) {
+                        if (convertedDistance < 6) category = "distanceOne";
+                        else if (convertedDistance < 12) category = "distanceTwo";
+                        else if (convertedDistance < 20) category = "distanceThree";
+                        else category = "distanceFour";
+                    } else {
+                        if (convertedDistance < 2) category = "distanceOne";
+                        else if (convertedDistance <= 4) category = "distanceTwo";
+                        else if (convertedDistance <= 7) category = "distanceThree";
+                        else category = "distanceFour";
+                    }
+
+                    const baselineStrokesGained = calculateBaselineStrokesGained(convertUnits(putt.distance, units, 0));
+
+                    categories[category].totalHoles++;
+                    categories[category].totalBaselines += baselineStrokesGained;
+                    categories[category].totalActualPutts += puttData.totalPutts;
+
+                    const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - puttData.totalPutts;
+                    overallStrokesGained += strokesGainedForPutt;
+                    roundsForOverall++;
+                }
+            }
+            return;
+        }
 
         puttHistory.forEach(putt => {
             const {distance, totalPutts} = putt;

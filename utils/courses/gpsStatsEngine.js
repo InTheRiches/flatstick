@@ -166,10 +166,10 @@ function getExpectedPutts(distanceFeet) {
  * @param greens
  * @returns {object} A comprehensive object of putting statistics.
  */
-export function calculateGPSRoundStats(roundData, greens) {
+export function calculateGPSRoundStats(roundData, greens, units) {
     const stats = {
         totalPutts: 0,
-        holes: 0,
+        holesPlayed: 0,
         totalMisses: 0,
         totalMadePutts: 0,
         madePercent: 0,
@@ -235,8 +235,6 @@ export function calculateGPSRoundStats(roundData, greens) {
 
         let lidarGrid = null;
 
-        console.log(stats.totalPutts);
-
         for (const g of greens) {
             if (g.hole === (index+1).toString()) {
                 lidarGrid = g.lidar;
@@ -244,20 +242,18 @@ export function calculateGPSRoundStats(roundData, greens) {
             }
         }
 
-        console.log(stats.totalPutts);
-
         if (!lidarGrid) {
             console.warn("No lidar grid found for hole", hole);
             return;
         }
 
-        stats.holes++;
+        stats.holesPlayed++;
 
         // --- Per-Hole Stats ---
         stats.totalPutts += putts.length;
         stats.totalMadePutts++;
 
-        const firstPuttDist = getDistance(putts[0], pinLocation).feet;
+        const firstPuttDist = units === 0 ? getDistance(putts[0], pinLocation).feet : getDistance(putts[0], pinLocation).meters;
         const expectedPutts = getExpectedPutts(firstPuttDist);
         stats.strokesGained += (expectedPutts - putts.length);
 
@@ -276,13 +272,13 @@ export function calculateGPSRoundStats(roundData, greens) {
             const endLoc = isMadePutt ? pinLocation : putts[i + 1];
 
             const puttDistance = getDistance(startLoc, endLoc);
-            stats.totalDistanceFeet += puttDistance.feet;
+            stats.totalDistanceFeet += units === 0 ? puttDistance.feet : puttDistance.meters;
 
             if (!isMadePutt) {
                 stats.totalMisses++;
 
                 const missDistance = getDistance(endLoc, pinLocation);
-                totalMissDistanceSum += missDistance.feet;
+                totalMissDistanceSum += units === 0 ? missDistance.feet : missDistance.meters;
 
                 // --- Calculate Miss Biases (Left/Right, Short/Long) ---
                 // We create a coordinate system where the x-axis is the line from the ball to the hole.
@@ -312,14 +308,11 @@ export function calculateGPSRoundStats(roundData, greens) {
                 const longMissMeters = rotatedX * metersPerLonDegree; // In this rotated system, X is long/short
                 const latMissMeters = rotatedY * METERS_PER_DEGREE;  // Y is left/right
 
-                const longMissInches = longMissMeters * 39.3701;
-                const latMissInches = latMissMeters * 39.3701;
+                const longMissInches = longMissMeters * (units === 0 ? 39.3701 : 1);
+                const latMissInches = latMissMeters * (units === 0 ? 39.3701 : 1); // Convert to inches if using feet
 
                 shortPastMissSumInches += longMissInches;
                 leftRightMissSumInches += latMissInches;
-
-                console.log(longMissInches);
-                console.log(latMissInches);
 
                 // Categorize short/long
                 if (longMissInches < 0) {
@@ -330,10 +323,10 @@ export function calculateGPSRoundStats(roundData, greens) {
                 }
 
                 // Categorize left/right (positive Y is a left miss)
-                if (latMissInches > 18) stats.missDistribution.farLeft++;
-                else if (latMissInches > 3) stats.missDistribution.left++;
-                else if (latMissInches < -18) stats.missDistribution.farRight++;
-                else if (latMissInches < -3) stats.missDistribution.right++;
+                if (latMissInches > (units === 0 ? 18 : 0.5)) stats.missDistribution.farLeft++;
+                else if (latMissInches > (units === 0 ? 3 : 0.1)) stats.missDistribution.left++;
+                else if (latMissInches < (units === 0 ? -18 : -0.5)) stats.missDistribution.farRight++;
+                else if (latMissInches < (units === 0 ? -3 : -0.1)) stats.missDistribution.right++;
                 else stats.missDistribution.center++;
 
                 // --- High Side Percentage ---
@@ -355,17 +348,14 @@ export function calculateGPSRoundStats(roundData, greens) {
         }
     });
 
-    console.log("Total putts:", stats.totalPutts);
-    console.log("Stats midway:", JSON.stringify(stats));
-
     // --- Final Calculations ---
     if (stats.totalPutts > 0) {
-        stats.madePercent = (stats.totalMadePutts / stats.totalPutts) * 100;
+        stats.madePercent = (stats.totalMadePutts / stats.totalPutts);
     }
     if (stats.totalMisses > 0) {
         stats.avgMissFeet = totalMissDistanceSum / stats.totalMisses;
-        stats.percentHigh = (highSideMisses / stats.totalMisses) * 100;
-        stats.percentShort = (shortMisses / stats.totalMisses) * 100;
+        stats.percentHigh = (highSideMisses / stats.totalMisses);
+        stats.percentShort = (shortMisses / stats.totalMisses);
         stats.leftRightBiasInches = leftRightMissSumInches / stats.totalMisses;
         stats.shortPastBiasInches = shortPastMissSumInches / stats.totalMisses;
     }
@@ -419,8 +409,6 @@ export function calculateGPSRoundStats(roundData, greens) {
         }
     }
 
-    console.log("Final stats:", JSON.stringify(stats));
-
     return stats;
 }
 
@@ -432,9 +420,19 @@ export function calculateGPSRoundStats(roundData, greens) {
  * @param greens
  * @returns {Array<object>} An array where each object represents a single putt with detailed stats.
  */
-export function analyzeIndividualPutts(roundData, greens) {
+export function analyzeIndividualPutts(roundData, greens, units) {
     const detailedPutts = [];
-    const breakMap = { t: [0, 1], tr: [1, 1], r: [1, 0], br: [1, -1], b: [0, -1], bl: [-1, -1], l: [-1, 0], tl: [-1, 1] };
+    //const breakMap = { t: [0, 1], tr: [1, 1], r: [1, 0], br: [1, -1], b: [0, -1], bl: [-1, -1], l: [-1, 0], tl: [-1, 1] };
+    const breakMap = {
+        r: [0, 1],   // Left to Right + Neutral
+        tr: [0, 0],  // Left to Right + Downhill
+        t: [2, 0],   // Straight + Downhill
+        tl: [1, 0],  // Right to Left + Downhill
+        l: [1, 1],   // Right to Left + Neutral
+        bl: [1, 2],  // Right to Left + Uphill
+        b: [2, 2],   // Straight + Uphill
+        br: [0, 2],  // Left to Right + Uphill
+    };
 
     roundData.forEach((hole, index) => {
         if (!hole.puttData) {
@@ -458,6 +456,8 @@ export function analyzeIndividualPutts(roundData, greens) {
             return;
         }
 
+        const detailedPuttsForHole = [];
+
         for (let i = 0; i < putts.length; i++) {
             const startLoc = putts[i];
             const isMadePutt = (i === putts.length - 1);
@@ -470,7 +470,7 @@ export function analyzeIndividualPutts(roundData, greens) {
             let distanceMissed = 0;
 
             if (!isMadePutt) {
-                distanceMissed = getDistance(endLoc, pinLocation).feet;
+                distanceMissed = (units === 0 ? getDistance(endLoc, pinLocation).feet : getDistance(endLoc, pinLocation).meters);
 
                 // --- Calculate Miss Biases (X/Y relative to target line) ---
                 const lineVec = { x: pinLocation.longitude - startLoc.longitude, y: pinLocation.latitude - startLoc.latitude };
@@ -484,8 +484,8 @@ export function analyzeIndividualPutts(roundData, greens) {
                 const metersPerLonDegree = METERS_PER_DEGREE * Math.cos(latRad);
 
                 // Rotated X is now the short/long axis, Y is the left/right axis
-                missXDistance = (-rotatedX * metersPerLonDegree) * 3.28084; // Long(+)/Short(-) in feet
-                missYDistance = (rotatedY * METERS_PER_DEGREE) * 3.28084;   // Left(+)/Right(-) in feet
+                missXDistance = (-rotatedX * metersPerLonDegree) * (units === 0 ? 3.28084 : 1); // Long(+)/Short(-) in feet
+                missYDistance = (rotatedY * METERS_PER_DEGREE) * (units === 0 ? 3.28084 : 1);   // Left(+)/Right(-) in feet
             }
 
             // --- Calculate Break Direction ---
@@ -506,19 +506,25 @@ export function analyzeIndividualPutts(roundData, greens) {
                 else if (breakAngle >= -67.5 && breakAngle < -22.5) breakDirection = breakMap.br;
             }
 
-            detailedPutts.push({
-                ...hole,
-                puttData: {
-                    distance: parseFloat(puttDistance.feet.toFixed(2)),
-                    missXDistance: parseFloat(missXDistance.toFixed(2)),
-                    missYDistance: parseFloat(missYDistance.toFixed(2)),
-                    puttBreak: breakDirection,
-                    misReadLine: startLoc.misreadLine || 0,
-                    misReadSlope: startLoc.misreadSlope || 0,
-                    distanceMissed: parseFloat(distanceMissed.toFixed(2)),
-                }
+            detailedPuttsForHole.push({
+                distance: parseFloat((units === 0 ? puttDistance.feet : puttDistance.meters).toFixed(2)),
+                missXDistance: parseFloat(missXDistance.toFixed(2)),
+                missYDistance: parseFloat(missYDistance.toFixed(2)),
+                puttBreak: breakDirection,
+                misReadLine: startLoc.misreadLine || false,
+                misReadSlope: startLoc.misreadSlope || false,
+                distanceMissed: parseFloat(distanceMissed.toFixed(2)),
             });
         }
+
+        detailedPutts.push({
+            ...hole,
+            puttData: {
+                ...hole.puttData,
+                totalPutts: putts.length
+            },
+            putts: detailedPuttsForHole
+        });
     });
 
     return detailedPutts;

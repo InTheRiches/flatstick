@@ -43,7 +43,7 @@ export function FullFeedItem({userData, item}) {
                         </View>
                         <View style={{flexDirection: "column", flex: 1, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                             <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>1 PUTTS</FontText>
-                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.puttCounts[0]}</FontText>
+                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.puttCounts.onePutts}</FontText>
                         </View>
                         <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                             <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>AVG DISTANCE</FontText>

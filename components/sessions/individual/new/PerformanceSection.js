@@ -19,8 +19,8 @@ export default function PerformanceSection({ session, numOfHoles, preferences })
             </View>
 
             <View style={{ flexDirection: "row" }}>
-                <ColumnStat label="1 PUTTS" value={session.stats.puttCounts[0]} percent={(session.stats.puttCounts[0] / numOfHoles) * 100} />
-                <ColumnStat label="3+ PUTTS" value={session.stats.puttCounts[2]} percent={(session.stats.puttCounts[2] / numOfHoles) * 100} right />
+                <ColumnStat label="1 PUTTS" value={session.stats.puttCounts[0] ?? session.stats.puttCounts.onePutts} percent={(session.stats.puttCounts[0] ?? session.stats.puttCounts.onePutts / numOfHoles) * 100} />
+                <ColumnStat label="3+ PUTTS" value={session.stats.puttCounts[2] ?? session.stats.puttCounts.threePlusPutts} percent={(session.stats.puttCounts[2] ?? session.stats.puttCounts.threePlusPutts / numOfHoles) * 100} right />
             </View>
 
             <View style={{ flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default }}>

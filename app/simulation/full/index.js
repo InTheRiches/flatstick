@@ -331,15 +331,13 @@ export default function FullRound() {
         // save current hole
         saveHole();
 
-        console.log("testing 1");
-
         setHoleScore(roundData[hole-2].score);
         setApproachAccuracy(roundData[hole-2].approachAccuracy);
         setFairwayAccuracy(roundData[hole-2].fairwayAccuracy);
         setPenalties(roundData[hole-2].penalties);
         setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
         setPuttData(roundData[hole-2].puttData);
-        console.log("testing 2");
+
         if (Object.keys(roundData[hole-2].puttData).length !== 0) {
             if (roundData[hole-2].puttData.holedOut) {// holed out
                 setPutts(0);
@@ -353,13 +351,10 @@ export default function FullRound() {
             //     setPuttsLocked(false);
             // }
         }
-        console.log("testing 2.5");
         puttTrackingRef.current.setData(roundData[hole-2].puttData);
-        console.log("testing 3");
 
         recalculateHoleBunkers(greens, allBunkers, hole - 1);
         setHole(hole - 1);
-        console.log("testing 4");
     }
 
     const setHoleNumber = (h) => {
@@ -444,7 +439,7 @@ export default function FullRound() {
 
         const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.approachAccuracy === undefined ? 0 : hole.score === 0 ? 4 : hole.score), 0);
 
-        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens);
+        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens, userData.preferences.units);
         const { name, par, rating, slope, yards } = tee;
         const detailedPutts = analyzeIndividualPutts(updatedRoundData, greens);
 

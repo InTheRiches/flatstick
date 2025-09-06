@@ -153,7 +153,11 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
     if (session.meta.type === "full") {
         console.log("Processing full session stats for:", session.meta.courseName);
         session.holeHistory.forEach((hole) => {
-            updateCategoryStats(hole.puttData, session, newStats, userData, newPutters, newGrips, averaging);
+            updateCategoryStats({
+                ...hole.putts[0],
+                totalPutts: hole.puttData.totalPutts,
+                misHit: false
+            }, session, newStats, userData, newPutters, newGrips, averaging);
         })
     } else {
         session.puttHistory.forEach(putt => {

@@ -18,20 +18,12 @@ setGlobalOptions({maxInstances: 2});
 
 exports.fanOutFeedItem = functions.firestore
     .onDocumentWritten('users/{userId}/sessions/{sessionId}', async (snap, context) => {
-        console.log("Fan out feed triggered, context: ", JSON.stringify(context));
-        console.log("Fan out feed triggered, snap: ", JSON.stringify(snap.data));
-        console.log(snap.data.before.ref);
-        console.log(snap.data.before.ref.path);
         const userId = snap.data.before.ref.path.split("/")[1];
         const sessionId = snap.data.before.ref.path.split("/")[3];
 
-        console.log(`Fan out feed triggered for userId: ${userId}, sessionId: ${sessionId}`);
-
         const userDoc = await admin.firestore().doc(`users/${userId}`).get();
         const userData = userDoc.data();
-        console.log(`User data for userId ${userId}:`, userData);
         const friends = userData.friends || [];
-        console.log(`Friends for userId ${userId}:`, friends);
 
         // Handle delete (before exists, after does not)
         if (snap.data.before.exists && !snap.data.after.exists) {
@@ -100,6 +92,32 @@ exports.fanOutFeedItem = functions.firestore
         }
         const feedItemRef = admin.firestore().collection(`userFeed/${userId}/feedItems`).doc(sessionId);
         batch.set(feedItemRef, feedItem);
+
+        await batch.commit();
+    });
+
+exports.deletedFedOutRound = functions.firestore
+    .onDocumentDeleted('users/{userId}/sessions/{sessionId}', async (snap, context) => {
+        const userId = context.params.userId;
+        const sessionId = context.params.sessionId;
+
+        const userDoc = await admin.firestore().doc(`users/${userId}`).get();
+        const userData = userDoc.data();
+        const friends = userData.friends || [];
+
+        const batch = admin.firestore().batch();
+
+        for (const friendId of friends) {
+            const feedItemsRef = admin.firestore().collection(`userFeed/${friendId}/feedItems`);
+
+            // Example: delete a known session's feedItem
+            const docToDelete = feedItemsRef.doc(sessionId); // or use a specific known doc ID
+            batch.delete(docToDelete);
+        }
+
+        // Also delete from the user's own feed
+        const userFeedRef = admin.firestore().collection(`userFeed/${userId}/feedItems`).doc(sessionId);
+        batch.delete(userFeedRef);
 
         await batch.commit();
     });

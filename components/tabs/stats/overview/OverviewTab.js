@@ -18,10 +18,7 @@ export const OverviewTab = ({
     const colors = useColors();
     const { width } = Dimensions.get("screen");
 
-    console.log("statsToUse", statsToUse);
-
     if (statsToUse === 0) {
-        console.log("skipping stats");
         return <></>;
     }
 

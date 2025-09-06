@@ -38,7 +38,7 @@ export default function ProfileScreen() {
                 {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
                 <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: currentStats.avgPuttsARound }, { label: 'AVG. MISS', value: `${currentStats.avgMiss}${userData.preferences.units === 0 ? "ft" : "m"}` }]} />
                 <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "/(tabs)/compare"})} />
-                <StatsCard title="ACHIEVEMENTS" stats={[]} onPress={() => router.push({pathname: "/achievements"})}/>
+                {/*<StatsCard title="ACHIEVEMENTS" stats={[]} onPress={() => router.push({pathname: "/achievements"})}/>*/}
             </ScrollView>
             <StrokesGainedModal yearlyStats={yearlyStats} strokesGainedRef={strokesGainedRef}/>
         </ScreenWrapper>
