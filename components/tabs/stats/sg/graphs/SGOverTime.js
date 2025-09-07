@@ -8,6 +8,7 @@ export default function SGOverTime({statsToUse, months}) {
     const currentMonth = new Date().getMonth();
 
     let data = statsToUse.months.map(month => month.strokesGained);
+    console.log("length: " + statsToUse.months.length);
     let labels = ["Jan.", "", "Mar.", "", "May", "", "July", "", "Sept.", "", "Nov.", ""];
     let bigLabels = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
     let evenBiggerLabels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -54,6 +55,8 @@ export default function SGOverTime({statsToUse, months}) {
     const range = maxY - minY;
     const intervalSize = range > 2 ? range > 8 ? 4 : 2 : 1;
     const segments = Math.ceil(range / intervalSize);
+
+    console.log("data array: " + data.length);
 
     // when you implement this, only include the months that you have data for (or go into last year, decide later)
     return (

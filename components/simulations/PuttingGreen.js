@@ -1,4 +1,4 @@
-import {Image, Text, View} from "react-native";
+import {Image, StyleSheet, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import React, {useState} from "react";
@@ -7,7 +7,21 @@ import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppCtx";
 import FontText from "../general/FontText";
 
-export function PuttingGreen({updateField, width: realWidth, height, point, center}) {
+export function PuttingGreen({
+                                 holedOut = false,
+                                 setHoledOut,
+                                 updateField,
+                                 largeMiss,
+                                 setLargeMiss,
+                                 width: realWidth,
+                                 height,
+                                 point,
+                                 center,
+                                 setWidth: setWidthProp,
+                                 setHeight: setHeightProp,
+                                 setPoint,
+                                 setCenter
+                             }) {
     const colors = useColors();
     const {userData} = useAppContext();
     const [ballSize, setBallSize] = useState(0);
@@ -15,21 +29,59 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
 
     const difference = (width - height) / 2;
 
+    const update = (key, value) => {
+        if (updateField) {
+            updateField(key, value);
+        } else {
+            switch (key) {
+                case "width":
+                    setWidthProp?.(value);
+                    break;
+                case "height":
+                    setHeightProp?.(value);
+                    break;
+                case "point":
+                    setPoint?.(value);
+                    break;
+                case "center":
+                    setCenter?.(value);
+                    break;
+                case "holedOut":
+                    setHoledOut?.(value);
+                    break;
+                default:
+                    console.warn("Unknown update key:", key);
+            }
+        }
+    };
+
     // TODO see if we can delete puttingGreenWidth
     const onLayout = (event) => {
         const {width: rawWidth, height: rawHeight} = event.nativeEvent.layout;
 
         setWidth(rawWidth);
-        updateField("height", rawHeight);
-        updateField("width", rawHeight);
+        update("height", rawHeight);
+        update("width", rawHeight);
     };
 
     const singleTap = userData.preferences.units === 0 ? Gesture.Tap()
         .onStart((data) => {
+            if (largeMiss && largeMiss.distance !== -1) {
+                runOnJS(setLargeMiss)({
+                    distance: -1,
+                    dir: ""
+                });
+                return;
+            }
+            if (holedOut) {
+                runOnJS(update)("holedOut", false);
+
+                return;
+            }
             // ignore it if the point is outside of the green
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
-            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
+            runOnJS(update)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
 
             const boxWidth = height / 10;
             const boxHeight = height / 10;
@@ -38,10 +90,22 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
             const snappedX = Math.round((data.x - difference) / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
-            runOnJS(updateField)("point", {x: snappedX, y: snappedY});
+            runOnJS(update)("point", {x: snappedX, y: snappedY});
         }) : Gesture.Tap()
         .onStart((data) => {
-            runOnJS(updateField)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
+            if (largeMiss && largeMiss.distance !== -1) {
+                runOnJS(setLargeMiss)({
+                    distance: -1,
+                    dir: ""
+                });
+                return;
+            }
+            if (holedOut) {
+                runOnJS(update)("holedOut", false);
+
+                return;
+            }
+            runOnJS(update)("center", data.x > width / 2 - 25 && data.x < width / 2 + 25 && data.y > height / 2 - 25 && data.y < height / 2 + 25);
             if (data.x - difference < 0 || data.x - difference > height || data.y < 0 || data.y > height) return;
 
             const boxWidth = height / 8;
@@ -51,11 +115,11 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
             const snappedX = Math.round((data.x - difference) / boxWidth) * boxWidth;
             const snappedY = Math.round(data.y / boxHeight) * boxHeight;
 
-            runOnJS(updateField)("point", {x: snappedX, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
+            runOnJS(update)("point", {x: snappedX, y: snappedY}); // again, this works, DO NOT TOUCH IT, I HAVE NO CLUE WHY THIS WORKS
         });
 
     return (
-        <View style={{flex: 1, maxHeight: width}}>
+        <View style={{flex: updateField ? 1 : 0, maxHeight: width}}>
             <View style={{
                 alignSelf: "center",
                 flexDirection: "row",
@@ -93,16 +157,42 @@ export function PuttingGreen({updateField, width: realWidth, height, point, cent
                           alignItems: "center",
                           justifyContent: "center",
                           flexDirection: "col",
-                          flex: 1,
+                          flex: updateField ? 1 : 0,
+                          aspectRatio: updateField ? "auto" : 1,
                           width: "100%",
                       }}>
+                    {((largeMiss && largeMiss.distance !== -1) || holedOut) && (
+                        <View style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '50%',
+                            transform: [{ translateX: -height / 2 }],
+                            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 99,
+                            borderRadius: 12,
+                            aspectRatio: 1,
+                            width: height
+                        }}>
+                            <FontText style={{ fontSize: 18, fontWeight: '700', color: '#333' }}>
+                                {holedOut ? "You holed out" : "Miss logged as >3ft"}
+                            </FontText>
+                            <FontText style={{ fontSize: 14, color: '#555' }}>
+                                No need to mark your putt
+                            </FontText>
+                            <FontText style={{ fontSize: 14, color: '#555' }}>
+                                If you want to override that, tap on grid.
+                            </FontText>
+                        </View>
+                    )}
                     <Image
                         source={userData.preferences.units === 0 ? require('@/assets/images/putting-grid.png') : require('@/assets/images/putting-grid-metric.png')}
                         style={{
                             borderWidth: 1,
                             borderRadius: 12,
                             borderColor: colors.putting.grid.border,
-                            aspectRatio: "1",
+                            aspectRatio: 1,
                             flex: 1,
                             maxHeight: width
                         }}/>

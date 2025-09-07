@@ -12,7 +12,7 @@ export function SecondaryButton({onPress, title = 'Save', disabled = false, chil
       justifyContent: 'center',
       paddingVertical: 10,
       paddingHorizontal: 32,
-      borderRadius: 8,
+      borderRadius: 10,
       borderStyle: "solid",
       borderWidth: 1,
       borderColor: disabled ? colors.button.disabled.border : colors.button.secondary.border,

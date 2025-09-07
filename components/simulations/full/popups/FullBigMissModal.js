@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useImperativeHandle, useRef, useState} from "react";
+import React, {useCallback, useImperativeHandle, useRef, useState} from "react";
 import {Keyboard, Platform, Pressable, TouchableWithoutFeedback, View} from "react-native";
 import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
@@ -6,26 +6,21 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import ArrowComponent from "@/components/general/icons/ArrowComponent";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
-import {useAppContext} from "../../../contexts/AppCtx";
-import FontText from "../../general/FontText";
-import {Exclamation} from "../../../assets/svg/SvgComponents";
+import {useAppContext} from "@/contexts/AppCtx";
+import FontText from "@/components/general/FontText";
+import {Exclamation} from "../../../../assets/svg/SvgComponents";
+import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 
-export function BigMissModal({
-                                         updateField, largeMiss, bigMissRef, puttTrackingModalRef, allPutts, hole,
-                                     }) {
+export function FullBigMissModal({bigMissRef, puttTrackingModalRef, largeMiss, setLargeMiss}) {
     const colors = useColors();
     const {userData} = useAppContext();
+
     const bottomSheetRef = useRef(null);
 
     const [open, setOpen] = useState(false);
-    const [transitioningBack, setTransitioningBack] = useState(false);
-
-    const [putts, setPutts] = useState(-1);
-    const [puttsFocused, setPuttsFocused] = useState(false);
-    const [invalid, setInvalid] = useState(false);
 
     const [distanceFocused, setDistanceFocused] = useState(false);
-    const [distanceInvalid, setDistanceInvalid] = useState(false);
+    const [distanceInvalid, setDistanceInvalid] = useState(true);
 
     useImperativeHandle(bigMissRef, () => ({
         open: () => {
@@ -35,21 +30,18 @@ export function BigMissModal({
             bottomSheetRef.current?.dismiss();
         },
         setData: (data) => {
-            setPutts(data.putts);
+
         },
         resetData: () => {
             setDistanceInvalid(false);
             setDistanceFocused(true);
-            setPutts(-1);
-            setPuttsFocused(false);
-            setInvalid(false);
         }
     }));
 
     const setMissDirection = (direction) => {
-        updateField("largeMiss", {
+        setLargeMiss({
             ...largeMiss,
-            dir: direction
+            dir: direction,
         });
     };
 
@@ -61,49 +53,27 @@ export function BigMissModal({
         />);
     }, []);
 
+    const isEqual = (arr, arr2) => Array.isArray(arr) && arr.length === arr2.length && arr.every((val, index) => val === arr2[index]);
+
     const close = () => {
-        if (transitioningBack) {
-            setTransitioningBack(false);
-            return;
-        }
-
         Keyboard.dismiss();
-
-        // updateField("largeMissBy", [0, 0]);
-        // updateField("largeMiss", false);
-
-        setPutts(-1);
-        // setDistance(-1);
-        // setLargeMissBy([0, 0]);
-
-        setPuttsFocused(false);
-        setInvalid(false);
-        setDistanceFocused(false);
-        setDistanceInvalid(false);
-    };
-
-    const updatePutts = (newPutts) => {
-        if (newPutts === "") {
-            setPutts(-1);
-            setInvalid(true);
-            return;
+        // if the data isnt complete, clear it all
+        if (largeMiss.dir === "" || largeMiss.distance === -1 || distanceInvalid) {
+            setLargeMiss({
+                distance: -1,
+                dir: "",
+            })
+        } else {
+            puttTrackingModalRef.current?.largeMiss();
         }
-        if (newPutts.match(/[^0-9]/g)) {
-            setInvalid(true);
-            return;
-        }
-
-        let fixedPutts = parseInt(newPutts);
-        setPutts(fixedPutts);
-        setInvalid(fixedPutts < 2 || fixedPutts > 9)
     };
 
     const updateDistance = (newDistance) => {
         if (newDistance === "") {
-            updateField("largeMiss", {
+            setLargeMiss({
                 ...largeMiss,
                 distance: -1,
-            });
+            })
             setDistanceInvalid(true);
             return;
         }
@@ -113,10 +83,10 @@ export function BigMissModal({
         }
 
         let fixedDistance = parseInt(newDistance);
-        updateField("largeMiss", {
+        setLargeMiss({
             ...largeMiss,
             distance: fixedDistance,
-        });
+        })
         setDistanceInvalid(fixedDistance < (userData.preferences.units === 0 ? 3 : 1) || fixedDistance > 99)
     }
 
@@ -135,8 +105,8 @@ export function BigMissModal({
         keyboardBlurBehavior={"restore"}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <BottomSheetView style={{
-                    paddingBottom: 12, backgroundColor: colors.background.secondary,
-                }}>
+                paddingBottom: 12, backgroundColor: colors.background.secondary,
+            }}>
                 <View style={{paddingHorizontal: 20, flexDirection: "column", alignItems: "center",}}>
                     <View style={{flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 8,}}>
                         <Exclamation width={48} height={48}></Exclamation>
@@ -312,7 +282,7 @@ export function BigMissModal({
                             <PrimaryButton style={{
                                 aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
                             }} onPress={() => {
-                                if (distance === -1) updateDistance("99"); else if (distance <= userData.preferences.units === 0 ? 3 : 1) updateDistance("99"); else updateDistance((distance - 1).toString());
+                                if (largeMiss.distance === -1) updateDistance("98"); else if (largeMiss.distance <= (userData.preferences.units === 0 ? 3 : 1)) updateDistance("97"); else updateDistance((largeMiss.distance - 1).toString());
                             }}>
                                 <Svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -366,93 +336,29 @@ export function BigMissModal({
                             </PrimaryButton>
                         </View>
                     </View>
-                    <View style={{
-                        flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "flex-end"
-                    }}>
-                        <FontText style={{fontSize: 18, color: colors.text.primary, marginBottom: 10}}>
-                            Total putts to complete the hole:
-                        </FontText>
-                        <View style={{flexDirection: "row", gap: 12, marginBottom: 8, alignItems: "center",}}>
-                            <PrimaryButton style={{
-                                aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
-                            }} onPress={() => {
-                                if (putts === -1 || putts <= 2) setPutts(9);
-                                else setPutts(putts - 1);
-                            }}>
-                                <Svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={3}
-                                    stroke={colors.button.primary.text}
-                                    width={18}
-                                    height={18}
-                                >
-                                    <Path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/>
-                                </Svg>
-                            </PrimaryButton>
-                            <BottomSheetTextInput
-                                style={{
-                                    width: 36,
-                                    textAlign: "center",
-                                    borderWidth: 1,
-                                    borderColor: puttsFocused ? invalid ? colors.input.invalid.focusedBorder : colors.input.focused.border : invalid ? colors.input.invalid.border : colors.input.border,
-                                    borderRadius: 10,
-                                    paddingVertical: 6,
-                                    fontSize: 16,
-                                    color: colors.input.text,
-                                    backgroundColor: invalid ? colors.input.invalid.background : puttsFocused ? colors.input.focused.background : colors.input.background,
-                                }}
-                                onFocus={() => setPuttsFocused(true)}
-                                onBlur={() => setPuttsFocused(false)}
-                                onChangeText={updatePutts}
-                                defaultValue={putts !== -1 ? putts + "" : ""}
-                                keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}
-                            />
-                            <PrimaryButton style={{
-                                aspectRatio: 1, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 16, flex: 0
-                            }} onPress={() => {
-                                if (putts === -1) updatePutts("2"); else if (putts >= 9) updatePutts("2"); else updatePutts((putts + 1).toString());
-                            }}>
-                                <Svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={3}
-                                    stroke={colors.button.primary.text}
-                                    width={18}
-                                    height={18}
-                                >
-                                    <Path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 4.5v15m7.5-7.5h-15"
-                                    />
-                                </Svg>
-                            </PrimaryButton>
-                        </View>
-                    </View>
                     <View style={{flexDirection: "row", gap: 12}}>
                         <PrimaryButton
                             onPress={() => {
-                                if (hole !== 1) {
-                                    setTransitioningBack(true);
-                                    lastHole();
-                                }
+                                setDistanceInvalid(false);
+                                setDistanceFocused(false);
+                                setLargeMiss({
+                                    distance: -1,
+                                    dir: "",
+                                });
+                                bottomSheetRef.current?.close();
                             }}
-                            disabled={hole === 1}
-                            title={"Back"}
+                            title={"Cancel"}
                         ></PrimaryButton>
-                        <PrimaryButton
+                        <SecondaryButton
                             onPress={() => {
-                                if (largeMiss.dir !== "" && !invalid && putts.length !== 0 && largeMiss.distance > 0 && !distanceInvalid) {
+                                if (largeMiss.dir !== "" && largeMiss.distance.length !== 0 && !distanceInvalid) {
                                     puttTrackingModalRef.current?.largeMiss();
                                     bottomSheetRef.current?.dismiss();
                                 }
                             }}
-                            disabled={largeMiss.dir === "" || invalid || putts === -1 || largeMiss.distance < 1 || distanceInvalid}
+                            disabled={largeMiss.dir === "" || largeMiss.distance === -1 || distanceInvalid}
                             title={"Save"}
-                        ></PrimaryButton>
+                        ></SecondaryButton>
                     </View>
                 </View>
             </BottomSheetView>

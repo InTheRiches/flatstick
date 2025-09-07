@@ -9,17 +9,16 @@ import {
     View
 } from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useImperativeHandle, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from '@/components/general/buttons/DangerButton';
-import {getAuth} from "../../../utils/firebase";
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import {useAppContext} from "@/contexts/AppCtx";
 import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
-import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
+import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {
     calculateDistanceMissedFeet,
     calculateDistanceMissedMeters,
@@ -41,13 +40,14 @@ import {
 import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
+import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
 
 const initialState = {
-    confirmLeave: false,
-    confirmSubmit: false,
     loading: false,
-    largeMiss: false,
-    largeMissBy: [0, 0],
+    largeMiss: {
+        dir: "",
+        distance: -1,
+    },
     width: 0,
     height: 0,
     center: false,
@@ -58,36 +58,11 @@ const initialState = {
     puttBreak: [0, 0],
     misReadLine: false,
     misReadSlope: false,
+    holedOut: false,
     misHit: false,
     theta: 999,
     putts: [],
     currentPutts: 2,
-}
-
-const breaks = {
-    45: "Left to Right",
-    90: "Left to Right",
-    135: "Left to Right",
-    315: "Right to Left",
-    270: "Right to Left",
-    225: "Right to Left",
-    0: "Straight",
-    360: "Straight",
-    180: "Straight",
-    999: "Straight",
-}
-
-const slopes = {
-    45: "Downhill",
-    90: "Neutral",
-    135: "Uphill",
-    315: "Downhill",
-    270: "Neutral",
-    225: "Uphill",
-    0: "Downhill",
-    360: "Downhill",
-    180: "Uphill",
-    999: "Neutral",
 }
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
@@ -99,7 +74,6 @@ export default function RealSimulation() {
     const navigation = useNavigation();
     const {newSession, putters, userData, grips} = useAppContext();
 
-    const auth = getAuth();
     const router = useRouter();
 
     const {stringHoles} = useLocalSearchParams();
@@ -111,12 +85,43 @@ export default function RealSimulation() {
     const [adLoaded, setAdLoaded] = useState(false);
     const misreadRef = useRef(null);
     const bannerRef = useRef(null);
+    const realSimulationRef = useRef(null);
 
     const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
+    const CheckIcon = React.memo(() => (
+        <View style={{
+            position: "absolute",
+            right: -7,
+            top: -7,
+            backgroundColor: "#40C2FF",
+            padding: 3,
+            borderRadius: 50,
+        }}>
+            <Svg
+                width={18}
+                height={18}
+                stroke={colors.checkmark.color}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="3">
+                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+            </Svg>
+        </View>
+    ));
 
     useForeground(() => {
         bannerRef.current?.load();
     })
+
+    useImperativeHandle(realSimulationRef, () => ({
+        largeMiss: () => {
+            updateField("point", {});
+            updateField("center", false);
+            updateField("holedOut", false);
+        },
+    }));
 
     // keep track of the time this session started at
     const [startTime, setStartTime] = useState(new Date().getTime());
@@ -126,7 +131,6 @@ export default function RealSimulation() {
     const [{
         loading,
         largeMiss,
-        largeMissBy,
         width,
         height,
         center,
@@ -134,6 +138,7 @@ export default function RealSimulation() {
         hole,
         theta,
         distance,
+        holedOut,
         distanceInvalid,
         misReadLine,
         misReadSlope,
@@ -185,74 +190,27 @@ export default function RealSimulation() {
         }
     }, []);
 
-    const pushHole = (totalPutts, largeMissDistance) => {
+    const pushHole = (totalPutts) => {
         let distanceMissed = 0;
 
-        if (!largeMiss)
+        if (largeMiss.distance === -1)
             distanceMissed = userData.preferences.units === 0 ? calculateDistanceMissedFeet(center, point, width, height) : calculateDistanceMissedMeters(center, point, width, height);
 
         if (putts[hole - 1] !== undefined) {
             if (totalPutts === -1)
                 totalPutts = putts[hole - 1].totalPutts
-            if (largeMissDistance === -1)
-                largeMissDistance = putts[hole - 1].distanceMissed
         }
 
-        const puttsCopy = updatePuttsCopy(putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, largeMissDistance, point, getLargeMissPoint, largeMissBy);
+        const puttsCopy = updatePuttsCopy(putts, hole, holedOut ? 0 : distance === 0 ? -1 : distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, point);
         updateField("putts", puttsCopy);
         return puttsCopy;
     };
 
-    const holedOutApproach = () => {
-        if (hole === holes) {
-            const puttsCopy = updatePuttsCopy(putts, hole, 0, 0, false, false, false, false, 0, 0, 0, {x: 0, y: 0}, {x: 0, y: 0}, [0,0]);
-            updateField("putts", puttsCopy);
-
-            submitRef.current.present();
-            return;
-        }
-
-        if (hole === 9 && adLoaded) {
-            interstitial.show();
-            setAdLoaded(false);
-        }
-
-        const puttsCopy = updatePuttsCopy(putts, hole, 0, 0, false, false, false, false, 0, 0, 0, {x: 0, y: 0}, {x: 0, y: 0}, [0,0]);
-        updateField("putts", puttsCopy);
-
-        setTransitioning(true);
-
-        setTimeout(() => {
-            setTransitioning(false);
-            // your code here
-        }, 350);
-
-        if (putts[hole] === undefined) {
-            updateField("currentPutts", 2);
-            updateField("point", {});
-            updateField("misReadLine", false);
-            updateField("misReadSlope", false);
-            updateField("misHit", false);
-            updateField("center", false);
-            updateField("distanceInvalid", true);
-            updateField("largeMissBy", [0, 0]);
-            updateField("theta", 999);
-            updateField("puttBreak", convertThetaToBreak(0));
-            updateField("distance", -1);
-            updateField("hole", hole + 1);
-            updateField("largeMiss", false);
-            return;
-        }
-
-        loadPuttData(puttsCopy[hole], updateField);
-        updateField("hole", hole + 1);
-    }
-
-    const nextHole = (totalPutts, largeMissDistance = -1) => {
+    const nextHole = (totalPutts) => {
         if (!largeMiss && point.x === undefined) return;
 
         if (hole === holes) {
-            pushHole(totalPutts, largeMissDistance);
+            pushHole(totalPutts);
 
             submitRef.current.present();
             return;
@@ -270,13 +228,14 @@ export default function RealSimulation() {
             // your code here
         }, 350);
 
-        const puttsCopy = pushHole(totalPutts, largeMissDistance);
+        const puttsCopy = pushHole(totalPutts);
 
         if (putts[hole] === undefined) {
             updateField("currentPutts", 2);
             updateField("point", {});
             updateField("misReadLine", false);
             updateField("misReadSlope", false);
+            updateField("holedOut", false);
             updateField("misHit", false);
             updateField("center", false);
             updateField("distanceInvalid", true);
@@ -285,7 +244,10 @@ export default function RealSimulation() {
             updateField("puttBreak", convertThetaToBreak(0));
             updateField("distance", -1);
             updateField("hole", hole + 1);
-            updateField("largeMiss", false);
+            updateField("largeMiss", {
+                dir: "",
+                distance: -1,
+            });
             return;
         }
 
@@ -399,11 +361,11 @@ export default function RealSimulation() {
                                      distanceInvalid={distanceInvalid}
                                      updateField={updateField}/>
                     </View>
-                    <View style={{flexDirection: "row", justifyContent: "space-around", gap: 4}}>
+                    <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8}}>
                         <Pressable onPress={() => updateField("misHit", !misHit)} style={{
                             paddingRight: 5,
                             paddingLeft: 0,
-                            paddingVertical: 8,
+                            paddingVertical: 10,
                             borderRadius: 8,
                             borderWidth: 1,
                             flex: 1,
@@ -425,11 +387,37 @@ export default function RealSimulation() {
                             }
                             <FontText style={{color: misHit ? colors.button.danger.text : colors.button.danger.disabled.text, marginLeft: 4, fontWeight: 400}}>Mishit</FontText>
                         </Pressable>
-                        <PrimaryButton title="Holed Out" onPress={() => holedOutApproach()} style={{ paddingHorizontal: 5, paddingVertical: 8, flex: 1, borderRadius: 8}}></PrimaryButton>
+                        <Pressable onPress={() => {
+                            if (holedOut) {
+                                updateField("point", {});
+                                updateField("center", false);
+                                updateField("largeMiss", {
+                                    dir: "",
+                                    distance: -1,
+                                })
+                            }
+                            updateField("holedOut", !holedOut)
+                        }} style={{
+                            paddingRight: 5,
+                            paddingLeft: 0,
+                            paddingVertical: 10,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            flex: 1,
+                            borderColor: holedOut ? colors.button.radio.selected.border : colors.button.danger.disabled.border,
+                            backgroundColor: holedOut ? colors.button.radio.selected.background : colors.button.danger.disabled.background,
+                            alignSelf: "center",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: 'center',
+                        }}>
+                            {holedOut && <CheckIcon></CheckIcon>}
+                            <FontText style={{color: colors.button.radio.text, marginLeft: 4, fontWeight: 400, textAlign: "center"}}>Holed Out</FontText>
+                        </Pressable>
                         <Pressable onPress={() => misreadRef.current.present()} style={({pressed}) => [{
                             paddingHorizontal: 5,
                             flex: 1,
-                            paddingVertical: 8,
+                            paddingVertical: 10,
                             borderRadius: 8,
                             borderWidth: 1,
                             borderColor: misReadSlope || misReadLine ? colors.button.danger.border : colors.button.danger.disabled.border,
@@ -443,7 +431,7 @@ export default function RealSimulation() {
                         </Pressable>
                     </View>
                     {!keyboardIsVisible && (
-                        <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
+                        <PuttingGreen holedOut={holedOut} largeMiss={largeMiss} setLargeMiss={(data) => updateField("largeMiss", data)} center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
                     )}
                     <View style={{marginLeft: -24}}>
                         <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
@@ -452,26 +440,42 @@ export default function RealSimulation() {
                         <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                        title="Back"
                                        disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                        <DangerButton onPress={() => {
-                            if (distance === -1) return;
-                            updateField("largeMiss", true);
-                            bigMissRef.current.present();
-                        }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 32, paddingVertical: 10, borderRadius: 8, opacity: distance === -1 ? 0.5 : 1}}></DangerButton>
+                        { largeMiss.distance !== -1 ? (
+                            <DangerButton onPress={() => {
+                                bigMissRef.current.open();
+                            }} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}} children={<View style={{flexDirection: "row"}}>
+                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth={2}
+                                     width={20}
+                                     height={20} stroke={colors.button.danger.text}>
+                                    <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                </Svg>
+                                <FontText style={{color: colors.button.danger.text, marginLeft: 4}}>Miss > {userData.preferences.units === 0 ? "3ft" : "1m"}</FontText>
+                            </View>}></DangerButton>
+                        ) : (
+                            <PrimaryButton onPress={() => {
+                                bigMissRef.current.open();
+                            }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></PrimaryButton>
+                        )
+                        }
                         {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                         title={hole === holes ? "Submit" : "Next"}
-                                        disabled={point.x === undefined || distance === -1}
+                                        disabled={((point.x === undefined && largeMiss.distance === -1) || distance === -1) && !holedOut}
                                         onPress={() => {
-                                            if (point.x === undefined || distance === -1) return
+                                            if (((point.x === undefined && largeMiss.distance === -1) || distance === -1) && !holedOut) return
 
                                             if (center) nextHole(1);
+                                            else if (holedOut) {
+                                                // updateField("currentPutts", 0);
+                                                nextHole(0);
+                                            }
                                             else totalPuttsRef.current.present()
                                         }}></PrimaryButton>}
                     </View>
                 </ScreenWrapper>
                 <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                             totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-                <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
-                              rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
+                <FullBigMissModal setLargeMiss={(data) => updateField("largeMiss", data)} bigMissRef={bigMissRef} puttTrackingModalRef={realSimulationRef} largeMiss={largeMiss}/>
                 <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
                 <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit(true)} end={fullReset}></ConfirmExit>
                 <MisreadModal misreadRef={misreadRef} setMisreadSlope={(val) => updateField("misReadSlope", val)} setMisreadLine={(val) => updateField("misReadLine", val)} misreadLine={misReadLine} misreadSlope={misReadSlope}></MisreadModal>

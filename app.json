@@ -38,7 +38,9 @@
       [
         "expo-font",
         {
-          "fonts": ["assets/fonts/Geist[wght].ttf"]
+          "fonts": [
+            "assets/fonts/Geist[wght].ttf"
+          ]
         }
       ],
       [
@@ -49,9 +51,22 @@
         }
       ],
       "expo-secure-store",
-      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }],
-      ["./android-manifest-launch-mode-plugin"],
-      "@react-native-google-signin/google-signin"
+      [
+        "react-native-bootsplash",
+        {
+          "assetsDir": "assets/bootsplash"
+        }
+      ],
+      [
+        "./android-manifest-launch-mode-plugin"
+      ],
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Flatstick to use your location."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

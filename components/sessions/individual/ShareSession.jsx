@@ -69,7 +69,7 @@ export default function ShareSession({shareSessionRef, session}) {
                             <Image
                                 source={require("../../../assets/branding/FlatstickWithMallet.png")}
                                 style={{width: 100, height: 18}}/>
-                            <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>{session.type === "round-simulation" ? "18 Hole Simulation" : session.holes + " Hole Round"}</FontText>
+                            <FontText style={{fontSize: 14, color: colors.text.primary, fontWeight: 800, flex: 1, textAlign: "right"}}>{session.type === "round-simulation" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}</FontText>
                         </View>
                         <View style={{flexDirection: "row"}}>
                             <View style={{
@@ -81,7 +81,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12,
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>1 PUTTS</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -95,7 +95,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>3+ PUTTS</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -111,7 +111,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 borderLeftWidth: 1,
                                 borderColor: colors.border.default,
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Make %</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>MAKE %</FontText>
                                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
                                     <FontText style={{
                                         fontSize: 20,
@@ -131,7 +131,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Strokes Gained</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>SG</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -148,7 +148,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent High</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>% HIGH</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -163,7 +163,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Percent Long</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>% LONG</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -182,7 +182,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12,
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>AVG. MISS</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -199,7 +199,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12,
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Break Bias</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>BREAK BIAS</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,
@@ -213,7 +213,7 @@ export default function ShareSession({shareSessionRef, session}) {
                                 paddingTop: 6,
                                 paddingLeft: 12
                             }}>
-                                <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Speed Bias</FontText>
+                                <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>SPEED BIAS</FontText>
                                 <FontText style={{
                                     fontSize: 20,
                                     color: colors.text.primary,

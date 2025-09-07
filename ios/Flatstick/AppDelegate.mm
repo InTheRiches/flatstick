@@ -61,7 +61,6 @@
 {
   return [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
-
 // @generated begin bootsplash-init - expo prebuild (DO NOT MODIFY) sync-3c3e56b1bdc9d588f00adaae0d33716e538c304c
 - (void)customizeRootView:(RCTRootView *)rootView {
   [super customizeRootView:rootView];

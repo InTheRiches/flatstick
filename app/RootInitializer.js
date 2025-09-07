@@ -17,6 +17,7 @@ import {
     useFonts,
 } from '@expo-google-fonts/inter';
 import {Platform} from "react-native";
+import BootSplash from "react-native-bootsplash";
 
 export default function RootInitializer({}) {
     const [visible, setVisible] = React.useState(true);
@@ -38,6 +39,9 @@ export default function RootInitializer({}) {
 
     // Monitor authentication state changes
     useEffect(() => {
+        if (Platform.OS === "ios") {
+            BootSplash.hide({ fade: true });
+        }
         const unsubscribeNetInfo = NetInfo.addEventListener(state => {
             if (!state.isConnected) {
                 if (localLoading) setLocalLoading(false);

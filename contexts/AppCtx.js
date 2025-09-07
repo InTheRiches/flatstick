@@ -38,12 +38,15 @@ import {useRouter} from "expo-router";
 import {Platform} from "react-native";
 import RNFS from "react-native-fs";
 import {appleAuth} from "@invertase/react-native-apple-authentication";
+import {adaptFullRoundSession} from "@/utils/sessions/SessionUtils";
 
 const sessionDirectory = `${RNFS.DocumentDirectoryPath}/sessions`;
+const fullRoundDirectory = `${RNFS.DocumentDirectoryPath}/fullRounds`;
 
 const AppContext = createContext({
     userData: {},
     puttSessions: [],
+    fullRoundSessions: [],
     currentStats: {},
     putters: [],
     grips: [],
@@ -63,6 +66,7 @@ const AppContext = createContext({
     createEmailAccount: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
+    newFullRound: () => Promise.resolve(),
     getPreviousStats: () => Promise.resolve(),
     deleteSession: () => Promise.resolve(),
     deletePutter: () => {},
@@ -93,6 +97,7 @@ export function AppProvider({children}) {
     // States for user data, sessions, and statistics
     const [userData, setUserData] = useState({});
     const [puttSessions, setPuttSessions] = useState([]);
+    const [fullRoundSessions, setFullRoundSessions] = useState([]);
     const [currentStats, setCurrentStats] = useState({});
     const [yearlyStats, setYearlyStats] = useState({});
     const [sixMonthStats, setSixMonthStats] = useState({});
@@ -386,7 +391,6 @@ export function AppProvider({children}) {
 
     // Initialize user data and sessions
     const initialize = () => {
-        console.log("Initializing user data and sessions...");
         if (!auth.currentUser) {
             console.log("No user signed in!");
             setLoading(false);
@@ -396,8 +400,12 @@ export function AppProvider({children}) {
         const setupFolder = async () => {
             try {
                 const dirExists = await RNFS.exists(sessionDirectory);
+                const otherDirExists = await RNFS.exists(fullRoundDirectory);
                 if (!dirExists) {
                     await RNFS.mkdir(sessionDirectory);
+                }
+                if (!otherDirExists) {
+                    await RNFS.mkdir(fullRoundDirectory);
                 }
             } catch (error) {
                 console.error("Error creating session directory:", error);
@@ -449,6 +457,8 @@ export function AppProvider({children}) {
 
                 refreshData().then(() => {
                     getPreviousStats().then(() => {
+                        // TODO remove this
+                        refreshStats();
                         console.log("Initialization complete!");
                         setLoading(false);
                     })
@@ -545,9 +555,12 @@ export function AppProvider({children}) {
             await updateData(newData);
         }
 
+        let sessions = {};
+        let fullRoundSessions = {};
+
         try {
             const files = await RNFS.readDir(sessionDirectory);
-            const sessions = await Promise.all(files.map(async (file) => {
+            sessions = await Promise.all(files.map(async (file) => {
                 const content = await RNFS.readFile(file.path, 'utf8');
                 // get the file name from the path
                 const fileName = file.name.split('.')[0];
@@ -562,12 +575,32 @@ export function AppProvider({children}) {
             sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             setPuttSessions(sessions);
-            return {sessions, newData};
         } catch (error) {
             console.error("Error refreshing sessions:", error);
         }
 
-        return {};
+        try {
+            const files = await RNFS.readDir(fullRoundDirectory);
+            fullRoundSessions = await Promise.all(files.map(async (file) => {
+                const content = await RNFS.readFile(file.path, 'utf8');
+                // get the file name from the path
+                const fileName = file.name.split('.')[0];
+                // add the file name to the session data
+                const fullRoundSessionData = JSON.parse(content);
+                fullRoundSessionData.id = fileName;
+                // return the session data with the file name
+                return fullRoundSessionData;
+            }));
+
+            // sort by timestamp
+            fullRoundSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            setFullRoundSessions(fullRoundSessions);
+        } catch (error) {
+            console.error("Error refreshing full sessions:", error);
+        }
+
+        return {sessions, fullRoundSessions, newData};
     };
 
     /**
@@ -601,22 +634,51 @@ export function AppProvider({children}) {
         const newStats = createSimpleStats();
         const newYearlyStats = createYearlyStats();
 
-        const newPuttSessions = (await refreshData()).sessions;
-        const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions);
+        const {sessions: newPuttSessions, fullRoundSessions: newFullRoundSessions} = await refreshData();
+        console.log("New putt sessions:", newPuttSessions.length, "New full round sessions:", newFullRoundSessions.length);
+
+        const strokesGained = calculateTotalStrokesGained(userData, newPuttSessions, newFullRoundSessions);
         const newPutters = initializePutters(putters);
         const newGrips = initializeGrips(grips);
 
-        newPuttSessions.forEach(session => processSession(session, newStats, newYearlyStats, newPutters, newGrips, userData));
+        const sessions = [...newPuttSessions, ...newFullRoundSessions];
+
+        sessions.forEach(session => processSession(adaptFullRoundSession(session), newStats, newYearlyStats, newPutters, newGrips, userData));
 
         if (newStats.rounds > 0)
             finalizeStats(newStats, strokesGained);
 
         setCurrentStats(newStats);
 
-        // TODO implement this
+        // TODO implement this plus the session count
         let totalPutts = 0;
         await updateData({totalPutts: totalPutts, sessions: newPuttSessions.length, strokesGained: strokesGained.overall});
         await updateStats(newStats)
+
+        // loop through newYearlyStats.months and if there is no data (-999) than just copy it from the other month
+        newYearlyStats.months.forEach((month, index) => {
+            // make sure it isnt the last month
+            if (index === newYearlyStats.months.length - 1) return;
+
+            if (month.strokesGained === -999 && newYearlyStats.months[index+1].strokesGained !== -999) {
+                // copy the data from the previous month
+                if (index > 0) {
+                    newYearlyStats.months[index] = {...newYearlyStats.months[index - 1]};
+                } else {
+                    // if it is the first month, just set it to 0
+                    newYearlyStats.months[index].strokesGained = 0;
+                }
+            }
+            if (month.puttsAHole === -999 && newYearlyStats.months[index+1].puttsAHole !== -999) {
+                // copy the data from the previous month
+                if (index > 0) {
+                    newYearlyStats.months[index].puttsAHole = {...newYearlyStats.months[index - 1].puttsAHole};
+                } else {
+                    // if it is the first month, just set it to 0
+                    newYearlyStats.months[index].puttsAHole = createSimpleRefinedStats().puttsAHole;
+                }
+            }
+        });
 
         console.log("yearly stats", newYearlyStats);
 
@@ -699,6 +761,31 @@ export function AppProvider({children}) {
         return true;
     }
 
+    const newFullRound = async (data) => {
+        RNFS.writeFile(`${fullRoundDirectory}/${data.id}.json`, JSON.stringify(data), 'utf8')
+        // await setDoc(doc(firestore, file, generatePushID()), data)
+        let newStats;
+        try {
+            newStats = await refreshStats();
+        } catch (error) {
+            console.error("Error updating stats:", error);
+            return false;
+        }
+
+        RNFS.readDir(fullRoundDirectory).then((files) => {
+            if (files.length % 5 === 0) {
+                setDoc(doc(firestore, `users/${auth.currentUser.uid}/stats/${new Date().getTime()}`), newStats);
+            }
+        }).catch((error) => {
+            console.error("Error reading session files:", error);
+        });
+
+        // Update the best session
+        await updateBestSession(data);
+
+        return true;
+    }
+
     const deleteSession = async (sessionId) => {
         const sessionFilePath = `${sessionDirectory}/${sessionId}.json`;
         try {
@@ -715,6 +802,7 @@ export function AppProvider({children}) {
     const appContextValue = useMemo(() => ({
         userData,
         puttSessions,
+        fullRoundSessions,
         currentStats,
         putters,
         grips,
@@ -730,6 +818,7 @@ export function AppProvider({children}) {
         getAllStats,
         newPutter,
         newSession,
+        newFullRound,
         getPreviousStats,
         createEmailAccount,
         deletePutter,

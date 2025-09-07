@@ -1,10 +1,9 @@
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {ActivityIndicator, BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useImperativeHandle, useMemo, useRef, useState} from 'react';
 import Svg, {Path} from 'react-native-svg';
 import DangerButton from "@/components/general/buttons/DangerButton";
-import {getAuth} from "firebase/auth";
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
@@ -13,12 +12,11 @@ import {
     calculateDistanceMissedFeet,
     calculateDistanceMissedMeters,
     calculateStats,
-    getLargeMissPoint,
     loadPuttData
 } from '../../../utils/PuttUtils';
 import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
-import {BigMissModal, ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
+import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {GreenVisual} from "../../../components/simulations/round";
 import {
     createDistanceProbabilities,
@@ -41,6 +39,7 @@ import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
+import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
 
 
 // TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
@@ -70,8 +69,10 @@ const greenMaps = {
 
 const initialState = {
     loading: false,
-    largeMiss: false,
-    largeMissBy: [0, 0],
+    largeMiss: {
+        dir: "",
+        distance: -1,
+    },
     width: 0,
     height: 0,
     center: false,
@@ -95,6 +96,14 @@ export default function RoundSimulation() {
     const colors = useColors();
     const navigation = useNavigation();
     const {newSession, putters, userData, currentStats, grips} = useAppContext();
+    const roundSimulationRef = useRef(null);
+
+    useImperativeHandle(roundSimulationRef, () => ({
+        largeMiss: () => {
+            updateField("point", {});
+            updateField("center", false);
+        },
+    }));
 
     const [transitioning, setTransitioning] = useState(false);
 
@@ -118,7 +127,6 @@ export default function RoundSimulation() {
     const [{
         loading,
         largeMiss,
-        largeMissBy,
         width,
         height,
         center,
@@ -177,56 +185,72 @@ export default function RoundSimulation() {
         }
     }, []);
 
-    const pushHole = (totalPutts, largeMissDistance) => {
+    const pushHole = (totalPutts) => {
         let distanceMissed = 0;
 
-        if (!largeMiss)
+        if (largeMiss.distance === -1)
             distanceMissed = userData.preferences.units === 0 ? calculateDistanceMissedFeet(center, point, width, height) : calculateDistanceMissedMeters(center, point, width, height);
 
         if (putts[hole - 1] !== undefined) {
             if (totalPutts === -1)
                 totalPutts = putts[hole - 1].totalPutts
-            if (largeMissDistance === -1)
-                largeMissDistance = putts[hole - 1].distanceMissed;
         }
 
         const puttsCopy = [...putts];
         puttsCopy[hole - 1] = {
-            distance: distance,
+            distance,
             break: puttBreak,
-            misReadLine: misReadLine,
-            misReadSlope: misReadSlope,
-            misHit: misHit,
-            largeMiss: largeMiss,
-            totalPutts: totalPutts,
-            distanceMissed: largeMiss ? largeMissDistance : distanceMissed,
-            point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance) : point
+            misReadLine,
+            misReadSlope,
+            misHit,
+            largeMiss,
+            distanceMissed,
+            totalPutts,
+            point,
         };
+
         updateField("putts", puttsCopy);
         return puttsCopy;
     }
 
     const reRoll = () => {
-        updateField("puttBreak", generateBreak());
+        let newBreak = generateBreak();
+        while (newBreak[0] === puttBreak[0] && newBreak[1] === puttBreak[1]) {
+            newBreak = generateBreak();
+        }
+        updateField("puttBreak", newBreak);
         updateField("distance", generateDistance(difficulty, userData.preferences.units));
+
+        // reset the putts for the hole
+        resetData();
     }
 
-    const nextHole = (totalPutts, largeMissDistance = -1) => {
+    const resetData = () => {
+        updateField("currentPutts", 2);
+        updateField("point", {});
+        updateField("misReadLine", false);
+        updateField("misReadSlope", false);
+        updateField("misHit", false);
+        updateField("center", false);
+        updateField("largeMiss", {dir: "", distance: -1});
+    }
+
+    const nextHole = (totalPutts) => {
         if (hole === holes) {
-            pushHole(totalPutts, largeMissDistance);
+            pushHole(totalPutts);
 
             submitRef.current.present();
             return;
         }
 
-        if (!largeMiss && point.x === undefined) return;
+        if (largeMiss.distance === -1 && point.x === undefined) return;
 
         if (hole === 9 && adLoaded) {
             interstitial.show();
             setAdLoaded(false);
         }
 
-        const puttsCopy = pushHole(totalPutts, largeMissDistance);
+        const puttsCopy = pushHole(totalPutts);
 
         setTransitioning(true);
 
@@ -236,13 +260,7 @@ export default function RoundSimulation() {
         }, 350);
 
         if (putts[hole] === undefined) {
-            updateField("currentPutts", 2);
-            updateField("point", {});
-            updateField("misReadLine", false);
-            updateField("misReadSlope", false);
-            updateField("misHit", false);
-            updateField("center", false);
-            updateField("largeMissBy", [0, 0]);
+            resetData();
             if (mode === "weaknesses") {
                 const target = pickWeightedRandom(rollProbabilities);
                 updateField("puttBreak", [target.break, target.slope]);
@@ -258,7 +276,6 @@ export default function RoundSimulation() {
                 updateField("distance", generateDistance(difficulty, userData.preferences.units));
             }
             updateField("hole", hole + 1);
-            updateField("largeMiss", false);
             return;
         }
         loadPuttData(puttsCopy[hole], updateField);
@@ -275,7 +292,7 @@ export default function RoundSimulation() {
             // your code here
         }, 350);
 
-        const puttsCopy = pushHole(2, -1);
+        const puttsCopy = pushHole(2);
         loadPuttData(puttsCopy[hole - 2], updateField);
         updateField("hole", hole - 1);
     };
@@ -289,7 +306,7 @@ export default function RoundSimulation() {
 
         const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
 
-        updateField("loading", true);
+        //updateField("loading", true);
 
         const data = {
             id: generatePushID(),
@@ -319,6 +336,8 @@ export default function RoundSimulation() {
             percentHigh: percentHigh,
         }
 
+        submitRef.current.dismiss();
+
         newSession(data).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
@@ -332,21 +351,23 @@ export default function RoundSimulation() {
 
     return (loading ? <Loading/> :
         <View style={{flex: 1}}>
-            <View style={{
-                zIndex: 200,
-                position: "absolute",
-                width: "100%",
-                top: 0,
-                left: 0,
-                height: "100%",
-                flexDirection: "flow",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "black",
-                opacity: transitioning ? 0.5  : 0
-            }}>
-                <ActivityIndicator size="large"/>
-            </View>
+            { transitioning &&
+                <View style={{
+                    zIndex: 200,
+                    position: "absolute",
+                    width: "100%",
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    flexDirection: "flow",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "black",
+                    opacity: transitioning ? 0.5  : 0
+                }}>
+                    <ActivityIndicator size="large"/>
+                </View>
+            }
             <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,
@@ -414,7 +435,7 @@ export default function RoundSimulation() {
                         <FontText style={{color: misReadSlope || misReadLine ? colors.button.danger.text : colors.button.danger.disabled.text}}>Misread{misReadSlope && misReadLine ? ": Both" : misReadSlope ? ": Speed" : misReadLine ? ": Break" : ""}</FontText>
                     </Pressable>
                 </View>
-                <PuttingGreen center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
+                <PuttingGreen largeMiss={largeMiss} setLargeMiss={(data) => updateField("largeMiss", data)} center={center} updateField={updateField} height={height} width={width} point={point}></PuttingGreen>
                 <View style={{marginLeft: -24}}>
                     <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
                 </View>
@@ -422,16 +443,29 @@ export default function RoundSimulation() {
                     <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                    title="Back"
                                    disabled={hole === 1} onPress={() => lastHole()}></PrimaryButton>
-                    <DangerButton onPress={() => {
-                        updateField("largeMiss", true);
-                        bigMissRef.current.present();
-                    }}
-                                  title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`}></DangerButton>
+                    { largeMiss.distance !== -1 ? (
+                        <DangerButton onPress={() => {
+                            bigMissRef.current.open();
+                        }} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}} children={<View style={{flexDirection: "row"}}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 strokeWidth={2}
+                                 width={20}
+                                 height={20} stroke={colors.button.danger.text}>
+                                <Path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                            </Svg>
+                            <FontText style={{color: colors.button.danger.text, marginLeft: 4}}>Miss > {userData.preferences.units === 0 ? "3ft" : "1m"}</FontText>
+                        </View>}></DangerButton>
+                        ) : (
+                        <PrimaryButton onPress={() => {
+                            bigMissRef.current.open();
+                        }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></PrimaryButton>
+                        )
+                    }
                     {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                     title={hole === holes ? "Submit" : "Next"}
-                                    disabled={point.x === undefined}
+                                    disabled={point.x === undefined && largeMiss.distance === -1}
                                     onPress={() => {
-                                        if (point.x === undefined) return;
+                                        if (point.x === undefined && largeMiss.distance === -1) return;
 
                                         if (center) nextHole(1);
                                         else totalPuttsRef.current.present()
@@ -440,8 +474,7 @@ export default function RoundSimulation() {
             </ScreenWrapper>
             <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}
                         totalPuttsRef={totalPuttsRef} nextHole={nextHole}/>
-            <BigMissModal updateField={updateField} hole={hole} bigMissRef={bigMissRef} allPutts={putts}
-                          rawLargeMissBy={largeMissBy} nextHole={nextHole} lastHole={lastHole}/>
+            <FullBigMissModal setLargeMiss={(data) => updateField("largeMiss", data)} bigMissRef={bigMissRef} puttTrackingModalRef={roundSimulationRef} largeMiss={largeMiss}/>
             <SubmitModal submitRef={submitRef} submit={submit} cancel={() => submitRef.current.dismiss()}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit(true)} end={fullReset}></ConfirmExit>
             <MisreadModal misreadRef={misreadRef} setMisreadSlope={(val) => updateField("misReadSlope", val)} setMisreadLine={(val) => updateField("misReadLine", val)} misreadLine={misReadLine} misreadSlope={misReadSlope}></MisreadModal>

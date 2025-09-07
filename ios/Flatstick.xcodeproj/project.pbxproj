@@ -12,6 +12,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		5A64D19FE2B945AEB86AAA73 /* Geist[wght].ttf in Resources */ = {isa = PBXBuildFile; fileRef = DBAB16DDE3AD4D6ABE356ECA /* Geist[wght].ttf */; };
 		89D8B4C13A6141B6A5CDDA1C /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = C487DDE3B39246368A07FC3A /* noop-file.swift */; };
 		96905EF65AED1B983A6B3ABC /* libPods-Flatstick.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-Flatstick.a */; };
 		A89EAC0124584CE78A1EFACF /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 728EC6CD74E44903B83C478A /* Colors.xcassets */; };
@@ -19,7 +20,6 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F58C1B8DB3344E909B7D06B0 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C79CFE2745B4A9980B8E3CD /* BootSplash.storyboard */; };
 		F5D4406BFAB4E22BC0FE1BDE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 29704AAD7FA537EAA2711F7E /* PrivacyInfo.xcprivacy */; };
-		5A64D19FE2B945AEB86AAA73 /* Geist[wght].ttf in Resources */ = {isa = PBXBuildFile; fileRef = DBAB16DDE3AD4D6ABE356ECA /* Geist[wght].ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,10 +39,10 @@
 		B6BDC1ABF8F6435C92D08425 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Flatstick/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		C487DDE3B39246368A07FC3A /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Flatstick/noop-file.swift"; sourceTree = "<group>"; };
+		DBAB16DDE3AD4D6ABE356ECA /* Geist[wght].ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Geist[wght].ttf"; path = "../assets/fonts/Geist[wght].ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F76C7BAB75624304881EE2D1 /* Flatstick-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "Flatstick-Bridging-Header.h"; path = "Flatstick/Flatstick-Bridging-Header.h"; sourceTree = "<group>"; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Flatstick/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		DBAB16DDE3AD4D6ABE356ECA /* Geist[wght].ttf */ = {isa = PBXFileReference; name = "Geist[wght].ttf"; path = "../assets/fonts/Geist[wght].ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +75,15 @@
 				29704AAD7FA537EAA2711F7E /* PrivacyInfo.xcprivacy */,
 			);
 			name = Flatstick;
+			sourceTree = "<group>";
+		};
+		28104A8048D84366AF24FDC2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DBAB16DDE3AD4D6ABE356ECA /* Geist[wght].ttf */,
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -150,15 +159,6 @@
 			);
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
-		};
-		28104A8048D84366AF24FDC2 /* Resources */ = {
-			isa = "PBXGroup";
-			children = (
-				DBAB16DDE3AD4D6ABE356ECA /* Geist[wght].ttf */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-			path = "";
 		};
 /* End PBXGroup section */
 
@@ -416,7 +416,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -424,7 +424,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.intheriches.flatstick;
-				PRODUCT_NAME = "Flatstick";
+				PRODUCT_NAME = Flatstick;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -432,7 +432,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Flatstick/Flatstick-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -454,7 +454,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -462,14 +462,14 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.intheriches.flatstick;
-				PRODUCT_NAME = "Flatstick";
+				PRODUCT_NAME = Flatstick;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Flatstick/Flatstick-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

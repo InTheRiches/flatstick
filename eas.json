@@ -7,6 +7,12 @@
         "preview": {
             "distribution": "internal"
         },
+        "preview-simulator": {
+            "extends": "preview",
+            "ios": {
+                "simulator": true
+            }
+        },
         "production-apk": {
             "android": {
                 "buildType": "apk"

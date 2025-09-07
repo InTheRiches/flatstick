@@ -40,19 +40,32 @@ const slopeConversion = [
     "Uphill"
 ]
 
+const directionVectors = {
+    t: [0, 1],
+    tr: [1, 1],
+    r: [1, 0],
+    br: [1, -1],
+    b: [0, -1],
+    bl: [-1, -1],
+    l: [-1, 0],
+    tl: [-1, 1],
+};
+
 const convertThetaToBreak = (theta) => {
     return [breakConversion.indexOf(breaks[theta]), slopeConversion.indexOf(slopes[theta])];
 }
 
-const normalizeVector = (vector) => {
-    const length = Math.sqrt(vector[0] ** 2 + vector[1] ** 2);
-    return [vector[0] / length, vector[1] / length];
-  };
+const normalizeDirection = (direction) => {
+    const raw = directionVectors[direction];
+    if (!raw) return [0, 0]; // fallback or throw error
+    const length = Math.sqrt(raw[0] ** 2 + raw[1] ** 2);
+    return [raw[0] / length, raw[1] / length];
+}
 
-const getLargeMissPoint = (largeMissBy, largeMissDistance) => {
-    const [dirX, dirY] = normalizeVector(largeMissBy);
-    const missedX = dirX * largeMissDistance;
-    const missedY = dirY * largeMissDistance;
+const getLargeMissPoint = (largeMiss) => {
+    const [dirX, dirY] = normalizeDirection(largeMiss.dir);
+    const missedX = dirX * largeMiss.distance;
+    const missedY = dirY * largeMiss.distance;
     return {x: missedX, y: missedY};
 };
 
@@ -74,7 +87,7 @@ const calculateDistanceMissedMeters = (center, point, width, height) => {
     return distanceMissed * conversionFactor;
 };
 
-const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, largeMissDistance, point, getLargeMissPoint, largeMissBy) => {
+const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope, misHit, largeMiss, totalPutts, distanceMissed, point) => {
     const puttsCopy = [...putts];
 
     puttsCopy[hole - 1] = {
@@ -85,8 +98,8 @@ const updatePuttsCopy = (putts, hole, distance, theta, misReadLine, misReadSlope
         misHit: misHit,
         largeMiss: largeMiss,
         totalPutts: totalPutts,
-        distanceMissed: largeMiss ? largeMissDistance : distanceMissed,
-        point: largeMiss ? getLargeMissPoint(largeMissBy, largeMissDistance) : point
+        distanceMissed: distanceMissed,
+        point: point
     };
     return puttsCopy;
 };
@@ -99,28 +112,26 @@ const loadPuttData = (putt, updateField) => {
         updateField("misReadSlope", false);
         updateField("misHit", false);
         updateField("center", false);
-        updateField("holedOut", false);
+        updateField("holedOut", true);
         updateField("distanceInvalid", true);
-        updateField("largeMissBy", [0, 0]);
         updateField("theta", 999);
         updateField("puttBreak", convertThetaToBreak(0));
         updateField("distance", -1);
-        updateField("largeMiss", false);
+        updateField("largeMiss", {dir: "", distance: -1});
         return;
     }
 
-    if (putt.largeMiss) {
+    if (putt.largeMiss.distance !== -1) {
         updateField("point", {});
-        updateField("largeMiss", true);
-        updateField("largeMissBy", [putt.point.x, putt.point.y]);
+        updateField("largeMiss", putt.largeMiss);
     } else {
         updateField("point", putt.point);
-        updateField("largeMiss", false);
-        updateField("largeMissBy", [0, 0]);
+        updateField("largeMiss", {dir: "", distance: -1});
     }
     updateField("misReadLine", putt.misReadLine);
     updateField("misReadSlope", putt.misReadSlope);
     updateField("misHit", putt.misHit);
+    updateField("holedOut", false);
     updateField("center", putt.distanceMissed === 0);
     updateField("currentPutts", putt.totalPutts);
     if (putt.theta)
@@ -131,6 +142,174 @@ const loadPuttData = (putt, updateField) => {
 
     updateField("distanceInvalid", putt.distance < 1 || putt.distance > 99);
 };
+
+const calculateFullRoundStats = (roundData, width, height) => {
+    let totalPutts = 0;
+    let avgMiss = 0;
+    let madePercent = 0;
+    const trimmedHoles = [];
+    let strokesGained = 0;
+    let leftRightBias = 0;
+    let shortPastBias = 0;
+    let puttCounts = [0, 0, 0]
+    let totalDistance = 0;
+
+    let farLeft = 0
+    let left = 0;
+    let center = 0;
+    let right = 0;
+    let farRight = 0;
+    let long = 0;
+    let short = 0;
+
+    let holes = 0;
+
+    let percentHigh = 0;
+    let percentShort = 0;
+
+    roundData.forEach((hole, index) => {
+        if (hole.puttData === undefined) return;
+        const putt = hole.puttData;
+
+        if (putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))
+            return;
+
+        // what is this?
+        if (putt.distance === 0) {
+            trimmedHoles.push({
+                ...hole,
+                puttData: {
+                    distance: putt.distance,
+                    xDistance: 0,
+                    yDistance: 0,
+                    puttBreak: [0, 0],
+                    misReadLine: putt.misReadLine,
+                    misReadSlope: putt.misReadSlope,
+                    misHit: putt.misHit,
+                    distanceMissed: 0,
+                    totalPutts: hole.putts,
+                    point: putt.point,
+                    ...(putt.largeMiss.distance !== -1 && {largeMiss: putt.largeMiss}),
+                }
+            });
+            return;
+        }
+
+        holes++;
+
+        // calculate strokes gained
+        // TODO use this method for overall strokes gained as it is far more accurate, and adapts to different # of holes!!!
+        if (hole.putts !== -1) {
+            const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - hole.putts;
+            strokesGained += strokesGainedForPutt;
+        }
+
+        const distanceMissed = putt.largeMiss.distance !== -1 ? putt.largeMiss.distance : putt.distanceMissed
+
+        if (hole.putts === -1) {
+            if (putt.largeMiss.distance !== -1) {
+                totalPutts += 3;
+                puttCounts[2]++;
+            }
+            else if (distanceMissed === 0) {
+                totalPutts++;
+                madePercent++;
+                puttCounts[0]++;
+            } else {
+                totalPutts += 2;
+                puttCounts[1]++;
+            }
+        } else {
+            if (hole.putts === 1 || distanceMissed === 0)
+                madePercent++;
+            totalPutts += hole.putts;
+            // add the totalPutts into the puttCount array, if the putt was > 3 strokes, add it to the 3 putt count
+            if (hole.putts > 3)
+                puttCounts[2]++;
+            else
+                puttCounts[hole.putts - 1]++;
+        }
+
+        const point = putt.largeMiss.distance !== -1 ? getLargeMissPoint(putt.largeMiss) : putt.point;
+
+        if (distanceMissed !== 0) {
+            avgMiss += distanceMissed;
+            if (index !== 0)
+                avgMiss /= 2;
+        }
+
+        let xDistance = roundTo(-1 * (width / 2 - point.x) * (5 / width), 2);
+        let yDistance = roundTo((height / 2 - point.y) * (5 / height), 2);
+        if (putt.largeMiss.distance !== -1) {
+            xDistance = roundTo(point.x, 2);
+            yDistance = roundTo(point.y, 2);
+        }
+        leftRightBias += xDistance;
+        shortPastBias += yDistance;
+
+        const angle = Math.atan2(yDistance, xDistance); // atan2 handles dx = 0 cases
+        const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
+
+        // Check the quadrant based on the rotated ranges
+        if (putt.distanceMissed === 0 && putt.largeMiss.distance === -1) {
+            center++
+        } else if (degrees > -45 && degrees <= 45) {
+            if (putt.distanceMissed <= 2 && putt.largeMiss.distance === -1) right++;
+            else farRight++;
+        } else if (degrees > 45 && degrees <= 135) {
+            long++;
+        } else if (degrees > -135 && degrees <= -45) {
+            short++;
+        } else {
+            if (putt.distanceMissed <= 2 && putt.largeMiss.distance === -1) left++;
+            else farLeft++;
+        }
+
+        let puttBreak = putt.theta !== undefined ? convertThetaToBreak(putt.theta) : putt.break;
+        // if short
+        if (degrees <= -22.5 && degrees >= -157) {
+            percentShort++;
+        }
+        // check if on high side or low side based on putt break (high side meaning the side the ball is breaking towards)
+        if (degrees > -67.5 && degrees <= 67.5) {
+            if (puttBreak[0] === 0) percentHigh++;
+        }
+        else if (degrees >= 112.5 || degrees <= -112.5) {
+            if (puttBreak[0] === 1) {
+                percentHigh++;
+            }
+        }
+
+        trimmedHoles.push({
+            ...hole,
+            puttData: {
+                distance: putt.distance,
+                xDistance: xDistance,
+                yDistance: yDistance,
+                puttBreak: puttBreak,
+                misReadLine: putt.misReadLine,
+                misReadSlope: putt.misReadSlope,
+                misHit: putt.misHit,
+                distanceMissed: roundTo(distanceMissed, 2),
+                largeMiss: putt.largeMiss,
+                totalPutts: hole.putts,
+                point: point
+            }
+        });
+
+        totalDistance += putt.distance;
+    });
+
+    avgMiss = roundTo(avgMiss, 1);
+    madePercent /= holes;
+
+    leftRightBias /= holes;
+    shortPastBias /= holes;
+    percentHigh /= holes;
+    percentShort /= holes;
+
+    return { totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
+}
 
 const calculateStats = (puttsCopy, width, height) => {
     let totalPutts = 0;
@@ -157,7 +336,7 @@ const calculateStats = (puttsCopy, width, height) => {
     let percentShort = 0;
 
     puttsCopy.forEach((putt, index) => {
-        if (putt === undefined || putt.distance === -1 || putt.point.x === undefined)
+        if (putt === undefined || putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))
             return;
 
         if (putt.distance === 0) {
@@ -170,9 +349,9 @@ const calculateStats = (puttsCopy, width, height) => {
                 misReadSlope: putt.misReadSlope,
                 misHit: putt.misHit,
                 distanceMissed: 0,
-                largeMiss: putt.largeMiss,
                 totalPutts: putt.totalPutts,
-                point: putt.point
+                point: putt.point,
+                ...(putt.largeMiss.distance !== -1 && { largeMiss: putt.largeMiss }),
             });
             return;
         }
@@ -186,12 +365,14 @@ const calculateStats = (puttsCopy, width, height) => {
             strokesGained += strokesGainedForPutt;
         }
 
+        const distanceMissed = putt.largeMiss.distance !== -1 ? putt.largeMiss.distance : putt.distanceMissed
+
         if (putt.totalPutts === -1) {
-            if (putt.largeMiss) {
+            if (putt.largeMiss.distance !== -1) {
                 totalPutts += 3;
                 puttCounts[2]++;
             }
-            else if (putt.distanceMissed === 0) {
+            else if (distanceMissed === 0) {
                 totalPutts++;
                 madePercent++;
                 puttCounts[0]++;
@@ -200,7 +381,7 @@ const calculateStats = (puttsCopy, width, height) => {
                 puttCounts[1]++;
             }
         } else {
-            if (putt.totalPutts === 1 || putt.distanceMissed === 0)
+            if (putt.totalPutts === 1 || distanceMissed === 0)
                 madePercent++;
             totalPutts += putt.totalPutts;
             // add the totalPutts into the puttCount array, if the putt was > 3 strokes, add it to the 3 putt count
@@ -209,17 +390,20 @@ const calculateStats = (puttsCopy, width, height) => {
             else
                 puttCounts[putt.totalPutts - 1]++;
         }
-        if (putt.distanceMissed !== 0) {
-            avgMiss += putt.distanceMissed;
+
+        const point = putt.largeMiss.distance !== -1 ? getLargeMissPoint(putt.largeMiss) : putt.point;
+
+        if (distanceMissed !== 0) {
+            avgMiss += distanceMissed;
             if (index !== 0)
                 avgMiss /= 2;
         }
 
-        let xDistance = roundTo(-1 * (width / 2 - putt.point.x) * (5 / width), 2);
-        let yDistance = roundTo((height / 2 - putt.point.y) * (5 / height), 2);
-        if (putt.largeMiss) {
-            xDistance = roundTo(putt.point.x, 2);
-            yDistance = roundTo(putt.point.y, 2);
+        let xDistance = roundTo(-1 * (width / 2 - point.x) * (5 / width), 2);
+        let yDistance = roundTo((height / 2 - point.y) * (5 / height), 2);
+        if (putt.largeMiss.distance !== -1) {
+            xDistance = roundTo(point.x, 2);
+            yDistance = roundTo(point.y, 2);
         }
         leftRightBias += xDistance;
         shortPastBias += yDistance;
@@ -228,17 +412,17 @@ const calculateStats = (puttsCopy, width, height) => {
         const degrees = (angle * 180) / Math.PI; // Convert radians to degrees
 
         // Check the quadrant based on the rotated ranges
-        if (putt.distanceMissed === 0 && !putt.largeMiss) {
+        if (putt.distanceMissed === 0 && putt.largeMiss.distance === -1) {
             center++
         } else if (degrees > -45 && degrees <= 45) {
-            if (putt.distanceMissed <= 2 && !putt.largeMiss) right++;
+            if (putt.distanceMissed <= 2 && putt.largeMiss.distance === -1) right++;
             else farRight++;
         } else if (degrees > 45 && degrees <= 135) {
             long++;
         } else if (degrees > -135 && degrees <= -45) {
             short++;
         } else {
-            if (putt.distanceMissed <= 2 && !putt.largeMiss) left++;
+            if (putt.distanceMissed <= 2 && putt.largeMiss.distance === -1) left++;
             else farLeft++;
         }
 
@@ -265,10 +449,10 @@ const calculateStats = (puttsCopy, width, height) => {
             misReadLine: putt.misReadLine,
             misReadSlope: putt.misReadSlope,
             misHit: putt.misHit,
-            distanceMissed: roundTo(putt.distanceMissed, 2),
+            distanceMissed: roundTo(distanceMissed, 2),
             largeMiss: putt.largeMiss,
             totalPutts: putt.totalPutts,
-            point: putt.point
+            point: point
         });
 
         totalDistance += putt.distance;
@@ -827,4 +1011,4 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
 }
 
-export { calculateDistanceMissedMeters, createYearlyStats, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, normalizeVector, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { calculateDistanceMissedMeters, calculateFullRoundStats, createYearlyStats, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

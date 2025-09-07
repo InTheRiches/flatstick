@@ -24,9 +24,20 @@ export const LeftRightBias = ({bias, units}) => {
         left = (horizontalBiasWidth/2) + 2.5;
     }
     return (
-        <View style={{backgroundColor: colors.background.secondary, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 12}}>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginBottom: 8}}>1st Putt Left-Right Bias</FontText>
-            <View onLayout={onHorizLayout} style={{alignItems: "center", width: "100%", flexDirection: "row"}}>
+        <View style={{backgroundColor: colors.background.secondary, paddingVertical: 8, borderRadius: 12}}>
+            <View style={{
+                paddingHorizontal: 12,
+                borderBottomWidth: 1,
+                borderColor: colors.border.default,
+                paddingBottom: 4,
+                marginBottom: 6,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center"
+            }}>
+                <FontText style={{fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: 800, flex: 1}}>LEFT-RIGHT BIAS</FontText>
+            </View>
+            <View onLayout={onHorizLayout} style={{paddingHorizontal: 8, alignItems: "center", width: "100%", flexDirection: "row"}}>
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{flex: 1, height: 3, backgroundColor: "#4BB543"}}></View>
@@ -36,15 +47,15 @@ export const LeftRightBias = ({bias, units}) => {
                 <View style={{width: 2.5, height: 32, backgroundColor: colors.button.danger.background}}></View>
                 <View style={{position: "absolute", left: left, width: 20, height: 20, borderRadius: 50, borderWidth: 1, borderColor: colors.text.primary, backgroundColor: colors.checkmark.background}}></View>
             </View>
-            <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                <FontText style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2ft" : "-1m"}</FontText>
-                <FontText style={{color: colors.text.secondary, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0ft" : "0m"}</FontText>
-                <FontText style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2ft" : "+1m"}</FontText>
-                <FontText style={{position: "absolute", left: leftRightBias === 0 ? left : left - 5, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+            <View style={{paddingHorizontal: 8, width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
+                <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 500, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-2FT" : "-1m"}</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 500, paddingLeft: 4, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0FT" : "0m"}</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 500, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+2FT" : "+1m"}</FontText>
+                <FontText style={{position: "absolute", fontSize: 12, fontWeight: 500, left: leftRightBias === 0 ? left : left - 10, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "FT" : "m"}</FontText>
             </View>
-            <View style={{width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
-                <FontText style={{color: colors.text.secondary, opacity: left > 40 ? 1 : 0}}>Left</FontText>
-                <FontText style={{color: colors.text.secondary, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>Right</FontText>
+            <View style={{paddingHorizontal: 8, width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
+                <FontText style={{color: colors.text.secondary, fontSize: 12, opacity: left > 40 ? 1 : 0, fontWeight: 700}}>LEFT</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 12, opacity: left < (horizontalBiasWidth-40) ? 1 : 0, fontWeight: 700}}>RIGHT</FontText>
             </View>
         </View>
     )

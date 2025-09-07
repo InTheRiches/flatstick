@@ -11,7 +11,7 @@ export const RecentSession = ({recentSession}) => {
     const router = useRouter();
 
     const formattedName = () => {
-        if (recentSession.type === "real-simulation") {
+        if (recentSession.type === "real-simulation" || recentSession.type === "full-round") {
             return recentSession.holes + " Hole Round";
         } else if (recentSession.type === "round-simulation") {
             return recentSession.holes + " Hole Simulation";
