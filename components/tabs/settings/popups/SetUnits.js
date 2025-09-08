@@ -2,23 +2,24 @@ import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import {Pressable} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import React from "react";
-import {useAppContext} from "../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../contexts/AppContext";
 import useColors from "../../../../hooks/useColors";
 import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 import FontText from "../../../general/FontText";
 
 export function SetUnits({setUnitsRef}) {
-    const {userData, updateData, updateStats} = useAppContext()
+    const {userData, updateData, refreshStats} = useAppContext()
     const colors = useColors();
 
     const setUnits = (units) => {
         setUnitsRef.current.dismiss();
+        const newPreferences = {...userData.preferences, units: units};
+
         try {
-            updateData({preferences: {...userData.preferences, units: units}}).then(r => updateStats());
+            updateData({preferences: newPreferences}).then(r => refreshStats({...userData, preferences: newPreferences}));
         } catch (e) {
             console.error(e);
         }
-
     }
 
     return (

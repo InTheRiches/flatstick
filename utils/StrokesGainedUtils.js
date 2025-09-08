@@ -1,7 +1,6 @@
 // Example usage:
 import {roundTo} from "./roundTo";
 import {convertUnits} from "@/utils/Conversions";
-import {adaptFullRoundSession} from "@/utils/sessions/SessionUtils";
 
 const sgBaselinePutts = [
     { distance: 1, strokesGained: 1.01 },
@@ -97,13 +96,12 @@ function calculateSingleStrokesGained(totalPutts, distance) {
     return baselineStrokesGained - totalPutts;
 }
 
-// TODO should we make stats seperate from each other? (meaning full rounds have seperate stats from real rounds and those have seperate stats from the simulations?)
-function calculateTotalStrokesGained(userData, sessions, fullSessions) {
-    if (sessions.length === 0 && fullSessions.length === 0) return 0;
+// TODO should we make stats separate from each other? (meaning full rounds have separate stats from real rounds and those have separate stats from the simulations?)
+function calculateTotalStrokesGained(userData, sessions) {
+    if (sessions.length === 0) return 0;
 
-    let combined = [...sessions, ...fullSessions];
-    combined.sort((a, b) => b.timestamp - a.timestamp); // most recent first
-    let recent = combined.slice(0, 5);
+    sessions.sort((a, b) => new Date(b.meta.date) - new Date(a.meta.date));
+    let recent = sessions.slice(0, 5);
 
     let overallPutts = 0;
     let overallRounds = 0;
@@ -119,21 +117,54 @@ function calculateTotalStrokesGained(userData, sessions, fullSessions) {
     };
 
     recent.forEach(session => {
-        const adaptedSession = adaptFullRoundSession(session);
-        let { totalPutts, holes, putts, units } = adaptedSession;
+        let { stats, puttHistory, holeHistory, meta } = session;
 
-        if (adaptedSession.units === undefined) units = 0; // Default to imperial if units are not defined
-
-        console.log(JSON.stringify(adaptedSession));
+        let units = meta?.units ?? 0;
 
         // Normalize for 18 holes
-        overallPutts += (18 / holes) * totalPutts;
+        overallPutts += (18 / stats.holesPlayed) * stats.totalPutts;
         overallRounds++;
 
         // Skip if session doesn't have detailed putt data
-        if (!putts) return;
+        if (!puttHistory) {
+            if (holeHistory) { // Use hole history if available
+                for (const hole of holeHistory) {
+                    const {putts, puttData} = hole;
+                    if (!putts || !puttData || putts.length < 1) continue;
 
-        putts.forEach(putt => {
+                    const putt = putts[0]; // First putt of the hole shows the farthest distance
+                    if (!putt || !putt.distance || !puttData.totalPutts) continue;
+
+                    const convertedDistance = convertUnits(putt.distance, units, userData.preferences.units);
+
+                    let category;
+                    if (userData.preferences.units === 0) {
+                        if (convertedDistance < 6) category = "distanceOne";
+                        else if (convertedDistance < 12) category = "distanceTwo";
+                        else if (convertedDistance < 20) category = "distanceThree";
+                        else category = "distanceFour";
+                    } else {
+                        if (convertedDistance < 2) category = "distanceOne";
+                        else if (convertedDistance <= 4) category = "distanceTwo";
+                        else if (convertedDistance <= 7) category = "distanceThree";
+                        else category = "distanceFour";
+                    }
+
+                    const baselineStrokesGained = calculateBaselineStrokesGained(convertUnits(putt.distance, units, 0));
+
+                    categories[category].totalHoles++;
+                    categories[category].totalBaselines += baselineStrokesGained;
+                    categories[category].totalActualPutts += puttData.totalPutts;
+
+                    const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - puttData.totalPutts;
+                    overallStrokesGained += strokesGainedForPutt;
+                    roundsForOverall++;
+                }
+            }
+            return;
+        }
+
+        puttHistory.forEach(putt => {
             const {distance, totalPutts} = putt;
 
             const convertedDistance = convertUnits(distance, units, userData.preferences.units);

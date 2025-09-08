@@ -1,4 +1,4 @@
-import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {useFocusEffect, useLocalSearchParams, useRouter} from 'expo-router';
 import {ActivityIndicator, BackHandler, Platform, Pressable, View} from 'react-native';
 import {SvgClose} from '@/assets/svg/SvgComponents';
 import React, {useEffect, useImperativeHandle, useMemo, useRef, useState} from 'react';
@@ -7,14 +7,13 @@ import DangerButton from "@/components/general/buttons/DangerButton";
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {
     calculateDistanceMissedFeet,
     calculateDistanceMissedMeters,
     calculateStats,
     loadPuttData
 } from '../../../utils/PuttUtils';
-import {roundTo} from "../../../utils/roundTo";
 import {PuttingGreen} from '../../../components/simulations';
 import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {GreenVisual} from "../../../components/simulations/round";
@@ -40,32 +39,8 @@ import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
-
-
-// TODO add an extreme mode with like left right left breaks, as well as extreme vs slight breaks
-const breaks = [
-    "Left to Right",
-    "Right to Left",
-    "Straight",
-]
-
-const slopes = [
-    "Downhill",
-    "Neutral",
-    "Uphill"
-]
-
-const greenMaps = {
-    "0,0": require("@/assets/images/greens/rightForward.png"),
-    "0,1": require("@/assets/images/greens/right.png"),
-    "0,2": require("@/assets/images/greens/backRight.png"),
-    "1,0": require("@/assets/images/greens/leftForward.png"),
-    "1,1": require("@/assets/images/greens/left.png"),
-    "1,2": require("@/assets/images/greens/backLeft.png"),
-    "2,0": require("@/assets/images/greens/forward.png"),
-    "2,1": require("@/assets/images/greens/neutral.png"),
-    "2,2": require("@/assets/images/greens/back.png"),
-}
+import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
+import {SCHEMA_VERSION} from "../../../utils/constants";
 
 const initialState = {
     loading: false,
@@ -91,10 +66,8 @@ const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-ap
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-// TODO ADD A BUTTON TO CHANGE THE BREAK OF THE HOLE
 export default function RoundSimulation() {
     const colors = useColors();
-    const navigation = useNavigation();
     const {newSession, putters, userData, currentStats, grips} = useAppContext();
     const roundSimulationRef = useRef(null);
 
@@ -119,7 +92,7 @@ export default function RoundSimulation() {
 
     const [adLoaded, setAdLoaded] = useState(false);
 
-    const [startTime, setStartTime] = useState(new Date().getTime());
+    const [startTime, setStartTime] = useState(new Date());
 
     const rollProbabilities = useMemo(() => createRollProbabilities(currentStats), [currentStats]);
     const distanceProbabilities = useMemo(() => createDistanceProbabilities(currentStats), [currentStats]);
@@ -160,6 +133,20 @@ export default function RoundSimulation() {
         updateField("distance", generateDistance(difficulty, userData.preferences.units));
     }, []);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                confirmExitRef.current.present();
+                console.log("still running")
+                return true;
+            };
+
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => subscription.remove(); // clean up when unfocused
+        }, [])
+    );
+
     useEffect(() => {
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
@@ -168,21 +155,7 @@ export default function RoundSimulation() {
 
         interstitial.load();
 
-        const onBackPress = () => {
-            confirmExitRef.current.present();
-
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
-
-        return () => {
-            unsubscribeLoaded();
-            backHandler.remove();
-        }
+        return () => unsubscribeLoaded();
     }, []);
 
     const pushHole = (totalPutts) => {
@@ -298,51 +271,88 @@ export default function RoundSimulation() {
     };
 
     const fullReset = () => {
-        navigation.goBack();
+        router.replace("/(tabs)/practice");
     }
 
     const submit = (partial = false) => {
         const puttsCopy = [...putts];
 
-        const {totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
+        const {totalPutts, avgMiss, madePercent, trimmedPutts, filteredHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateStats(puttsCopy, width, height);
 
-        //updateField("loading", true);
+        updateField("loading", true);
 
-        const data = {
+        const scorecard = puttsCopy.map((hole, index) => (hole.totalPutts));
+
+        const newData = {
             id: generatePushID(),
-            date: new Date().toISOString(),
-            startedAtTimestamp: startTime,
-            timestamp: new Date().getTime(),
-            difficulty: difficulty,
-            holes: partial ? puttsCopy.length : holes,
-            filteredHoles: partial ? puttsCopy.length : holes,
-            mode: mode,
-            putts: trimmedPutts,
-            totalPutts: totalPutts,
-            avgMiss: avgMiss,
-            strokesGained: roundTo(strokesGained, 1),
-            madePercent: madePercent,
-            type: "round-simulation",
-            putter: putters[userData.preferences.selectedPutter].type,
-            grip: grips[userData.preferences.selectedGrip].type,
-            puttCounts: puttCounts,
-            leftRightBias: leftRightBias,
-            shortPastBias: shortPastBias,
-            missData: missData,
-            totalDistance: totalDistance,
-            units: userData.preferences.units,
-            duration: new Date().getTime() - startTime,
-            percentShort: percentShort,
-            percentHigh: percentHigh,
+            meta: {
+                schemaVersion: SCHEMA_VERSION,
+                type: "sim",
+                mode: mode,
+                difficulty: difficulty,
+                date: startTime.toISOString(),
+                durationMs: new Date().getTime() - startTime.getTime(),
+                units: userData.preferences.units,
+                synced: true // TODO set this to false if not synced (if offline mode is ever added)
+            },
+            "player": {
+                "putter": putters[userData.preferences.selectedPutter].type,
+                "grip": grips[userData.preferences.selectedGrip].type
+            },
+            "stats": {
+                "holes": partial ? puttsCopy.length : holes,
+                "holesPlayed": filteredHoles,
+                "totalPutts": totalPutts,
+                "puttCounts": puttCounts,
+                "madePercent": madePercent,
+                "avgMiss": avgMiss,
+                "strokesGained": strokesGained,
+                "missData": missData,
+                "leftRightBias": leftRightBias,
+                "shortPastBias": shortPastBias,
+                "totalDistance": totalDistance,
+                "percentShort": percentShort,
+                "percentHigh": percentHigh,
+            },
+            puttHistory: trimmedPutts,
+            scorecard
         }
+
+        // const data = {
+        //     id: generatePushID(),
+        //     date: new Date().toISOString(),
+        //     startedAtTimestamp: startTime,
+        //     timestamp: new Date().getTime(),
+        //     difficulty: difficulty,
+        //     holes: partial ? puttsCopy.length : holes,
+        //     filteredHoles: partial ? puttsCopy.length : holes,
+        //     mode: mode,
+        //     putts: trimmedPutts,
+        //     totalPutts: totalPutts,
+        //     avgMiss: avgMiss,
+        //     strokesGained: roundTo(strokesGained, 1),
+        //     madePercent: madePercent,
+        //     type: "sim",
+        //     putter: putters[userData.preferences.selectedPutter].type,
+        //     grip: grips[userData.preferences.selectedGrip].type,
+        //     puttCounts: puttCounts,
+        //     leftRightBias: leftRightBias,
+        //     shortPastBias: shortPastBias,
+        //     missData: missData,
+        //     totalDistance: totalDistance,
+        //     units: userData.preferences.units,
+        //     duration: new Date().getTime() - startTime,
+        //     percentShort: percentShort,
+        //     percentHigh: percentHigh,
+        // }
 
         submitRef.current.dismiss();
 
-        newSession(data).then(() => {
+        newSession(newData).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {
-                    jsonSession: JSON.stringify(data),
+                    jsonSession: JSON.stringify(newData),
                     recap: "true"
                 }
             });
@@ -363,7 +373,7 @@ export default function RoundSimulation() {
                     justifyContent: "center",
                     alignItems: "center",
                     backgroundColor: "black",
-                    opacity: transitioning ? 0.5  : 0
+                    opacity: 0.5
                 }}>
                     <ActivityIndicator size="large"/>
                 </View>
@@ -456,12 +466,12 @@ export default function RoundSimulation() {
                             <FontText style={{color: colors.button.danger.text, marginLeft: 4}}>Miss > {userData.preferences.units === 0 ? "3ft" : "1m"}</FontText>
                         </View>}></DangerButton>
                         ) : (
-                        <PrimaryButton onPress={() => {
+                        <SecondaryButton onPress={() => {
                             bigMissRef.current.open();
-                        }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></PrimaryButton>
+                        }} title={`Miss > ${userData.preferences.units === 0 ? "3ft" : "1m"}?`} style={{paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8, opacity: distance < 1 ? 0.5 : 1}}></SecondaryButton>
                         )
                     }
-                    {<PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
+                    <PrimaryButton style={{borderRadius: 8, paddingVertical: 9, flex: 1, maxWidth: 96}}
                                     title={hole === holes ? "Submit" : "Next"}
                                     disabled={point.x === undefined && largeMiss.distance === -1}
                                     onPress={() => {
@@ -469,7 +479,7 @@ export default function RoundSimulation() {
 
                                         if (center) nextHole(1);
                                         else totalPuttsRef.current.present()
-                                    }}></PrimaryButton>}
+                                    }}></PrimaryButton>
                 </View>
             </ScreenWrapper>
             <TotalPutts setCurrentPutts={(newCurrentPutts) => updateField("currentPutts", newCurrentPutts)} currentPutts={currentPutts}

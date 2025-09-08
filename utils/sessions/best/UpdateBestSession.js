@@ -1,10 +1,7 @@
-import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
-import {getAuth} from "../../../utils/firebase"
+import {doc, getDoc, setDoc} from "firebase/firestore";
+import {auth, firestore} from "../../firebase"
 
 export const updateBestSession = async (newSession) => {
-    const firestore = getFirestore();
-    const auth = getAuth();
-
     const bestSessionRef = doc(firestore, `users/${auth.currentUser.uid}/bestSession/bestSession`);
     const bestSessionDoc = await getDoc(bestSessionRef);
 

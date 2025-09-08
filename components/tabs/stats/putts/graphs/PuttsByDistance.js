@@ -1,7 +1,7 @@
 import {BarChart} from "../../../../../charts";
 import {Dimensions} from "react-native";
 import useColors from "../../../../../hooks/useColors";
-import {useAppContext} from "../../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../../contexts/AppContext";
 
 export const PuttsByDistance = ({statsToUse}) => {
     const colors = useColors();

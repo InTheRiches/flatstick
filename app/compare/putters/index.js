@@ -1,7 +1,7 @@
 import {Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {SelectPutter} from "../../../components/tabs/compare/popups";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
@@ -44,7 +44,7 @@ export default function ComparePutters({}) {
                         <Pressable onPress={() => {
                             navigation.goBack()
                         }} style={{padding: 4, paddingLeft: 0}}>
-                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                                  stroke={colors.text.primary} width={24} height={24}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"
                                       d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>

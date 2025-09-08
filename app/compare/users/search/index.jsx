@@ -1,12 +1,13 @@
 import {Platform, Pressable, ScrollView, TextInput, View} from "react-native";
 import React, {useRef, useState} from "react";
 import useColors from "../../../../hooks/useColors";
-import {auth, getProfilesByUsername} from "../../../../utils/firebase";
+import {auth, getProfilesByDisplayName} from "../../../../utils/firebase";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import FontText from "../../../../components/general/FontText";
+import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -27,7 +28,7 @@ export default function SearchUsers({}) {
         // search for profiles that match that name
         setUsername(text);
         if (text.length > 1) {
-            getProfilesByUsername(text).then(fetchedProfiles => {
+            getProfilesByDisplayName(text).then(fetchedProfiles => {
                 // remove the current user from the list
                 const currentUser = auth.currentUser;
                 const filteredProfiles = fetchedProfiles.filter(profile => profile.id !== currentUser.uid);
@@ -45,7 +46,7 @@ export default function SearchUsers({}) {
                     <Pressable onPress={() => {
                         navigation.goBack()
                     }} style={{padding: 4, paddingLeft: 0}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                              stroke={colors.text.primary} width={24} height={24}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
@@ -68,9 +69,10 @@ export default function SearchUsers({}) {
                     onChangeText={updateUsername}
                 />
                 {profiles.length === 0 && <FontText style={{color: colors.text.secondary, textAlign: "center", fontSize: 18, fontWeight: 500}}>No users found</FontText>}
-                <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 64}}>
+                <ScrollView keyboardShouldPersistTaps={"always"} bounces={false} contentContainerStyle={{paddingBottom: 120}}>
                     {profiles.length > 0 && profiles.map((profile, index) => {
                         const date = new Date(profile.date);
+
                         return (
                             <Pressable key={"user-" + index} style={({pressed}) => [{
                                 padding: 8,
@@ -81,7 +83,7 @@ export default function SearchUsers({}) {
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 gap: 12
-                            }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.id, jsonProfile: JSON.stringify(profile)}})}>
+                            }]} onPress={() => router.push({pathname: "/compare/users", params: {id: profile.uid, jsonProfile: JSON.stringify(profile)}})}>
                                 <View style={{flexDirection: "row", flex: 1}}>
                                     <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.secondary} width={48} height={48}>
                                         <Path fillRule="evenodd"
@@ -109,8 +111,12 @@ export default function SearchUsers({}) {
                     })}
                 </ScrollView>
             </View>
-            <View style={{position: "absolute", bottom: 0}}>
+            <View style={{position: "absolute", bottom: 72}}>
                 <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+            </View>
+            <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20}}>
+                <SecondaryButton onPress={() => router.back()} title={"Back"}
+                                 style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
             </View>
         </ScreenWrapper>
     )

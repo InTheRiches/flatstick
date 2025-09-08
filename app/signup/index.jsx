@@ -4,11 +4,11 @@ import Svg, {ClipPath, Defs, Path, Use} from "react-native-svg";
 import {useRouter} from "expo-router";
 import Loading from "../../components/general/popups/Loading";
 import useColors from "../../hooks/useColors";
-import {PrimaryButton} from "../../components/general/buttons/PrimaryButton";
-import {useSession} from "../../contexts/AppCtx";
+import {useSession} from "../../contexts/AuthContext";
 import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {AppleButton} from "@invertase/react-native-apple-authentication";
+import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
 
 const initialState = {
     skill: -1,
@@ -27,7 +27,7 @@ export default function CreateAccount() {
 
     const router = useRouter();
 
-    const {googleSignIn, appleSignIn, createEmailAccount} = useSession();
+    const {googleSignIn, appleSignIn, createEmailAccount, setSession} = useSession();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
@@ -113,7 +113,32 @@ export default function CreateAccount() {
 
         setLoading(true);
 
-        createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail);
+        createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail).then(() => {
+            refreshStats
+        });
+    }
+
+    const signInWithApple = () => {
+        setLoading(true);
+        appleSignIn().then(token => {
+            setLoading(false);
+            setSession(token || null);
+            router.replace({pathname: `/`});
+            // TODO refreshStats() here
+        }).catch(error => {
+            setLoading(false);
+            console.error("Apple Sign In Error:", error);
+        });
+    }
+
+    const signInWithGoogle = () => {
+        setLoading(true);
+        googleSignIn(setLoading).then(token => {
+            setLoading(false);
+            setSession(token || null);
+            router.replace({pathname: `/`});
+            // TODO refreshStats() here
+        });
     }
 
     return (loading ? <Loading/> :
@@ -136,7 +161,7 @@ export default function CreateAccount() {
                     </Pressable>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                         <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
-                            onPress={() => googleSignIn(setLoading)}>
+                            onPress={signInWithGoogle}>
                             <Svg xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                 <Defs>
@@ -160,7 +185,7 @@ export default function CreateAccount() {
                                     flex: 1,
                                     height: 45, // You must specify a height
                                 }}
-                                onPress={() => appleSignIn()}
+                                onPress={signInWithApple}
                             />
                         }
                     </View>
@@ -345,7 +370,7 @@ export default function CreateAccount() {
                             a lowercase</FontText>
                     </View>
 
-                    <PrimaryButton
+                    <SecondaryButton
                         onPress={createAccount}
                         disabled={invalidPassword || invalidEmail || lastNameInvalid || firstNameInvalid || lastName.length === 0 || firstName.length === 0 || state.email.length === 0 || state.email.password === 0}
                         style={{
@@ -353,7 +378,7 @@ export default function CreateAccount() {
                             borderRadius: 10,
                             marginTop: 12
                         }}
-                        title={"Create your account"}></PrimaryButton>
+                        title={"Create your account"}></SecondaryButton>
                 </ScrollView>
             </ScreenWrapper>
         </KeyboardAvoidingView>

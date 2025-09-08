@@ -2,7 +2,7 @@ import React, {memo} from "react";
 import {BarChart} from "../../../../../charts";
 import {Dimensions} from "react-native";
 import useColors from "../../../../../hooks/useColors";
-import {useAppContext} from "../../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../../contexts/AppContext";
 
 export const SGByDistanceChart = memo(({statsToUse}) => {
     const colors = useColors();

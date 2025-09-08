@@ -1,6 +1,6 @@
 import {View} from "react-native";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import {roundTo} from "../../../utils/roundTo";
 import {formatFeetAndInches} from "../../../utils/PuttUtils";
 import FontText from "../../general/FontText";

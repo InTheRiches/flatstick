@@ -2,7 +2,7 @@ import {BarChart} from "../../../../../charts";
 import {Dimensions} from "react-native";
 import React from "react";
 import useColors from "../../../../../hooks/useColors";
-import {useAppContext} from "../../../../../contexts/AppCtx";
+import {useAppContext} from "../../../../../contexts/AppContext";
 import {roundTo} from "../../../../../utils/roundTo";
 
 export const BreakMisreadsByDistance = ({statsToUse}) => {
@@ -28,8 +28,6 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
             break;
         }
     }
-
-    console.log("mn: " + maxNumber)
 
     return (
         <BarChart

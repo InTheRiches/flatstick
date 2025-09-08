@@ -4,13 +4,20 @@ import React from "react";
 import {PuttsByBreakSlope, PuttsByDistance} from "./graphs";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
+import {useAppContext} from "../../../../contexts/AppContext";
+import {stat} from "react-native-fs";
 
-export const PuttsAHoleTab = ({statsToUse}) => {
+export const PuttsAHoleTab = ({statsToUse, showDifference = false, previousStats}) => {
     const colors = useColors();
     const colorScheme = "light";
     const [byDistance, setByDistance] = React.useState(true);
 
     const {width} = Dimensions.get("screen");
+
+    let difference = 0;
+
+    if (previousStats !== undefined && previousStats.length > 0 && showDifference)
+        difference = (statsToUse.puttsAHole.puttsAHole - previousStats[0].puttsAHole.puttsAHole).toFixed(1);
 
     const puttsByDistance = (
         <>
@@ -56,7 +63,14 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                         paddingLeft: 12,
                     }}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts per Hole</FontText>
-                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.puttsAHole.puttsAHole}</FontText>
+                        <View style={{flexDirection: "row"}}>
+                            <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.puttsAHole.puttsAHole}</FontText>
+                            { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
+                                <View style={{marginLeft: 4, backgroundColor: difference < 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
+                                    <FontText style={{color: difference < 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+${difference}` : `${difference}`}</FontText>
+                                </View>
+                            }
+                        </View>
                     </View>
                     <View style={{
                         flexDirection: "column",
@@ -68,11 +82,11 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                         paddingLeft: 12
                     }}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Misread</FontText>
-                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMisread}</FontText>
+                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMisread === 0 ? "?" : statsToUse.puttsAHole.puttsAHoleWhenMisread}</FontText>
                     </View>
                     <View style={{flexDirection: "column", flex: 1, paddingBottom: 12, paddingTop: 6, paddingLeft: 12}}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts When Mishit</FontText>
-                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMishit}</FontText>
+                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsAHole.puttsAHoleWhenMishit === 0 ? "?" : statsToUse.puttsAHole.puttsAHoleWhenMishit}</FontText>
                     </View>
                 </View>
             </View>
@@ -88,7 +102,7 @@ export const PuttsAHoleTab = ({statsToUse}) => {
                     <View style={{width: 8, height: 8, borderRadius: 15, backgroundColor: "black", marginRight: 8}}></View>
                     <FontText style={{fontSize: 14, fontWeight: 500}}>Putts a Hole</FontText>
                 </View>
-                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Putts a hole is determined by averaging your number of putts by each break/slope combo. The lower the number the better. You can also see what your average putts a hole when you misread or mishit, which reveals how much you suffer from those mistakes.</FontText>
+                <FontText style={{marginLeft: 16, color: colors.text.secondary}}>Putts a hole is determined by averaging your number of putts on a given hole. The lower the number the better. You can also see what your average putts a hole when you misread or mishit, which reveals how much you suffer from those mistakes.</FontText>
             </View>
             <View style={{marginTop: 10}}>
                 <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>

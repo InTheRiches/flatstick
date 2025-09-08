@@ -2,7 +2,7 @@
 import {collection, getDocs, initializeFirestore, query, where} from "firebase/firestore";
 import {getApp, initializeApp} from "firebase/app";
 import {getAuth, getReactNativePersistence, initializeAuth} from 'firebase/auth';
-import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
     apiKey: "AIzaSyD6WWVOyLuOT3tHas31vjZXYL5_BpZ_yZI",
@@ -14,16 +14,38 @@ const firebaseConfig = {
     measurementId: "G-ZM9VDTXJY9"
 };
 
-export const app = initializeApp(firebaseConfig);
+// Initialize Firebase app (only once)
+let app;
+try {
+    console.log("Initializing Firebase app with config:", firebaseConfig);
+    app = initializeApp(firebaseConfig);
+} catch (error) {
+    // If app is already initialized, get the existing instance
+    if (error.code === 'app/duplicate-app') {
+        app = getApp();
+    } else {
+        throw error;
+    }
+}
 
+// Initialize Firestore
 const firestore = initializeFirestore(app, {
     experimentalForceLongPolling: true,
     useFetchStreams: false,
     ignoreUndefinedProperties: true,
 });
+
+// Initialize Auth with AsyncStorage persistence
 const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+    persistence: getReactNativePersistence(AsyncStorage),
 });
+
+// firebase emulators:start http://localhost:4000/
+// if (__DEV__) {
+//     console.log("Running in development mode, connecting to Firebase emulators");
+//     connectAuthEmulator(auth, 'http://localhost:9099');
+//     connectFirestoreEmulator(firestore, 'localhost', 8080);
+// }
 
 // Recursively merge defaults into target without overwriting existing values.
 function deepMergeDefaults(target, defaults) {
@@ -56,6 +78,36 @@ function deepMergeDefaults(target, defaults) {
     return target;
 }
 
+async function getProfilesByDisplayName(displayName) {
+    const profilesRef = collection(firestore, "users");
+
+    // Convert search term to lowercase
+    const searchTerm = displayName.toLowerCase();
+
+    // Query using the lowercase field
+    const q = query(
+        profilesRef,
+        where("displayNameLower", ">=", searchTerm),
+        where("displayNameLower", "<=", searchTerm + "\uf8ff")
+    );
+
+    try {
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) return [];
+
+        const profiles = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.deleted) return;
+            profiles.push({ ...data, uid: doc.id });
+        });
+
+        return profiles;
+    } catch (e) {
+        console.error("Error fetching profiles: " + e);
+        return [];
+    }
+}
 
 async function getProfilesByUsername(username) {
     let firstName, lastName;
@@ -91,7 +143,7 @@ async function getProfilesByUsername(username) {
         querySnapshot.forEach((doc) => {
             if (doc.data().deleted !== undefined && doc.data().deleted) return;
 
-            profiles.push({ ...doc.data(), id: doc.id });
+            profiles.push({ ...doc.data(), uid: doc.id });
         });
 
         return profiles;
@@ -101,4 +153,4 @@ async function getProfilesByUsername(username) {
     }
 }
 
-export {firestore, auth, deepMergeDefaults, getApp, getAuth, getProfilesByUsername};
+export {firestore, auth, app, deepMergeDefaults, getProfilesByDisplayName, getApp, getAuth, getProfilesByUsername};

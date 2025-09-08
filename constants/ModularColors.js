@@ -2,6 +2,7 @@ export const LightTheme = {
   text: {
     primary: '#111827',
     secondary: '#687076',
+    tertiary: '#90999a',
     placeholder: '#b0b0b0',
     link: '#42aaf5',
   },
@@ -70,7 +71,7 @@ export const LightTheme = {
     invalid: {
       border: '#CE7070',
       focusedBorder: '#F86868',
-      text: '#FF3D3D',
+      text: '#e33434',
       background: '#F5D3D3',
     },
     focused: {

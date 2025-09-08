@@ -1,4 +1,4 @@
-import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {useFocusEffect, useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {
     ActivityIndicator,
     BackHandler,
@@ -15,8 +15,7 @@ import DangerButton from '@/components/general/buttons/DangerButton';
 import Loading from "@/components/general/popups/Loading";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
-import {useAppContext} from "@/contexts/AppCtx";
-import {roundTo} from "../../../utils/roundTo";
+import {useAppContext} from "@/contexts/AppContext";
 import {PuttingGreen} from '../../../components/simulations';
 import {ConfirmExit, SubmitModal, TotalPutts,} from '../../../components/simulations/popups';
 import {
@@ -24,7 +23,6 @@ import {
     calculateDistanceMissedMeters,
     calculateStats,
     convertThetaToBreak,
-    getLargeMissPoint,
     loadPuttData,
     updatePuttsCopy
 } from '../../../utils/PuttUtils';
@@ -41,6 +39,8 @@ import FontText from "../../../components/general/FontText";
 import {MisreadModal} from "../../../components/simulations/popups/MisreadModal";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
+import generatePushID from "../../../components/general/utils/GeneratePushID";
+import {SCHEMA_VERSION} from "../../../utils/constants";
 
 const initialState = {
     loading: false,
@@ -124,7 +124,7 @@ export default function RealSimulation() {
     }));
 
     // keep track of the time this session started at
-    const [startTime, setStartTime] = useState(new Date().getTime());
+    const [startTime, setStartTime] = useState(new Date());
 
     const [transitioning, setTransitioning] = useState(false);
 
@@ -156,23 +156,27 @@ export default function RealSimulation() {
         }));
     };
 
-    useEffect(() => {
-        const onBackPress = () => {
-            confirmExitRef.current.present();
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                confirmExitRef.current.present();
+                console.log("still running")
+                return true;
+            };
 
-            return true;
-        };
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => subscription.remove(); // clean up when unfocused
+        }, [])
+    );
+
+    useEffect(() => {
 
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
         });
 
         interstitial.load();
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
 
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
             setKeyboardIsVisible(true);
@@ -184,7 +188,6 @@ export default function RealSimulation() {
 
         return () => {
             unsubscribeLoaded();
-            backHandler.remove();
             keyboardDidShowListener.remove();
             keyboardDidHideListener.remove();
         }
@@ -271,7 +274,7 @@ export default function RealSimulation() {
     };
 
     const fullReset = () => {
-        navigation.goBack();
+        router.replace("/(tabs)/practice");
     }
 
     const submit = (partial = false) => {
@@ -281,36 +284,71 @@ export default function RealSimulation() {
 
         updateField("loading", true)
 
-        const data = {
-            date: new Date().toISOString(),
-            startedAtTimestamp: startTime,
-            timestamp: new Date().getTime(),
-            holes: partial ? puttsCopy.length : holes,
-            filteredHoles: filteredHoles,
-            putts: trimmedPutts,
-            totalPutts: totalPutts,
-            strokesGained: roundTo(strokesGained, 1),
-            avgMiss: avgMiss,
-            madePercent: madePercent,
-            type: "real-simulation",
-            putter: putters[userData.preferences.selectedPutter].type,
-            grip: grips[userData.preferences.selectedGrip].type,
-            puttCounts: puttCounts,
-            shortPastBias: shortPastBias,
-            leftRightBias: leftRightBias,
-            missData: missData,
-            totalDistance: totalDistance,
-            units: userData.preferences.units,
-            duration: new Date().getTime() - startTime,
-            percentShort,
-            percentHigh
-        }
+        const scorecard = puttsCopy.map((hole, index) => (hole.totalPutts));
 
-        newSession(data).then(() => {
+        const newData = {
+            id: generatePushID(),
+            meta: {
+                schemaVersion: SCHEMA_VERSION,
+                type: "real",
+                date: startTime.toISOString(),
+                durationMs: new Date().getTime() - startTime.getTime(),
+                units: userData.preferences.units,
+                synced: true // TODO set this to false if not synced (if offline mode is ever added)
+            },
+            "player": {
+                "putter": putters[userData.preferences.selectedPutter].type,
+                "grip": grips[userData.preferences.selectedGrip].type
+            },
+            "stats": {
+                "holes": partial ? puttsCopy.length : holes,
+                "holesPlayed": filteredHoles,
+                "totalPutts": totalPutts,
+                "puttCounts": puttCounts,
+                "madePercent": madePercent,
+                "avgMiss": avgMiss,
+                "strokesGained": strokesGained,
+                "missData": missData,
+                "leftRightBias": leftRightBias,
+                "shortPastBias": shortPastBias,
+                "totalDistance": totalDistance,
+                "percentShort": percentShort,
+                "percentHigh": percentHigh,
+            },
+            puttHistory: trimmedPutts,
+            scorecard
+        }
+        //
+        // const data = {
+        //     date: new Date().toISOString(),
+        //     startedAtTimestamp: startTime,
+        //     timestamp: new Date().getTime(),
+        //     holes: partial ? puttsCopy.length : holes,
+        //     filteredHoles: filteredHoles,
+        //     putts: trimmedPutts,
+        //     totalPutts: totalPutts,
+        //     strokesGained: roundTo(strokesGained, 1),
+        //     avgMiss: avgMiss,
+        //     madePercent: madePercent,
+        //     type: "real",
+        //     putter: putters[userData.preferences.selectedPutter].type,
+        //     grip: grips[userData.preferences.selectedGrip].type,
+        //     puttCounts: puttCounts,
+        //     shortPastBias: shortPastBias,
+        //     leftRightBias: leftRightBias,
+        //     missData: missData,
+        //     totalDistance: totalDistance,
+        //     units: userData.preferences.units,
+        //     duration: new Date().getTime() - startTime,
+        //     percentShort,
+        //     percentHigh
+        // }
+
+        newSession(newData).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {
-                    jsonSession: JSON.stringify(data),
+                    jsonSession: JSON.stringify(newData),
                     recap: "true"
                 }
             });
@@ -320,21 +358,23 @@ export default function RealSimulation() {
     return (loading ? <Loading/> :
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={{flex: 1}}>
-                <View style={{
-                    zIndex: 200,
-                    position: "absolute",
-                    width: "100%",
-                    top: 0,
-                    left: 0,
-                    height: "100%",
-                    flexDirection: "flow",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "black",
-                    opacity: transitioning ? 0.5  : 0
-                }}>
-                    <ActivityIndicator size="large"/>
-                </View>
+                {transitioning && (
+                    <View style={{
+                        zIndex: 200,
+                        position: "absolute",
+                        width: "100%",
+                        top: 0,
+                        left: 0,
+                        height: "100%",
+                        flexDirection: "flow",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "black",
+                        opacity: 0.5
+                    }}>
+                        <ActivityIndicator size="large"/>
+                    </View>
+                )}
                 <ScreenWrapper style={{
                     width: "100%",
                     flex: 1,

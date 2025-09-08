@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useImperativeHandle, useRef, useState} from "react";
+import React, {useCallback, useImperativeHandle, useRef, useState} from "react";
 import {Keyboard, Platform, Pressable, TouchableWithoutFeedback, View} from "react-native";
 import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
@@ -6,7 +6,7 @@ import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import ArrowComponent from "@/components/general/icons/ArrowComponent";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import Svg, {Path} from "react-native-svg";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import FontText from "../../general/FontText";
 import {Exclamation} from "../../../assets/svg/SvgComponents";
 

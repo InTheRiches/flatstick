@@ -1,12 +1,13 @@
-import {Image, StyleSheet, Text, View} from "react-native";
+import {Image, Text, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import React, {useState} from "react";
 import useColors from "../../hooks/useColors";
 import {runOnJS} from "react-native-reanimated";
-import {useAppContext} from "../../contexts/AppCtx";
+import {useAppContext} from "../../contexts/AppContext";
 import FontText from "../general/FontText";
 
+// TODO adjust the size of the green. 2.5ft isnt that big. Maybe jump that to 4? 5?
 export function PuttingGreen({
                                  holedOut = false,
                                  setHoledOut,
@@ -128,8 +129,8 @@ export function PuttingGreen({
             }}>
                 {userData.preferences.units === 0 ? (
                     <>
+                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>5ft</FontText>
                         <Text></Text>
-                        <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>2ft</FontText>
                         <Text></Text>
                         <FontText style={{fontSize: 14, fontWeight: 500, color: colors.putting.grid.text}}>1ft</FontText>
                         <Text></Text>

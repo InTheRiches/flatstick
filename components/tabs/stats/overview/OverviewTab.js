@@ -1,41 +1,79 @@
 import useColors from "../../../../hooks/useColors";
-import {useAppContext} from "../../../../contexts/AppCtx";
-import {Dimensions, ScrollView, View} from "react-native";
 import {roundTo} from "../../../../utils/roundTo";
+import {Dimensions, ScrollView, View} from "react-native";
 import {RecentSession} from "./RecentSession";
-import React from "react";
 import FontText from "../../../general/FontText";
-import {SeeAllSessions} from "../../home";
-import {adaptFullRoundSession} from "../../../../utils/sessions/SessionUtils";
+import ColumnStat from "../../../stats/performance/ColumnStat";
+import React from "react";
+import {useAppContext} from "../../../../contexts/AppContext";
+import {convertUnits} from "../../../../utils/Conversions";
+import {SeeAllSessions} from "../../practice";
 
-export const OverviewTab = ({statsToUse}) => {
+export const OverviewTab = ({
+                                statsToUse,
+                                previousStats,
+                                sessions = [],
+                                userData: personsData
+                            }) => {
     const colors = useColors();
-    const {puttSessions, fullRoundSessions, previousStats, currentStats, userData} = useAppContext();
-    const {width} = Dimensions.get("screen")
+    const { width } = Dimensions.get("screen");
 
-    let combined = [...puttSessions, ...fullRoundSessions];
-    combined.sort((a, b) => b.timestamp - a.timestamp); // most recent first
+    if (statsToUse === 0) {
+        return <></>;
+    }
+
+    const {userData} = useAppContext();
 
     let difference = 0;
-
-    if (previousStats !== undefined && previousStats.length > 0 && statsToUse === currentStats)
+    if (
+        previousStats !== undefined &&
+        previousStats.length > 0
+    ) {
         difference = statsToUse.strokesGained.overall - previousStats[0].strokesGained.overall;
+    }
 
     return (
-        <ScrollView contentContainerStyle={{paddingBottom: 24}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 20}}>
-            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>Strokes Gained</FontText>
-            <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 800, marginTop: 2, textAlign: "center"}}>VS</FontText>
-            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>PGA Tour Pro</FontText>
-            <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{statsToUse.strokesGained.overall > 0 ? "+" : ""}{statsToUse.strokesGained.overall}</FontText>
-                { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
-                    <View style={{backgroundColor: difference > 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
-                        <FontText style={{color: difference > 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}</FontText>
+        <ScrollView
+            contentContainerStyle={{ paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            style={{ width, paddingHorizontal: 20 }}
+        >
+            <FontText style={{ color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center" }}>Strokes Gained</FontText>
+            <FontText style={{ color: colors.text.secondary, fontSize: 12, fontWeight: 800, marginTop: 2, textAlign: "center" }}>VS</FontText>
+            <FontText style={{ color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center" }}>PGA Tour Pro</FontText>
+
+            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6 }}>
+                <FontText style={{ color: colors.text.primary, fontSize: 48, fontWeight: 600 }}>
+                    {statsToUse.strokesGained.overall > 0 ? "+" : ""}
+                    {statsToUse.strokesGained.overall}
+                </FontText>
+
+                {previousStats && previousStats.length > 0 && difference !== 0 && (
+                    <View style={{
+                        backgroundColor: difference > 0 ? "#A1ECA8" : "#ffc3c3",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 32,
+                        paddingHorizontal: 10,
+                        paddingVertical: 4
+                    }}>
+                        <FontText style={{
+                            color: difference > 0 ? "#275E2B" : "#a60303",
+                            fontSize: 14,
+                            fontWeight: 500
+                        }}>
+                            {difference > 0 ? `+ ${difference.toFixed(1)} SG` : `${difference.toFixed(1)} SG`}
+                        </FontText>
                     </View>
-                }
+                )}
             </View>
-            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(per 18 holes, last 5 sessions)</FontText>
-            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, marginTop: 20}}>
+
+            <FontText style={{ color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center" }}>
+                (per 18 holes, last 5 sessions)
+            </FontText>
+
+            <View style={{ backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, marginTop: 20 }}>
                 <View style={{
                     paddingHorizontal: 12,
                     borderBottomWidth: 1,
@@ -45,139 +83,40 @@ export const OverviewTab = ({statsToUse}) => {
                     justifyContent: "space-between",
                     alignItems: "center"
                 }}>
-                    <FontText style={{
-                        fontSize: 16,
-                        textAlign: "left",
-                        color: colors.text.primary,
-                        fontWeight: "bold",
-                        flex: 1
-                    }}>Average Performance</FontText>
-                    <FontText style={{
-                        fontSize: 14,
-                        textAlign: "right",
-                        color: colors.text.secondary,
-                        fontWeight: "normal",
-                        flex: 1
-                    }}>(last 5 sessions)</FontText>
+                    <FontText style={{ fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: "bold", flex: 1 }}>
+                        Average Performance
+                    </FontText>
+                    <FontText style={{ fontSize: 14, textAlign: "right", color: colors.text.secondary, fontWeight: "normal", flex: 1 }}>
+                        (last 5 sessions)
+                    </FontText>
                 </View>
-                <View style={{flexDirection: "row"}}>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 8,
-                        paddingTop: 6,
-                        paddingLeft: 12,
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>1 Putts</FontText>
-                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                            <FontText style={{
-                                fontSize: 20,
-                                color: colors.text.primary,
-                                fontWeight: "bold",
-                            }}>{statsToUse.onePutts}</FontText>
-                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.onePutts/18)*100, 0)}%)</FontText>
-                        </View>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        paddingBottom: 8,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>3+ Putts</FontText>
-                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                            <FontText style={{
-                                fontSize: 20,
-                                color: colors.text.primary,
-                                fontWeight: "bold",
-                            }}>{statsToUse.threePutts}</FontText>
-                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.threePutts/18)*100,0)}%)</FontText>
-                        </View>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderLeftWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 8,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Putts</FontText>
-                        <FontText style={{
-                            fontSize: 20,
-                            color: colors.text.primary,
-                            fontWeight: "bold",
-                        }}>{statsToUse.avgPuttsARound}</FontText>
-                    </View>
+
+                <View style={{ flexDirection: "row" }}>
+                    <ColumnStat label={"1 PUTTS"} value={statsToUse.onePutts} percent={roundTo((statsToUse.onePutts / 18) * 100, 0)} />
+                    <ColumnStat label={"3+ PUTTS"} value={statsToUse.threePutts} percent={roundTo((statsToUse.threePutts / 18) * 100, 0)} />
+                    <ColumnStat label={"AVG PUTTS"} value={statsToUse.avgPuttsARound} right />
                 </View>
-                <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 8,
-                        paddingTop: 6,
-                        paddingLeft: 12,
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Avg. Miss</FontText>
-                        <FontText style={{
-                            fontSize: 20,
-                            color: colors.text.primary,
-                            fontWeight: "bold",
-                            textAlign: "left"
-                        }}>{statsToUse.avgMiss}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
-                        paddingBottom: 8,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Total Distance</FontText>
-                        <FontText style={{
-                            fontSize: 20,
-                            color: colors.text.primary,
-                            fontWeight: "bold",
-                            textAlign: "left"
-                        }}>{statsToUse.totalDistance}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
-                    </View>
-                    <View style={{
-                        flexDirection: "column",
-                        flex: 1,
-                        paddingBottom: 8,
-                        paddingTop: 6,
-                        paddingLeft: 12
-                    }}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Putts Misread</FontText>
-                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                            <FontText style={{
-                                fontSize: 20,
-                                color: colors.text.primary,
-                                fontWeight: "bold",
-                            }}>{statsToUse.puttsMisread}</FontText>
-                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((statsToUse.puttsMisread/18)*100,0)}%)</FontText>
-                        </View>
-                    </View>
+
+                <View style={{ flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default }}>
+                    <ColumnStat label={"AVG MISS"} value={convertUnits(statsToUse.avgMiss, personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
+                    <ColumnStat label={"DISTANCE"} value={convertUnits(statsToUse.totalDistance, personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
+                    <ColumnStat label={"MISREADS"} value={statsToUse.puttsMisread} percent={roundTo((statsToUse.puttsMisread / 18) * 100, 0)} right />
                 </View>
             </View>
-            <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8}}>Recent Sessions</FontText>
-            <View style={{gap: 12}}>
-                {
-                    // sort it by the timestamp which is in milliseconds
-                    combined.slice(0, 3).map((session, index) => {
-                        return <RecentSession key={"recent-" + index} recentSession={adaptFullRoundSession(session)}></RecentSession>
-                    })
-                }
-            </View>
-            <SeeAllSessions/>
+
+            {sessions.length > 0 &&
+                <>
+                    <FontText style={{ fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 20, marginBottom: 8 }}>
+                        Recent Sessions
+                    </FontText>
+                    <View style={{gap: 12}}>
+                        {sessions.slice(0, 3).map((session, index) => (
+                            <RecentSession key={"recent-" + index} recentSession={session}/>
+                        ))}
+                    </View>
+                    <SeeAllSessions />
+                </>
+            }
         </ScrollView>
-    )
+    );
 };

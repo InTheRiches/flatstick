@@ -3,16 +3,16 @@ import React from 'react';
 
 import {SvgHome} from '@/assets/svg/SvgComponents';
 import useColors from "@/hooks/useColors";
-import {useSession} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Svg, {Path} from "react-native-svg";
 import useKeyboardVisible from "@/hooks/useKeyboardVisible";
-import {useSafeAreaInsets} from "react-native-safe-area-context";
+import ProfileTabIcon from "@/components/tabs/ProfileTabIcon";
 
+// TODO show the exclamation indicator on the profile tab if there are new achievements
 export default function TabLayout() {
     const colors = useColors();
-    const insets = useSafeAreaInsets();
-    const {isLoading} = useSession();
+    const {isLoading} = useAppContext();
     const isKeyboardVisible = useKeyboardVisible();
 
     return (
@@ -41,17 +41,43 @@ export default function TabLayout() {
                     }}
                 />
                 <Tabs.Screen
+                    name="practice"
+                    options={{
+                        title: 'Practice',
+                        tabBarIcon: ({color, focused}) => focused ? (
+                            <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.primary}
+                                 width={24} height={24}>
+                                <Path fillRule="evenodd"
+                                      d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
+                                      clipRule="evenodd"/>
+                            </Svg>
+                        ) : (
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 width={24} height={24} stroke={colors.border.default}>
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/>
+                            </Svg>
+                        )
+                    }}
+                />
+                <Tabs.Screen
                     name="stats"
                     options={{
                         title: 'Stats',
-                        tabBarIcon: ({color, focused}) => (
-                            <Svg xmlns="http://www.w3.org/2000/svg"
-                                 stroke={focused ? colors.text.primary : colors.border.default}
-                                 fill="none" viewBox="0 0 24 24" strokeWidth={1.5} width={24} height={24}>
+                        tabBarIcon: ({color, focused}) => focused ? (
+                            <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={colors.text.primary}
+                                 width={24} height={24}>
+                                <Path fillRule="evenodd"
+                                      d="M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm4.5 7.5a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0v-2.25a.75.75 0 0 1 .75-.75Zm3.75-1.5a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0V12Zm2.25-3a.75.75 0 0 1 .75.75v6.75a.75.75 0 0 1-1.5 0V9.75A.75.75 0 0 1 13.5 9Zm3.75-1.5a.75.75 0 0 0-1.5 0v9a.75.75 0 0 0 1.5 0v-9Z"
+                                      clipRule="evenodd"/>
+                            </Svg>
+                        ) : (
+                            <Svg xmlns="http://www.w3.org/2000/svg" stroke={colors.border.default}
+                                fill={"none"} viewBox="0 0 24 24" strokeWidth={1.5} width={24} height={24}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"
                                       d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
                             </Svg>
-                        ),
+                        )
                     }}
                 />
                 <Tabs.Screen
@@ -69,20 +95,10 @@ export default function TabLayout() {
                     }}
                 />
                 <Tabs.Screen
-                    name="settings"
+                    name="profile"
                     options={{
-                        title: 'Settings',
-                        tabBarIcon: ({color, focused}) => (
-                            <Svg xmlns="http://www.w3.org/2000/svg"
-                                 stroke={focused ? colors.text.primary : colors.border.default}
-                                 fill="none" viewBox="0 0 24 24" strokeWidth={1.5} width={24}
-                                 height={24}>
-                                <Path strokeLinecap="round" strokeLinejoin="round"
-                                      d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z"/>
-                                <Path strokeLinecap="round" strokeLinejoin="round"
-                                      d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                            </Svg>
-                        ),
+                        title: 'Profile',
+                        tabBarIcon: ({color, focused}) => <ProfileTabIcon focused={focused} />
                     }}
                 />
             </Tabs>}

@@ -1,19 +1,19 @@
 import {Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useEffect, useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
 import {useLocalSearchParams, useNavigation} from "expo-router";
-import {doc, getDoc} from "firebase/firestore";
-import {firestore} from "../../../utils/firebase";
 import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
+import {getUserStatsByID} from "../../../services/userService";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
+// TODO redo this like https://chatgpt.com/s/t_687c324f7b8081919fe90943237b4165
 export default function CompareUsers({}) {
     const colors = useColors();
     const {userData, currentStats} = useAppContext();
@@ -30,11 +30,12 @@ export default function CompareUsers({}) {
     })
 
     useEffect(() => {
-        // fetch users stats
-        const userDocRef = doc(firestore, `users/${id}/stats/current`);
-        getDoc(userDocRef).then(async (doc) => {
-            if (doc.exists()) {
-                setUsersStats(doc.data());
+        getUserStatsByID(id).then((stats) => {
+            if (stats) {
+                setUsersStats(stats);
+                setLoading(false);
+            } else {
+                console.error("No stats found for user with ID:", id);
                 setLoading(false);
             }
         });
@@ -49,7 +50,7 @@ export default function CompareUsers({}) {
                     <Pressable onPress={() => {
                         navigation.goBack()
                     }} style={{padding: 4, paddingLeft: 0}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                              stroke={colors.text.primary} width={24} height={24}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>

@@ -1,8 +1,4 @@
-import Svg, {
-    Circle, G,
-    Path, Rect,
-} from 'react-native-svg';
-import { View, StyleSheet } from 'react-native';
+import Svg, {G, Path,} from 'react-native-svg';
 
 const SvgLogo = (props) => (
   <Svg
@@ -97,7 +93,7 @@ const Exclamation = (props) => (
     >
         <G transform="translate(7.5,7.5)">
             <Path
-                fill="rgba(255,0,0,0.75)"
+                fill="rgba(255,0,0,1)"
                 d="M22.675,0.02c-0.006,0-0.014,0.001-0.02,0.001c-0.007,0-0.013-0.001-0.02-0.001
           C10.135,0.02,0,10.154,0,22.656c0,12.5,10.135,22.635,22.635,22.635c0.007,0,0.013,0,0.02,0c0.006,0,0.014,0,0.02,0
           c12.5,0,22.635-10.135,22.635-22.635C45.311,10.154,35.176,0.02,22.675,0.02z"

@@ -1,21 +1,19 @@
 import React, {useCallback, useImperativeHandle, useRef, useState} from "react";
-import {Pressable, StyleSheet, View} from "react-native";
+import {Dimensions, Pressable, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import FontText from "../../../general/FontText";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Dimensions } from "react-native";
-import {FullGreenVisual, GreenVisual} from "../../real";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {FullGreenVisual} from "../../real";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
 import {SvgClose} from "../../../../assets/svg/SvgComponents";
 import {PrimaryButton} from "../../../general/buttons/PrimaryButton";
 import {MisreadModal} from "../../popups/MisreadModal";
 import {PuttingGreen} from "../../PuttingGreen";
-import {BigMissModal} from "../../popups";
 import DangerButton from "../../../general/buttons/DangerButton";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import {FullBigMissModal} from "./FullBigMissModal";
 import {calculateDistanceMissedFeet, calculateDistanceMissedMeters} from "../../../../utils/PuttUtils";
 
@@ -163,7 +161,8 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                          distance={distance}
                                          distanceInvalid={distanceInvalid}
                                          setDistance={setDistance}
-                                         setDistanceInvalid={setDistanceInvalid}/>
+                                         setDistanceInvalid={setDistanceInvalid}
+                                         showDistance={!holedOut}/>
 
                         <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 12}}>
                             <Pressable onPress={() => setMisHit(!misHit)} style={{
@@ -195,6 +194,8 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData}) {
                                 if (!holedOut) {
                                     setCenter(false);
                                     setPoint({});
+                                    setDistanceInvalid(false);
+                                    setDistance(-1);
                                     setLargeMiss({
                                         dir: "",
                                         distance: -1

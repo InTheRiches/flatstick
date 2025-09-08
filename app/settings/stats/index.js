@@ -2,7 +2,7 @@ import {Platform, Pressable, Switch, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {FilterGrips, FilterPutters} from "../../../components/tabs/stats/settings/popups";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation} from "expo-router";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -13,7 +13,7 @@ const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pu
 
 export default function StatSettings({}) {
     const colors = useColors();
-    const {putters, grips, userData, updateData, updateStats, nonPersistentData} = useAppContext();
+    const {putters, grips, userData, updateData, refreshStats, nonPersistentData} = useAppContext();
 
     const [initialData, setInitialData] = useState(userData.preferences);
 
@@ -41,13 +41,13 @@ export default function StatSettings({}) {
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
                         if (initialData !== userData.preferences) {
-                            updateStats().catch(e => {
+                            refreshStats().catch(e => {
                                 console.log("Error overall updating stats: " + e)
                             });
                         }
                         navigation.goBack()
                     }} style={{padding: 4, paddingLeft: 0}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                              stroke={colors.text.primary} width={24} height={24}>
                             <Path strokeLinecap="round" strokeLinejoin="round"
                                   d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>

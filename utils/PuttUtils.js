@@ -154,6 +154,10 @@ const calculateFullRoundStats = (roundData, width, height) => {
     let puttCounts = [0, 0, 0]
     let totalDistance = 0;
 
+    let eagles = 0;
+    let birdies = 0;
+    let pars = 0;
+
     let farLeft = 0
     let left = 0;
     let center = 0;
@@ -162,26 +166,59 @@ const calculateFullRoundStats = (roundData, width, height) => {
     let long = 0;
     let short = 0;
 
+    const approachCounts = {
+        green: 0,
+        right: 0,
+        left: 0,
+        short: 0,
+        long: 0
+    };
+    const teeShotCounts = {
+        green: 0, // technically it is the fairway, but we will use green for simplicity
+        right: 0,
+        left: 0,
+        short: 0,
+        long: 0
+    };
+
     let holes = 0;
 
     let percentHigh = 0;
     let percentShort = 0;
 
     roundData.forEach((hole, index) => {
-        if (hole.puttData === undefined) return;
+        if (hole.score - hole.par <= -2) eagles++;
+        if (hole.score - hole.par === -1) birdies++;
+        if (hole.score - hole.par === 0) pars++;
+
+        const acc = hole.approachAccuracy;
+        if (hole.par > 3 && acc && approachCounts.hasOwnProperty(acc)) {
+            approachCounts[acc]++;
+        }
+
+        const acc2 = hole.fairwayAccuracy;
+        if (acc2 && teeShotCounts.hasOwnProperty(acc2)) {
+            teeShotCounts[acc2]++;
+        }
+
+        if (hole.puttData === undefined) {
+            trimmedHoles.push({...hole});
+            return;
+        }
+
         const putt = hole.puttData;
 
         if (putt.distance === -1 || (putt.point.x === undefined && putt.largeMiss.distance === -1))
             return;
 
-        // what is this?
+        // what is this? I think it is for big misses (maybe holed out?)
         if (putt.distance === 0) {
             trimmedHoles.push({
                 ...hole,
                 puttData: {
                     distance: putt.distance,
-                    xDistance: 0,
-                    yDistance: 0,
+                    missXDistance: 0,
+                    missYDistance: 0,
                     puttBreak: [0, 0],
                     misReadLine: putt.misReadLine,
                     misReadSlope: putt.misReadSlope,
@@ -198,7 +235,6 @@ const calculateFullRoundStats = (roundData, width, height) => {
         holes++;
 
         // calculate strokes gained
-        // TODO use this method for overall strokes gained as it is far more accurate, and adapts to different # of holes!!!
         if (hole.putts !== -1) {
             const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - hole.putts;
             strokesGained += strokesGainedForPutt;
@@ -284,8 +320,8 @@ const calculateFullRoundStats = (roundData, width, height) => {
             ...hole,
             puttData: {
                 distance: putt.distance,
-                xDistance: xDistance,
-                yDistance: yDistance,
+                missXDistance: xDistance,
+                missYDistance: yDistance,
                 puttBreak: puttBreak,
                 misReadLine: putt.misReadLine,
                 misReadSlope: putt.misReadSlope,
@@ -300,15 +336,49 @@ const calculateFullRoundStats = (roundData, width, height) => {
         totalDistance += putt.distance;
     });
 
+    // we only do this for approach shots as if there are par 3s it wont have the same number of data as teeShots
+    const approachTotal = approachCounts.green + approachCounts.right + approachCounts.left + approachCounts.short + approachCounts.long;
+    const approachPct = (count) => ((count / approachTotal) * 100).toFixed(1);
+    const shotPct = (count) => ((count / trimmedHoles.length) * 100).toFixed(1);
+
+    const shotPlacementData = {
+        approach: {
+            accuracy: approachPct(approachCounts.green),
+            missBias: approachCounts.right > approachCounts.left ? "Right" : approachCounts.left > approachCounts.right ? "Left" : "Balanced",
+            distanceBias: approachCounts.short > approachCounts.long ? "Short" : approachCounts.long > approachCounts.short ? "Long" : "Balanced",
+            placement: {
+                green: approachPct(approachCounts.green),
+                right: approachPct(approachCounts.right),
+                left: approachPct(approachCounts.left),
+                short: approachPct(approachCounts.short),
+                long: approachPct(approachCounts.long)
+            }
+        },
+        teeShot: {
+            accuracy: shotPct(teeShotCounts.green),
+            missBias: teeShotCounts.right > teeShotCounts.left ? "Right" : teeShotCounts.left > teeShotCounts.right ? "Left" : "Balanced",
+            distanceBias: teeShotCounts.short > teeShotCounts.long ? "Short" : teeShotCounts.long > teeShotCounts.short ? "Long" : "Balanced",
+            placement: {
+                fairway: shotPct(teeShotCounts.green),
+                right: shotPct(teeShotCounts.right),
+                left: shotPct(teeShotCounts.left),
+                short: shotPct(teeShotCounts.short),
+                long: shotPct(teeShotCounts.long)
+            }
+        }
+    }
+
     avgMiss = roundTo(avgMiss, 1);
-    madePercent /= holes;
+    if (holes > 0) {
+        madePercent /= holes;
 
-    leftRightBias /= holes;
-    shortPastBias /= holes;
-    percentHigh /= holes;
-    percentShort /= holes;
+        leftRightBias /= holes;
+        shortPastBias /= holes;
+        percentHigh /= holes;
+        percentShort /= holes;
+    }
 
-    return { totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
+    return { totalPutts, pars, birdies, eagles, avgMiss, madePercent, trimmedHoles, strokesGained, shotPlacementData, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
 }
 
 const calculateStats = (puttsCopy, width, height) => {
@@ -322,7 +392,7 @@ const calculateStats = (puttsCopy, width, height) => {
     let puttCounts = [0, 0, 0]
     let totalDistance = 0;
 
-    let farLeft = 0
+    let farLeft = 0;
     let left = 0;
     let center = 0;
     let right = 0;
@@ -342,15 +412,14 @@ const calculateStats = (puttsCopy, width, height) => {
         if (putt.distance === 0) {
             trimmedPutts.push({
                 distance: putt.distance,
-                xDistance: 0,
-                yDistance: 0,
+                missXDistance: 0,
+                missYDistance: 0,
                 puttBreak: [0,0],
                 misReadLine: putt.misReadLine,
                 misReadSlope: putt.misReadSlope,
                 misHit: putt.misHit,
                 distanceMissed: 0,
                 totalPutts: putt.totalPutts,
-                point: putt.point,
                 ...(putt.largeMiss.distance !== -1 && { largeMiss: putt.largeMiss }),
             });
             return;
@@ -359,7 +428,6 @@ const calculateStats = (puttsCopy, width, height) => {
         holes++;
 
         // calculate strokes gained
-        // TODO use this method for overall strokes gained as it is far more accurate, and adapts to different # of holes!!!
         if (putt.totalPutts !== -1) {
             const strokesGainedForPutt = calculateBaselineStrokesGained(putt.distance) - putt.totalPutts;
             strokesGained += strokesGainedForPutt;
@@ -443,8 +511,8 @@ const calculateStats = (puttsCopy, width, height) => {
 
         trimmedPutts.push({
             distance: putt.distance,
-            xDistance: xDistance,
-            yDistance: yDistance,
+            missXDistance: xDistance,
+            missYDistance: yDistance,
             puttBreak: puttBreak,
             misReadLine: putt.misReadLine,
             misReadSlope: putt.misReadSlope,
@@ -466,7 +534,7 @@ const calculateStats = (puttsCopy, width, height) => {
     percentHigh /= holes;
     percentShort /= holes;
 
-    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained, leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
+    return { totalPutts, avgMiss, madePercent, trimmedPutts, strokesGained: roundTo(strokesGained, 1), leftRightBias: roundTo(leftRightBias, 1), shortPastBias: roundTo(shortPastBias, 1), puttCounts, missData: {farLeft, left, center, right, farRight, long, short}, totalDistance: roundTo(totalDistance, 1), filteredHoles: holes, percentShort, percentHigh };
 };
 
 function formatFeetAndInches(feet) {
@@ -554,6 +622,7 @@ const createYearlyStats = () => {
     }
 }
 
+// TODO three+ putt percentage?
 const createSimpleStats = () => {
     return {
         onePutts: 0,
@@ -917,7 +986,7 @@ function cleanMadePutts(averagePerformance) {
 }
 
 function updateSimpleStats(userData, simpleStats, putt, category) {
-    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, xDistance, yDistance, totalPutts} = putt;
+    const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, missXDistance, missYDistance, totalPutts} = putt;
 
     const statBreaks = [
         "leftToRight",
@@ -987,7 +1056,7 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         simpleStats.avgMissDistance[distanceIndex] += distanceMissed;
     }
 
-    const degrees = Math.atan2(yDistance, xDistance) * (180 / Math.PI);
+    const degrees = Math.atan2(missYDistance, missXDistance) * (180 / Math.PI);
     // if short
     if (degrees <= -22.5 && degrees >= -157) {
         simpleStats.percentShort++;
@@ -1000,8 +1069,8 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         if (puttBreak[0] === 1) simpleStats.percentHigh++;
     }
 
-    simpleStats.leftRightBias += xDistance;
-    simpleStats.shortPastBias += yDistance;
+    simpleStats.leftRightBias += missXDistance;
+    simpleStats.shortPastBias += missYDistance;
 
     simpleStats.totalDistance += distance;
     simpleStats.puttsMisread += misReadLine || misReadSlope ? 1 : 0;

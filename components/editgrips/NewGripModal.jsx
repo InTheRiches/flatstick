@@ -4,7 +4,7 @@ import {BottomSheetModal, BottomSheetTextInput, BottomSheetView} from "@gorhom/b
 import CustomBackdrop from "../general/popups/CustomBackdrop";
 import {PrimaryButton} from "../general/buttons/PrimaryButton";
 import useColors from "@/hooks/useColors";
-import {useAppContext} from "@/contexts/AppCtx";
+import {useAppContext} from "@/contexts/AppContext";
 import FontText from "../general/FontText";
 
 export function NewGripModal({newGripRef}) {

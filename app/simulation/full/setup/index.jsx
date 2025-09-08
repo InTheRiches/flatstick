@@ -1,13 +1,14 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {ActivityIndicator, FlatList, Pressable, TextInput, View,} from "react-native";
 import {useNavigation} from "@react-navigation/native";
 import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import Svg, {Path} from "react-native-svg";
 import FontText from "../../../../components/general/FontText";
 import useColors from "../../../../hooks/useColors";
-import {NewFullRound} from "../../../../components/tabs/home/popups/NewFullRound";
+import {NewFullRound} from "../../../../components/simulations/full/popups/NewFullRound";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import {useFocusEffect} from "expo-router";
+import useUserLocation from "../../../../hooks/useUserLocation";
 
 const GOLF_API_KEY = "P3YWERWFDOPBUUV66UDLRJDTLY"; // Replace with your real key
 
@@ -30,12 +31,12 @@ async function searchGolfCourses(query, userLocation) {
         data.forEach(course => {
             const { club_name, ...rest } = course;
 
-            const distance = Math.round(haversine(
+            const distance = userLocation !== null ? Math.round(haversine(
                 userLocation.latitude,
                 userLocation.longitude,
                 course.location.latitude,
                 course.location.longitude
-            ) / 1000);
+            ) / 1000) : -1;
 
             if (!map.has(club_name)) {
                 map.set(club_name, {
@@ -101,11 +102,11 @@ export default function GolfCourseSearchScreen() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [location, setLocation] = useState(null);
     const colors = useColors();
     const newFullRoundRef = useRef(null);
     const navigation = useNavigation();
     const [club, setClub] = useState({});
+    const userLocation = useUserLocation();
 
     const setSearchQuery = (newQuery) => {
         if (query === newQuery) {
@@ -115,33 +116,13 @@ export default function GolfCourseSearchScreen() {
         setQuery(newQuery);
     }
 
-    // Request location
-    useEffect(() => {
-        (async () => {
-            // const {status} = await Location.requestForegroundPermissionsAsync();
-            // if (status !== "granted") {
-            //     Alert.alert("Permission denied", "Location permission is required.");
-            //     setLoading(false);
-            //     return;
-            // }
-            // 42.204390, -85.630628
-            //const userLoc = await Location.getCurrentPositionAsync({});
-            const userLoc = {
-                coords: {
-                    latitude: 42.204390,
-                    longitude: -85.630628
-                }
-            }
-            setLocation(userLoc.coords);
-        })();
-    }, []);
-
     useFocusEffect(
         useCallback(() => {
             const timeout = setTimeout(() => {
                 if (query.length > 2) {
                     setLoading(true);
-                    searchGolfCourses(query, location).then((data) => {
+                    console.log("Searching for:", query, "at location:", userLocation);
+                    searchGolfCourses(query, userLocation).then((data) => {
                         setResults(data.sort((a, b) => a.distance - b.distance));
                         setLoading(false);
                     });
@@ -151,7 +132,7 @@ export default function GolfCourseSearchScreen() {
             }, 200);
 
             return () => clearTimeout(timeout);
-        }, [query, location])
+        }, [query, userLocation])
     );
 
     return (
@@ -162,7 +143,7 @@ export default function GolfCourseSearchScreen() {
                         <Pressable onPress={() => {
                             navigation.goBack()
                         }} style={{padding: 4, paddingLeft: 0}}>
-                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                            <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                                  stroke={colors.text.primary} width={24} height={24}>
                                 <Path strokeLinecap="round" strokeLinejoin="round"
                                       d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
@@ -185,7 +166,6 @@ export default function GolfCourseSearchScreen() {
                             }}
                             placeholderTextColor={colors.text.secondary}
                             onChangeText={setSearchQuery}
-
                         />
                         {loading && (
                             <View style={{position: "absolute", right: 10, top: '50%', transform: [{translateY: -10}]}}>
@@ -203,6 +183,7 @@ export default function GolfCourseSearchScreen() {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({item, index}) => {
                             if (!item.club_name) return null; // skip if no club name
+
                             let clubName = item.club_name.replace(/\s*\(\d+\)$/, "").replace("G&Cc", "Golf and Country Club").replace("Gc", "Golf Club").replace("G.C.", "Golf Club").replace("Cc", "Country Club");
                             return (
                                 <Pressable key={"club-" + index} style={({pressed}) => [{
@@ -244,11 +225,11 @@ export default function GolfCourseSearchScreen() {
                                                 <FontText style={{
                                                     color: colors.text.secondary,
                                                     fontSize: 14
-                                                }}>{item.courses[0].location.city}, {item.courses[0].location.state}</FontText>
+                                                }}>{item.courses[0].location.city ? item.courses[0].location.city + ", " : ""}{item.courses[0].location.state}</FontText>
                                                 <FontText style={{
                                                     color: colors.text.secondary,
                                                     fontSize: 14
-                                                }}>{item.distance > 0 ? item.distance : "<1"}km</FontText>
+                                                }}>{item.distance > 0 ? item.distance : item.distance < 0 ? "?" : "<1"}km</FontText>
                                             </View>
                                         </View>
                                     </View>

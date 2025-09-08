@@ -1,12 +1,11 @@
 import {Platform, Pressable, TextInput, View} from "react-native";
 import {GreenBreakSelector} from "./GreenBreakSelector";
 import Svg, {Circle, Path} from "react-native-svg";
-import React, {useRef, useState} from "react";
+import React, {useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {PrimaryButton} from "../../general/buttons/PrimaryButton";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import FontText from "../../general/FontText";
-import {BottomSheetTextInput} from "@gorhom/bottom-sheet";
 
 const breaks = {
     45: "Left to Right",
@@ -273,7 +272,7 @@ const SlopeDots = ({slope}) => {
     );
 };
 
-export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvalid, distance, distanceInvalid}) {
+export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvalid, distance, distanceInvalid, showDistance = true}) {
     const colors = useColors();
     const colorScheme = "light";
     const {userData} = useAppContext();
@@ -391,8 +390,7 @@ export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvali
                             borderRadius: 16,
                             flex: 0
                         }} onPress={() => {
-                            if (distance === -1) validateDistance((99).toString());
-                            else if (distance === 1) validateDistance((99).toString());
+                            if (distance <= 1) validateDistance((99).toString());
                             else validateDistance((distance - 1).toString());
                         }}>
                             <Svg
@@ -429,7 +427,7 @@ export function FullGreenVisual({theta, setTheta, setDistance, setDistanceInvali
                                        placeholderTextColor={colors.text.secondary}
                                        textAlign='center'
                                        onChangeText={validateDistance}
-                                       value={distanceInput}
+                                       value={showDistance ? distanceInput : ""}
                                        keyboardType={Platform.OS === 'android' ? "numeric" : "number-pad"}/>
                             <View style={{
                                 borderLeftWidth: 1.5,

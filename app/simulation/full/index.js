@@ -1,18 +1,18 @@
-import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
+import {useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
 import useColors from "../../../hooks/useColors";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {BackHandler, Keyboard, Platform, Pressable, View} from "react-native";
+import {ActivityIndicator, BackHandler, Platform, Pressable, View} from "react-native";
 import FontText from "../../../components/general/FontText";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
-import Svg, {Circle, Line, Path, Rect} from "react-native-svg";
+import Svg, {Path, Rect} from "react-native-svg";
 import React, {useEffect, useRef, useState} from "react";
 import {ConfirmExit} from "../../../components/simulations/popups";
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
-import {useAppContext} from "../../../contexts/AppCtx";
+import {useAppContext} from "../../../contexts/AppContext";
 import ApproachAccuracyButton from "../../../components/simulations/full/ApproachAccuracyButton";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
-import {PuttTrackingModal} from "../../../components/simulations/full/popups/PuttTrackingModal";
+import {PuttTrackingModal} from "../../../components/simulations/full/popups/PuttTrackingModalV2";
 import {
     AdEventType,
     BannerAd,
@@ -24,33 +24,52 @@ import {
 import ScoreIncrementer from "../../../components/simulations/full/ScoreIncremeter";
 import NumberIncrementer from "../../../components/simulations/full/NumberIncrementer";
 import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPuttDataModal";
-import {calculateFullRoundStats, calculateStats} from "../../../utils/PuttUtils";
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
+import {newSession} from "../../../services/sessionService";
+import {SCHEMA_VERSION} from "../../../utils/constants";
+import {auth, firestore} from "../../../utils/firebase";
+import {
+    fetchCourseElements,
+    get3DEPElevationData,
+    getOSMIdByLatLon,
+    processCourseData
+} from "../../../utils/courses/courseFetching";
+import {doc, getDoc, setDoc} from "firebase/firestore";
+import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
+import {analyzeIndividualPutts, calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
+// TODO when a person marks a holed out putt, it forces putts = 1, but when a person puts putts=1, it doesnt force the hole to be holed out
+// TODO When a person marks that they holed out from off the green, it should also disable the distance field, as that is not needed
 export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
     const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
-    const {userData, newFullRound, grips, putters} = useAppContext();
+    const {userData, grips, putters} = useAppContext();
     const confirmExitRef = useRef(null);
     const puttTrackingRef = useRef(null);
     const noPuttDataModalRef = useRef(null);
     const scorecardRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
+
     const holes = parseInt(stringHoles);
     const course = JSON.parse(stringCourse);
     const frontNine = stringFront === "true";
 
     const [hole, setHole] = useState((holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
-    const [startTime, setStartTime] = useState(new Date().getTime());
+    const [startTime, setStartTime] = useState(new Date());
     const [holeStartTime, setHoleStartTime] = useState(new Date().getTime());
+
+    const [greens, setGreens] = useState({});
+    const [allBunkers, setAllBunkers] = useState([]);
+    const [holeBunkers, setHoleBunkers] = useState([]);
+    const [fairways, setFairways] = useState([]);
 
     const [holeScore, setHoleScore] = useState(tee.holes[hole-1].par);
     const [totalStrokes, setTotalStrokes] = useState(tee.holes[hole-1].par);
@@ -61,18 +80,9 @@ export default function FullRound() {
     const [approachAccuracy, setApproachAccuracy] = useState("green");
     const [fairwayAccuracy, setFairwayAccuracy] = useState("green");
     const [puttData, setPuttData] = useState({
-        theta: 999,
-        distance: -1,
-        distanceInvalid: true,
-        misHit: false,
-        misReadLine: false,
-        misReadSlope: false,
-        center: false,
-        point: {},
-        largeMiss: {
-            distance: -1,
-            dir: "",
-        }
+        pinLocation: null,
+        taps: [],
+        holedOut: false,
     });
     const [roundData, setRoundData] = useState([]);
 
@@ -150,30 +160,105 @@ export default function FullRound() {
         }
 
         setRoundData(initialRoundData);
-        //updateTotalScores(initialRoundData);
+
+        // load OSM course data
+        console.log("Starting fetch for course elements...");
+        console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
+        // check to see if it exists in our db first
+        getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
+            console.log(res);
+            if (!res || res.length === 0) {
+                console.error("No OSM course found at this location.");
+                alert("No course data found for this location. Please try again later or contact support.");
+                router.replace("/");
+                return;
+            }
+            const docRef = doc(firestore, "courses/" + res[0].id.toString());
+            getDoc(docRef).then((document) => {
+                if (!document.exists()) {
+                    console.log("Course not found in Firestore, fetching from OSM...");
+                    fetchCourseElements(res[0].id).then(async (newRes) => { //TODO will need to be fixed when implemented
+                        const {identifiedGreens, rawFairways, rawBunkers} = processCourseData(newRes);
+
+                        const processedGreens = [];
+
+                        for (const green of identifiedGreens) {
+                            const samples = await get3DEPElevationData(green.bbox);
+
+                            if (!samples.length) {
+                                console.warn("     No 3DEP samples returned.");
+                                continue;
+                            }
+
+                            const lidarObject = [];
+                            samples.forEach(s => {
+                                lidarObject.push({
+                                    location: {x: s.location.x, y: s.location.y},
+                                    value: parseFloat(s.value).toFixed(4)
+                                });
+                            });
+
+                            processedGreens.push({hole: green.hole, lidar: lidarObject, geojson: green.geojson});
+                        }
+                        // save to firestore for next time
+                        await setDoc(doc(firestore, `courses/${res[0].id}`), {
+                            name: course.course_name,
+                            osm_id: res[0].id,
+                            lastUpdated: Date.now(),
+                            greens: processedGreens,
+                            rawBunkers,
+                            rawFairways
+                        });
+
+                        setGreens(processedGreens);
+                        setFairways(rawFairways);
+                        setAllBunkers(rawBunkers);
+                        setHoleBunkers([]);
+                    }).catch((err) => {
+                        console.error("Error fetching course data from OSM:", err);
+                        alert("Failed to fetch course data. Please try again later or contact support.");
+                        router.replace("/");
+                    })
+                    return;
+                }
+                const data = document.data();
+                setGreens(data.greens);
+                setFairways(data.rawFairways);
+                setAllBunkers(data.rawBunkers);
+                setHoleBunkers([]);
+
+                recalculateHoleBunkers(data.greens, data.rawBunkers);
+            }).catch((err) => {
+                console.error("Error fetching course data from OSM:", err);
+                alert("Failed to fetch course data. Please try again later or contact support.");
+                router.replace("/");
+            });
+        })
     }, []);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                confirmExitRef.current.present();
+                console.log("still running")
+                return true;
+            };
+
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+            return () => subscription.remove(); // clean up when unfocused
+        }, [])
+    );
+
     useEffect(() => {
-        const onBackPress = () => {
-            confirmExitRef.current.present();
-
-            return true;
-        };
-
         const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
         });
 
         interstitial.load();
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
-
         return () => {
             unsubscribeLoaded();
-            backHandler.remove();
         }
     }, []);
 
@@ -197,8 +282,8 @@ export default function FullRound() {
     }
 
     const updateTotalScores = (data) => {
-        const totalScore = data.reduce((acc, hole) => acc + hole.score, 0);
-        const totalPar = data.reduce((acc, hole) => acc + hole.par, 0);
+        const totalScore = data.reduce((acc, hole) => acc + (hole.score === 0 ? 4 : hole.score), 0);
+        const totalPar = data.reduce((acc, hole) => acc + (hole.par === 0 ? 4 : hole.par), 0);
         const netScore = data.reduce((acc, hole, index) => {
             if (hole.puttData === undefined && hole !== index+1) return acc;
             return acc + hole.score;
@@ -219,16 +304,9 @@ export default function FullRound() {
 
         if (roundData[hole].putts !== undefined) {
             // load the hole
-            if (roundData[hole-2].puttData.distance === 0) {// holed out
+            if (roundData[hole].puttData.holedOut) {// holed out
                 setPutts(0);
                 setPuttsLocked(true);
-            }
-            else if (roundData[hole-2].puttData.center) {
-                setPutts(1);
-                setPuttsLocked(true);
-            } else {
-                setPutts(roundData[hole-2].putts);
-                setPuttsLocked(false);
             }
             setHoleScore(roundData[hole].score);
             setApproachAccuracy(roundData[hole].approachAccuracy);
@@ -248,24 +326,50 @@ export default function FullRound() {
             setPenalties(0);
             setHoleStartTime(new Date().getTime());
             setPuttData({
-                theta: 999,
-                distance: -1,
-                distanceInvalid: true,
-                misHit: false,
-                misReadLine: false,
-                misReadSlope: false,
-                center: false,
-                point: {},
-                largeMiss: {
-                    distance: -1,
-                    dir: "",
-                }
+                taps: [],
+                pinLocation: null,
+                holedOut: false,
             });
 
             puttTrackingRef.current.resetData();
         }
-
+        recalculateHoleBunkers(greens, allBunkers, hole+1);
         setHole(hole + 1);
+    }
+
+    const recalculateHoleBunkers = (newGreens = greens, newBunkers = allBunkers, holeNum = hole) => {
+        // *** NEW: Filter bunkers to find those close to the selected green ***
+        let selectedGreenPolygon = null;
+        for (const g of newGreens) {
+            if (g.hole === holeNum.toString()) {
+                console.log("Selected green for hole " + holeNum);
+                selectedGreenPolygon = g;
+                break;
+            }
+        }
+        if (!selectedGreenPolygon) {
+            setHoleBunkers([]); // No green, no bunkers
+            console.log("No green found for hole " + holeNum);
+            return;
+        }
+
+        const greenCenter = getPolygonCentroid(selectedGreenPolygon.geojson.coordinates);
+        // A threshold in degrees. 0.0004 degrees is roughly 45 meters.
+        // This is a good distance to find bunkers around a green.
+        const proximityThreshold = 0.0004;
+
+        const nearbyBunkers = newBunkers.filter(bunkerPolygon => {
+            //console.log("Bunker: " + JSON.stringify(bunkerPolygon));
+
+            const bunkerCenter = getPolygonCentroid(bunkerPolygon.coordinates);
+            // Using simple squared Euclidean distance for performance. It's accurate enough for small distances.
+            const distSq =
+                Math.pow(greenCenter.latitude - bunkerCenter.latitude, 2) +
+                Math.pow(greenCenter.longitude - bunkerCenter.longitude, 2);
+            return distSq < Math.pow(proximityThreshold, 2);
+        });
+
+        setHoleBunkers(nearbyBunkers);
     }
 
     const lastHole = () => {
@@ -280,19 +384,23 @@ export default function FullRound() {
         setPenalties(roundData[hole-2].penalties);
         setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
         setPuttData(roundData[hole-2].puttData);
-        if (roundData[hole-2].puttData.distance === 0) {// holed out
-            setPutts(0);
-            setPuttsLocked(true);
-        }
-        else if (roundData[hole-2].puttData.center) {
-            setPutts(1);
-            setPuttsLocked(true);
-        } else {
-            setPutts(roundData[hole-2].putts);
-            setPuttsLocked(false);
+
+        if (Object.keys(roundData[hole-2].puttData).length !== 0) {
+            if (roundData[hole-2].puttData.holedOut) {// holed out
+                setPutts(0);
+                setPuttsLocked(true);
+            }
+            // else if (roundData[hole-2].puttData.center) {
+            //     setPutts(1);
+            //     setPuttsLocked(true);
+            // } else {
+            //     setPutts(roundData[hole-2].putts);
+            //     setPuttsLocked(false);
+            // }
         }
         puttTrackingRef.current.setData(roundData[hole-2].puttData);
 
+        recalculateHoleBunkers(greens, allBunkers, hole - 1);
         setHole(hole - 1);
     }
 
@@ -307,16 +415,17 @@ export default function FullRound() {
 
         if (data?.putts !== undefined) {
             // Previously played hole
-            if (data.puttData?.distance === 0) {
+            if (data.puttData?.holedOut === 0) {
                 setPutts(0);
                 setPuttsLocked(true);
-            } else if (data.puttData?.center) {
-                setPutts(1);
-                setPuttsLocked(true);
-            } else {
-                setPutts(data.putts);
-                setPuttsLocked(false);
             }
+            // else if (data.puttData?.center) {
+            //     setPutts(1);
+            //     setPuttsLocked(true);
+            // } else {
+            //     setPutts(data.putts);
+            //     setPuttsLocked(false);
+            // }
 
             setHoleScore(data.score);
             setApproachAccuracy(data.approachAccuracy);
@@ -326,8 +435,6 @@ export default function FullRound() {
             setPuttData(data.puttData);
             puttTrackingRef.current.setData(data.puttData);
         } else {
-            console.log(tee.holes);
-            console.log(data.score, tee.holes[h-1].par);
             // New hole setup
             setHoleScore(tee.holes[h-1].par);
             setPutts(2);
@@ -337,18 +444,9 @@ export default function FullRound() {
             setPenalties(0);
             setHoleStartTime(new Date().getTime());
             const newPuttData = {
-                theta: 999,
-                distance: -1,
-                distanceInvalid: true,
-                misHit: false,
-                misReadLine: false,
-                misReadSlope: false,
-                center: false,
-                point: {},
-                largeMiss: {
-                    distance: -1,
-                    dir: "",
-                }
+                pinLocation: null,
+                taps: [],
+                holedOut: false,
             };
             setPuttData(newPuttData);
             puttTrackingRef.current.resetData();
@@ -369,6 +467,8 @@ export default function FullRound() {
         });
     };
 
+    // TODO improve the stats for full rounds, like approach accuracy
+    // TODO do we do all around strokes gained, along with putting strokes gained for this?
     const submit = () => {
         const timeElapsed = new Date().getTime() - holeStartTime;
 
@@ -384,56 +484,73 @@ export default function FullRound() {
             puttData
         };
 
-        const {totalPutts, avgMiss, madePercent, trimmedHoles, strokesGained, puttCounts, leftRightBias, shortPastBias, missData, totalDistance, percentShort, percentHigh} = calculateFullRoundStats(updatedRoundData, puttTrackingRef.current.getWidth(), puttTrackingRef.current.getHeight());
+        const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.approachAccuracy === undefined ? 0 : hole.score === 0 ? 4 : hole.score), 0);
+
+        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens, userData.preferences.units);
         const { name, par, rating, slope, yards } = tee;
-        const data = {
+        const detailedPutts = analyzeIndividualPutts(updatedRoundData, greens);
+
+        const scorecard = updatedRoundData.map((hole, index) => ({score: hole.puttData ? hole.score : -1, par: hole.par}));
+
+        const newData = {
             id: generatePushID(),
-            date: new Date().toISOString(),
-            tee: { name, par, rating, slope, yards, number_of_holes: holes },
-            type: "full-round",
-            units: userData.preferences.units,
-            courseID: course.id,
-            clubName: course.club_name,
-            courseName: course.course_name,
-            timestamp: startTime,
-            putter: putters[userData.preferences.selectedPutter].type,
-            grip: grips[userData.preferences.selectedGrip].type,
-            holes: trimmedHoles,
-            puttStats: {
-                totalPutts: totalPutts,
-                avgMiss: avgMiss,
-                strokesGained: roundTo(strokesGained, 1),
-                madePercent: madePercent,
-                puttCounts: puttCounts,
-                leftRightBias: leftRightBias,
-                shortPastBias: shortPastBias,
-                missData: missData,
-                totalDistance: totalDistance,
+            meta: {
+                schemaVersion: SCHEMA_VERSION,
+                type: "full",
+                date: startTime.toISOString(),
+                durationMs: new Date().getTime() - startTime.getTime(),
                 units: userData.preferences.units,
-                duration: new Date().getTime() - startTime,
-                percentShort: percentShort,
-                percentHigh: percentHigh,
+                synced: true, // TODO set this to false if not synced (if offline mode is ever added)
+                tee: { name, par, rating, slope, yards, number_of_holes: holes },
+                courseID: course.id,
+                clubName: course.club_name,
+                courseName: course.course_name,
+                frontNine: frontNine
             },
+            "player": {
+                "putter": putters[userData.preferences.selectedPutter].type,
+                "grip": grips[userData.preferences.selectedGrip].type
+            },
+            "stats": {
+                "holes": holes,
+                "holesPlayed": holesPlayed, // TODO this is holed putted, not just played, probably should rename or fix
+                "totalPutts": totalPutts,
+                "puttCounts": puttCounts,
+                "madePercent": madePercent,
+                "avgMiss": avgMissFeet,
+                "strokesGained": roundTo(strokesGained, 1),
+                "missData": missDistribution,
+                "leftRightBias": leftRightBiasInches, // TODO consider moving this stuff to a separate "tendencies" object
+                "shortPastBias": shortPastBiasInches,
+                "totalDistance": totalDistanceFeet,
+                "percentShort": percentShort,
+                "percentHigh": percentHigh,
+                birdies: 3,
+                eagles: 2,
+                pars: 1, // TODO fix this
+                score: totalScore,
+                shotPlacementData
+            },
+            holeHistory: detailedPutts,
+            scorecard,
         }
 
-        console.log("Submitting full round data:", JSON.stringify(data));
-
-        newFullRound(data).then(() => {
+        newSession(auth.currentUser.uid, newData).then(() => {
             // router.push({
-            //     pathname: `/sessions/individual`,
+            //     pathname: `/sessions/individual/full`,
             //     params: {
-            //         jsonSession: JSON.stringify(data),
+            //         jsonSession: JSON.stringify(newData),
             //         recap: "true"
             //     }
             // });
-            router.push({
-                pathname: `/`
-            });
+        }).catch(error => {
+            console.error("Error saving session:", error);
+            alert("Failed to save session. Please try again later.");
         });
     };
 
     const fullReset = () => {
-        router.replace("/");
+        router.replace("/(tabs)/practice");
     };
 
     const updatePuttData = (data) => {
@@ -457,6 +574,22 @@ export default function FullRound() {
 
     return (
         <>
+            {(Object.keys(greens).length === 0 && allBunkers.length === 0) ? (
+                <View style={{
+                    width: "100%",
+                    height: "100%",
+                    flexDirection: "flow",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "absolute",
+                    zIndex: 100,
+                    backgroundColor: colors.background.primary,
+                    opacity: 0.9
+                }}>
+                    <ActivityIndicator size="large"/>
+                    <FontText style={{fontSize: 20, fontWeight: 600, marginBottom: 16, color: colors.text.primary}}>Loading course data...</FontText>
+                </View>
+            ) : null}
             <ScreenWrapper style={{
                 width: "100%",
                 flex: 1,
@@ -472,11 +605,11 @@ export default function FullRound() {
                             <FontText style={{fontSize: 18, fontWeight: 700, marginTop: 6}}>{hole === 1 ? "ST" : hole === 2 ? "ND" : hole === 3 ? "RD" : "TH"}</FontText>
                         </View>
                         <View style={{flexDirection: "row", gap: 10, alignItems: "center"}}>
-                            <FontText style={{fontSize: 16}}>Par {tee.holes[hole-1].par}</FontText>
+                            <FontText style={{fontSize: 16}}>Par {tee.holes[hole-1].par === 0 ? "?" : tee.holes[hole-1].par}</FontText>
                             <View style={{width: 4, height: 4, borderRadius: "50%", backgroundColor: "black"}}></View>
-                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].yardage} yds</FontText>
+                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].yardage === 0 ? "?" : tee.holes[hole-1].yardage} yds</FontText>
                             <View style={{width: 4, height: 4, borderRadius: "50%", backgroundColor: "black"}}></View>
-                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].handicap}</FontText>
+                            <FontText style={{fontSize: 16}}>{tee.holes[hole-1].handicap === 0 ? "?" : tee.holes[hole-1].handicap}</FontText>
                         </View>
                         <Pressable onPress={() => confirmExitRef.current.present()}>
                             <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -499,7 +632,7 @@ export default function FullRound() {
                     </View>
                     <View style={{backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 16, width: "100%", paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                         <View>
-                            <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.firstName} {userData.lastName === "Unknown" ? "" : userData.lastName}</FontText>
+                            <FontText style={{fontSize: 18, fontWeight: 600}}>{userData.displayName}</FontText>
                             <FontText style={{fontSize: 15, color: colors.text.secondary, fontWeight: 500}}>Net score: {netScore}</FontText>
                         </View>
                         <View style={{backgroundColor: colors.button.secondary.background, width: 48, height: 48, borderRadius: 32, justifyContent: "center", alignItems: "center"}}>
@@ -511,10 +644,12 @@ export default function FullRound() {
                             <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, textAlign: "center"}}>Tee Shot</FontText>
                             <ApproachAccuracyButton activeButton={fairwayAccuracy} colors={colors} onPress={(type) => setFairwayAccuracy(type)}/>
                         </View>
-                        <View style={{flex: 1}}>
-                            <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, textAlign: "center"}}>Approach Shot</FontText>
-                            <ApproachAccuracyButton activeButton={approachAccuracy} colors={colors} onPress={(type) => setApproachAccuracy(type)}/>
-                        </View>
+                        { tee.holes[hole-1].par > 3 && (
+                            <View style={{flex: 1}}>
+                                <FontText style={{fontSize: 18, fontWeight: 500, marginTop: 12, textAlign: "center"}}>Approach Shot</FontText>
+                                <ApproachAccuracyButton activeButton={approachAccuracy} colors={colors} onPress={(type) => setApproachAccuracy(type)}/>
+                            </View>
+                        )}
                     </View>
                     <View style={{flexDirection: "row", gap: 32, marginTop: -10}}>
                         <ScoreIncrementer adjustScore={adjustScore} holeScore={holeScore} hole={hole} tee={tee}></ScoreIncrementer>
@@ -565,19 +700,8 @@ export default function FullRound() {
                                    title={hole === holes ? "Submit" : "Next"}
                                    disabled={false}
                                    onPress={() => {
-                                       // if (puttData.distance === -1) {
-                                       //     noPuttDataModalRef.current.present();
-                                       // } else if (Object.keys(puttData.point).length < 1 && !puttData.center) {
-                                       //     if (puttData.largeMiss && puttData.largeMiss.distance !== 0) {
-                                       //         nextHole();
-                                       //     } else {
-                                        //         noPuttDataModalRef.current.present();
-                                        //     }
-                                        // } else {
-                                        //     nextHole();
-                                        // }
-                                        if (puttData.distance === -1 ||
-                                            (Object.keys(puttData.point).length < 1 && puttData.distance !== 0 && !puttData.center && puttData.largeMiss.distance === -1)) {
+                                        if ((puttData.taps.length === 0 || puttData.pinLocation === null) && !puttData.holedOut) {
+                                            // TODO this says next hole even when the last (should say "submit")
                                             noPuttDataModalRef.current.present();
                                         } else {
                                             nextHole();
@@ -585,9 +709,15 @@ export default function FullRound() {
                                     }}></PrimaryButton>
                 </View>
             </ScreenWrapper>
-            <NoPuttDataModal nextHole={nextHole} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
-            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => submit()} end={fullReset}></ConfirmExit>
-            <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData}/>
+            <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
+            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
+                try {
+                    submit();
+                } catch(e) {
+                    console.error("Error submitting partial round: " + e);
+                }
+            }} end={fullReset}></ConfirmExit>
+            <PuttTrackingModal puttTrackingRef={puttTrackingRef} updatePuttData={updatePuttData} greens={greens} bunkers={holeBunkers} fairways={fairways} hole={hole}/>
             <ScorecardModal setHoleNumber={setHoleNumber} roundData={roundData} front={frontNine} scorecardRef={scorecardRef}/>
         </>
     )

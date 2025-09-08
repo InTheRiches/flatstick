@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {Dimensions, Image, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";
@@ -45,8 +45,6 @@ export function GreenBreakSelector({theta, setTheta}) {
     const pan = Gesture.Pan().onUpdate((event) => {
         let x = event.absoluteX;
         let y = event.absoluteY;
-
-        console.log(`x: ${x}, y: ${y}, imageAbsoluteX: ${imageAbsoluteX}, imageAbsoluteY: ${imageAbsoluteY}`);
 
         const newVal = normalizeRad(
             canvas2Polar({x, y}, {x: imageAbsoluteX + (width / 2), y: imageAbsoluteY + (height / 2)}).theta

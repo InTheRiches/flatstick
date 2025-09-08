@@ -1,257 +1,144 @@
-import useColors from "../../../hooks/useColors";
-import {useLocalSearchParams, useNavigation} from "expo-router";
-import {BackHandler, Platform, Pressable, ScrollView, View} from "react-native";
 import React, {useEffect, useRef, useState} from "react";
-import {roundTo} from "../../../utils/roundTo";
-import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
-import Svg, {Path} from "react-native-svg";
-import {useAppContext} from "../../../contexts/AppCtx";
-import {LeftRightBias, ShortPastBias} from "../../../components/sessions/individual";
-import {MissDistributionDiagram} from "../../../components/simulations/recap";
-import Loading from "../../../components/general/popups/Loading";
-import {getBestSession} from "../../../utils/sessions/best";
-import {convertUnits} from "../../../utils/Conversions";
+import {BackHandler, Platform, ScrollView, View} from "react-native";
+import {useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
+import {getBestSession} from "../../../utils/sessions/best";
+import Loading from "../../../components/general/popups/Loading";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import ShareSession from "../../../components/sessions/individual/ShareSession";
-import {ConfirmDelete} from "../../../components/sessions/individual/ConfirmDelete";
-import FontText from "../../../components/general/FontText";
-import InfoModal from "../../../components/sessions/individual/InfoModal";
+import StrokesGainedSection from "../../../components/sessions/individual/new/StrokesGainedSection";
+import PerformanceSection from "../../../components/sessions/individual/new/PerformanceSection";
+import DistributionSection from "../../../components/sessions/individual/new/DistributionSection";
+import BiasSection from "../../../components/sessions/individual/new/BiasSection";
+import ActionButtons from "../../../components/sessions/individual/new/ActionButtons";
+import Modals from "../../../components/sessions/individual/new/Modals";
+import IndividualHeader from "../../../components/sessions/individual/new/IndividualHeader";
+import {adaptOldSession} from "../../../services/userService";
+import {useAppContext} from "../../../contexts/AppContext";
+import {doc, getDoc} from "firebase/firestore";
+import {auth, firestore} from "../../../utils/firebase";
 
-const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/8364755969";
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
+    ? "ca-app-pub-2701716227191721/6686596809"
+    : "ca-app-pub-2701716227191721/8364755969";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-export default function IndividualSession({}) {
-    const colors = useColors();
+// adjust the distances for the distribution. I think 0.5 meters is not big enough. Maybe jump to 1?
+// add the difficulty or mode to the info modal for simulations
+// TODO not showing best session anymore, need to fix that (its set to false in the component below)
+// TODO show if you earned an achievement here
+export default function IndividualSession() {
     const navigation = useNavigation();
-    const {deleteSession, userData, putters, grips} = useAppContext();
+    const { jsonSession, recap, userId, sessionId } = useLocalSearchParams();
+    const {userData} = useAppContext();
 
-    const {jsonSession, recap} = useLocalSearchParams();
-    const session = JSON.parse(jsonSession);
+    const [session, setSession] = useState(jsonSession ? JSON.parse(jsonSession) : null);
+    const [loading, setLoading] = useState(!jsonSession);
+    const [bestSession, setBestSession] = useState({ strokesGained: "~" });
+
+    // Fetch session if we don't already have it
+    useEffect(() => {
+        const fetchSession = async () => {
+            if (session) return; // already have it from jsonSession
+            if (!sessionId) {
+                console.error("Missing sessionId to fetch session");
+                return;
+            }
+
+            const usableUserId = userId === undefined ? auth.currentUser.uid : userId;
+
+            try {
+                const docRef = doc(firestore, `users/${usableUserId}/sessions`, sessionId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    let data = docSnap.data();
+                    if (!data.schemaVersion || data.schemaVersion < 2) {
+                        data = adaptOldSession(data);
+                    }
+                    setSession({ id: docSnap.id, ...data });
+                } else {
+                    console.warn("Session not found:", sessionId);
+                }
+            } catch (error) {
+                console.error("Error fetching session:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSession();
+    }, [sessionId, userId]);
+
     const isRecap = recap === "true";
 
     const shareSessionRef = useRef();
     const confirmDeleteRef = useRef();
     const infoModalRef = useRef();
 
-    useEffect(() => {
-        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-            if (isRecap) {
-                interstitial.show();
-            }
-        });
+    useFocusEffect(
+        React.useCallback(() => {
+            const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+                if (isRecap) interstitial.show();
+            });
 
-        if (isRecap) {
-            // Start loading the interstitial straight away
-            interstitial.load();
-        }
+            if (isRecap) interstitial.load();
 
-        const onBackPress = () => {
-            if (!isRecap) navigation.goBack();
-            return true;
-        };
+            const onBackPress = () => {
+                if (!isRecap) navigation.goBack();
+                return true;
+            };
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            onBackPress
-        );
+            const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
 
-        // Unsubscribe from events on unmount
-        return () => {
-            unsubscribeLoaded();
-            backHandler.remove();
-        };
-    }, []);
-
-    const [loading, setLoading] = useState(false);
-    const [bestSession, setBestSession] = useState({strokesGained: "~"});
+            return () => {
+                subscription.remove();
+                unsubscribeLoaded();
+            } // clean up when unfocused
+        }, [navigation])
+    );
 
     useEffect(() => {
-        getBestSession().then((session) => {
-            setBestSession(session);
-        });
+        // TODO make this not just get the user's best session, but the best session of whoever the session belongs to (or just remove this for sessions that arent the user's)
+        getBestSession().then(setBestSession);
     }, []);
 
-    const formatTimestamp = () => {
-        const date = new Date(session.startedAtTimestamp);
-        const options = { month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true };
-        return date.toLocaleString('en-US', options);
-    };
+    if (loading || !session || !userData) return <Loading />;
 
-    const numOfHoles = session.filteredHoles ? session.filteredHoles : session.holes;
+    const numOfHoles = session.stats.holesPlayed;
 
-    return loading ? <Loading></Loading> : (
+    return loading ? <Loading /> : (
         <>
-            <ScreenWrapper style={{paddingHorizontal: 20, justifyContent: "space-between"}}>
+            <ScreenWrapper style={{ paddingHorizontal: 20, justifyContent: "space-between" }}>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{marginBottom: 86}}>
-                        <View style={{marginRight: 12, justifyContent: "space-between", flexDirection: "row", alignItems: "center"}}>
-                            <View>
-                                <Pressable onPress={() => {
-                                    if (isRecap) {
-                                        navigation.navigate("(tabs)");
-                                    } else {
-                                        navigation.goBack();
-                                    }
-                                }} style={{position: "absolute", left: 0, top: 0, marginTop: -10, marginLeft: -10, padding: 10}}>
-                                    <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
-                                         stroke={colors.text.primary} width={24} height={24}>
-                                        <Path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/>
-                                    </Svg>
-                                </Pressable>
-                                <FontText style={{marginLeft: 32, fontSize: 20, textAlign: "left", color: colors.text.primary, fontWeight: 800, flex: 1}}>{session.type === "round-simulation" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}</FontText>
-                                <FontText style={{marginLeft: 32, color: colors.text.secondary, fontSize: 16, fontWeight: 600, textAlign: "left"}}>{formatTimestamp()}</FontText>
-                            </View>
-                            <Pressable onPress={() => infoModalRef.current.present()} style={({pressed}) => [{
-                                width: 40,
-                                height: 40,
-                                borderRadius: 20,
-                                justifyContent: "center",
-                                alignItems: "center",
-                                opacity: pressed ? 0.7 : 1
-                            }]}>
-                                <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth={1.5} stroke="currentColor" width={40} height={40}>
-                                    <Path strokeLinecap="round" strokeLinejoin="round"
-                                          d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
-                                </Svg>
-                            </Pressable>
+                    <View style={{ marginBottom: 86 }}>
+                        <IndividualHeader session={session} isRecap={isRecap} infoModalRef={infoModalRef} />
+                        <View style={{flexDirection: "row"}}>
+                            <StrokesGainedSection session={session} bestSession={bestSession} showBest={userId === undefined}/>
+                            <PerformanceSection session={session} numOfHoles={numOfHoles} preferences={userData.preferences} />
                         </View>
 
-                        <View style={{flexDirection: "row", gap: 24, marginTop: 20}}>
-                            <View style={{alignItems: "center", flex: 0.55}}>
-                                <FontText style={{
-                                    color: colors.text.secondary,
-                                    fontSize: 13,
-                                    fontWeight: 700,
-                                    opacity: 0.8,
-                                    textAlign: "center"
-                                }}>STROKES GAINED</FontText>
-                                <FontText style={{color: colors.text.primary, fontSize: session.strokesGained < -10 ? 40 : 48, fontWeight: 600, textAlign: "center"}}>{session.strokesGained > 0 ? "+" : ""}{session.strokesGained}</FontText>
-                                <FontText style={{color: colors.text.secondary, opacity: 0.8, fontSize: 13, fontWeight: 700, textAlign: "center"}}>(BEST: {bestSession.totalPutts && bestSession.strokesGained > 0 ? "+" : ""}{bestSession.strokesGained})</FontText>
-                            </View>
-                            <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, flex: 1}}>
-                                <View style={{
-                                    paddingHorizontal: 12,
-                                    borderBottomWidth: 1,
-                                    borderColor: colors.border.default,
-                                    paddingBottom: 6,
-                                    flexDirection: "row",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}>
-                                    <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.primary, fontWeight: 800, flex: 1}}>PERFORMANCE</FontText>
-                                </View>
-                                <View style={{flexDirection: "row"}}>
-                                    <View style={{
-                                        flexDirection: "column",
-                                        flex: 1,
-                                        borderRightWidth: 1,
-                                        borderColor: colors.border.default,
-                                        paddingBottom: 6,
-                                        paddingTop: 6,
-                                        paddingLeft: 12,
-                                    }}>
-                                        <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>1 PUTTS</FontText>
-                                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                            <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[0]}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[0]/numOfHoles) * 100, 0)}%)</FontText>
-                                        </View>
-                                    </View>
-                                    <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
-                                        <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>3+ PUTTS</FontText>
-                                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8}}>
-                                            <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.puttCounts[2]}</FontText>
-                                            <FontText style={{color: colors.text.secondary, fontWeight: 400, fontSize: 14}}>({roundTo((session.puttCounts[2]/numOfHoles) * 100, 0)}%)</FontText>
-                                        </View>
-                                    </View>
-                                </View>
-                                <View style={{flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default}}>
-                                    <View style={{
-                                        flexDirection: "column",
-                                        flex: 1,
-                                        borderRightWidth: 1,
-                                        borderColor: colors.border.default,
-                                        paddingBottom: 6,
-                                        paddingTop: 6,
-                                        paddingLeft: 12,
-                                    }}>
-                                        <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>TOTAL PUTTS</FontText>
-                                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.totalPutts}</FontText>
-                                    </View>
-                                    <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingTop: 6, paddingLeft: 12}}>
-                                        <FontText style={{fontSize: 12, textAlign: "left", color: colors.text.secondary, opacity: 0.8, fontWeight: 700}}>AVG. MISS</FontText>
-                                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{convertUnits(session.avgMiss, session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                        <FontText style={{fontSize: 18, fontWeight: 600, color: colors.text.primary, marginTop: 8, marginBottom: 8}}>1st Putt Distribution</FontText>
-                        <MissDistributionDiagram missData={session.missData} holes={session.filteredHoles ? session.filteredHoles : session.holes} alone={true} units={userData.preferences.units}></MissDistributionDiagram>
-                        <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, flex: 1, flexDirection: 'row', marginTop: 20}}>
-                            <View style={{
-                                flexDirection: "column",
-                                flex: 1,
-                                borderRightWidth: 1,
-                                borderColor: colors.border.default,
-                                paddingBottom: 6,
-                                paddingLeft: 12,
-                                paddingTop: 8
-                            }}>
-                                <FontText style={{fontSize: 12, textAlign: "left", opacity: 0.8, fontWeight: 700, color: colors.text.secondary}}>PERCENT HIGH-SIDE</FontText>
-                                <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentHigh !== undefined ? roundTo(session.percentHigh*100, 0) + "%" : "N/A"}</FontText>
-                            </View>
-                            <View style={{flexDirection: "column", flex: 1, paddingBottom: 6, paddingLeft: 12, paddingTop: 8}}>
-                                <FontText style={{fontSize: 12, textAlign: "left", opacity: 0.8, fontWeight: 700, color: colors.text.secondary}}>PERCENT LONG</FontText>
-                                <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{session.percentShort !== undefined ? roundTo((1-session.percentShort)*100, 0) + "%" : "N/A"}</FontText>
-                            </View>
-                        </View>
-                        <View style={{marginTop: 20}}>
-                            <LeftRightBias bias={session.leftRightBias} units={session.units}></LeftRightBias>
-                            <ShortPastBias bias={session.shortPastBias} units={session.units}></ShortPastBias>
-                        </View>
+                        <DistributionSection session={session} numOfHoles={numOfHoles} preferences={userData.preferences} />
+                        <BiasSection session={session} />
                     </View>
                 </ScrollView>
-                <View style={{position: "absolute", bottom: 0, width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginLeft: 24, gap: 12, marginBottom: 24}}>
-                    <SecondaryButton onPress={() => {
-                        shareSessionRef.current.present();
-                    }} style={{aspectRatio: 1, height: 42, paddingBottom: 2, borderRadius: 50, justifyContent: "center", alignItems: "center"}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                             stroke={colors.button.secondary.text} width={26} height={26}>
-                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                  d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"/>
-                        </Svg>
-                    </SecondaryButton>
-                    <SecondaryButton onPress={() => {
-                        if (isRecap) {
-                            navigation.navigate("(tabs)");
-                        } else navigation.goBack();
-                    }} title={isRecap ? "Continue" : "Back"}
-                                     style={{paddingVertical: 10, borderRadius: 10, flex: 1}}></SecondaryButton>
-                    <SecondaryButton onPress={() => {
-                        confirmDeleteRef.current.present();
-                    }} style={{aspectRatio: 1, height: 42, borderRadius: 50}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                             stroke={colors.button.secondary.text} width={24} height={24}>
-                            <Path strokeLinecap="round" strokeLinejoin="round"
-                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                        </Svg>
-                    </SecondaryButton>
-                </View>
+                <ActionButtons
+                    session={session}
+                    isSelf={userId === undefined}
+                    isRecap={isRecap}
+                    setLoading={setLoading}
+                    navigation={navigation}
+                    shareSessionRef={shareSessionRef}
+                    confirmDeleteRef={confirmDeleteRef}
+                />
             </ScreenWrapper>
-            <ShareSession shareSessionRef={shareSessionRef} session={session}></ShareSession>
-            <ConfirmDelete confirmDeleteRef={confirmDeleteRef} cancel={() => confirmDeleteRef.current.dismiss()} onDelete={() => {
-                setLoading(true);
-                deleteSession(session.id).then(() => {
-                    if (isRecap) {
-                        navigation.navigate("(tabs)");
-                    } else {
-                        navigation.goBack();
-                    }
-                });
-            }}></ConfirmDelete>
-            <InfoModal infoModalRef={infoModalRef} putter={putters.find((putter) => putter.type === session.putter)} grip={grips.find((grip) => grip.type === session.grip)}></InfoModal>
+            <Modals
+                session={session}
+                shareSessionRef={shareSessionRef}
+                confirmDeleteRef={confirmDeleteRef}
+                infoModalRef={infoModalRef}
+                isRecap={isRecap}
+                navigation={navigation}
+            />
         </>
-    )
+    );
 }

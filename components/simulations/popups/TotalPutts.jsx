@@ -1,10 +1,11 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useState} from "react";
 import {Text, TextInput, View} from "react-native";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import Svg, {Path} from "react-native-svg";
+import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 
 export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHole}) {
     const colors = useColors();
@@ -74,7 +75,7 @@ export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHo
                             }}>
                             Total putts to complete hole:
                         </Text>
-                        <View style={{flexDirection: "row", gap: 12, alignItems: "center"}}>
+                        <View style={{flexDirection: "row", gap: 8, alignItems: "center"}}>
                             <PrimaryButton style={{
                                 aspectRatio: 1,
                                 paddingHorizontal: 4,
@@ -155,15 +156,14 @@ export function TotalPutts({totalPuttsRef, currentPutts, setCurrentPutts, nextHo
                             </PrimaryButton>
                         </View>
                     </View>
-                    <PrimaryButton
-                        title={"Next Hole"}
-                        disabled={invalid}
-                        onPress={() => {
+                    <View style={{width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
+                        <SecondaryButton onPress={() => {
                             if (invalid) return;
                             nextHole(parseInt(currentPutts));
                             totalPuttsRef.current?.dismiss();
-                        }}
-                    ></PrimaryButton>
+                        }} title={"Next Hole"}
+                                         style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
+                    </View>
                 </View>
             </BottomSheetView>
         </BottomSheetModal>
