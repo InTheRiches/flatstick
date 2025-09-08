@@ -1,5 +1,7 @@
+import {BREAK_MAP, FEET_PER_METER, METERS_PER_DEGREE, STAT_BREAKS, STAT_SLOPES} from "../../constants/Constants";
+import {categorizeDistance} from "../stats/statsHelpers";
+import {calculateBaselineStrokesGained} from "../StrokesGainedUtils";
 
-export const METERS_PER_DEGREE = 111320; // Approximate conversion for latitude
 /**
  * Performs bilinear interpolation on a regularly spaced, but potentially non-square, grid of points.
  * @param {number} x The x-coordinate of the point to interpolate.
@@ -77,7 +79,7 @@ export function getElevationBilinear(x, y, grid) {
  * @param {number} h_meters - The step distance for finite difference, in meters.
  * @returns {{dx: number, dy: number}} The gradient as a unitless slope (m/m).
  */
-export function getGradient(x, y, grid, h_meters = 0.01) { // Use a small step, e.g., 1 cm
+export function getPuttGradient(x, y, grid, h_meters = 0.01) { // Use a small step, e.g., 1 cm
     const lat_rad = y * (Math.PI / 180);
 
     // Convert step from meters to degrees for both longitude and latitude
@@ -106,7 +108,7 @@ export function getGradient(x, y, grid, h_meters = 0.01) { // Use a small step, 
  * @param {{latitude: number, longitude: number}} loc2 - The second location.
  * @returns {{meters: number, feet: number}} The distance.
  */
-function getDistance(loc1, loc2) {
+export function getDistance(loc1, loc2) {
     if (!loc1 || !loc2) return { meters: 0, feet: 0 };
     const dx_deg = loc2.longitude - loc1.longitude;
     const dy_deg = loc2.latitude - loc1.latitude;
@@ -116,7 +118,7 @@ function getDistance(loc1, loc2) {
     const dy_m = dy_deg * METERS_PER_DEGREE;
 
     const meters = Math.sqrt(dx_m ** 2 + dy_m ** 2);
-    const feet = meters * 3.28084;
+    const feet = meters * FEET_PER_METER;
     return { meters, feet };
 }
 
@@ -126,7 +128,7 @@ function getDistance(loc1, loc2) {
  * @param {number} distanceFeet - The distance of the putt in feet.
  * @returns {number} The expected number of putts.
  */
-function getExpectedPutts(distanceFeet) {
+export function getExpectedPutts(distanceFeet) {
     // Data points from PGA tour stats
     const pgaData = [
         { dist: 0, putts: 1.0 },
@@ -333,7 +335,7 @@ export function calculateGPSRoundStats(roundData, greens, units) {
                     x: (startLoc.longitude + pinLocation.longitude) / 2,
                     y: (startLoc.latitude + pinLocation.latitude) / 2
                 };
-                const grad = getGradient(mid.x, mid.y, lidarGrid);
+                const grad = getPuttGradient(mid.x, mid.y, lidarGrid);
                 const puttDir = { x: lineVec.x, y: lineVec.y }; // Use degree vector, magnitude cancels out
                 const sideSlope = grad.dx * -puttDir.y + grad.dy * puttDir.x; // Positive = breaks left
 
@@ -421,17 +423,6 @@ export function calculateGPSRoundStats(roundData, greens, units) {
  */
 export function analyzeIndividualPutts(roundData, greens, units) {
     const detailedPutts = [];
-    //const breakMap = { t: [0, 1], tr: [1, 1], r: [1, 0], br: [1, -1], b: [0, -1], bl: [-1, -1], l: [-1, 0], tl: [-1, 1] };
-    const breakMap = {
-        r: [0, 1],   // Left to Right + Neutral
-        tr: [0, 0],  // Left to Right + Downhill
-        t: [2, 0],   // Straight + Downhill
-        tl: [1, 0],  // Right to Left + Downhill
-        l: [1, 1],   // Right to Left + Neutral
-        bl: [1, 2],  // Right to Left + Uphill
-        b: [2, 2],   // Straight + Uphill
-        br: [0, 2],  // Left to Right + Uphill
-    };
 
     roundData.forEach((hole, index) => {
         if (!hole.puttData) {
@@ -483,26 +474,26 @@ export function analyzeIndividualPutts(roundData, greens, units) {
                 const metersPerLonDegree = METERS_PER_DEGREE * Math.cos(latRad);
 
                 // Rotated X is now the short/long axis, Y is the left/right axis
-                missXDistance = (-rotatedX * metersPerLonDegree) * (units === 0 ? 3.28084 : 1); // Long(+)/Short(-) in feet
-                missYDistance = (rotatedY * METERS_PER_DEGREE) * (units === 0 ? 3.28084 : 1);   // Left(+)/Right(-) in feet
+                missXDistance = (-rotatedX * metersPerLonDegree) * (units === 0 ? FEET_PER_METER : 1); // Long(+)/Short(-) in feet
+                missYDistance = (rotatedY * METERS_PER_DEGREE) * (units === 0 ? FEET_PER_METER : 1);   // Left(+)/Right(-) in feet
             }
 
             // --- Calculate Break Direction ---
             const midPoint = { x: (startLoc.longitude + pinLocation.longitude) / 2, y: (startLoc.latitude + pinLocation.latitude) / 2 };
-            const grad = getGradient(midPoint.x, midPoint.y, lidarGrid);
+            const grad = getPuttGradient(midPoint.x, midPoint.y, lidarGrid);
             const breakVec = { dx: -grad.dx, dy: -grad.dy }; // Gravity pulls downhill, opposite to gradient
 
             let breakDirection = [0,0];
             if (breakVec.dx !== 0 || breakVec.dy !== 0) {
                 const breakAngle = Math.atan2(breakVec.dy, breakVec.dx) * (180 / Math.PI); // Angle in degrees
-                if (breakAngle >= -22.5 && breakAngle < 22.5) breakDirection = breakMap.r;
-                else if (breakAngle >= 22.5 && breakAngle < 67.5) breakDirection = breakMap.tr;
-                else if (breakAngle >= 67.5 && breakAngle < 112.5) breakDirection = breakMap.t;
-                else if (breakAngle >= 112.5 && breakAngle < 157.5) breakDirection = breakMap.tl;
-                else if (breakAngle >= 157.5 || breakAngle < -157.5) breakDirection = breakMap.l;
-                else if (breakAngle >= -157.5 && breakAngle < -112.5) breakDirection = breakMap.bl;
-                else if (breakAngle >= -112.5 && breakAngle < -67.5) breakDirection = breakMap.b;
-                else if (breakAngle >= -67.5 && breakAngle < -22.5) breakDirection = breakMap.br;
+                if (breakAngle >= -22.5 && breakAngle < 22.5) breakDirection = BREAK_MAP.r;
+                else if (breakAngle >= 22.5 && breakAngle < 67.5) breakDirection = BREAK_MAP.tr;
+                else if (breakAngle >= 67.5 && breakAngle < 112.5) breakDirection = BREAK_MAP.t;
+                else if (breakAngle >= 112.5 && breakAngle < 157.5) breakDirection = BREAK_MAP.tl;
+                else if (breakAngle >= 157.5 || breakAngle < -157.5) breakDirection = BREAK_MAP.l;
+                else if (breakAngle >= -157.5 && breakAngle < -112.5) breakDirection = BREAK_MAP.bl;
+                else if (breakAngle >= -112.5 && breakAngle < -67.5) breakDirection = BREAK_MAP.b;
+                else if (breakAngle >= -67.5 && breakAngle < -22.5) breakDirection = BREAK_MAP.br;
             }
 
             detailedPuttsForHole.push({
@@ -527,4 +518,130 @@ export function analyzeIndividualPutts(roundData, greens, units) {
     });
 
     return detailedPutts;
+}
+
+
+export const updateStatsForPutt = (stats, hole, putt, puttIndex, pin, lidar) => {
+    const {latitude, longitude, misReadLine, misReadSlope} = putt;
+
+    const isMadePutt = (puttIndex === hole.taps.length - 1);
+    const endLoc = isMadePutt ? pin : hole.taps[puttIndex + 1];
+
+    const flatDistance = getDistance({latitude, longitude}, pin);
+    const category = categorizeDistance(flatDistance.feet, 0); // feet always for categorization
+    const distanceIndex = category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3;
+
+    const midPoint = { x: (longitude + pin.longitude) / 2, y: (latitude + pin.latitude) / 2 };
+    const grad = getPuttGradient(midPoint.x, midPoint.y, lidar);
+    const breakVec = { dx: -grad.dx, dy: -grad.dy }; // Gravity pulls downhill, opposite to gradient
+
+    let breakDirection = [0,0];
+    if (breakVec.dx !== 0 || breakVec.dy !== 0) {
+        const breakAngle = Math.atan2(breakVec.dy, breakVec.dx) * (180 / Math.PI); // Angle in degrees
+        if (breakAngle >= -22.5 && breakAngle < 22.5) breakDirection = BREAK_MAP.r;
+        else if (breakAngle >= 22.5 && breakAngle < 67.5) breakDirection = BREAK_MAP.tr;
+        else if (breakAngle >= 67.5 && breakAngle < 112.5) breakDirection = BREAK_MAP.t;
+        else if (breakAngle >= 112.5 && breakAngle < 157.5) breakDirection = BREAK_MAP.tl;
+        else if (breakAngle >= 157.5 || breakAngle < -157.5) breakDirection = BREAK_MAP.l;
+        else if (breakAngle >= -157.5 && breakAngle < -112.5) breakDirection = BREAK_MAP.bl;
+        else if (breakAngle >= -112.5 && breakAngle < -67.5) breakDirection = BREAK_MAP.b;
+        else if (breakAngle >= -67.5 && breakAngle < -22.5) breakDirection = BREAK_MAP.br;
+    }
+
+    let missXDistance = 0;
+    let missYDistance = 0;
+    let distanceMissed = 0;
+
+    // if it is the last putt, we want to add it to the made putt stats
+    if (isMadePutt) {
+        stats.madePutts.slopes[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][0]++;
+        stats.madePutts.overall++;
+
+        stats.madePutts.distance[distanceIndex]++;
+    } else {
+        distanceMissed = getDistance(endLoc, pin).feet;
+
+        // --- Calculate Miss Biases (X/Y relative to target line) ---
+        const lineVec = { x: pin.longitude - longitude, y: pin.latitude - latitude };
+        const missVec = { x: endLoc.longitude - pin.longitude, y: endLoc.latitude - pin.latitude };
+        const angle = Math.atan2(lineVec.y, lineVec.x);
+
+        const rotatedX = missVec.x * Math.cos(-angle) - missVec.y * Math.sin(-angle);
+        const rotatedY = missVec.x * Math.sin(-angle) + missVec.y * Math.cos(-angle);
+
+        const latRad = latitude * (Math.PI / 180);
+        const metersPerLonDegree = METERS_PER_DEGREE * Math.cos(latRad);
+
+        // Rotated X is now the short/long axis, Y is the left/right axis
+        missXDistance = (-rotatedX * metersPerLonDegree) * FEET_PER_METER; // Long(+)/Short(-) in feet
+        missYDistance = (rotatedY * METERS_PER_DEGREE) * FEET_PER_METER;   // Left(+)/Right(-) in feet
+
+        stats.avgMiss += distanceMissed;
+        stats.avgMissDistance[distanceIndex] += distanceMissed;
+
+        // --- Calculate Miss Biases (Left/Right, Short/Long) ---
+        // We create a coordinate system where the x-axis is the line from the ball to the hole.
+        const longMissMeters = rotatedX * metersPerLonDegree; // In this rotated system, X is long/short
+        const latMissMeters = rotatedY * METERS_PER_DEGREE;  // Y is left/right
+
+        const longMissInches = longMissMeters * 39.3701;
+        const latMissInches = latMissMeters * 39.3701; // Convert to inches if using feet
+
+        stats.leftRightBias += latMissInches;
+        stats.shortPastBias += longMissInches;
+
+        // // Categorize short/long
+        if (longMissInches < 0) {
+            stats.percentShort++;
+        }
+
+        const puttDir = { x: lineVec.x, y: lineVec.y }; // Use degree vector, magnitude cancels out
+        const sideSlope = grad.dx * -puttDir.y + grad.dy * puttDir.x; // Positive = breaks left
+
+        const breaksLeft = sideSlope > 0;
+        const missedRight = latMissInches < 0;
+
+        if ((breaksLeft && missedRight) || (!breaksLeft && !missedRight)) {
+            stats.percentHigh++;
+        }
+    }
+
+    if (puttIndex === 0) {
+        stats.totalDistance += flatDistance.feet;
+        if (hole.puttData.totalPutts === 1) {
+            stats.onePutts++;
+        }
+        else if (hole.puttData.totalPutts === 2) stats["twoPutts"]++;
+        else stats["threePutts"]++;
+        // this is for the first putt of the hole
+        const strokesGained = calculateBaselineStrokesGained(flatDistance.feet) - hole.puttData.totalPutts;
+        stats.puttsAHole.distance[distanceIndex] += hole.puttData.totalPutts;
+
+        stats.holesByFirstPuttDistance[distanceIndex]++;
+
+        stats.puttsAHole.slopes[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][0] += hole.puttData.totalPutts;
+        stats.puttsAHole.slopes[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][1]++;
+        stats.strokesGained.distance[distanceIndex] += strokesGained;
+        stats.strokesGained.slopes[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][0] += strokesGained;
+        stats.strokesGained.slopes[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][1]++;
+    }
+
+    if (misReadLine || misReadSlope) {
+        stats.puttsAHole.misreadPuttsAHole++;
+        stats.puttsMisread++;
+    }
+
+    if (misReadLine) {
+        stats.misreads.misreadLineByDistance[distanceIndex]++;
+        stats.misreads.misreadLineBySlope[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][0]++;
+        stats.misreads.misreadLinePercentage++;
+    }
+
+    if (misReadSlope) {
+        stats.misreads.misreadSlopeByDistance[distanceIndex]++;
+        stats.misreads.misreadSlopeBySlope[STAT_SLOPES[breakDirection[1]]][STAT_BREAKS[breakDirection[0]]][0]++;
+        stats.misreads.misreadSlopePercentage++;
+    }
+
+    stats.puttsByDistance[distanceIndex]++;
 }

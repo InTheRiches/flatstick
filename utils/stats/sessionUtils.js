@@ -1,6 +1,9 @@
 import {categorizeDistance} from "./statsHelpers";
 import {convertUnits} from "../Conversions";
 import {updateSimpleStats} from "../PuttUtils";
+import {doc, getDoc} from "firebase/firestore";
+import {firestore} from "@/utils/firebase";
+import {updateStatsForPutt} from "@/utils/courses/gpsStatsEngine";
 
 export const updateCategoryStats = (putt, session, newStats, userData, newPutters, newGrips, averaging) => {
     // this means that they holed out
@@ -151,13 +154,23 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
     }
 
     if (session.meta.type === "full") {
-        session.holeHistory.forEach((hole) => {
-            updateCategoryStats({
-                ...hole.putts[0],
-                totalPutts: hole.puttData.totalPutts,
-                misHit: false
-            }, session, newStats, userData, newPutters, newGrips, averaging);
-        })
+        // fetch greens from the firebase db
+        getDoc(doc(firestore, "courses/" + session.meta.osmCourseID.toString())).then(document => {
+            if (!document.exists()) return;
+
+            session.holeHistory.forEach((hole) => {
+                let lidarGrid = null;
+                for (const g of document.greens) {
+                    if (g.hole === (index+1).toString()) {
+                        lidarGrid = g.lidar;
+                        break;
+                    }
+                }
+                hole.puttData.taps.forEach((tap, index) => {
+                    updateStatsForPutt(newStats, hole, tap, index, hole.puttData.pinLocation, lidarGrid);
+                });
+            })
+        }).catch(e => console.error(e));
     } else {
         session.puttHistory.forEach(putt => {
             updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);

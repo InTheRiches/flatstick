@@ -71,6 +71,8 @@ export default function FullRound() {
     const [holeBunkers, setHoleBunkers] = useState([]);
     const [fairways, setFairways] = useState([]);
 
+    const [OSMCourseId, setOSMCourseId] = useState(null);
+
     const [holeScore, setHoleScore] = useState(tee.holes[hole-1].par);
     const [totalStrokes, setTotalStrokes] = useState(tee.holes[hole-1].par);
     const [netScore, setNetScore] = useState(tee.holes[hole-1].par);
@@ -166,7 +168,7 @@ export default function FullRound() {
         console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
         // check to see if it exists in our db first
         getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
-            console.log(res);
+            setOSMCourseId(res[0]?.id);
             if (!res || res.length === 0) {
                 console.error("No OSM course found at this location.");
                 alert("No course data found for this location. Please try again later or contact support.");
@@ -503,6 +505,7 @@ export default function FullRound() {
                 synced: true, // TODO set this to false if not synced (if offline mode is ever added)
                 tee: { name, par, rating, slope, yards, number_of_holes: holes },
                 courseID: course.id,
+                osmCourseID: OSMCourseId,
                 clubName: course.club_name,
                 courseName: course.course_name,
                 frontNine: frontNine

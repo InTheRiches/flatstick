@@ -1,11 +1,12 @@
 import {roundTo} from "./roundTo";
+import {FEET_PER_METER} from "@/constants/Constants";
 
 const convertToMeters = (value) => {
     return roundTo(value * 0.3048, 1);
 }
 
 const convertToFeet = (value) => {
-    return roundTo(value * 3.28084, 1);
+    return roundTo(value * FEET_PER_METER, 1);
 }
 
 const convertUnits = (value, unitFrom, unitTo) => {

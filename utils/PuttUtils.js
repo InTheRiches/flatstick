@@ -1,6 +1,7 @@
 import {calculateBaselineStrokesGained} from "@/utils/StrokesGainedUtils";
 import {roundTo} from "./roundTo";
 import {convertUnits} from "@/utils/Conversions";
+import {STAT_BREAKS, STAT_SLOPES} from "@/constants/Constants";
 
 const breaks = {
     45: "Left to Right",
@@ -588,8 +589,8 @@ function cleanPuttsAHole(averagePerformance) {
     if (averagePerformance.puttsAHole.misreadHoles > 0)
         refinedPuttsAHole.puttsAHoleWhenMisread = roundTo(averagePerformance.puttsAHole.misreadPuttsAHole / averagePerformance.puttsAHole.misreadHoles, 1);
     refinedPuttsAHole.distance = averagePerformance.puttsAHole.distance.map((val, idx) => {
-        if (averagePerformance.puttsByDistance[idx] === 0) return 0;
-        return roundTo(val / averagePerformance.puttsByDistance[idx], 1);
+        if (averagePerformance.holesByFirstPuttDistance[idx] === 0) return 0;
+        return roundTo(val / averagePerformance.holesByFirstPuttDistance[idx], 1);
     });
 
     // handle the slopes
@@ -631,6 +632,7 @@ const createSimpleStats = () => {
         avgMiss: 0,
         avgMissDistance: [0, 0, 0, 0],
         puttsByDistance: [0, 0, 0, 0],
+        holesByFirstPuttDistance: [0, 0, 0, 0],
         totalDistance: 0,
         puttsMisread: 0,
         puttsMishits: 0,
@@ -988,23 +990,11 @@ function cleanMadePutts(averagePerformance) {
 function updateSimpleStats(userData, simpleStats, putt, category) {
     const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, missXDistance, missYDistance, totalPutts} = putt;
 
-    const statBreaks = [
-        "leftToRight",
-        "rightToLeft",
-        "straight",
-    ]
-
-    const statSlopes = [
-        "downhill",
-        "neutral",
-        "uphill"
-    ]
-
     const distanceIndex = category === "distanceOne" ? 0 : category === "distanceTwo" ? 1 : category === "distanceThree" ? 2 : 3;
 
     if (totalPutts === 1) {
         simpleStats.onePutts++;
-        simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+        simpleStats.madePutts.slopes[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][0]++;
         simpleStats.madePutts.overall++;
 
         simpleStats.madePutts.distance[distanceIndex]++;
@@ -1012,7 +1002,7 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     else if (totalPutts === 2) simpleStats["twoPutts"]++;
     else simpleStats["threePutts"]++;
 
-    simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+    simpleStats.madePutts.slopes[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][1]++;
 
     if (misReadLine || misReadSlope) {
         simpleStats.puttsAHole.misreadPuttsAHole += totalPutts;
@@ -1021,13 +1011,13 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
 
     if (misReadLine) {
         simpleStats.misreads.misreadLineByDistance[distanceIndex]++;
-        simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+        simpleStats.misreads.misreadLineBySlope[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][0]++;
         simpleStats.misreads.misreadLinePercentage++;
     }
 
     if (misReadSlope) {
         simpleStats.misreads.misreadSlopeByDistance[distanceIndex]++;
-        simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
+        simpleStats.misreads.misreadSlopeBySlope[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][0]++;
         simpleStats.misreads.misreadSlopePercentage++;
     }
 
@@ -1043,14 +1033,15 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
 
     if ((misHit && userData.preferences.countMishits) || !misHit) {
         simpleStats.puttsByDistance[distanceIndex]++;
+        simpleStats.holesByFirstPuttDistance[distanceIndex]++;
 
         simpleStats.puttsAHole.distance[distanceIndex] += totalPutts;
 
-        simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += putt.totalPutts;
-        simpleStats.puttsAHole.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+        simpleStats.puttsAHole.slopes[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][0] += putt.totalPutts;
+        simpleStats.puttsAHole.slopes[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][1]++;
         simpleStats.strokesGained.distance[distanceIndex] += strokesGained;
-        simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0] += strokesGained;
-        simpleStats.strokesGained.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+        simpleStats.strokesGained.slopes[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][0] += strokesGained;
+        simpleStats.strokesGained.slopes[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][1]++;
 
         simpleStats.avgMiss += distanceMissed;
         simpleStats.avgMissDistance[distanceIndex] += distanceMissed;
@@ -1076,8 +1067,8 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats.puttsMisread += misReadLine || misReadSlope ? 1 : 0;
     simpleStats.puttsMishits += misHit ? 1 : 0;
 
-    simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
-    simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
+    simpleStats.misreads.misreadLineBySlope[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][1]++;
+    simpleStats.misreads.misreadSlopeBySlope[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][1]++;
 }
 
 export { calculateDistanceMissedMeters, calculateFullRoundStats, createYearlyStats, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
