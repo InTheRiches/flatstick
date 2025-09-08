@@ -987,7 +987,6 @@ function cleanMadePutts(averagePerformance) {
 
 function updateSimpleStats(userData, simpleStats, putt, category) {
     const {distance, distanceMissed, misReadLine, misReadSlope, misHit, puttBreak, missXDistance, missYDistance, totalPutts} = putt;
-    console.log(puttBreak)
 
     const statBreaks = [
         "leftToRight",
@@ -1013,34 +1012,24 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     else if (totalPutts === 2) simpleStats["twoPutts"]++;
     else simpleStats["threePutts"]++;
 
-    console.log("testing")
-
-    console.log(simpleStats.madePutts.slopes, puttBreak);
-
-    console.log(statSlopes[puttBreak[1]], statBreaks[puttBreak[0]]);
-
     simpleStats.madePutts.slopes[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][1]++;
-    console.log("testing")
 
     if (misReadLine || misReadSlope) {
         simpleStats.puttsAHole.misreadPuttsAHole += totalPutts;
         simpleStats.puttsAHole.misreadHoles++;
     }
-    console.log("testing")
 
     if (misReadLine) {
         simpleStats.misreads.misreadLineByDistance[distanceIndex]++;
         simpleStats.misreads.misreadLineBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
         simpleStats.misreads.misreadLinePercentage++;
     }
-    console.log("testing")
 
     if (misReadSlope) {
         simpleStats.misreads.misreadSlopeByDistance[distanceIndex]++;
         simpleStats.misreads.misreadSlopeBySlope[statSlopes[puttBreak[1]]][statBreaks[puttBreak[0]]][0]++;
         simpleStats.misreads.misreadSlopePercentage++;
     }
-    console.log("testing")
 
     if (misHit) {
         simpleStats.puttsAHole.puttsAHoleWhenMishit += totalPutts;
@@ -1049,7 +1038,6 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
         simpleStats.puttsAHole.puttsAHole += totalPutts;
         simpleStats.puttsAHole.normalHoles++;
     }
-    console.log("testing")
 
     const strokesGained = calculateBaselineStrokesGained(convertUnits(distance, userData.preferences.units, 0)) - totalPutts;
 

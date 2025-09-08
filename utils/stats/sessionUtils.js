@@ -17,7 +17,7 @@ export const updateCategoryStats = (putt, session, newStats, userData, newPutter
     distance = convertUnits(distance, sessionUnits, preferredUnits);
     distanceMissed = convertUnits(distanceMissed, sessionUnits, preferredUnits);
     missXDistance = convertUnits(missXDistance, sessionUnits, preferredUnits) ?? 0;
-    missYDistance = convertUnits(missYDistance, sessionUnits, preferredUnits) ?? 0; // TODO remove this fallback
+    missYDistance = convertUnits(missYDistance, sessionUnits, preferredUnits) ?? 0;
 
     // Categorize putt distance
     const category = categorizeDistance(distance, preferredUnits);
@@ -151,7 +151,6 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
     }
 
     if (session.meta.type === "full") {
-        console.log("Processing full session stats for:", session.meta.courseName);
         session.holeHistory.forEach((hole) => {
             updateCategoryStats({
                 ...hole.putts[0],

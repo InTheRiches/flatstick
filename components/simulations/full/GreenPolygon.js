@@ -330,28 +330,25 @@ const GreenPolygon = ({
                                 const p = toSvgPointLatLon(tap);
 
                                 return (
-                                    <React.Fragment key={"tap-" + index}>
-                                        <AnimatedCircle
-                                            cx={p.x}
-                                            cy={p.y}
-                                            r={1}
-                                            fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
-                                            stroke="black"
-                                            animatedProps={inverseAnimatedProps}
-                                        />
-                                    </React.Fragment>
+                                    <AnimatedCircle
+                                        cx={p.x}
+                                        cy={p.y}
+                                        r={1}
+                                        fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
+                                        stroke="black"
+                                        animatedProps={inverseAnimatedProps}
+                                        key={"tap-" + index}
+                                    />
                                 );
                             })}
                             {pinLocation && (
-                                <>
-                                    <AnimatedCircle
-                                        cx={toSvgPointLatLon(pinLocation).x}
-                                        cy={toSvgPointLatLon(pinLocation).y}
-                                        fill="gold"
-                                        stroke="black"
-                                        animatedProps={inverseAnimatedProps}
-                                    />
-                                </>
+                                <AnimatedCircle
+                                    cx={toSvgPointLatLon(pinLocation).x}
+                                    cy={toSvgPointLatLon(pinLocation).y}
+                                    fill="gold"
+                                    stroke="black"
+                                    animatedProps={inverseAnimatedProps}
+                                />
                             )}
                         </AnimatedG>
                     </Svg>

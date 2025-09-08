@@ -225,7 +225,7 @@ export default function GolfCourseSearchScreen() {
                                                 <FontText style={{
                                                     color: colors.text.secondary,
                                                     fontSize: 14
-                                                }}>{item.courses[0].location.city}, {item.courses[0].location.state}</FontText>
+                                                }}>{item.courses[0].location.city ? item.courses[0].location.city + ", " : ""}{item.courses[0].location.state}</FontText>
                                                 <FontText style={{
                                                     color: colors.text.secondary,
                                                     fontSize: 14

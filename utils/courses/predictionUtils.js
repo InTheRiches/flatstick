@@ -1,7 +1,3 @@
-// import fs from "fs";
-// import path from "path";
-
-// Utility: load CSV as grid points
 import {getElevationBilinear, getGradient, METERS_PER_DEGREE} from "./gpsStatsEngine";
 
 async function loadGreenData(holeNumber) {

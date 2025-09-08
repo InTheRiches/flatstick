@@ -214,7 +214,6 @@ export function calculateGPSRoundStats(roundData, greens, units) {
     let shortPastMissSumInches = 0;
 
     roundData.forEach((hole, index) => {
-        console.log("Analyzing hole", JSON.stringify(hole));
         const acc = hole.approachAccuracy;
         if (hole.par > 3 && acc && approachCounts.hasOwnProperty(acc)) {
             approachCounts[acc]++;
