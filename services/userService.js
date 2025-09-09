@@ -3,7 +3,7 @@ import {collection, doc, getDoc, getDocs, query, runTransaction} from 'firebase/
 import {deepMergeDefaults, firestore} from '@/utils/firebase';
 import {getDefaultData} from '@/utils/userUtils';
 import {deepEqual} from '@/utils/RandomUtilities';
-import {SCHEMA_VERSION} from "@/utils/constants";
+import {SCHEMA_VERSION} from "@/constants/Constants";
 import {isHolePuttDataInvalid} from "@/utils/sessions/SessionUtils";
 
 export const fetchUserData = async (uid) => {
@@ -75,7 +75,7 @@ export const getUserSessionsByID = async (id) => {
         const querySnapshot = await getDocs(sessionQuery);
         sessions = querySnapshot.docs.map((sessionDoc) => {
             let data = sessionDoc.data();
-            if (!data.schemaVersion || data.schemaVersion < 2) {
+            if (!data.schemaVersion || data.schemaVersion < SCHEMA_VERSION) {
                 data = adaptOldSession(data);
                 // Update the session in the database to the new format
                 runTransaction(firestore, async (transaction) => {

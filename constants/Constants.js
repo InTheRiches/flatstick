@@ -1,5 +1,6 @@
 export const METERS_PER_DEGREE = 111320; // Approximate, varies with latitude
 export const FEET_PER_METER = 3.28084;
+export const SCHEMA_VERSION = 2; // Increment this when making breaking changes to the data schema
 export const STAT_BREAKS = [
     "leftToRight",
     "rightToLeft",

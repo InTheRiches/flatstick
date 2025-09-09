@@ -28,7 +28,7 @@ import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
 import {newSession} from "../../../services/sessionService";
-import {SCHEMA_VERSION} from "../../../utils/constants";
+import {SCHEMA_VERSION} from "../../../constants/Constants";
 import {auth, firestore} from "../../../utils/firebase";
 import {
     fetchCourseElements,

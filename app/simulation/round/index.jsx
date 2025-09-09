@@ -40,7 +40,7 @@ import {MisreadModal} from "../../../components/simulations/popups/MisreadModal"
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
 import {SecondaryButton} from "../../../components/general/buttons/SecondaryButton";
-import {SCHEMA_VERSION} from "../../../utils/constants";
+import {SCHEMA_VERSION} from "../../../constants/Constants";
 
 const initialState = {
     loading: false,

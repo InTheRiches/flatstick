@@ -40,7 +40,7 @@ import {MisreadModal} from "../../../components/simulations/popups/MisreadModal"
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import {FullBigMissModal} from "../../../components/simulations/full/popups/FullBigMissModal";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
-import {SCHEMA_VERSION} from "../../../utils/constants";
+import {SCHEMA_VERSION} from "../../../constants/Constants";
 
 const initialState = {
     loading: false,

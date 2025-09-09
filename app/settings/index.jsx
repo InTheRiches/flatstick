@@ -89,7 +89,7 @@ export default function HomeScreen() {
         if (canOpen) {
             await Linking.openURL(url);
         } else {
-            Alert.alert("Error", "No mail app found on this device.");
+            Alert.alert("Error", "No mail app found on this device. Email us at " + email);
         }
     };
 
