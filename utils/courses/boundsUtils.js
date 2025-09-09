@@ -1,3 +1,5 @@
+import {isPointInPolygonLatLon} from "./polygonUtils";
+
 /** true if point is inside the bounding box */
 const isInside = (p, b) =>
     p.latitude >= b.minLat && p.latitude <= b.maxLat &&
@@ -103,18 +105,18 @@ function clampLineToBounds(points, bounds, closed = true) {
         //         dedup.push(p);
         //     }
         // }
-        // there might be a missing corner, just check each four corners, if they are in the original polygon, add them using isPointInPolygon
-        // const corners = [
-        //     { latitude: bounds.minLat, longitude: bounds.minLon },
-        //     { latitude: bounds.minLat, longitude: bounds.maxLon },
-        //     { latitude: bounds.maxLat, longitude: bounds.minLon },
-        //     { latitude: bounds.maxLat, longitude: bounds.maxLon },
-        // ];
-        // for (const corner of corners) {
-        //     if (isPointInPolygonLatLon(corner, poly.coordinates)) {
-        //         dedup.push(corner);
-        //     }
-        // }
+        //there might be a missing corner, just check each four corners, if they are in the original polygon, add them using isPointInPolygon
+        const corners = [
+            { latitude: bounds.minLat, longitude: bounds.minLon },
+            { latitude: bounds.minLat, longitude: bounds.maxLon },
+            { latitude: bounds.maxLat, longitude: bounds.minLon },
+            { latitude: bounds.maxLat, longitude: bounds.maxLon },
+        ];
+        for (const corner of corners) {
+            if (isPointInPolygonLatLon(corner, poly.coordinates)) {
+                out.push(corner);
+            }
+        }
 
         clamped.push(out);
     }
