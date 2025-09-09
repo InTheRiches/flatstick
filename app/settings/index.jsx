@@ -1,4 +1,4 @@
-import {Platform, Pressable, ScrollView, View} from 'react-native';
+import {Alert, Linking, Platform, Pressable, ScrollView, View} from 'react-native';
 
 import React, {useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
@@ -78,6 +78,20 @@ export default function HomeScreen() {
             router.replace({pathname: "/login"});
         }
     }
+
+    const handleEmailPress = async () => {
+        const email = "flatstickstats@gmail.com";
+        const subject = "Support Request";
+        const body = "Hello, I need help with...";
+        const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        // Check if supported, then open
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+            await Linking.openURL(url);
+        } else {
+            Alert.alert("Error", "No mail app found on this device.");
+        }
+    };
 
     return (
         <BottomSheetModalProvider>
@@ -183,6 +197,16 @@ export default function HomeScreen() {
                                 <FontText style={{color: colors.button.danger.text, fontSize: 16, fontWeight: 500}}>Delete Account</FontText>
                             </DangerButton>
                         </View>
+                        <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 16, marginBottom: 6}}>SUPPORT AND HELP</FontText>
+                        <Pressable onPress={handleEmailPress} style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderRadius: 12, paddingLeft: 14, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+                            <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Contact Support</FontText>
+                            <Svg style={{transform: [{rotate: "45deg"}], marginRight: 12}} width={24} height={24} xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" strokeWidth={3}
+                                 stroke={colors.text.primary}>
+                                <Path strokeLinecap="round" strokeLinejoin="round"
+                                      d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"/>
+                            </Svg>
+                        </Pressable>
                     </ScrollView>
                 </View>
                 <View style={{position: "absolute", bottom: 72}}>
