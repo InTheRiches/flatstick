@@ -1,5 +1,5 @@
-import {getElevationBilinear, getPuttGradient, METERS_PER_DEGREE} from "./gpsStatsEngine";
-import {FEET_PER_METER} from "../../constants/Constants";
+import {getElevationBilinear, getPuttGradient} from "./gpsStatsEngine";
+import {FEET_PER_METER, METERS_PER_DEGREE} from "../../constants/Constants";
 
 /**
  * Predicts the putt's break in inches based on green topography.
@@ -16,6 +16,8 @@ export async function predictPutt(lidarGrid, tap, pin, stimp = 10) {
     const dx_deg = pin.longitude - tap.longitude;
     const dy_deg = pin.latitude - tap.latitude;
     const lat_rad_mid = ((tap.latitude + pin.latitude) / 2) * (Math.PI / 180);
+
+    console.log(`Calculating putt from tap (${tap.latitude}, ${tap.longitude}) to pin (${pin.latitude}, ${pin.longitude})`);
 
     // Convert degree distances to meters
     const dx_m = dx_deg * METERS_PER_DEGREE * Math.cos(lat_rad_mid);
