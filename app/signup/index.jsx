@@ -138,6 +138,10 @@ export default function CreateAccount() {
             setSession(token || null);
             router.replace({pathname: `/`});
             // TODO refreshStats() here
+        }).catch(error => {
+
+            setLoading(false);
+            console.error("Google Sign In Error:", error);
         });
     }
 

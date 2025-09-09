@@ -63,6 +63,12 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your location when the app is in use.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your location even when the app is in the background.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your location even when the app is in the background.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app uses your photo library to allow you to personalize your experience within the app.</string>
 	<key>NSUserActivityTypes</key>

@@ -1,5 +1,5 @@
 import Animated, {runOnJS, useAnimatedProps, useSharedValue} from "react-native-reanimated";
-import {Dimensions, Pressable, View} from "react-native";
+import {Dimensions, Platform, Pressable, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {isPointInPolygon} from "@/utils/courses/polygonUtils";
 import {clampLineToBounds} from "@/utils/courses/boundsUtils";
@@ -255,7 +255,7 @@ const GreenPolygon = ({
             )}
             <GestureDetector gesture={Gesture.Simultaneous(longPressGesture, panGesture, pinchGesture)}>
                 <Animated.View>
-                    <Svg width={svgSize} height={svgSize} style={{backgroundColor: "#246903", borderRadius: 12}} >
+                    <Svg width={svgSize} height={svgSize} style={{backgroundColor: "#1d5105", borderRadius: 12}} >
                         <AnimatedG animatedProps={animatedProps}>
                             <Defs>
                                 <Pattern
@@ -263,7 +263,7 @@ const GreenPolygon = ({
                                     patternUnits="userSpaceOnUse"
                                     width="40"
                                     height="40"
-                                    patternTransform="rotate(45)"
+                                    patternTransform={Platform.OS === "android" ? "rotate(45)" : "rotate(0)"}
                                 >
                                     <Rect width="40" height="40" fill="#35aa03"/>
                                     <Rect width="20" height="40" fill="#259704" opacity={0.4}/>
@@ -274,10 +274,10 @@ const GreenPolygon = ({
                                     patternUnits="userSpaceOnUse"
                                     width="40"
                                     height="40"
-                                    patternTransform="rotate(-45)"
+                                    patternTransform={Platform.OS === "android" ? "rotate(-45)" : "rotate(0)"}
                                 >
-                                    <Rect width="40" height="40" fill="#43ac0a"/>
-                                    <Rect width="20" height="40" fill="#2a9100" opacity={0.4}/>
+                                    <Rect width="40" height="40" fill={Platform.OS === "android" ? "#43ac0a" : "#4b9c0f"}/>
+                                    <Rect width="20" height="40" fill={Platform.OS === "android" ? "#2a9100" : "#297200"} opacity={0.4}/>
                                 </Pattern>
                             </Defs>
                             {fairwayPoints.map((fairway, index) => {
