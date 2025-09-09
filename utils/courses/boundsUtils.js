@@ -1,5 +1,3 @@
-import {isPointInPolygonLatLon} from "./polygonUtils";
-
 /** true if point is inside the bounding box */
 const isInside = (p, b) =>
     p.latitude >= b.minLat && p.latitude <= b.maxLat &&
@@ -57,12 +55,12 @@ function firstIntersection(p1, p2, b) {
  * @param closed  treat as closed polygon if true (wraps last->first)
  */
 function clampLineToBounds(points, bounds, closed = true) {
-    const out = [];
     const clamped = [];
 
     for (const poly of points) {
+        const out = [];
         const n = poly.coordinates.length;
-        if (n === 0) return out;
+        if (n === 0) continue;
 
         const segCount = closed ? n : n - 1;
 
@@ -97,28 +95,28 @@ function clampLineToBounds(points, bounds, closed = true) {
             if (isInside(last, bounds)) out.push(last);
         }
 
-        // De-dup consecutive identical poly
-        const dedup = [];
-        for (const p of out) {
-            const prev = dedup[dedup.length - 1];
-            if (!prev || Math.abs(prev.latitude - p.latitude) > EPS || Math.abs(prev.longitude - p.longitude) > EPS) {
-                dedup.push(p);
-            }
-        }
+        // // De-dup consecutive identical poly
+        // const dedup = [];
+        // for (const p of out) {
+        //     const prev = dedup[dedup.length - 1];
+        //     if (!prev || Math.abs(prev.latitude - p.latitude) > EPS || Math.abs(prev.longitude - p.longitude) > EPS) {
+        //         dedup.push(p);
+        //     }
+        // }
         // there might be a missing corner, just check each four corners, if they are in the original polygon, add them using isPointInPolygon
-        const corners = [
-            { latitude: bounds.minLat, longitude: bounds.minLon },
-            { latitude: bounds.minLat, longitude: bounds.maxLon },
-            { latitude: bounds.maxLat, longitude: bounds.minLon },
-            { latitude: bounds.maxLat, longitude: bounds.maxLon },
-        ];
-        for (const corner of corners) {
-            if (isPointInPolygonLatLon(corner, poly.coordinates)) {
-                dedup.push(corner);
-            }
-        }
+        // const corners = [
+        //     { latitude: bounds.minLat, longitude: bounds.minLon },
+        //     { latitude: bounds.minLat, longitude: bounds.maxLon },
+        //     { latitude: bounds.maxLat, longitude: bounds.minLon },
+        //     { latitude: bounds.maxLat, longitude: bounds.maxLon },
+        // ];
+        // for (const corner of corners) {
+        //     if (isPointInPolygonLatLon(corner, poly.coordinates)) {
+        //         dedup.push(corner);
+        //     }
+        // }
 
-        clamped.push(dedup);
+        clamped.push(out);
     }
 
     return clamped;

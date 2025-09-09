@@ -524,8 +524,8 @@ export function analyzeIndividualPutts(roundData, greens, units) {
 export const updateStatsForPutt = (stats, hole, putt, puttIndex, pin, lidar) => {
     const {latitude, longitude, misReadLine, misReadSlope} = putt;
 
-    const isMadePutt = (puttIndex === hole.taps.length - 1);
-    const endLoc = isMadePutt ? pin : hole.taps[puttIndex + 1];
+    const isMadePutt = (puttIndex === hole.puttData.taps.length - 1);
+    const endLoc = isMadePutt ? pin : hole.puttData.taps[puttIndex + 1];
 
     const flatDistance = getDistance({latitude, longitude}, pin);
     const category = categorizeDistance(flatDistance.feet, 0); // feet always for categorization

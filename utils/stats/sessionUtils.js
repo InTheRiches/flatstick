@@ -158,9 +158,13 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
         getDoc(doc(firestore, "courses/" + session.meta.osmCourseID.toString())).then(document => {
             if (!document.exists()) return;
 
-            session.holeHistory.forEach((hole) => {
+            const data = document.data();
+
+            console.log(data.greens)
+
+            session.holeHistory.forEach((hole, index) => {
                 let lidarGrid = null;
-                for (const g of document.greens) {
+                for (const g of data.greens) {
                     if (g.hole === (index+1).toString()) {
                         lidarGrid = g.lidar;
                         break;
