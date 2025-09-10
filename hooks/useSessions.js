@@ -18,7 +18,7 @@ export const useSessions = () => {
     const addSession = async (data) => {
         await newSession(auth.currentUser.uid, data);
         setSessions((prev) => [...prev, data]);
-        await updateBestSession(data);
+        await updateBestSession(data); // TODO do something with this I dont like where it is at
     };
 
     // const addFullRound = async (data) => {

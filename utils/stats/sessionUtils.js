@@ -160,8 +160,6 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
 
             const data = document.data();
 
-            console.log(data.greens)
-
             session.holeHistory.forEach((hole, index) => {
                 let lidarGrid = null;
                 for (const g of data.greens) {

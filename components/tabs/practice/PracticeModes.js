@@ -28,7 +28,7 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
                 time={"90-240 min"}
                 focus={"Realism"}
                 onInfo={() => router.push({pathname: "/simulation/real/demo", params: {justInfo: true}})}
-                onPress={() => newRealRoundRef.current.present()}/>
+                onPress={() => router.push("simulation/putting-green")}/>
             <PracticeMode
                 description={"A realistic mode simulating 9-18 unique holes to track putting performance and improve skills."}
                 name={"PUTTING SIMULATION"}

@@ -19,6 +19,7 @@ export function getElevationBilinear(x, y, grid) {
     const firstY = grid[0].location.y;
     const width = grid.findIndex(p => p.location.y !== firstY);
     // If all points are on the same line, findIndex returns -1.
+
     if (width === -1) return grid[0].value;
 
     const height = grid.length / width;

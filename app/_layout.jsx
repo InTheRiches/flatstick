@@ -79,6 +79,7 @@ export default function RootLayout() {
                     <Stack.Screen name={"friends/search/index"}/>
                     <Stack.Screen name={"friends/requests/index"}/>
                     <Stack.Screen name={"friends/user/index"}/>
+                    <Stack.Screen name={"simulation/putting-green/index"}/>
                     <Stack.Screen name={"compare/putters/index"} />
                     <Stack.Screen name={"compare/grips/index"} />
                     <Stack.Screen name={"compare/users/search/index"} />
