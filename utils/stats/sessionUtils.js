@@ -3,7 +3,7 @@ import {convertUnits} from "../Conversions";
 import {updateSimpleStats} from "../PuttUtils";
 import {doc, getDoc} from "firebase/firestore";
 import {firestore} from "@/utils/firebase";
-import {updateStatsForPutt} from "@/utils/courses/gpsStatsEngine";
+import {updateStatsForGPSPutt} from "@/utils/courses/gpsStatsEngine";
 
 export const updateCategoryStats = (putt, session, newStats, userData, newPutters, newGrips, averaging) => {
     // this means that they holed out
@@ -163,16 +163,34 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
             session.holeHistory.forEach((hole, index) => {
                 let lidarGrid = null;
                 for (const g of data.greens) {
-                    if (g.hole === (index+1).toString()) {
+                    if (g.hole === (index + 1).toString()) {
                         lidarGrid = g.lidar;
                         break;
                     }
                 }
                 hole.puttData.taps.forEach((tap, index) => {
-                    updateStatsForPutt(newStats, hole, tap, index, hole.puttData.pinLocation, lidarGrid);
+                    updateStatsForGPSPutt(newStats, hole, tap, index, hole.puttData.pinLocation, lidarGrid);
                 });
             })
         }).catch(e => console.error(e));
+    } else if (session.meta.type === "green") {
+        // Green sessions are simpler, just process each putt directly
+        getDoc(doc(firestore, "greens/" + session.meta.osmGreenId.toString())).then(document => {
+            if (!document.exists()) return;
+
+            const data = document.data();
+
+            const lidar = data ? data.lidar : null;
+            if (!lidar) return;
+
+            session.holeHistory.forEach(hole => {
+                const putts = [hole.startLocation, ...hole.taps];
+
+                putts.forEach((putt, index) => {
+                    updateStatsForGPSPutt(newStats, hole, putt, index, hole.pinLocation, lidar);
+                });
+            });
+        });
     } else {
         session.puttHistory.forEach(putt => {
             updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);

@@ -96,32 +96,6 @@ exports.fanOutFeedItem = functions.firestore
         await batch.commit();
     });
 
-exports.deletedFedOutRound = functions.firestore
-    .onDocumentDeleted('users/{userId}/sessions/{sessionId}', async (snap, context) => {
-        const userId = context.params.userId;
-        const sessionId = context.params.sessionId;
-
-        const userDoc = await admin.firestore().doc(`users/${userId}`).get();
-        const userData = userDoc.data();
-        const friends = userData.friends || [];
-
-        const batch = admin.firestore().batch();
-
-        for (const friendId of friends) {
-            const feedItemsRef = admin.firestore().collection(`userFeed/${friendId}/feedItems`);
-
-            // Example: delete a known session's feedItem
-            const docToDelete = feedItemsRef.doc(sessionId); // or use a specific known doc ID
-            batch.delete(docToDelete);
-        }
-
-        // Also delete from the user's own feed
-        const userFeedRef = admin.firestore().collection(`userFeed/${userId}/feedItems`).doc(sessionId);
-        batch.delete(userFeedRef);
-
-        await batch.commit();
-    });
-
 const roundTo = (num, decimalPlaces) => {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;

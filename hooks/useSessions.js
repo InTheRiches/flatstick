@@ -27,8 +27,8 @@ export const useSessions = () => {
     //     await updateBestSession(data);
     // };
 
-    const removeSession = async (sessionId) => {
-        await deleteSession(auth.currentUser.uid, sessionId);
+    const removeSession = async (sessionId, friends = []) => {
+        await deleteSession(auth.currentUser.uid, sessionId, friends);
         setSessions((prev) => prev.filter((session) => session.id !== sessionId));
     };
 

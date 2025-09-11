@@ -31,7 +31,7 @@ export function SimFeedItem({userData, item}) {
                 <Text style={{ color: colors.text.secondary, fontSize: 16}}>{new Date(item.session.date).toLocaleDateString()}</Text>
             </Pressable>
             <Pressable onPress={() => {
-                router.push({pathname: "/sessions/individual", params: {recap: false, userId: item.user.id, sessionId: item.session.id}});
+                router.push({pathname: "/sessions/individual", params: {recap: false, userId: userData.uid === item.session.userId ? undefined : item.user.id, sessionId: item.session.id}});
             }}>
                 <PuttScorecardCard data={item.scorecard} front={true} totalPutts={item.stats.totalPutts} strokesGained={item.stats.strokesGained}/>
                 <View style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}}>
@@ -42,11 +42,11 @@ export function SimFeedItem({userData, item}) {
                         </View>
                         <View style={{flexDirection: "column", flex: 1, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                             <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>1 PUTTS</FontText>
-                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.puttCounts[0]}</FontText>
+                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{item.stats.puttCounts[0] ?? item.stats.puttCounts.onePutts}</FontText>
                         </View>
                         <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                             <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>AVG DISTANCE</FontText>
-                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{convertUnits(item.stats.avgMiss, item.session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
+                            <FontText numberOfLines={1} ellipsizeMode="tail" style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{convertUnits(item.stats.avgDistance, item.session.units, userData.preferences.units)}{userData.preferences.units === 0 ? "ft" : "m"}</FontText>
                         </View>
                     </View>
                     <View style={{ flexDirection: "row" }}>

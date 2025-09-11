@@ -19,6 +19,8 @@ export const LeftRightBias = ({bias, units}) => {
 
     let left = leftRightBias / (userData.preferences.units === 0 ? 4 : 1) * (horizontalBiasWidth/2 + (leftRightBias > 0 ? 25 : 0));
     left = left + (horizontalBiasWidth/2);
+    if (left < 10) left = 10;
+    if (left > (horizontalBiasWidth-10)) left = horizontalBiasWidth-5;
 
     if (Math.abs(leftRightBias) < 0.1) {
         left = (horizontalBiasWidth/2) + 2.5;
@@ -51,11 +53,11 @@ export const LeftRightBias = ({bias, units}) => {
                 <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 500, opacity: left > 40 ? 1 : 0}}>{userData.preferences.units === 0 ? "-4FT" : "-1m"}</FontText>
                 <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 500, paddingLeft: 4, opacity: left < ((horizontalBiasWidth/2) - 40) || left > ((horizontalBiasWidth/2) + 40) ? 1 : 0}}>{userData.preferences.units === 0 ? "0FT" : "0m"}</FontText>
                 <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 500, opacity: left < (horizontalBiasWidth-40) ? 1 : 0}}>{userData.preferences.units === 0 ? "+4FT" : "+1m"}</FontText>
-                <FontText style={{position: "absolute", fontSize: 12, fontWeight: 500, left: leftRightBias === 0 ? left : left - 10, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "FT" : "m"}</FontText>
+                <FontText style={{position: "absolute", fontSize: 12, fontWeight: 500, left: left >= horizontalBiasWidth-20 ? left - 20 : leftRightBias === 0 ? left : left - 10, color: colors.text.primary}}>{leftRightBias > 0 ? "+" : ""}{leftRightBias}{userData.preferences.units === 0 ? "FT" : "m"}</FontText>
             </View>
             <View style={{paddingHorizontal: 8, width: "100%", justifyContent: "space-between", flexDirection: "row"}}>
                 <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 700}}>LEFT</FontText>
-                <FontText style={{color: colors.text.secondary, fontSize: 12, opacity: left < (horizontalBiasWidth-40) ? 1 : 0, fontWeight: 700}}>RIGHT</FontText>
+                <FontText style={{color: colors.text.secondary, fontSize: 12, fontWeight: 700}}>RIGHT</FontText>
             </View>
         </View>
     )

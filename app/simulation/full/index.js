@@ -216,6 +216,11 @@ export default function FullRound() {
                         setFairways(rawFairways);
                         setAllBunkers(rawBunkers);
                         setHoleBunkers([]);
+
+                        recalculateHoleBunkers(processedGreens, rawBunkers);
+
+                        setStartTime(new Date());
+                        setHoleStartTime(new Date().getTime());
                     }).catch((err) => {
                         console.error("Error fetching course data from OSM:", err);
                         alert("Failed to fetch course data. Please try again later or contact support.");
@@ -230,6 +235,9 @@ export default function FullRound() {
                 setHoleBunkers([]);
 
                 recalculateHoleBunkers(data.greens, data.rawBunkers);
+
+                setStartTime(new Date());
+                setHoleStartTime(new Date().getTime());
             }).catch((err) => {
                 console.error("Error fetching course data from OSM:", err);
                 alert("Failed to fetch course data. Please try again later or contact support.");
@@ -539,13 +547,13 @@ export default function FullRound() {
         }
 
         newSession(auth.currentUser.uid, newData).then(() => {
-            // router.push({
-            //     pathname: `/sessions/individual/full`,
-            //     params: {
-            //         jsonSession: JSON.stringify(newData),
-            //         recap: "true"
-            //     }
-            // });
+            router.push({
+                pathname: `/sessions/individual/full`,
+                params: {
+                    jsonSession: JSON.stringify(newData),
+                    recap: "true"
+                }
+            });
         }).catch(error => {
             console.error("Error saving session:", error);
             alert("Failed to save session. Please try again later.");
@@ -590,7 +598,8 @@ export default function FullRound() {
                     opacity: 0.9
                 }}>
                     <ActivityIndicator size="large"/>
-                    <FontText style={{fontSize: 20, fontWeight: 600, marginBottom: 16, color: colors.text.primary}}>Loading course data...</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: 600, color: colors.text.primary}}>Loading course data...</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: 600, marginBottom: 16, color: colors.text.primary, textAlign: "center"}}>This might take a while if you haven't loaded this course before.</FontText>
                 </View>
             ) : null}
             <ScreenWrapper style={{

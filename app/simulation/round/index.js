@@ -1,7 +1,10 @@
 import {Pressable, Text, View} from "react-native";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import React, {useEffect, useState} from "react";
-import {getOSMPuttingGreenByLatLon} from "../../../utils/courses/putting-greens/greenFetching";
+import React, {useEffect, useMemo, useState} from "react";
+import {
+    getOSMPuttingGreenByLatLon,
+    getOSMPuttingGreenIdByLatLon
+} from "../../../utils/courses/putting-greens/greenFetching";
 import {PuttingGreenPolygon} from "../../../components/simulations/putting-green/PuttingGreenPolygon";
 import {viewBounds} from "../../../utils/courses/boundsUtils";
 import Svg, {Path} from "react-native-svg";
@@ -13,52 +16,73 @@ import {generatePracticeRound} from "../../../utils/courses/putting-greens/green
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
 import {ConfirmExit} from "../../../components/simulations/popups";
 import {calculatePuttingGreenStats} from "../../../utils/courses/gpsStatsEngine";
-import {auth} from "../../../utils/firebase";
+import {auth, firestore} from "../../../utils/firebase";
 import {useAppContext} from "../../../contexts/AppContext";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {SCHEMA_VERSION} from "../../../constants/Constants";
 import {roundTo} from "../../../utils/roundTo";
 import {newSession} from "../../../services/sessionService";
-import {useRouter} from "expo-router";
+import {useLocalSearchParams, useRouter} from "expo-router";
+import {createDistanceProbabilities, createRollProbabilities} from "../../../components/simulations/Utils";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
     const colors = useColors();
     const router = useRouter();
-    const {userData, putters, grips} = useAppContext();
+    const {userData, putters, grips, currentStats} = useAppContext();
 
-    const holes = 9;
-    const difficulty = "medium";
-    const mode = "practice";
+    const {stringHoles, difficulty, mode} = useLocalSearchParams();
+    const holes = parseInt(stringHoles) || 3;
 
     const userLocation = {latitude: 42.204920, longitude: -85.632782}; // replace with useLocation() when ready
 
     const [taps, setTaps] = useState([]);
     const [pinLocations, setPinLocations] = useState([]);
     const [greenCoords, setGreenCoords] = useState(null);
-    const [osmGreenId, setOsmGreenId] = useState(null);
     const [lidarData, setLidarData] = useState(null);
     const [generatedHoles, setGeneratedHoles] = useState(null);
     const [holeNumber, setHoleNumber] = useState(1);
     const [roundData, setRoundData] = useState([]);
     const [startTime] = useState(new Date());
 
+    const rollProbabilities = useMemo(() => createRollProbabilities(currentStats), [currentStats]);
+    const distanceProbabilities = useMemo(() => createDistanceProbabilities(currentStats), [currentStats]);
+
     const confirmExitRef = React.useRef(null);
 
     // load map data and LiDAR
     useEffect(() => {
         const fetchData = async () => {
-            const {id, lidar: greenData} = await getOSMPuttingGreenByLatLon(userLocation.latitude, userLocation.longitude);
-            setGreenCoords(greenData);
-            setOsmGreenId(id);
+            // get from firebase first
+            const greenId = await getOSMPuttingGreenIdByLatLon(userLocation.latitude, userLocation.longitude);
+            getDoc(doc(firestore, "greens/" + greenId.toString())).then(async document => {
+                if (!document.exists()) {
+                    // fetch from osm
+                    const greenData = await getOSMPuttingGreenByLatLon(userLocation.latitude, userLocation.longitude);
+                    setGreenCoords(greenData);
 
-            const lidarData = await get3DEPElevationData({
-                ymin: Math.min(...greenData.map(pt => pt.latitude)),
-                ymax: Math.max(...greenData.map(pt => pt.latitude)),
-                xmin: Math.min(...greenData.map(pt => pt.longitude)),
-                xmax: Math.max(...greenData.map(pt => pt.longitude)),
+                    const lidarData = await get3DEPElevationData({
+                        ymin: Math.min(...greenData.map(pt => pt.latitude)),
+                        ymax: Math.max(...greenData.map(pt => pt.latitude)),
+                        xmin: Math.min(...greenData.map(pt => pt.longitude)),
+                        xmax: Math.max(...greenData.map(pt => pt.longitude)),
+                    });
+                    setLidarData(lidarData);
+
+                    setDoc(doc(firestore, "greens/" + greenId.toString()), {
+                        boundary: greenData,
+                        lidar: lidarData
+                    }).catch((error) => {
+                        console.error("Error saving green data to Firestore:", error);
+                    });
+                    return;
+                }
+
+                const data = document.data();
+                setGreenCoords(data.boundary);
+                setLidarData(data.lidar);
             });
-            setLidarData(lidarData);
         }
 
         fetchData().catch((error) => {
@@ -145,8 +169,7 @@ export default function PuttingGreen() {
                 units: userData.preferences.units,
                 synced: true, // TODO set this to false if not synced (if offline mode is ever added)
                 difficulty: difficulty,
-                mode: mode,
-                osmGreenId
+                mode: mode
             },
             "player": {
                 "putter": putters[userData.preferences.selectedPutter].type,
@@ -272,7 +295,7 @@ export default function PuttingGreen() {
                 ) : (
                     <SecondaryButton onPress={() => {
                         if (!greenCoords || !lidarData || pinLocations.length === 0) return;
-                        setGeneratedHoles(generatePracticeRound(greenCoords, lidarData, pinLocations));
+                        setGeneratedHoles(generatePracticeRound(greenCoords, lidarData, pinLocations, {maxDist: difficulty === "easy" ? 5 : difficulty === "medium" ? 9 : 15, minDist: difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3}));
                     }} style={{
                         borderRadius: 50,
                         flexDirection: "row",

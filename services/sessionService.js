@@ -49,8 +49,12 @@ export const newSession = async (uid, data) => {
 //     await setDoc(doc(firestore, `users/${uid}/fullRoundSessions`, data.id), data);
 // };
 
-export const deleteSession = async (uid, sessionId) => {
-    const sessionFilePath = `${sessionDirectory}/${sessionId}.json`;
-    await RNFS.unlink(sessionFilePath);
-    await deleteDoc(doc(firestore, `users/${uid}/sessions`, sessionId));
+export const deleteSession = (uid, sessionId, friends = []) => {
+    deleteDoc(doc(firestore, `users/${uid}/sessions`, sessionId));
+    deleteDoc(doc(firestore, `userFeed/${uid}/feedItems`, sessionId));
+
+    // loop through friends and delete their feedItems for this session
+    for (const friend of friends) {
+        deleteDoc(doc(firestore, `userFeed/${friend}/feedItems`, sessionId));
+    }
 };

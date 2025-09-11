@@ -104,7 +104,7 @@ export default function IndividualSession() {
 
     if (loading || !session || !userData) return <Loading />;
 
-    const numOfHoles = session.stats.holesPlayed;
+    const numOfHoles = session.meta === "green" ? session.stats.totalPutts : session.stats.holesPlayed;
 
     return loading ? <Loading /> : (
         <>

@@ -55,7 +55,10 @@ export default function IndividualSession() {
                     if (!data.schemaVersion || data.schemaVersion < 2)
                         data = adaptOldSession(data);
                     setSession({ id: docSnap.id, ...data });
-                } else console.warn("Session not found:", sessionId);
+                } else {
+                    console.warn("Session not found:", sessionId);
+                    navigation.goBack();
+                }
             } catch (error) {
                 console.error("Error fetching session:", error);
             } finally {
