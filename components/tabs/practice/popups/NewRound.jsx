@@ -374,13 +374,13 @@ export const NewRound = ({newSessionRef}) => {
                             newSessionRef.current?.dismiss();
                             if (userData.hasSeenRoundTutorial) {
                                 router.push({
-                                    pathname: `/simulation/round`, params: {
-                                        localHoles: holes, difficulty: difficulty, mode: mode,
+                                    pathname: `/simulation/putting-green`, params: {
+                                        stringHoles: holes, difficulty: difficulty, mode: mode,
                                     },
                                 });
                             } else {
                                 router.push({
-                                    pathname: `/simulation/round/demo`, params: {
+                                    pathname: `/simulation/putt-green/demo`, params: {
                                         justInfo: false, holes, difficulty: difficulty, mode: mode,
                                     },
                                 });

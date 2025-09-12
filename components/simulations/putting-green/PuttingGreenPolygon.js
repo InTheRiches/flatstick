@@ -1,5 +1,5 @@
 import Animated, {runOnJS, useAnimatedProps, useSharedValue} from "react-native-reanimated";
-import {Dimensions, Pressable} from "react-native";
+import {Dimensions, Platform, Pressable} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import * as d3 from "d3-shape";
 import Svg, {Circle, Defs, G, Line, Path, Pattern, Rect} from "react-native-svg";
@@ -208,21 +208,11 @@ const PuttingGreenPolygon = ({
                                     patternUnits="userSpaceOnUse"
                                     width="40"
                                     height="40"
-                                    patternTransform="rotate(45)"
+                                    patternTransform={Platform.OS === "android" ? "rotate(45)" : "rotate(0)"}
                                 >
                                     <Rect width="40" height="40" fill="#35aa03"/>
-                                    <Rect width="20" height="40" fill="#259704" opacity={0.4}/>
-                                    <Rect width="40" height="20" fill="#259704" opacity={0.4}/>
-                                </Pattern>
-                                <Pattern
-                                    id="fairwayPattern"
-                                    patternUnits="userSpaceOnUse"
-                                    width="40"
-                                    height="40"
-                                    patternTransform="rotate(-45)"
-                                >
-                                    <Rect width="40" height="40" fill="#43ac0a"/>
-                                    <Rect width="20" height="40" fill="#2a9100" opacity={0.4}/>
+                                    <Rect width="20" height="40" fill={Platform.OS === "android" ? "#259704" : "#1f7a04"} opacity={0.4}/>
+                                    <Rect width="40" height="20" fill={Platform.OS === "android" ? "#259704" : "#1f7a04"} opacity={0.4}/>
                                 </Pattern>
                             </Defs>
                             <Path d={greenPathData} fill="url(#greenPattern)" stroke={"black"} strokeWidth={1.5}/>

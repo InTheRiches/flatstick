@@ -1,4 +1,4 @@
-import {Pressable, Text, View} from "react-native";
+import {ActivityIndicator, Animated, Pressable, Text, View} from "react-native";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import React, {useEffect, useState} from "react";
 import {getOSMPuttingGreenByLatLon} from "../../../utils/courses/putting-greens/greenFetching";
@@ -13,23 +13,25 @@ import {generatePracticeRound} from "../../../utils/courses/putting-greens/green
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
 import {ConfirmExit} from "../../../components/simulations/popups";
 import {calculatePuttingGreenStats} from "../../../utils/courses/gpsStatsEngine";
-import {auth} from "../../../utils/firebase";
+import {auth, firestore} from "../../../utils/firebase";
 import {useAppContext} from "../../../contexts/AppContext";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {SCHEMA_VERSION} from "../../../constants/Constants";
 import {roundTo} from "../../../utils/roundTo";
 import {newSession} from "../../../services/sessionService";
-import {useRouter} from "expo-router";
+import {useLocalSearchParams, useRouter} from "expo-router";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
     const colors = useColors();
     const router = useRouter();
     const {userData, putters, grips} = useAppContext();
+    const {stringHoles, difficulty, mode} = useLocalSearchParams();
 
-    const holes = 9;
-    const difficulty = "medium";
-    const mode = "practice";
+    const holes = parseInt(stringHoles); //9;
+    // const difficulty = "medium";
+    // const mode = "practice";
 
     const userLocation = {latitude: 42.204920, longitude: -85.632782}; // replace with useLocation() when ready
 
@@ -43,27 +45,79 @@ export default function PuttingGreen() {
     const [roundData, setRoundData] = useState([]);
     const [startTime] = useState(new Date());
 
+    const [loadingAnim] = useState(new Animated.Value(0));
+
     const confirmExitRef = React.useRef(null);
 
     // load map data and LiDAR
     useEffect(() => {
+        let intervalId;
+
         const fetchData = async () => {
-            const {id, lidar: greenData} = await getOSMPuttingGreenByLatLon(userLocation.latitude, userLocation.longitude);
-            setGreenCoords(greenData);
-            setOsmGreenId(id);
+            try {
+                const result = await getOSMPuttingGreenByLatLon(
+                    userLocation.latitude,
+                    userLocation.longitude
+                );
 
-            const lidarData = await get3DEPElevationData({
-                ymin: Math.min(...greenData.map(pt => pt.latitude)),
-                ymax: Math.max(...greenData.map(pt => pt.latitude)),
-                xmin: Math.min(...greenData.map(pt => pt.longitude)),
-                xmax: Math.max(...greenData.map(pt => pt.longitude)),
-            });
-            setLidarData(lidarData);
-        }
+                // If nothing was found, just return and let the loop try again
+                if (!result || !result.id || !result.greenCoords) return;
 
-        fetchData().catch((error) => {
-            console.error("Error fetching putting green data:", error);
-        });
+                const { id, greenCoords: greenData } = result;
+                setGreenCoords(greenData);
+                setOsmGreenId(id);
+                Animated.timing(loadingAnim, {
+                    toValue: 1,
+                    duration: 800,
+                    useNativeDriver: true,
+                }).start();
+
+                // check the firebase first
+                const document = await getDoc(doc(firestore, "greens/" + id.toString()));
+                if (!document.exists()) {
+                    const lidarData = await get3DEPElevationData({
+                        ymin: Math.min(...greenData.map((pt) => pt.latitude)),
+                        ymax: Math.max(...greenData.map((pt) => pt.latitude)),
+                        xmin: Math.min(...greenData.map((pt) => pt.longitude)),
+                        xmax: Math.max(...greenData.map((pt) => pt.longitude)),
+                    });
+                    setLidarData(lidarData);
+                    setDoc(doc(firestore, "greens/" + id.toString()), {
+                        lidar: lidarData,
+                        timestamp: new Date().getTime()
+                    }).catch((error) => {
+                        console.error("Error saving LiDAR data:", error);
+                    })
+                    clearInterval(intervalId);
+
+                    return;
+                }
+
+                const data = document.data();
+                if (data && data.lidar) {
+                    setLidarData(data.lidar);
+                    clearInterval(intervalId);
+
+                    return;
+                }
+
+                console.error("Found firebase document but no LiDAR data.");
+                alert("Error loading LiDAR data. Please try again later. Contact support if the issue persists.");
+                clearInterval(intervalId);
+
+                router.replace('/practice');
+            } catch (error) {
+                alert("Error fetching putting green data. Please try again later. Contact support if the issue persists.");
+                console.error("Error fetching putting green data:", error);
+                router.replace('/practice');
+            }
+        };
+
+        // Try immediately, then retry every 5 seconds
+        fetchData();
+        intervalId = setInterval(fetchData, 5000);
+
+        return () => clearInterval(intervalId); // cleanup
     }, []);
 
     const nextHole = () => {
@@ -184,7 +238,30 @@ export default function PuttingGreen() {
         });
     }
 
-    return (
+    return !lidarData ? (
+        <ScreenWrapper style={{justifyContent: "center", alignItems: "center", paddingHorizontal: 20}}>
+            {!greenCoords ? (
+                // Waiting for green screen
+                <>
+                    <Text style={{fontSize: 22,fontWeight: "600",textAlign: "center",marginBottom: 10}}>Searching for a Putting Green...</Text>
+                    <ActivityIndicator size="large" color="#43ac0a" style={{ marginTop: 20 }} />
+                    <Text style={{fontSize: 16, color: "#8e8e8e", textAlign: "center", marginTop: 15, maxWidth: 300}}>Please wait while we locate the nearest green.</Text>
+                </>
+            ) : (
+                // Found green → transition
+                <Animated.View
+                    style={{
+                        opacity: loadingAnim,
+                        alignItems: "center",
+                    }}
+                >
+                    <Text style={{fontSize: 22,fontWeight: "600",textAlign: "center",marginBottom: 10}}>Green Found!</Text>
+                    <ActivityIndicator size="large" color="#1E90FF" style={{ marginTop: 20 }} />
+                    <Text style={{fontSize: 16, color: "#8e8e8e", textAlign: "center", marginTop: 15, maxWidth: 300}}>Loading LiDAR and elevation data...</Text>
+                </Animated.View>
+            )}
+        </ScreenWrapper>
+    ) : (
         <>
             <ScreenWrapper style={{paddingHorizontal: 20, justifyContent:"space-between"}}>
                 <View style={{flexDirection: "row", justifyContent: "space-between"}}>

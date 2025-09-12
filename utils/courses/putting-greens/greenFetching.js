@@ -4,7 +4,10 @@ export async function getOSMPuttingGreenByLatLon(lat, lon, latMargin = 0.00014, 
     const west = lon - longMargin;
     const east = lon + longMargin;
 
-    return {id: 909634548, lidar: [{"lat": 42.2050181, "lon": -85.6327692}, {"lat": 42.2050086, "lon": -85.6327946}, {
+    // hardcode a 1 second delay to avoid rate limiting
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    return {id: 909634548, greenCoords: [{"lat": 42.2050181, "lon": -85.6327692}, {"lat": 42.2050086, "lon": -85.6327946}, {
             "lat": 42.2049954,
             "lon": -85.6328321
         }, {"lat": 42.2049752, "lon": -85.6328679}, {"lat": 42.2049516, "lon": -85.6328942}, {

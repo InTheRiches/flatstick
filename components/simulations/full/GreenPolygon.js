@@ -263,21 +263,21 @@ const GreenPolygon = ({
                                     patternUnits="userSpaceOnUse"
                                     width="40"
                                     height="40"
-                                    patternTransform="rotate(45)"
+                                    patternTransform={Platform.OS === "android" ? "rotate(45)" : "rotate(0)"}
                                 >
                                     <Rect width="40" height="40" fill="#35aa03"/>
-                                    <Rect width="20" height="40" fill="#259704" opacity={0.4}/>
-                                    <Rect width="40" height="20" fill="#259704" opacity={0.4}/>
+                                    <Rect width="20" height="40" fill={Platform.OS === "android" ? "#259704" : "#1f7a04"} opacity={0.4}/>
+                                    <Rect width="40" height="20" fill={Platform.OS === "android" ? "#259704" : "#1f7a04"} opacity={0.4}/>
                                 </Pattern>
                                 <Pattern
                                     id="fairwayPattern"
                                     patternUnits="userSpaceOnUse"
-                                    width="40"
+                                    width="60"
                                     height="40"
-                                    patternTransform="rotate(-45)"
+                                    patternTransform={Platform.OS === "android" ? "rotate(-45)" : "rotate(0)"}
                                 >
-                                    <Rect width="40" height="40" fill="#43ac0a"/>
-                                    <Rect width="20" height="40" fill="#2a9100" opacity={0.4}/>
+                                    <Rect width="60" height="40" fill={Platform.OS === "android" ? "#43ac0a" : "#429a06"}/>
+                                    <Rect width="30" height="40" fill={Platform.OS === "android" ? "#2a9100" : "#0b7200"} opacity={0.4}/>
                                 </Pattern>
                             </Defs>
                             {fairwayPoints.map((fairway, index) => {
