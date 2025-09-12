@@ -137,7 +137,7 @@ export default function HomeScreen() {
                 </View>
             );
         }
-        if (item.session.type === "full") {
+        if (item.session.type === "full" || item.session.type === "real") {
             return <FullFeedItem userData={userData} item={item} />;
         }
         else if (item.session.type === "sim") {

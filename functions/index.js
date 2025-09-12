@@ -59,6 +59,11 @@ exports.fanOutFeedItem = functions.firestore
                     courseName: sessionData.meta.courseName, // Assuming courseName is part of meta
                 }
                 break;
+            case "real":
+                specifics = {
+                    courseName: sessionData.meta.courseName, // Assuming courseName is part of meta
+                }
+                break;
         }
 
         const feedItem = {

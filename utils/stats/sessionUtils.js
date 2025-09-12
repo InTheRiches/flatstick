@@ -192,9 +192,9 @@ const processSession = (session, newStats, yearlyStats, newPutters, newGrips, us
             });
         });
     } else {
-        session.puttHistory.forEach(putt => {
-            updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);
-        });
+        // session.puttHistory.forEach(putt => {
+        //     updateCategoryStats(putt, session, newStats, userData, newPutters, newGrips, averaging);
+        // });
     }
 };
 

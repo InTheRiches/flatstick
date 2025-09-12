@@ -1,5 +1,5 @@
-import {getElevationBilinear, getPuttGradient, METERS_PER_DEGREE} from "./gpsStatsEngine";
-import {FEET_PER_METER} from "../../constants/Constants";
+import {getElevationBilinear, getPuttGradient} from "./gpsStatsEngine";
+import {FEET_PER_METER, METERS_PER_DEGREE} from "../../constants/Constants";
 
 /**
  * Predicts the putt's break in inches based on green topography.
@@ -11,6 +11,8 @@ import {FEET_PER_METER} from "../../constants/Constants";
  */
 export async function predictPutt(lidarGrid, tap, pin, stimp = 10) {
     const grid = lidarGrid;
+
+    console.log(`Predicting putt from (${tap.latitude}, ${tap.longitude}) to (${pin.latitude}, ${pin.longitude}) on Stimp ${stimp}`);
 
     // --- 1. Calculate Distances and Elevations ---
     const dx_deg = pin.longitude - tap.longitude;

@@ -2,7 +2,7 @@ import ScreenWrapper from "../../../../components/general/ScreenWrapper";
 import FontText from "../../../../components/general/FontText";
 import React from "react";
 import useColors from "../../../../hooks/useColors";
-import {Image, Pressable, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {SecondaryButton} from "../../../../components/general/buttons/SecondaryButton";
 import {useLocalSearchParams, useNavigation, useRouter} from "expo-router";
 import Svg, {Path} from "react-native-svg";
@@ -37,31 +37,21 @@ export default function RoundDemo({}) {
                 <View style={{backgroundColor: colors.background.secondary, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 12}}>
                     <FontText style={{color: colors.text.secondary}}>This mode presents 18 holes of make-or-break putts designed to test consistency under pressure and track your putting trends.</FontText>
                 </View>
-                <View onLayout={onLayout} style={{flexDirection: "column", marginTop: 12, flex: 0.8, alignItems: "center"}}>
-                    <FontText style={{fontSize: 18, fontWeight: 500, width: "100%"}}>Step 1</FontText>
-                    <FontText style={{width: "100%"}}>This diagram shows the generated break that the app wants you to putt. Find this break and distance on your local putting green, and putt it out.</FontText>
-                    <Image source={require('@/assets/tutorials/round/greenBreakDemo.png')}
-                           style={{
-                               marginTop: 12,
-                               borderRadius: 12,
-                               aspectRatio: "553/396",
-                               maxWidth: "100%",
-                               maxHeight: maxWidth * 0.72,
-                               flex: 1,
-                           }}/>
+                <View onLayout={onLayout} style={{flexDirection: "column", marginTop: 12, alignItems: "center"}}>
+                    <FontText style={{fontSize: 20, fontWeight: 800, width: "100%"}}>Step 1</FontText>
+                    <FontText style={{width: "100%", fontSize: 15}}>For this mode to work, you need to be standing on or near a real life putting green. If yours doesnt show up, just contact us and we can add it.</FontText>
                 </View>
-                <View style={{flexDirection: "column", marginTop: 12, alignItems: "center", flex: 1, width: "100%"}}>
-                    <FontText style={{fontSize: 18, fontWeight: 500, width: "100%"}}>Step 2</FontText>
-                    <FontText style={{width: "100%"}}>Once you have putted it out, mark on this grid where you putt landed in regards to the hole. The units are labelled above.</FontText>
-                    <Image source={require('@/assets/tutorials/round/PuttingGreenDemo.png')}
-                           style={{
-                               borderRadius: 12,
-                               aspectRatio: "1",
-                               maxWidth: "100%",
-                               marginTop: 12,
-                               flex: 1,
-                               maxHeight: maxWidth
-                           }}/>
+                <View onLayout={onLayout} style={{flexDirection: "column", marginTop: 12, alignItems: "center"}}>
+                    <FontText style={{fontSize: 20, fontWeight: 800, width: "100%"}}>Step 2</FontText>
+                    <FontText style={{width: "100%", fontSize: 15}}>The app loads your putting green, and the only thing it needs, is for you to mark where the pins are. You can either walk to each, and click "Mark From Location," or you can manually tap to locate them.</FontText>
+                </View>
+                <View style={{flexDirection: "column", marginTop: 12, alignItems: "center", width: "100%"}}>
+                    <FontText style={{fontSize: 20, fontWeight: 800, width: "100%"}}>Step 3</FontText>
+                    <FontText style={{width: "100%", fontSize: 15}}>Once all of the pins are mapped, it generates a set of putts for you to attempt. The orange dot, is where it wants you to start from, and the red pin icon is where you should putt too. Try to be as accurate as possible when putting these.</FontText>
+                </View>
+                <View style={{flexDirection: "column", marginTop: 12, alignItems: "center", width: "100%", flex: 1}}>
+                    <FontText style={{fontSize: 20, fontWeight: 800, width: "100%"}}>Step 4</FontText>
+                    <FontText style={{width: "100%", fontSize: 15}}>Once you have putted out the hole, mark on the map where each putt went. Hold down to mark if you misread the slope or break. That means thought it went left->right when it actually went right->left, for example.</FontText>
                 </View>
                 <SecondaryButton onPress={() => {
                     if (isJustInfo) {

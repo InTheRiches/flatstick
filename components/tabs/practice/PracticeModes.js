@@ -12,7 +12,6 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
 
     const router = useRouter();
 
-    // TODO update the info page
     return (
         <View style={{marginTop: 24, gap: 12, marginBottom: 18}}>
             <FontText style={{ fontSize: 18, fontWeight: 800 }}>RECORD NEW SESSION</FontText>
@@ -21,15 +20,13 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
                 name={"FULL ROUND TRACKING"}
                 time={"90-240 min"}
                 focus={"Realism"}
-                onInfo={() => router.push({pathname: "/simulation/real/demo", params: {justInfo: true}})}
                 onPress={() => router.push({pathname: `/simulation/full/setup`})}/>
             <PracticeMode
                 description={"Just focus on your putting with detailed tracking on a real course."}
                 name={"JUST PUTT TRACKING"}
                 time={"90-240 min"}
                 focus={"Realism"}
-                onInfo={() => router.push({pathname: "/simulation/real/demo", params: {justInfo: true}})}
-                onPress={() => newRealRoundRef.current?.present()}/>
+                onPress={() => router.push({pathname: `/simulation/real/setup`})}/>
             <PracticeMode
                 description={"A realistic mode simulating 9-18 unique holes to track putting performance and improve skills."}
                 name={"PUTTING SIMULATION"}

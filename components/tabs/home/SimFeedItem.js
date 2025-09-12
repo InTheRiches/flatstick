@@ -24,7 +24,7 @@ export function SimFeedItem({userData, item}) {
                         <Image source={require('../../../assets/branding/FlatstickMallet.png')} style={{ width: 40, height: 40 }} />
                     </View>
                     <View style={{marginLeft: 8}}>
-                        <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>Hayden Williams</Text>
+                        <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>{item.user.displayName}</Text>
                         <Text style={{ color: colors.text.secondary, fontSize: 15, marginTop: -4}}>Simulated Round</Text>
                     </View>
                 </View>

@@ -1,5 +1,5 @@
 import Animated, {runOnJS, useAnimatedProps, useSharedValue} from "react-native-reanimated";
-import {Dimensions, Pressable, View} from "react-native";
+import {Dimensions, Platform, Pressable, View} from "react-native";
 import {Gesture, GestureDetector} from "react-native-gesture-handler";
 import {isPointInPolygon} from "@/utils/courses/polygonUtils";
 import {clampLineToBounds} from "@/utils/courses/boundsUtils";
@@ -23,8 +23,8 @@ const GreenPolygon = ({
                           pinLocation,
                           userLocation,
                           fairways,
-    holedOut,
-    setHoledOut,
+                        holedOut,
+                        setHoledOut,
                           misreadRef
                       }) => {
     const scale = useSharedValue(1);

@@ -1,6 +1,6 @@
 import {ActivityIndicator, Animated, Pressable, Text, View} from "react-native";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {getOSMPuttingGreenByLatLon} from "../../../utils/courses/putting-greens/greenFetching";
 import {PuttingGreenPolygon} from "../../../components/simulations/putting-green/PuttingGreenPolygon";
 import {viewBounds} from "../../../utils/courses/boundsUtils";
@@ -21,6 +21,7 @@ import {roundTo} from "../../../utils/roundTo";
 import {newSession} from "../../../services/sessionService";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {doc, getDoc, setDoc} from "firebase/firestore";
+import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
@@ -48,6 +49,9 @@ export default function PuttingGreen() {
     const [loadingAnim] = useState(new Animated.Value(0));
 
     const confirmExitRef = React.useRef(null);
+    const editPuttRef = useRef(null);
+
+    console.log("EditPuttRef:", editPuttRef);
 
     // load map data and LiDAR
     useEffect(() => {
@@ -308,6 +312,7 @@ export default function PuttingGreen() {
                             pinLocations={pinLocations}
                             setPinLocations={setPinLocations}
                             bounds={viewBounds(greenCoords, [])}
+                            misreadRef={editPuttRef}
                         />
                     )}
                     <View style={{flexDirection: "row", alignItems: "center", marginTop: 6}}>
@@ -390,8 +395,30 @@ export default function PuttingGreen() {
                     console.error("Error submitting partial round: " + e);
                 }
             }} end={() => {
-                router.replace("/");
+                router.replace("/practice");
             }}></ConfirmExit>
+            <EditPuttModal editPuttRef={editPuttRef} setMisreadSlope={(index) => {
+                setTaps(prev => {
+                    const newTaps = [...prev];
+                    newTaps[index].misreadSlope = !newTaps[index].misreadSlope;
+                    return newTaps;
+                });
+            }} setMisreadLine={index => {
+                setTaps(prev => {
+                    const newTaps = [...prev];
+                    newTaps[index].misreadLine = !newTaps[index].misreadLine;
+                    return newTaps;
+                });
+            }} deletePutt={index => {
+                setTaps(prev => {
+                    const newTaps = [];
+                    for (let i = 0; i < prev.length; i++) {
+                        if (i === index) continue;
+                        newTaps.push(prev[i]);
+                    }
+                    return newTaps;
+                });
+            }}/>
         </>
     )
 }

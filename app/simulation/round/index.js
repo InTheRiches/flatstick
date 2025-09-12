@@ -1,6 +1,6 @@
 import {Pressable, Text, View} from "react-native";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {
     getOSMPuttingGreenByLatLon,
     getOSMPuttingGreenIdByLatLon
@@ -25,6 +25,7 @@ import {newSession} from "../../../services/sessionService";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {createDistanceProbabilities, createRollProbabilities} from "../../../components/simulations/Utils";
 import {doc, getDoc, setDoc} from "firebase/firestore";
+import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
@@ -45,17 +46,21 @@ export default function PuttingGreen() {
     const [holeNumber, setHoleNumber] = useState(1);
     const [roundData, setRoundData] = useState([]);
     const [startTime] = useState(new Date());
+    const [osmGreenId, setOsmGreenId] = useState(null);
 
     const rollProbabilities = useMemo(() => createRollProbabilities(currentStats), [currentStats]);
     const distanceProbabilities = useMemo(() => createDistanceProbabilities(currentStats), [currentStats]);
 
-    const confirmExitRef = React.useRef(null);
+    const confirmExitRef = useRef(null);
+    const editPuttRef = useRef(null);
+    console.log(editPuttRef)
 
     // load map data and LiDAR
     useEffect(() => {
         const fetchData = async () => {
             // get from firebase first
             const greenId = await getOSMPuttingGreenIdByLatLon(userLocation.latitude, userLocation.longitude);
+            setOsmGreenId(greenId);
             getDoc(doc(firestore, "greens/" + greenId.toString())).then(async document => {
                 if (!document.exists()) {
                     // fetch from osm
@@ -169,6 +174,7 @@ export default function PuttingGreen() {
                 units: userData.preferences.units,
                 synced: true, // TODO set this to false if not synced (if offline mode is ever added)
                 difficulty: difficulty,
+                osmGreenId: osmGreenId,
                 mode: mode
             },
             "player": {
@@ -254,6 +260,7 @@ export default function PuttingGreen() {
                             pinLocations={pinLocations}
                             setPinLocations={setPinLocations}
                             bounds={viewBounds(greenCoords, [])}
+                            misreadRef={editPuttRef}
                         />
                     )}
                     <View style={{flexDirection: "row", alignItems: "center", marginTop: 6}}>
@@ -338,6 +345,28 @@ export default function PuttingGreen() {
             }} end={() => {
                 router.replace("/");
             }}></ConfirmExit>
+            <EditPuttModal editPuttRef={editPuttRef} setMisreadSlope={(index) => {
+                setTaps(prev => {
+                    const newTaps = [...prev];
+                    newTaps[index].misreadSlope = !newTaps[index].misreadSlope;
+                    return newTaps;
+                });
+            }} setMisreadLine={index => {
+                setTaps(prev => {
+                    const newTaps = [...prev];
+                    newTaps[index].misreadLine = !newTaps[index].misreadLine;
+                    return newTaps;
+                });
+            }} deletePutt={index => {
+                setTaps(prev => {
+                    const newTaps = [];
+                    for (let i = 0; i < prev.length; i++) {
+                        if (i === index) continue;
+                        newTaps.push(prev[i]);
+                    }
+                    return newTaps;
+                });
+            }}/>
         </>
     )
 }

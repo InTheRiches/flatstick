@@ -4,7 +4,6 @@ import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
 import useColors from "@/hooks/useColors";
 import CustomBackdrop from "@/components/general/popups/CustomBackdrop";
 import {PrimaryButton} from "@/components/general/buttons/PrimaryButton";
-import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import FontText from "../../../general/FontText";
 import {Exclamation} from "../../../../assets/svg/SvgComponents";
 
@@ -65,20 +64,15 @@ export function NoPuttDataModal({ noPuttDataModalRef, isLastHole, puttTrackingRe
                     }]}>
                         <FontText style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>{isLastHole ? "Submit" : "Next Hole"}</FontText>
                     </Pressable>
-                    {colorScheme === "light" ?
-                        [<PrimaryButton key={"secondary"} onPress={() => {
-                            puttTrackingRef.current.open();
-                            noPuttDataModalRef.current.dismiss();
-                        }} title={"Edit Putts"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>,
-                        <PrimaryButton key={"primary"} onPress={() => noPuttDataModalRef.current.dismiss()} title={"Cancel"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>]
-                        :
-                        [<SecondaryButton key={"primary"} onPress={() => {
-                            puttTrackingRef.current.open();
-                            noPuttDataModalRef.current.dismiss();
-                        }} title={"Edit Putts"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></SecondaryButton>,
-                        <SecondaryButton key={"secondary"} onPress={() => noPuttDataModalRef.current.dismiss()} title={"Cancel"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></SecondaryButton>]
-                    }
-                </View>
+                    {puttTrackingRef ?
+                            [<PrimaryButton key={"secondary"} onPress={() => {
+                                puttTrackingRef.current.open();
+                                noPuttDataModalRef.current.dismiss();
+                            }} title={"Edit Putts"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>,
+                                <PrimaryButton key={"primary"} onPress={() => noPuttDataModalRef.current.dismiss()} title={"Cancel"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>]
+                    : <PrimaryButton key={"primary"} onPress={() => noPuttDataModalRef.current.dismiss()} title={"Cancel"} style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>
+                }
+            </View>
             </View>
         </BottomSheetView>
     </BottomSheetModal>);

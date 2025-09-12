@@ -21,7 +21,7 @@ const PuttingGreenPolygon = ({
                           setPinLocations,
                           userLocation,
                           selectedHole,
-                          popupRef, // TODO maybe?
+                          misreadRef,
                       }) => {
     const scale = useSharedValue(1);
     const translateX = useSharedValue(0);

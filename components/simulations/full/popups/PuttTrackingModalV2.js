@@ -7,7 +7,6 @@ import FontText from "../../../general/FontText";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
-import {MisreadModal} from "../../popups/MisreadModal";
 import {GreenPolygon} from "../GreenPolygon";
 import useUserLocation from "../../../../hooks/useUserLocation";
 import {viewBounds} from "../../../../utils/courses/boundsUtils";
@@ -20,8 +19,6 @@ import {predictPutt} from "../../../../utils/courses/predictionUtils";
 export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bunkers, greens, hole}) {
     const colors = useColors();
     const bottomSheetRef = useRef(null);
-    const misreadRef = useRef(null);
-    const fullBigMissModalRef = useRef(null);
     const editPuttRef = useRef(null);
 
     const screenHeight = Dimensions.get("window").height;
@@ -295,7 +292,6 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                     return newTaps;
                 });
             }}/>
-            <MisreadModal misreadRef={misreadRef} setMisreadSlope={setMisReadSlope} setMisreadLine={setMisReadLine} misreadSlope={misReadSlope} misreadLine={misReadLine}/>
         </View>
     );
 }
