@@ -22,6 +22,7 @@ import {newSession} from "../../../services/sessionService";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
+import useUserLocation from "../../../hooks/useUserLocation";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
@@ -34,7 +35,9 @@ export default function PuttingGreen() {
     // const difficulty = "medium";
     // const mode = "practice";
 
-    const userLocation = {latitude: 42.204920, longitude: -85.632782}; // replace with useLocation() when ready
+    const userLocation = useUserLocation();
+
+    console.log("User location:", userLocation);
 
     const [taps, setTaps] = useState([]);
     const [pinLocations, setPinLocations] = useState([]);
@@ -52,11 +55,14 @@ export default function PuttingGreen() {
     const editPuttRef = useRef(null);
 
     // load map data and LiDAR
+    // TODO make this try a few times, and then stop, and give them a button to try again
     useEffect(() => {
         let intervalId;
 
         const fetchData = async () => {
             try {
+                if (!userLocation) return; // wait for location
+
                 const result = await getOSMPuttingGreenByLatLon(
                     userLocation.latitude,
                     userLocation.longitude
@@ -120,7 +126,7 @@ export default function PuttingGreen() {
         intervalId = setInterval(fetchData, 5000);
 
         return () => clearInterval(intervalId); // cleanup
-    }, []);
+    }, [userLocation]);
 
     const nextHole = () => {
         if (!generatedHoles) return;
@@ -248,6 +254,7 @@ export default function PuttingGreen() {
                     <Text style={{fontSize: 22,fontWeight: "600",textAlign: "center",marginBottom: 10}}>Searching for a Putting Green...</Text>
                     <ActivityIndicator size="large" color="#43ac0a" style={{ marginTop: 20 }} />
                     <Text style={{fontSize: 16, color: "#8e8e8e", textAlign: "center", marginTop: 15, maxWidth: 300}}>Please wait while we locate the nearest green.</Text>
+                    <SecondaryButton title={"Cancel"} onPress={() => router.replace("/practice")} style={{marginTop: 48, borderRadius: 50, paddingHorizontal: 48, paddingVertical: 10}}></SecondaryButton>
                 </>
             ) : (
                 // Found green → transition

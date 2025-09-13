@@ -51,6 +51,8 @@ export async function getOSMPuttingGreenByLatLon(lat, lon, latMargin = 0.00014, 
     });
     const data = await res.json();
 
+    console.log(data);
+
     const green = data.elements[0];
     if (!green) return null;
 
