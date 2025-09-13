@@ -18,7 +18,6 @@ export default function Modals({
                 confirmDeleteRef={confirmDeleteRef}
                 cancel={() => confirmDeleteRef.current.dismiss()}
                 onDelete={() => {
-                    console.log("deleting session", session.id);
                     deleteSession(session.id, userData.friends).then(() => {
                         if (isRecap) navigation.navigate("(tabs)");
                         else navigation.goBack();

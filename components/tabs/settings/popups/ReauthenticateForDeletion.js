@@ -44,7 +44,6 @@ export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef})
 
             deleteUser(currentUser).then(() => {
                 // User deleted.
-                console.log("User deleted");
                 setSession(null);
                 if (Platform.OS !== "ios") {
                     router.replace({pathname: "/login"});

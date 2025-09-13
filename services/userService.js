@@ -34,14 +34,10 @@ export const getUserDataByID = async (id) => {
 
     try {
         const docSnap = await getDoc(docRef);
-        console.log("doc snap: " + JSON.stringify(docSnap.data()));
         if (!docSnap.exists()) return null;
 
         const data = docSnap.data();
-        console.log("doc data1: " + JSON.stringify(data));
         if (data.deleted) return null;
-
-        console.log("doc data: " + JSON.stringify(data));
 
         return { ...data, uid: docSnap.id };
     } catch (e) {

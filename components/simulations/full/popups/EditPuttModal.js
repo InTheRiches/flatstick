@@ -13,8 +13,6 @@ export function EditPuttModal({ editPuttRef, setMisreadSlope, setMisreadLine, de
     const [misreadSlope, setOurMisreadSlope] = React.useState(false);
     const [misreadLine, setOurMisreadLine] = React.useState(false);
 
-    console.log("Rendering EditPuttModal with index:", index, "misreadSlope:", misreadSlope, "misreadLine:", misreadLine);
-
     const myBackdrop = useCallback(({animatedIndex, style}) => {
         return (<CustomBackdrop
             reference={bottomSheetRef}

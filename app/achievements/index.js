@@ -17,8 +17,6 @@ const AchievementList = ({ achievements }) => {
     const formatCategoryLabel = str =>
         str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-    console.log("Rendering AchievementList with achievements:", achievements);
-
     return (
         <ScrollView>
             {Object.entries(grouped).map(([category, items]) => (

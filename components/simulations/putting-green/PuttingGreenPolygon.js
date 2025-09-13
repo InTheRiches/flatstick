@@ -53,7 +53,7 @@ const PuttingGreenPolygon = ({
     }
     const computedTapPoints = useMemo(
         () => selectedHole ? [ toSvgPointLatLon(selectedHole.start), ...taps.map((tap) => toSvgPointLatLon(tap))] : taps.map((tap) => toSvgPointLatLon(tap)),
-        [taps, selectedHole]
+        [taps, selectedHole, showMisread]
     );
 
     const animatedProps = useAnimatedProps(() => ({
@@ -94,8 +94,6 @@ const PuttingGreenPolygon = ({
 
     const longPressGesture = Gesture.LongPress()
         .onStart((event) => {
-            const pressThreshold = 10; // pixels
-
             // --- Undo pan & zoom ---
             const x = (event.x - translateX.value) / scale.value;
             const y = (event.y - translateY.value) / scale.value;
@@ -111,7 +109,7 @@ const PuttingGreenPolygon = ({
                 const dx = tapPoint.x - x;
                 const dy = tapPoint.y - y;
                 if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
-                    runOnJS(setShowMisread)(i);
+                    runOnJS(setShowMisread)(i-1);
                     return;
                 }
             }

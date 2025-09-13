@@ -165,7 +165,6 @@ export default function FullRound() {
 
         // load OSM course data
         console.log("Starting fetch for course elements...");
-        console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
         // check to see if it exists in our db first
         getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
             setOSMCourseId(res[0]?.id);
@@ -352,7 +351,6 @@ export default function FullRound() {
         let selectedGreenPolygon = null;
         for (const g of newGreens) {
             if (g.hole === holeNum.toString()) {
-                console.log("Selected green for hole " + holeNum);
                 selectedGreenPolygon = g;
                 break;
             }

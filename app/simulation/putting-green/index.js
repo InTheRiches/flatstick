@@ -51,8 +51,6 @@ export default function PuttingGreen() {
     const confirmExitRef = React.useRef(null);
     const editPuttRef = useRef(null);
 
-    console.log("EditPuttRef:", editPuttRef);
-
     // load map data and LiDAR
     useEffect(() => {
         let intervalId;
@@ -295,6 +293,7 @@ export default function PuttingGreen() {
                 </View>
                 <View>
                     {generatedHoles ? <FontText style={{fontSize: 16, marginBottom: 10, marginTop: 32, color: colors.text.secondary}}>Tap on the green to mark each putt for the simulated hole.</FontText> : <FontText style={{fontSize: 16, marginBottom: 10, marginTop: 32, color: colors.text.secondary}}>Tap on the green to mark where the pins are. Tap again to remove them.</FontText>}
+                    {generatedHoles && <FontText style={{fontSize: 16, marginBottom: 10, color: colors.text.secondary}}>Long press on any putt to mark it as misread.</FontText>}
                     <FontText style={{fontSize: 16, marginBottom: 10, color: colors.text.secondary}}>Drag the green to pan, pinch to zoom.</FontText>
                     {(greenCoords) && (
                         <PuttingGreenPolygon
@@ -305,7 +304,7 @@ export default function PuttingGreen() {
                             onTap={(tap) => {
                                 if (!generatedHoles) setPinLocations([...pinLocations, tap]);
                                 else {
-                                    setTaps([...taps, tap]);
+                                    setTaps([...taps, {...tap, misreadLine: false, misreadSlope: false}]);
                                 }
                             }}
                             selectedHole={generatedHoles ? generatedHoles[holeNumber-1] : null}

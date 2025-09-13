@@ -99,7 +99,6 @@ export default function HomeScreen() {
 
             return () => {
                 // Optional cleanup when screen loses focus
-                console.log('Screen unfocused');
             };
         }, [])
     );

@@ -270,14 +270,12 @@ export default function PuttsOnlyRound() {
         let selectedGreenPolygon = null;
         for (const g of newGreens) {
             if (g.hole === holeNum.toString()) {
-                console.log("Selected green for hole " + holeNum);
                 selectedGreenPolygon = g;
                 break;
             }
         }
         if (!selectedGreenPolygon) {
             setHoleBunkers([]); // No green, no bunkers
-            console.log("No green found for hole " + holeNum);
             return;
         }
 

@@ -30,14 +30,10 @@ export default function UserScreen({}) {
     const {userDataString, userId = ""} = useLocalSearchParams();
     const router = useRouter();
 
-    console.log("userId:", userId);
-
     const [friendData, setFriendData] = React.useState(
         userDataString ? JSON.parse(userDataString) : null
     );
     const [loadingUser, setLoadingUser] = React.useState(!userDataString);
-    console.log("initial friendData:", friendData);
-    console.log("loadingUser:", !userDataString);
 
     useEffect(() => {
         if (!friendData && userId) {
@@ -49,7 +45,6 @@ export default function UserScreen({}) {
                 .catch((err) => console.error("Error fetching user data:", err))
                 .finally(() => setLoadingUser(false));
         } else if (friendData) {
-            console.log("Initial friendData:", friendData);
             setIsFriend(friendData.friends.includes(auth.currentUser.uid));
         }
     }, [userId]);

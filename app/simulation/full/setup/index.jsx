@@ -121,7 +121,6 @@ export default function GolfCourseSearchScreen() {
             const timeout = setTimeout(() => {
                 if (query.length > 2) {
                     setLoading(true);
-                    console.log("Searching for:", query, "at location:", userLocation);
                     searchGolfCourses(query, userLocation).then((data) => {
                         setResults(data.sort((a, b) => a.distance - b.distance));
                         setLoading(false);
