@@ -2,7 +2,6 @@ import {Pressable, View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 import {useRouter} from "expo-router";
-import {auth} from "../../../../utils/firebase";
 
 export const RECENT_SESSION_CONFIG = {
     "real": {
@@ -45,8 +44,7 @@ export const RecentSession = ({ recentSession }) => {
                     pathname: "sessions/individual",
                     params: {
                         jsonSession: JSON.stringify(recentSession),
-                        recap: false,
-                        userId: auth.currentUser.uid,
+                        recap: false
                     },
                 })
             }

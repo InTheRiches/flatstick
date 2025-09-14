@@ -26,7 +26,7 @@ export function FullFeedItem({userData, item}) {
                     </View>
                     <View style={{marginLeft: 8}}>
                         <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>{item.user.displayName}</Text>
-                        <Text style={{ color: colors.text.secondary, fontSize: 15, marginTop: -4}}>At {item.specifics.courseName}</Text>
+                        <Text style={{ color: colors.text.secondary, fontSize: 15, marginTop: -4}}>At {item.session.score ? item.specifics.courseName : "Practice Putting Green"}</Text>
                     </View>
                 </View>
                 <Text style={{ color: colors.text.secondary, fontSize: 16}}>{new Date(item.session.date).toLocaleDateString()}</Text>

@@ -5,6 +5,7 @@ import * as d3 from "d3-shape";
 import Svg, {Circle, Defs, G, Line, Path, Pattern, Rect} from "react-native-svg";
 import React, {useEffect, useMemo, useState} from "react";
 import {isPointInPolygonLatLon} from "../../../utils/courses/polygonUtils";
+import * as Location from "expo-location";
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -36,6 +37,24 @@ const PuttingGreenPolygon = ({
     const isPinching = useSharedValue(false);
 
     const [showMisread, setShowMisread] = useState(-1);
+
+    const heading = useSharedValue(0); // in degrees
+
+    useEffect(() => {
+        let subscription;
+
+        (async () => {
+            subscription = await Location.watchHeadingAsync((headingData) => {
+                if (headingData && headingData.trueHeading != null) {
+                    heading.value = headingData.trueHeading;
+                }
+            });
+        })();
+
+        return () => {
+            subscription?.remove(); // clean up on unmount
+        };
+    }, []);
 
     useEffect(() => {
         if (showMisread !== -1) {
@@ -70,6 +89,22 @@ const PuttingGreenPolygon = ({
             strokeWidth: 1 / scale.value, // keep stroke width consistent
         };
     }, []);
+
+    const inverseAnimatedPropsG = useAnimatedProps(() => {
+        if (userLocation === null) return {};
+
+        const x = (((userLocation.longitude) - bounds.minLon) / bounds.range) * svgSize;
+        const y = ((bounds.maxLat - (userLocation.latitude)) / bounds.range) * svgSize; // Y is inverted
+
+        return {
+            scale: 1 / scale.value, // keep stroke width consistent
+            x: x,
+            y: y,
+            transform: [
+                { rotate: `${heading.value}deg` },
+            ]
+        };
+    }, [heading]);
 
     if (!bounds || !greenCoords) return null;
 
@@ -232,68 +267,70 @@ const PuttingGreenPolygon = ({
                                 );
                             })}
                             { userLocation !== null && (
+                                <AnimatedG x={toSvgPointLatLon(userLocation).x} y={toSvgPointLatLon(userLocation).y} animatedProps={inverseAnimatedPropsG}>
                                     <AnimatedCircle
-                                        cx={toSvgPointLatLon(userLocation).x}
-                                        cy={toSvgPointLatLon(userLocation).y}
                                         fill="#76eeff"
                                         stroke="black"
-                                        animatedProps={inverseAnimatedProps}
+                                        r={8}
                                     />
-                                )
-                            }
-                            { selectedHole && (
-                                    <AnimatedCircle
-                                        cx={toSvgPointLatLon(selectedHole.start).x}
-                                        cy={toSvgPointLatLon(selectedHole.start).y}
-                                        fill="#ff9800"
-                                        stroke="white"
-                                        animatedProps={inverseAnimatedProps}
-                                    />
-                                )
-                            }
-                            {pinLocations && (
-                                pinLocations.map((pin, index) => {
-                                    const p = toSvgPointLatLon(pin);
-                                    const isSelectedHolePin = selectedHole && pin.latitude === selectedHole.pin.latitude && pin.longitude === selectedHole.pin.longitude;
-                                    return (
-                                        <React.Fragment key={"pin-" + index}>
-                                            <Circle
+                                    <Path scale={0.6} x={-7} y={-7} d="M12 2l6.5 18.5L12 16l-6.5 4.5L12 2z"/>
+                                </AnimatedG>
+                                    )
+                                    }
+                                    {selectedHole && (
+                                        <AnimatedCircle
+                                            cx={toSvgPointLatLon(selectedHole.start).x}
+                                            cy={toSvgPointLatLon(selectedHole.start).y}
+                                            fill="#ff9800"
+                                            stroke="white"
+                                            animatedProps={inverseAnimatedProps}
+                                        />
+                                    )
+                                    }
+                                    {pinLocations && (
+                                        pinLocations.map((pin, index) => {
+                                            const p = toSvgPointLatLon(pin);
+                                            const isSelectedHolePin = selectedHole && pin.latitude === selectedHole.pin.latitude && pin.longitude === selectedHole.pin.longitude;
+                                            return (
+                                                <React.Fragment key={"pin-" + index}>
+                                                    <Circle
+                                                        cx={p.x}
+                                                        cy={p.y}
+                                                        fill={isSelectedHolePin ? "#ef4343" : "white"}
+                                                        stroke={"white"}
+                                                        strokeWidth={isSelectedHolePin ? 1 : 0}
+                                                        r={6}
+                                                    />
+                                                    <Path fill={isSelectedHolePin ? "white" : "black"} scale={0.35}
+                                                          x={p.x - 4} y={p.y - 4} fillRule="evenodd"
+                                                          d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
+                                                          clipRule="evenodd"/>
+                                                </React.Fragment>
+                                            );
+                                        })
+                                    )}
+
+                                    {taps.map((tap, index) => {
+                                        const p = toSvgPointLatLon(tap);
+
+                                        return (
+                                            <AnimatedCircle
                                                 cx={p.x}
                                                 cy={p.y}
-                                                fill={isSelectedHolePin ? "#ef4343" : "white"}
-                                                stroke={"white"}
-                                                strokeWidth={isSelectedHolePin ? 1 : 0}
-                                                r={6}
+                                                r={1}
+                                                fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
+                                                stroke="black"
+                                                animatedProps={inverseAnimatedProps}
+                                                key={"tap-" + index}
                                             />
-                                            <Path fill={isSelectedHolePin ? "white" : "black"} scale={0.35} x={p.x-4} y={p.y-4} fillRule="evenodd"
-                                                  d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
-                                                  clipRule="evenodd"/>
-                                        </React.Fragment>
-                                    );
-                                })
-                            )}
-
-                            {taps.map((tap, index) => {
-                                const p = toSvgPointLatLon(tap);
-
-                                return (
-                                    <AnimatedCircle
-                                        cx={p.x}
-                                        cy={p.y}
-                                        r={1}
-                                        fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
-                                        stroke="black"
-                                        animatedProps={inverseAnimatedProps}
-                                        key={"tap-" + index}
-                                    />
+                                        );
+                                    })}
+                                </AnimatedG>
+                                </Svg>
+                                </Animated.View>
+                                </GestureDetector>
+                                </Pressable>
                                 );
-                            })}
-                        </AnimatedG>
-                    </Svg>
-                </Animated.View>
-            </GestureDetector>
-        </Pressable>
-    );
-};
+                            };
 
-export {PuttingGreenPolygon}
+                            export {PuttingGreenPolygon}

@@ -91,8 +91,11 @@ export default function Compare({}) {
                     </View>}
                 </PrimaryButton>
             </View>
-            <View style={{position: "absolute", bottom: 0}}>
-                <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+            <View style={{ alignItems: 'center', marginTop: 48 }}>
+                <BannerAd
+                    unitId={bannerAdId}
+                    size={BannerAdSize.MEDIUM_RECTANGLE}
+                />
             </View>
         </ScreenWrapper>
     )

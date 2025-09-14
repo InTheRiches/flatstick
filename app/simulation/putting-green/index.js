@@ -22,7 +22,6 @@ import {newSession} from "../../../services/sessionService";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
-import useUserLocation from "../../../hooks/useUserLocation";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
@@ -35,9 +34,7 @@ export default function PuttingGreen() {
     // const difficulty = "medium";
     // const mode = "practice";
 
-    const userLocation = useUserLocation();
-
-    console.log("User location:", userLocation);
+    const userLocation = {latitude: 42.204920, longitude: -85.632782}; // replace with useLocation() when ready useUserLocation(() => router.replace("/practice"));
 
     const [taps, setTaps] = useState([]);
     const [pinLocations, setPinLocations] = useState([]);
@@ -50,6 +47,7 @@ export default function PuttingGreen() {
     const [startTime] = useState(new Date());
 
     const [loadingAnim] = useState(new Animated.Value(0));
+    const [greenFound, setGreenFound] = useState(false);
 
     const confirmExitRef = React.useRef(null);
     const editPuttRef = useRef(null);
@@ -57,9 +55,15 @@ export default function PuttingGreen() {
     // load map data and LiDAR
     // TODO make this try a few times, and then stop, and give them a button to try again
     useEffect(() => {
+        if (greenFound) return; // already found a green
+        if (!userLocation) return; // wait for location
+
         let intervalId;
 
+        console.log("Starting to look for putting greens near:", userLocation);
+
         const fetchData = async () => {
+            console.log("Fetching putting green data...");
             try {
                 if (!userLocation) return; // wait for location
 
@@ -70,6 +74,9 @@ export default function PuttingGreen() {
 
                 // If nothing was found, just return and let the loop try again
                 if (!result || !result.id || !result.greenCoords) return;
+                clearInterval(intervalId);
+
+                setGreenFound(true);
 
                 const { id, greenCoords: greenData } = result;
                 setGreenCoords(greenData);
@@ -96,7 +103,6 @@ export default function PuttingGreen() {
                     }).catch((error) => {
                         console.error("Error saving LiDAR data:", error);
                     })
-                    clearInterval(intervalId);
 
                     return;
                 }
@@ -104,14 +110,12 @@ export default function PuttingGreen() {
                 const data = document.data();
                 if (data && data.lidar) {
                     setLidarData(data.lidar);
-                    clearInterval(intervalId);
 
                     return;
                 }
 
                 console.error("Found firebase document but no LiDAR data.");
                 alert("Error loading LiDAR data. Please try again later. Contact support if the issue persists.");
-                clearInterval(intervalId);
 
                 router.replace('/practice');
             } catch (error) {
@@ -121,7 +125,6 @@ export default function PuttingGreen() {
             }
         };
 
-        // Try immediately, then retry every 5 seconds
         fetchData();
         intervalId = setInterval(fetchData, 5000);
 
@@ -323,7 +326,20 @@ export default function PuttingGreen() {
                     )}
                     <View style={{flexDirection: "row", alignItems: "center", marginTop: 6}}>
                         <View style={{flexDirection: "row", flex: 1, alignItems: "center"}}>
-                            <View style={{aspectRatio: 1, width: 14, borderWidth: 1, marginRight: 6, borderRadius: "50%", backgroundColor: "#76eeff", marginLeft: 48}}></View>
+                            <View style={{
+                                aspectRatio: 1,
+                                width: 14,
+                                borderWidth: 1,
+                                marginRight: 6,
+                                borderRadius: "50%",
+                                backgroundColor: "#76eeff",
+                                marginLeft: 48
+                            }}>
+                                <Svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{marginLeft: -2, marginTop: -2}}
+                                     viewBox="0 0 24 24">
+                                    <Path d="M12 2l6.5 18.5L12 16l-6.5 4.5L12 2z"/>
+                                </Svg>
+                            </View>
                             <Text style={{fontWeight: 500}}>Your Location</Text>
                         </View>
                         <View style={{flexDirection: "row", flex: 1, alignItems: "center"}}>
