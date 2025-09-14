@@ -1,5 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
+import CheckBox from "@/components/general/buttons/Checkbox";
+import {BlurView} from "expo-blur";
 
 /**
  * A component to display putt prediction data in a clean, readable card.
@@ -7,6 +9,8 @@ import {StyleSheet, Text, View} from 'react-native';
  * - prediction: The result object from the predictPutt function.
  */
 const PuttPrediction = ({ prediction }) => {
+    const [showPrediction, setShowPrediction] = React.useState(true);
+
     // Show a loading indicator if the prediction is not yet available.
     if (!prediction) {
         return (
@@ -17,6 +21,7 @@ const PuttPrediction = ({ prediction }) => {
     // Determine elevation label and style
     const isUphill = prediction.elevationChangeInches >= 0;
     const elevationLabel = isUphill ? 'Uphill' : 'Downhill';
+    const breakLabel = prediction.aimingBreakInches >= 0 ? 'Right' : 'Left';
     const elevationStyle = isUphill ? styles.uphillText : styles.downhillText;
 
     // Determine break direction icon
@@ -25,16 +30,16 @@ const PuttPrediction = ({ prediction }) => {
     return (
         <View style={styles.container}>
             {/* Main Aiming Instruction */}
-            <Text style={styles.title}>Putt Data</Text>
-            {/*<View style={styles.aimingContainer}>*/}
-            {/*    <Text style={styles.aimingText}>*/}
-            {/*        <Text style={styles.aimingValue}>{prediction.aimingBreakInches.toFixed(1)}</Text>*/}
-            {/*        <Text style={styles.aimingUnit}> inches {prediction.breakDirection}</Text>*/}
-            {/*    </Text>*/}
-            {/*</View>*/}
-
-            {/*<View style={styles.separator} />*/}
-
+            <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 12}}>
+                <Text style={styles.title}>Putt Data</Text>
+                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
+                    <Text style={styles.title}>Show Prediction?</Text>
+                    <CheckBox
+                        isChecked={showPrediction}
+                        onPress={() => setShowPrediction(!showPrediction)}
+                    />
+                </View>
+            </View>
             {/* Secondary Stats */}
             <View style={styles.statsContainer}>
                 <View style={styles.statBlock}>
@@ -44,10 +49,20 @@ const PuttPrediction = ({ prediction }) => {
 
                 <View style={styles.statBlock}>
                     <Text style={styles.statLabel}>⛰️ Elevation</Text>
-                    <Text style={[styles.statValue, elevationStyle]}>
-                        {isUphill ? '+' : ''}{prediction.elevationChangeInches.toFixed(1)} in ({elevationLabel})
-                    </Text>
+                    <BlurView intensity={showPrediction ? 0 : 100} tint={"dark"}>
+                        <Text style={[styles.statValue, elevationStyle]}>
+                            {isUphill ? '+' : ''}{prediction.elevationChangeInches.toFixed(1)} in ({elevationLabel})
+                        </Text>
+                    </BlurView>
                 </View>
+            </View>
+            <View style={{...styles.statBlock, marginTop: 12}}>
+                <Text style={styles.statLabel}>➰ Break</Text>
+                <BlurView intensity={showPrediction ? 0 : 100} tint={"dark"}>
+                    <Text style={[styles.statValue, elevationStyle]}>
+                        {prediction.aimingBreakInches > 0 ? '+' : ''}{prediction.aimingBreakInches.toFixed(1)} in ({breakLabel})
+                    </Text>
+                </BlurView>
             </View>
         </View>
     );
@@ -79,8 +94,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         color: 'black',
-        textAlign: 'center',
-        marginBottom: 12,
+        textAlign: 'left',
     },
     aimingContainer: {
         alignItems: 'center',
@@ -88,7 +102,7 @@ const styles = StyleSheet.create({
         marginTop: -8
     },
     aimingText: {
-        fontSize: 48,
+        fontSize: 36,
         fontWeight: 'bold',
         color: '#111',
     },
@@ -96,7 +110,7 @@ const styles = StyleSheet.create({
         color: '#006400', // Dark Green
     },
     aimingUnit: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: '500',
         color: '#555',
     },

@@ -68,6 +68,20 @@ const GreenPolygon = ({
         ],
     }));
 
+    const animatedPinG = useAnimatedProps(() => {
+        console.log("Calculating animatedPinG with pinLocation:", pinLocation);
+        if (pinLocation === null) return {};
+
+        const x = (((pinLocation.longitude) - bounds.minLon) / bounds.range) * svgSize;
+        const y = ((bounds.maxLat - (pinLocation.latitude)) / bounds.range) * svgSize; // Y is inverted
+
+        return {
+            scale: 1 / scale.value, // keep stroke width consistent
+            x: x,
+            y: y
+        };
+    }, [pinLocation]);
+
     const pinLocationShared = useSharedValue(pinLocation);
 
     useEffect(() => {
@@ -342,13 +356,17 @@ const GreenPolygon = ({
                                 );
                             })}
                             {pinLocation && (
-                                <AnimatedCircle
-                                    cx={toSvgPointLatLon(pinLocation).x}
-                                    cy={toSvgPointLatLon(pinLocation).y}
-                                    fill="gold"
-                                    stroke="black"
-                                    animatedProps={inverseAnimatedProps}
-                                />
+                                <AnimatedG animatedProps={animatedPinG}>
+                                    <Circle
+                                        fill="gold"
+                                        stroke="black"
+                                        r={7}
+                                    />
+                                    <Path fill={"black"} scale={0.35}
+                                          x={-4} y={-4} fillRule="evenodd"
+                                          d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
+                                          clipRule="evenodd"/>
+                                </AnimatedG>
                             )}
                         </AnimatedG>
                     </Svg>
