@@ -982,7 +982,9 @@ function cleanMadePutts(averagePerformance) {
         }
     }
 
-    refinedMadePutts.overall = roundTo(averagePerformance.madePutts.overall / (averagePerformance.rounds * 18), 2);
+    const totalPutts = averagePerformance.puttsByDistance[0] + averagePerformance.puttsByDistance[1] + averagePerformance.puttsByDistance[2] + averagePerformance.puttsByDistance[3];
+
+    refinedMadePutts.overall = roundTo(averagePerformance.madePutts.overall / totalPutts, 2);
 
     return refinedMadePutts;
 }

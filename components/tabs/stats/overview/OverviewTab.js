@@ -98,8 +98,8 @@ export const OverviewTab = ({
                 </View>
 
                 <View style={{ flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default }}>
-                    <ColumnStat label={"AVG MISS"} value={convertUnits(statsToUse.avgMiss, personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
-                    <ColumnStat label={"DISTANCE"} value={convertUnits(statsToUse.totalDistance, personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
+                    <ColumnStat label={"AVG MISS"} value={convertUnits(roundTo(statsToUse.avgMiss, 1), personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
+                    <ColumnStat label={"DISTANCE"} value={convertUnits(roundTo(statsToUse.totalDistance, 1), personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
                     <ColumnStat label={"MISREADS"} value={statsToUse.puttsMisread} percent={roundTo((statsToUse.puttsMisread / 18) * 100, 0)} right />
                 </View>
             </View>

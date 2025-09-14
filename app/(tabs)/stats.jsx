@@ -44,6 +44,8 @@ export default function Stats({}) {
                     nonPersistentData.filtering.grip !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
     }, [nonPersistentData, currentStats]);
 
+    console.log("Current Stats:", currentStats);
+
     const tabs  = [
         {
             id: 1,
