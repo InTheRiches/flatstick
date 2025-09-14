@@ -32,7 +32,7 @@ export function FullFeedItem({userData, item}) {
                 <Text style={{ color: colors.text.secondary, fontSize: 16}}>{new Date(item.session.date).toLocaleDateString()}</Text>
             </Pressable>
             <Pressable onPress={() => {
-                router.push({pathname: (item.session.score ? "/sessions/individual/full" : "/sessions/individual"), params: {recap: false, userId: userData.uid === item.session.userId ? undefined : item.user.id, sessionId: item.session.id}});
+                router.push({pathname: (item.specifics.score ? "/sessions/individual/full" : "/sessions/individual"), params: {recap: false, userId: userData.uid === item.session.userId ? undefined : item.user.id, sessionId: item.session.id}});
             }}>
                 {item.specifics.score ? <BareScorecardCard data={item.scorecard}/> : <PuttScorecardCard data={item.scorecard} front={true} totalPutts={item.stats.totalPutts} strokesGained={item.stats.strokesGained}/>}
                 <View style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}}>

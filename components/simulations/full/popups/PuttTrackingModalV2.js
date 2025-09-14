@@ -89,7 +89,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
         }
 
         loadPrediction().catch(console.error);
-    }, [taps, hole, pinLocation]);
+    }, [taps, pinLocation, greenLidar]);
 
     // renders
     return (

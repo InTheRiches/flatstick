@@ -3,7 +3,7 @@ import {View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 
-export default function StrokesGainedSection({ session, bestSession, showBest= false }) {
+export default function StrokesGainedSection({ session, bestSession = {}, showBest= false }) {
     const colors = useColors();
 
     return (
@@ -13,12 +13,12 @@ export default function StrokesGainedSection({ session, bestSession, showBest= f
                 <FontText style={{ color: colors.text.primary, fontSize: session.strokesGained < -10 ? 40 : 48, fontWeight: 600 }}>
                     {session.stats.strokesGained > 0 ? "+" : ""}{session.stats.strokesGained}
                 </FontText>
-                { false &&
-                    <FontText style={{ color: colors.text.secondary, opacity: 0.8, fontSize: 13, fontWeight: 700 }}>
-                        (BEST: {bestSession.stats.totalPutts && bestSession.stats.strokesGained > 0 ? "+" : ""}{bestSession.stats.strokesGained})
-                    </FontText>
-                }
             </View>
         </View>
     );
 }
+//
+//                     <FontText style={{ color: colors.text.secondary, opacity: 0.8, fontSize: 13, fontWeight: 700 }}>
+//                         (BEST: {bestSession.stats.totalPutts && bestSession.stats.strokesGained > 0 ? "+" : ""}{bestSession.stats.strokesGained})
+//                     </FontText>
+//

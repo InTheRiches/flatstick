@@ -317,6 +317,14 @@ export default function FullRound() {
                 setPutts(0);
                 setPuttsLocked(true);
             }
+            else if (roundData[hole].puttData && roundData[hole].puttData.taps.length > 0 && !roundData[hole].puttData.holedOut) {
+                setPutts(roundData[hole].puttData.taps.length);
+                setPuttsLocked(true);
+            }
+            else {
+                setPuttsLocked(false);
+                setPutts(2);
+            }
             setHoleScore(roundData[hole].score);
             setApproachAccuracy(roundData[hole].approachAccuracy);
             setFairwayAccuracy(roundData[hole].fairwayAccuracy);
@@ -386,27 +394,43 @@ export default function FullRound() {
         // save current hole
         saveHole();
 
-        setHoleScore(roundData[hole-2].score);
-        setApproachAccuracy(roundData[hole-2].approachAccuracy);
-        setFairwayAccuracy(roundData[hole-2].fairwayAccuracy);
-        setPenalties(roundData[hole-2].penalties);
-        setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
-        setPuttData(roundData[hole-2].puttData);
+        if (roundData[hole-2].putts !== undefined) {
+            setHoleScore(roundData[hole - 2].score);
+            setApproachAccuracy(roundData[hole - 2].approachAccuracy);
+            setFairwayAccuracy(roundData[hole - 2].fairwayAccuracy);
+            setPenalties(roundData[hole - 2].penalties);
+            setHoleStartTime(new Date().getTime() - roundData[hole - 2].timeElapsed);
+            setPuttData(roundData[hole - 2].puttData);
 
-        if (Object.keys(roundData[hole-2].puttData).length !== 0) {
-            if (roundData[hole-2].puttData.holedOut) {// holed out
-                setPutts(0);
-                setPuttsLocked(true);
+            if (Object.keys(roundData[hole - 2].puttData).length !== 0) {
+                if (roundData[hole - 2].puttData.holedOut) {// holed out
+                    setPutts(0);
+                    setPuttsLocked(true);
+                } else if (roundData[hole - 2].puttData && roundData[hole - 2].puttData.taps.length > 0 && !roundData[hole - 2].puttData.holedOut) {
+                    setPutts(roundData[hole - 2].puttData.taps.length);
+                    setPuttsLocked(true);
+                } else {
+                    setPuttsLocked(false);
+                    setPutts(2);
+                }
             }
-            // else if (roundData[hole-2].puttData.center) {
-            //     setPutts(1);
-            //     setPuttsLocked(true);
-            // } else {
-            //     setPutts(roundData[hole-2].putts);
-            //     setPuttsLocked(false);
-            // }
+            puttTrackingRef.current.setData(roundData[hole - 2].puttData);
+        } else {
+            setHoleScore(tee.holes[hole-2].par)
+            setPutts(2);
+            setPuttsLocked(false);
+            setApproachAccuracy("green");
+            setFairwayAccuracy("green");
+            setPenalties(0);
+            setHoleStartTime(new Date().getTime());
+            setPuttData({
+                taps: [],
+                pinLocation: null,
+                holedOut: false,
+            });
+
+            puttTrackingRef.current.resetData();
         }
-        puttTrackingRef.current.setData(roundData[hole-2].puttData);
 
         recalculateHoleBunkers(greens, allBunkers, hole - 1);
         setHole(hole - 1);
@@ -426,14 +450,13 @@ export default function FullRound() {
             if (data.puttData?.holedOut === 0) {
                 setPutts(0);
                 setPuttsLocked(true);
+            } else if (data.puttData && data.puttData.taps.length > 0 && !data.puttData.holedOut) {
+                setPutts(data.puttData.taps.length);
+                setPuttsLocked(true);
+            } else {
+                setPuttsLocked(false);
+                setPutts(2);
             }
-            // else if (data.puttData?.center) {
-            //     setPutts(1);
-            //     setPuttsLocked(true);
-            // } else {
-            //     setPutts(data.putts);
-            //     setPuttsLocked(false);
-            // }
 
             setHoleScore(data.score);
             setApproachAccuracy(data.approachAccuracy);
@@ -563,21 +586,13 @@ export default function FullRound() {
     };
 
     const updatePuttData = (data) => {
-        if (data.distance === 0) {// holed out
-            setPutts(0);
+        if (data.taps && data.taps.length > 0) {
+            setPutts(data.taps.length);
             setPuttsLocked(true);
-        }
-        else if (data.center) {
-            setPutts(1);
-            setPuttsLocked(true);
-        }
-        else {
-            if (puttsLocked) {
-                setPutts(2);
-            }
+        } else {
+            setPutts(2);
             setPuttsLocked(false);
         }
-
         setPuttData(data)
     }
 
