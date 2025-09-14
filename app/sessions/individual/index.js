@@ -16,6 +16,7 @@ import {adaptOldSession} from "../../../services/userService";
 import {useAppContext} from "../../../contexts/AppContext";
 import {doc, getDoc} from "firebase/firestore";
 import {auth, firestore} from "../../../utils/firebase";
+import {PuttScorecardCard} from "../../../components/simulations/full/ScorecardCard";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
     ? "ca-app-pub-2701716227191721/6686596809"
@@ -112,6 +113,7 @@ export default function IndividualSession() {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginBottom: 86 }}>
                         <IndividualHeader session={session} isRecap={isRecap} infoModalRef={infoModalRef} />
+                        <PuttScorecardCard data={session.scorecard} front={true} roundedBottom={true} totalPutts={session.stats.totalPutts} strokesGained={session.stats.strokesGained}/>
                         <View style={{flexDirection: "row"}}>
                             <StrokesGainedSection session={session} bestSession={bestSession} showBest={userId === undefined}/>
                             <PerformanceSection session={session} numOfHoles={numOfHoles} preferences={userData.preferences} />

@@ -722,6 +722,7 @@ export default function FullRound() {
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
                 try {
+                    confirmExitRef.current.dismiss();
                     submit();
                 } catch(e) {
                     console.error("Error submitting partial round: " + e);

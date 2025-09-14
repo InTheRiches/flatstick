@@ -10,12 +10,13 @@ export function Session({session, userId}) {
     const colorScheme = "light";
 
     const condensedType = {
-        "real": "Round",
+        "real": "Putts",
+        "green": "Sim",
         "sim": "Sim",
         "full": "Full",
     }
     return (
-        <Pressable onPress={() => router.push({pathname: "sessions/individual", params: {jsonSession: JSON.stringify(session), recap: false, userId}})}
+        <Pressable onPress={() => router.push({pathname: session.meta.type === "full" ? "sessions/individual/full" : "sessions/individual", params: {jsonSession: JSON.stringify(session), recap: false, userId}})}
                    style={({pressed}) =>
                        [{
                            backgroundColor: colorScheme === "light" ? pressed ? colors.button.primary.depressed : colors.button.primary.background : pressed ? colors.button.primary.depressed : colors.button.primary.background,

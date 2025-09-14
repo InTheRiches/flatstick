@@ -11,7 +11,7 @@ export default function ScorecardHeader({session}) {
             <View style={{ flexDirection: "row", borderBottomWidth: 1, borderBottomColor: colors.border.default }}>
                 <View style={{flexDirection: "column", flex: 1, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                     <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>COURSE</FontText>
-                    <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{session.meta.courseName}</FontText>
+                    <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold", flexShrink: 1}}>{session.meta.courseName ?? "Practice Putting Green"}</FontText>
                 </View>
                 <View style={{flexDirection: "column", flex: 0.5, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
                     <FontText style={{fontSize: 13, textAlign: "left", fontWeight: 700, color: colors.text.tertiary,}}>TEE</FontText>

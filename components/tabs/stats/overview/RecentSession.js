@@ -8,7 +8,7 @@ export const RECENT_SESSION_CONFIG = {
         title: (s) => `${s.stats.holesPlayed} Hole Round`,
         fields: [
             { label: "SG", value: (s) => s.stats.strokesGained },
-            { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
+            { label: "COURSE", value: (s) => s.meta.courseName ?? "Unknown" },
         ],
     },
     "full": {
@@ -18,7 +18,7 @@ export const RECENT_SESSION_CONFIG = {
             { label: "COURSE", value: (s) => s.meta.courseName },
         ],
     },
-    "sim": {
+    "green": {
         title: (s) => `${s.stats.holesPlayed} Hole Simulation`,
         fields: [
             { label: "SG", value: (s) => s.stats.strokesGained },
