@@ -47,7 +47,7 @@ exports.fanOutFeedItem = functions.firestore
 
         let specifics = {};
         switch(sessionData.meta.type) {
-            case "sim":
+            case "green":
                 specifics = {
                     difficulty: sessionData.meta.difficulty, // Assuming difficulty is part of meta
                     mode: sessionData.meta.mode, // Assuming mode is part of meta

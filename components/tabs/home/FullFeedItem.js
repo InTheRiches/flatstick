@@ -26,7 +26,7 @@ export function FullFeedItem({userData, item}) {
                     </View>
                     <View style={{marginLeft: 8}}>
                         <Text style={{color: colors.text.primary, fontSize: 20, fontWeight: 500}}>{item.user.displayName}</Text>
-                        <Text style={{ color: colors.text.secondary, fontSize: 15, marginTop: -4}}>At {item.session.score ? item.specifics.courseName : "Practice Putting Green"}</Text>
+                        <Text style={{ color: colors.text.secondary, fontSize: 15, marginTop: -4}}>At {item.specifics.score ? item.specifics.courseName : "Practice Putting Green"}</Text>
                     </View>
                 </View>
                 <Text style={{ color: colors.text.secondary, fontSize: 16}}>{new Date(item.session.date).toLocaleDateString()}</Text>
@@ -34,7 +34,7 @@ export function FullFeedItem({userData, item}) {
             <Pressable onPress={() => {
                 router.push({pathname: (item.session.score ? "/sessions/individual/full" : "/sessions/individual"), params: {recap: false, userId: userData.uid === item.session.userId ? undefined : item.user.id, sessionId: item.session.id}});
             }}>
-                {item.session.score ? <BareScorecardCard data={item.scorecard}/> : <PuttScorecardCard data={item.scorecard} front={true} totalPutts={item.stats.totalPutts} strokesGained={item.stats.strokesGained}/>}
+                {item.specifics.score ? <BareScorecardCard data={item.scorecard}/> : <PuttScorecardCard data={item.scorecard} front={true} totalPutts={item.stats.totalPutts} strokesGained={item.stats.strokesGained}/>}
                 <View style={{backgroundColor: colors.background.secondary, borderWidth: 1, borderColor: colors.border.default, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}}>
                     <View style={{ flexDirection: "row", borderBottomWidth: 1, borderBottomColor: colors.border.default }}>
                         <View style={{flexDirection: "column", flex: 0.6, borderRightWidth: 1, borderColor: colors.border.default, paddingBottom: 8, paddingTop: 6, paddingLeft: 12,}}>
