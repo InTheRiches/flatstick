@@ -22,6 +22,7 @@ import {newSession} from "../../../services/sessionService";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
+import useUserLocation from "../../../hooks/useUserLocation";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
@@ -34,7 +35,7 @@ export default function PuttingGreen() {
     // const difficulty = "medium";
     // const mode = "practice";
 
-    const userLocation = {latitude: 42.204920, longitude: -85.632782}; // replace with useLocation() when ready useUserLocation(() => router.replace("/practice"));
+    const userLocation = useUserLocation(() => router.replace("/practice"));
 
     const [taps, setTaps] = useState([]);
     const [pinLocations, setPinLocations] = useState([]);
