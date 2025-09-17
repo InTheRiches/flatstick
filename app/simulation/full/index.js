@@ -27,9 +27,8 @@ import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPut
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
-import {newSession} from "../../../services/sessionService";
 import {SCHEMA_VERSION} from "../../../constants/Constants";
-import {auth, firestore} from "../../../utils/firebase";
+import {firestore} from "../../../utils/firebase";
 import {
     fetchCourseElements,
     get3DEPElevationData,
@@ -38,7 +37,7 @@ import {
 } from "../../../utils/courses/courseFetching";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
-import {analyzeIndividualPutts, calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
+import {calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -50,14 +49,13 @@ export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
     const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
-    const {userData, grips, putters} = useAppContext();
+    const {userData, grips, putters, processSession} = useAppContext();
     const confirmExitRef = useRef(null);
     const puttTrackingRef = useRef(null);
     const noPuttDataModalRef = useRef(null);
     const scorecardRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
-
     const holes = parseInt(stringHoles);
     const course = JSON.parse(stringCourse);
     const frontNine = stringFront === "true";
@@ -87,7 +85,6 @@ export default function FullRound() {
         holedOut: false,
     });
     const [roundData, setRoundData] = useState([]);
-
     const [puttsLocked, setPuttsLocked] = useState(false);
 
     const [adLoaded, setAdLoaded] = useState(false);
@@ -517,9 +514,8 @@ export default function FullRound() {
 
         const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.approachAccuracy === undefined ? 0 : hole.score === 0 ? 4 : hole.score), 0);
 
-        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens, userData.preferences.units);
+        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, detailedPutts, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens, userData.preferences.units);
         const { name, par, rating, slope, yards } = tee;
-        const detailedPutts = analyzeIndividualPutts(updatedRoundData, greens);
 
         const scorecard = updatedRoundData.map((hole, index) => ({score: hole.puttData ? hole.score : -1, par: hole.par}));
 
@@ -567,7 +563,7 @@ export default function FullRound() {
             scorecard,
         }
 
-        newSession(auth.currentUser.uid, newData).then(() => {
+        processSession(newData).then(() => {
             router.push({
                 pathname: `/sessions/individual/full`,
                 params: {

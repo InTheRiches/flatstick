@@ -6,6 +6,8 @@ import {useStats} from '@/hooks/useStats';
 import {usePutters} from '@/hooks/usePutters';
 import {useGrips} from '@/hooks/useGrips';
 import {useAchievements} from "@/hooks/useAchievements";
+import {addAggregateStats} from "@/services/statsService";
+import {auth} from "@/utils/firebase";
 
 const AppContext = createContext({
     userData: {},
@@ -52,7 +54,7 @@ export function AppContextProvider({ children }) {
         updateData
     });
     const { sessions, refreshData, newSession, deleteSession } = useSessions();
-    const { currentStats, yearlyStats, sixMonthStats, threeMonthStats, rawRefreshStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
+    const { currentStats, byMonthStats, yearlyStats, sixMonthStats, threeMonthStats, rawRefreshStats, saveIndividualMonthStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
         sessions
     );
@@ -74,9 +76,13 @@ export function AppContextProvider({ children }) {
         // }
         // loop through full round sessions
 
-        await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, newUserData);
+        //await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, newUserData);
 
-        console.log('AppContext initialized');
+        // TODO remove this
+        // const document = await getDoc(doc(firestore, "courses/265778472"));
+        // const data = document.data();
+        // await processSession(sessions[0], data.greens);
+
         setIsLoading(false);
     };
 
@@ -84,9 +90,13 @@ export function AppContextProvider({ children }) {
         await rawRefreshStats(putters, grips, setPutters, setGrips,undefined, newUserData)
     }
 
-    const processSession = async (session) => {
-        checkAchievements(session);
-        await newSession(session);
+    const processSession = async (session, greens) => {
+        //checkAchievements(session);
+        //await newSession(session);
+        const updatedByMonthlyStats = await addAggregateStats(auth.currentUser.uid, session, byMonthStats, greens);
+        const sessionDate = new Date(session.meta.date);
+        const monthKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, '0')}`;
+        await saveIndividualMonthStats(updatedByMonthlyStats[monthKey], monthKey);
     }
 
     const appContextValue = useMemo(
@@ -94,6 +104,7 @@ export function AppContextProvider({ children }) {
             userData,
             sessions,
             currentStats,
+            byMonthStats,
             putters,
             grips,
             previousStats,
@@ -121,7 +132,7 @@ export function AppContextProvider({ children }) {
             deleteGrip,
             calculateSpecificStats,
         }),
-        [userData, sessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements]
+        [userData, sessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements, byMonthStats]
     );
 
     return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>;

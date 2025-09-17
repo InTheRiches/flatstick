@@ -25,12 +25,14 @@ export const OverviewTab = ({
     const {userData} = useAppContext();
 
     let difference = 0;
-    if (
-        previousStats !== undefined &&
-        previousStats.length > 0
-    ) {
-        difference = statsToUse.strokesGained.overall - previousStats[0].strokesGained.overall;
-    }
+    // if (
+    //     previousStats !== undefined &&
+    //     previousStats.length > 0
+    // ) {
+    //     difference = ((statsToUse.expectedPutts - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18)) - ((previousStats[0].expectedPutts - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18))
+    // }
+
+    console.log(statsToUse)
 
     return (
         <ScrollView
@@ -45,8 +47,8 @@ export const OverviewTab = ({
 
             <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6 }}>
                 <FontText style={{ color: colors.text.primary, fontSize: 48, fontWeight: 600 }}>
-                    {statsToUse.strokesGained.overall > 0 ? "+" : ""}
-                    {statsToUse.strokesGained.overall}
+                    {((statsToUse.strokesGained.expectedStrokes - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18)) > 0 ? "+" : ""}
+                    {roundTo((statsToUse.strokesGained.expectedStrokes - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18), 1)}
                 </FontText>
 
                 {previousStats && previousStats.length > 0 && difference !== 0 && (
@@ -92,15 +94,15 @@ export const OverviewTab = ({
                 </View>
 
                 <View style={{ flexDirection: "row" }}>
-                    <ColumnStat label={"1 PUTTS"} value={statsToUse.onePutts} percent={roundTo((statsToUse.onePutts / 18) * 100, 0)} />
-                    <ColumnStat label={"3+ PUTTS"} value={statsToUse.threePutts} percent={roundTo((statsToUse.threePutts / 18) * 100, 0)} />
-                    <ColumnStat label={"AVG PUTTS"} value={statsToUse.avgPuttsARound} right />
+                    <ColumnStat label={"1 PUTTS"} value={roundTo(statsToUse.averageRound.onePutts / (statsToUse.holesPlayed / 18), 1)} percent={roundTo(((statsToUse.averageRound.onePutts / (statsToUse.holesPlayed / 18)) / 18) * 100, 0)} />
+                    <ColumnStat label={"3+ PUTTS"} value={roundTo(statsToUse.averageRound.threePlusPutts / (statsToUse.holesPlayed / 18), 1)} percent={roundTo(((statsToUse.averageRound.threePlusPutts / (statsToUse.holesPlayed / 18)) / 18) * 100, 0)} />
+                    <ColumnStat label={"AVG PUTTS"} value={roundTo(statsToUse.totalPutts/(statsToUse.holesPlayed/18), 1)} right />
                 </View>
 
                 <View style={{ flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.border.default }}>
-                    <ColumnStat label={"AVG MISS"} value={convertUnits(roundTo(statsToUse.avgMiss, 1), personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
-                    <ColumnStat label={"DISTANCE"} value={convertUnits(roundTo(statsToUse.totalDistance, 1), personsData.preferences.units, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
-                    <ColumnStat label={"MISREADS"} value={statsToUse.puttsMisread} percent={roundTo((statsToUse.puttsMisread / 18) * 100, 0)} right />
+                    <ColumnStat label={"AVG MISS"} value={convertUnits(roundTo(statsToUse.missData.totalMissDistance/statsToUse.missData.totalMissedPutts, 1), 0, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
+                    <ColumnStat label={"DISTANCE"} value={convertUnits(roundTo(statsToUse.averageRound.totalDistance/(statsToUse.holesPlayed / 18), 1), 0, userData.preferences.units)} units={userData.preferences.units === 0 ? "ft" : "m"} />
+                    <ColumnStat label={"MISREADS"} value={statsToUse.misreadData.totalMisreads/(statsToUse.holesPlayed/18)} percent={roundTo(((statsToUse.misreadData.totalMisreads/(statsToUse.holesPlayed/18)) / 18) * 100, 0)} right />
                 </View>
             </View>
 

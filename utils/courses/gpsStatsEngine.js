@@ -22,6 +22,8 @@ export function getElevationBilinear(x, y, grid) {
 
     if (width === -1) return grid[0].value;
 
+    console.log("Grid value at 0 0:", grid[0]);
+
     const height = grid.length / width;
     if (!Number.isInteger(height)) {
         // Grid is not rectangular, cannot interpolate reliably.
@@ -80,7 +82,7 @@ export function getElevationBilinear(x, y, grid) {
  * @param {number} h_meters - The step distance for finite difference, in meters.
  * @returns {{dx: number, dy: number}} The gradient as a unitless slope (m/m).
  */
-export function getPuttGradient(x, y, grid, h_meters = 0.01) { // Use a small step, e.g., 1 cm
+export function getPuttGradient(x, y, grid, h_meters = 1) { // Use a small step, e.g., 1 cm
     const lat_rad = y * (Math.PI / 180);
 
     // Convert step from meters to degrees for both longitude and latitude
@@ -171,6 +173,7 @@ export function getExpectedPutts(distanceFeet) {
  * @returns {object} A comprehensive object of putting statistics.
  */
 export function calculateGPSRoundStats(roundData, greens, units) {
+    const detailedPutts = [];
     const stats = {
         totalPutts: 0,
         holesPlayed: 0,
@@ -232,6 +235,11 @@ export function calculateGPSRoundStats(roundData, greens, units) {
             console.warn("No putt data for hole", hole);
             return;
         }
+
+        detailedPutts.push({
+            ...hole,
+            totalPutts: putts.length
+        });
 
         const { pinLocation, taps: putts } = hole.puttData;
         if (!putts || putts.length === 0) return;
@@ -318,19 +326,21 @@ export function calculateGPSRoundStats(roundData, greens, units) {
                 leftRightMissSumInches += latMissInches;
 
                 // Categorize short/long
-                if (longMissInches < 0) {
-                    stats.missDistribution.short++;
-                    shortMisses++;
+                if (Math.abs(longMissInches) > Math.abs(latMissInches)) {
+                    if (longMissInches < 0) {
+                        stats.missDistribution.short++;
+                        shortMisses++;
+                    } else {
+                        stats.missDistribution.long++;
+                    }
                 } else {
-                    stats.missDistribution.long++;
+                    // Categorize left/right (positive Y is a left miss)
+                    if (latMissInches > (units === 0 ? 18 : 0.5)) stats.missDistribution.farLeft++;
+                    else if (latMissInches > (units === 0 ? 3 : 0.1)) stats.missDistribution.left++;
+                    else if (latMissInches < (units === 0 ? -18 : -0.5)) stats.missDistribution.farRight++;
+                    else if (latMissInches < (units === 0 ? -3 : -0.1)) stats.missDistribution.right++;
+                    else stats.missDistribution.center++;
                 }
-
-                // Categorize left/right (positive Y is a left miss)
-                if (latMissInches > (units === 0 ? 18 : 0.5)) stats.missDistribution.farLeft++;
-                else if (latMissInches > (units === 0 ? 3 : 0.1)) stats.missDistribution.left++;
-                else if (latMissInches < (units === 0 ? -18 : -0.5)) stats.missDistribution.farRight++;
-                else if (latMissInches < (units === 0 ? -3 : -0.1)) stats.missDistribution.right++;
-                else stats.missDistribution.center++;
 
                 // --- High Side Percentage ---
                 const mid = {
@@ -338,8 +348,9 @@ export function calculateGPSRoundStats(roundData, greens, units) {
                     y: (startLoc.latitude + pinLocation.latitude) / 2
                 };
                 const grad = getPuttGradient(mid.x, mid.y, lidarGrid);
-                const puttDir = { x: lineVec.x, y: lineVec.y }; // Use degree vector, magnitude cancels out
-                const sideSlope = grad.dx * -puttDir.y + grad.dy * puttDir.x; // Positive = breaks left
+                const latDiffMeters = lineVec.y * 111320;
+                const lonDiffMeters = lineVec.x * 111320 * Math.cos(startLoc.latitude * Math.PI / 180);
+                const sideSlope = grad.dx * -latDiffMeters + grad.dy * lonDiffMeters;
 
                 const breaksLeft = sideSlope > 0;
                 const missedRight = latMissInches < 0;
@@ -412,7 +423,7 @@ export function calculateGPSRoundStats(roundData, greens, units) {
         }
     }
 
-    return stats;
+    return {...stats, detailedPutts};
 }
 
 /**
@@ -551,19 +562,21 @@ export function calculateGPSPuttsOnlyStats(roundData, greens, units) {
                 leftRightMissSumInches += latMissInches;
 
                 // Categorize short/long
-                if (longMissInches < 0) {
-                    stats.missDistribution.short++;
-                    shortMisses++;
+                if (Math.abs(longMissInches) > Math.abs(latMissInches)) {
+                    if (longMissInches < 0) {
+                        stats.missDistribution.short++;
+                        shortMisses++;
+                    } else {
+                        stats.missDistribution.long++;
+                    }
                 } else {
-                    stats.missDistribution.long++;
+                    // Categorize left/right (positive Y is a left miss)
+                    if (latMissInches > (units === 0 ? 18 : 0.5)) stats.missDistribution.farLeft++;
+                    else if (latMissInches > (units === 0 ? 3 : 0.1)) stats.missDistribution.left++;
+                    else if (latMissInches < (units === 0 ? -18 : -0.5)) stats.missDistribution.farRight++;
+                    else if (latMissInches < (units === 0 ? -3 : -0.1)) stats.missDistribution.right++;
+                    else stats.missDistribution.center++;
                 }
-
-                // Categorize left/right (positive Y is a left miss)
-                if (latMissInches > (units === 0 ? 18 : 0.5)) stats.missDistribution.farLeft++;
-                else if (latMissInches > (units === 0 ? 3 : 0.1)) stats.missDistribution.left++;
-                else if (latMissInches < (units === 0 ? -18 : -0.5)) stats.missDistribution.farRight++;
-                else if (latMissInches < (units === 0 ? -3 : -0.1)) stats.missDistribution.right++;
-                else stats.missDistribution.center++;
 
                 // --- High Side Percentage ---
                 const mid = {
@@ -571,8 +584,9 @@ export function calculateGPSPuttsOnlyStats(roundData, greens, units) {
                     y: (startLoc.latitude + pinLocation.latitude) / 2
                 };
                 const grad = getPuttGradient(mid.x, mid.y, lidarGrid);
-                const puttDir = { x: lineVec.x, y: lineVec.y }; // Use degree vector, magnitude cancels out
-                const sideSlope = grad.dx * -puttDir.y + grad.dy * puttDir.x; // Positive = breaks left
+                const latDiffMeters = lineVec.y * 111320;
+                const lonDiffMeters = lineVec.x * 111320 * Math.cos(startLoc.latitude * Math.PI / 180);
+                const sideSlope = grad.dx * -latDiffMeters + grad.dy * lonDiffMeters;
 
                 const breaksLeft = sideSlope > 0;
                 const missedRight = latMissInches < 0;
@@ -732,20 +746,20 @@ export function calculatePuttingGreenStats(roundData, lidar, units) {
                 leftRightMissSumInches += latMissInches;
 
                 // Categorize short/long
-                if (longMissInches < 0) {
-                    stats.missDistribution.short++;
-                    shortMisses++;
-                }
-
-                // Categorize left/right (positive Y is a left miss)
-                if (longMissInches > 0 && longMissInches < (units === 0 ? 18 : 0.5)) {
+                if (Math.abs(longMissInches) > Math.abs(latMissInches)) {
+                    if (longMissInches < 0) {
+                        stats.missDistribution.short++;
+                        shortMisses++;
+                    } else {
+                        stats.missDistribution.long++;
+                    }
+                } else {
+                    // Categorize left/right (positive Y is a left miss)
                     if (latMissInches > (units === 0 ? 18 : 0.5)) stats.missDistribution.farLeft++;
                     else if (latMissInches > (units === 0 ? 3 : 0.1)) stats.missDistribution.left++;
                     else if (latMissInches < (units === 0 ? -18 : -0.5)) stats.missDistribution.farRight++;
                     else if (latMissInches < (units === 0 ? -3 : -0.1)) stats.missDistribution.right++;
                     else stats.missDistribution.center++;
-                } else if (longMissInches > 0) {
-                    stats.missDistribution.long++;
                 }
 
                 // --- High Side Percentage ---
@@ -754,8 +768,10 @@ export function calculatePuttingGreenStats(roundData, lidar, units) {
                     y: (startLoc.latitude + pinLocation.latitude) / 2
                 };
                 const grad = getPuttGradient(mid.x, mid.y, lidar);
-                const puttDir = { x: lineVec.x, y: lineVec.y }; // Use degree vector, magnitude cancels out
-                const sideSlope = grad.dx * -puttDir.y + grad.dy * puttDir.x; // Positive = breaks left
+
+                const latDiffMeters = lineVec.y * 111320;
+                const lonDiffMeters = lineVec.x * 111320 * Math.cos(startLoc.latitude * Math.PI / 180);
+                const sideSlope = grad.dx * -latDiffMeters + grad.dy * lonDiffMeters;
 
                 const breaksLeft = sideSlope > 0;
                 const missedRight = latMissInches < 0;
@@ -907,7 +923,6 @@ export function analyzeIndividualPutts(roundData, greens, units) {
     return detailedPutts;
 }
 
-// TODO use an aggregate function to update stats rather than recalculating everything each time
 export const updateStatsForGPSPutt = (stats, hole, putt, puttIndex, pin, lidar) => {
     const {latitude, longitude, misReadLine, misReadSlope} = putt;
 
@@ -961,10 +976,6 @@ export const updateStatsForGPSPutt = (stats, hole, putt, puttIndex, pin, lidar) 
         const latRad = latitude * (Math.PI / 180);
         const metersPerLonDegree = METERS_PER_DEGREE * Math.cos(latRad);
 
-        // Rotated X is now the short/long axis, Y is the left/right axis
-        missXDistance = (-rotatedX * metersPerLonDegree) * FEET_PER_METER; // Long(+)/Short(-) in feet
-        missYDistance = (rotatedY * METERS_PER_DEGREE) * FEET_PER_METER;   // Left(+)/Right(-) in feet
-
         stats.avgMiss += distanceMissed;
         stats.avgMissDistance[distanceIndex] += distanceMissed;
 
@@ -983,9 +994,9 @@ export const updateStatsForGPSPutt = (stats, hole, putt, puttIndex, pin, lidar) 
         if (longMissInches < 0) {
             stats.percentShort++;
         }
-
-        const puttDir = { x: lineVec.x, y: lineVec.y }; // Use degree vector, magnitude cancels out
-        const sideSlope = grad.dx * -puttDir.y + grad.dy * puttDir.x; // Positive = breaks left
+        const latDiffMeters = lineVec.y * 111320;
+        const lonDiffMeters = lineVec.x * 111320 * Math.cos(putt.latitude * Math.PI / 180);
+        const sideSlope = grad.dx * -latDiffMeters + grad.dy * lonDiffMeters;
 
         const breaksLeft = sideSlope > 0;
         const missedRight = latMissInches < 0;

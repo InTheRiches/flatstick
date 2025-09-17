@@ -1,16 +1,13 @@
 // hooks/useStats.js
 import {useState} from 'react';
-import {getAuth} from '@/utils/firebase';
-import {
-    calculateSpecificStats,
-    getAllStats,
-    getPreviousStats,
-    updateFirebaseYearlyStats,
-    updateStats
-} from '@/services/statsService';
+import {firestore, getAuth} from '@/utils/firebase';
+import {calculateSpecificStats, getPreviousStats, updateFirebaseYearlyStats} from '@/services/statsService';
+import {createSimpleRefinedStats} from "@/utils/PuttUtils";
+import {collection, doc, getDocs, query, setDoc} from "firebase/firestore";
 
 export const useStats = (userData, puttSessions) => {
-    const [currentStats, setCurrentStats] = useState({});
+    const [currentStats, setCurrentStats] = useState(createSimpleRefinedStats());
+    const [byMonthStats, setByMonthStats] = useState({});
     const [yearlyStats, setYearlyStats] = useState({});
     const [sixMonthStats, setSixMonthStats] = useState({});
     const [threeMonthStats, setThreeMonthStats] = useState({});
@@ -22,25 +19,46 @@ export const useStats = (userData, puttSessions) => {
         await getPreviousStats();
     }
 
+    const saveIndividualMonthStats = async (newStats, docId) => {
+        console.log("Fetched monthly stats 1:", Object.keys(byMonthStats));
+        const newByMonthStats = {...byMonthStats, [docId]: newStats};
+        setByMonthStats(newByMonthStats);
+        await setDoc(doc(firestore, `users/${auth.currentUser.uid}/monthlyStats/${docId}`), newStats);
+
+        console.log("Fetched monthly stats 2:", Object.keys(newByMonthStats));
+    }
+
     const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, newUserData = userData) => {
-        return await updateStats(
-            auth.currentUser.uid,
-            newUserData,
-            sessions,
-            putters,
-            grips,
-            setCurrentStats,
-            setYearlyStats,
-            setPutters,
-            setGrips
-        );
+        return currentStats;
+        // return await updateStats(
+        //     auth.currentUser.uid,
+        //     newUserData,
+        //     sessions,
+        //     putters,
+        //     grips,
+        //     setCurrentStats,
+        //     setYearlyStats,
+        //     setPutters,
+        //     setGrips
+        // );
     };
 
     const fetchAllStats = async () => {
-        const stats = await getAllStats(auth.currentUser.uid, yearlyStats);
-        setCurrentStats(stats.currentStats);
-        setYearlyStats(stats.yearlyStats)
-        return stats;
+        const statsRef = collection(firestore, "users", auth.currentUser.uid, "monthlyStats");
+        const snapshot = await getDocs(query(statsRef));
+
+        const data = {};
+        snapshot.forEach((doc) => {
+            data[doc.id] = doc.data(); // doc.id is "2025-09"
+        });
+
+        setByMonthStats(data);
+        console.log("Fetched monthly stats:", Object.keys(data));
+        // const stats = await getAllStats(auth.currentUser.uid, yearlyStats);
+        //setCurrentStats(stats.currentStats);
+        // setYearlyStats(stats.yearlyStats)
+        // return stats;
+        return currentStats;
     };
 
     const fetchPreviousStats = async () => {
@@ -56,10 +74,12 @@ export const useStats = (userData, puttSessions) => {
 
     return {
         currentStats,
+        byMonthStats,
         yearlyStats,
         sixMonthStats,
         threeMonthStats,
         previousStats,
+        saveIndividualMonthStats,
         rawRefreshStats,
         fetchAllStats,
         initializeStats,

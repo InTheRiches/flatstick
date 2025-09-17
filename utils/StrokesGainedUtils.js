@@ -59,6 +59,17 @@ function cleanAverageStrokesGained(averagePerformance, strokesGained = -999) {
     return refinedStrokesGained;
 }
 
+export function calculateExpectedStrokesForSession(session) {
+    if (!session.puttHistory || session.puttHistory.length === 0) return 0;
+
+    let expectedStrokes = 0;
+    session.puttHistory.forEach(putt => {
+        expectedStrokes += calculateBaselineStrokesGained(putt.distance);
+    });
+
+    return expectedStrokes;
+}
+
 function calculateBaselineStrokesGained(distance) {
     // Ensure the data points are sorted by distance
     sgBaselinePutts.sort((a, b) => a.distance - b.distance);

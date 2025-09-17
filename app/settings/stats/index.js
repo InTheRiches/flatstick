@@ -1,4 +1,4 @@
-import {Platform, Pressable, Switch, View} from "react-native";
+import {Platform, Pressable, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {FilterGrips, FilterPutters} from "../../../components/tabs/stats/settings/popups";
@@ -56,16 +56,16 @@ export default function StatSettings({}) {
                     <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Stat Settings</FontText>
                 </View>
                 <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>PREFERENCES</FontText>
-                <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                    <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Show Mishits</FontText>
-                    <Switch
-                        trackColor={{false: colors.switch.track, true: colors.switch.active.track}}
-                        thumbColor={misHits ? colors.switch.active.thumb : colors.switch.thumb}
-                        ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleMisHits}
-                        value={misHits}
-                    />
-                </View>
+                {/*<View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>*/}
+                {/*    <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Show Mishits</FontText>*/}
+                {/*    <Switch*/}
+                {/*        trackColor={{false: colors.switch.track, true: colors.switch.active.track}}*/}
+                {/*        thumbColor={misHits ? colors.switch.active.thumb : colors.switch.thumb}*/}
+                {/*        ios_backgroundColor="#3e3e3e"*/}
+                {/*        onValueChange={toggleMisHits}*/}
+                {/*        value={misHits}*/}
+                {/*    />*/}
+                {/*</View>*/}
                 <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
                     <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Filter Putters</FontText>
                     <Pressable

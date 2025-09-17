@@ -13,12 +13,11 @@ import {generatePracticeRound} from "../../../utils/courses/putting-greens/green
 import {PrimaryButton} from "../../../components/general/buttons/PrimaryButton";
 import {ConfirmExit} from "../../../components/simulations/popups";
 import {calculatePuttingGreenStats} from "../../../utils/courses/gpsStatsEngine";
-import {auth, firestore} from "../../../utils/firebase";
+import {firestore} from "../../../utils/firebase";
 import {useAppContext} from "../../../contexts/AppContext";
 import generatePushID from "../../../components/general/utils/GeneratePushID";
 import {SCHEMA_VERSION} from "../../../constants/Constants";
 import {roundTo} from "../../../utils/roundTo";
-import {newSession} from "../../../services/sessionService";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
@@ -28,7 +27,7 @@ import useUserLocation from "../../../hooks/useUserLocation";
 export default function PuttingGreen() {
     const colors = useColors();
     const router = useRouter();
-    const {userData, putters, grips} = useAppContext();
+    const {userData, putters, grips, processSession} = useAppContext();
     const {stringHoles, difficulty, mode} = useLocalSearchParams();
 
     const holes = parseInt(stringHoles); //9;
@@ -236,7 +235,7 @@ export default function PuttingGreen() {
             holeHistory: detailedPutts,
             scorecard,
         }
-        newSession(auth.currentUser.uid, newData).then(() => {
+        processSession(newData).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {

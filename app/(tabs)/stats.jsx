@@ -5,27 +5,31 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Toggleable} from "../../components/general/buttons/Toggleable";
 import {StrokesGainedTab} from "../../components/tabs/stats/sg";
 import {OverviewTab} from "../../components/tabs/stats/overview";
-import {PuttsAHoleTab} from "../../components/tabs/stats/putts";
-import {MadePuttsTab} from "../../components/tabs/stats/made";
 import Svg, {Path} from "react-native-svg";
 import {useNavigation, useRouter} from "expo-router";
-import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import Loading from "../../components/general/popups/Loading";
 import FontText from "../../components/general/FontText";
-import MissBiasTab from "../../components/tabs/stats/missbias/MissBiasTab";
 
 export default function Stats({}) {
     const colors = useColors();
     const router = useRouter();
     const navigation = useNavigation()
 
-    const {currentStats, sessions, previousStats, yearlyStats, putters, grips, nonPersistentData, userData, calculateSpecificStats} = useAppContext();
+    const {currentStats, byMonthStats, sessions, previousStats, yearlyStats, putters, grips, nonPersistentData, userData, calculateSpecificStats} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     const [tab, setTab] = useState(0);
     const [isUserScrolling, setIsUserScrolling] = useState(false);
-    const [statsToUse, setStatsToUse] = useState(currentStats);
+    const statsToUse = useMemo(() => {
+        let combined = [];
+        Object.keys(byMonthStats).forEach(m => {
+            if (byMonthStats[m]) {
+                combined = combined.concat(byMonthStats[m]);
+            }
+        });
+        return combined[0];
+    }, [byMonthStats]);
     const [isReady, setIsReady] = useState(false)
 
     const listRef = useRef(null);
@@ -37,14 +41,12 @@ export default function Stats({}) {
         });
     }, []);
 
-    useEffect(() => {
-        setStatsToUse(
-            nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
-                nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
-                    nonPersistentData.filtering.grip !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
-    }, [nonPersistentData, currentStats]);
-
-    console.log("Current Stats:", currentStats);
+    // useEffect(() => {
+    //     setStatsToUse(
+    //         nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
+    //             nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
+    //                 nonPersistentData.filtering.grip !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
+    // }, [nonPersistentData, currentStats]);
 
     const tabs  = [
         {
@@ -59,37 +61,37 @@ export default function Stats({}) {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
-                return <StrokesGainedTab statsToUse={statsToUse} previousStats={previousStats} showDifference={currentStats === statsToUse} yearlyStats={yearlyStats}/>
-            }, [statsToUse, currentStats, previousStats, yearlyStats])
+                return <StrokesGainedTab statsToUse={statsToUse} byMonthStats={byMonthStats} previousStats={previousStats} showDifference={currentStats === statsToUse} yearlyStats={yearlyStats}/>
+            }, [statsToUse, byMonthStats, currentStats, previousStats, yearlyStats])
         },
-        {
-            id: 3,
-            title: "Putts / Hole",
-            content: useMemo(() => {
-                return <PuttsAHoleTab statsToUse={statsToUse} previousStats={previousStats} showDifference={currentStats === statsToUse}/>
-            }, [statsToUse, currentStats, previousStats])
-        },
-        {
-            id: 4,
-            title: "Made Putts",
-            content: useMemo(() => {
-                return <MadePuttsTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true}/>
-            }, [statsToUse, previousStats])
-        },
-        {
-            id: 5,
-            title: "Misreads",
-            content: useMemo(() => {
-                return <MisreadTab statsToUse={statsToUse}/>
-            }, [statsToUse])
-        },
-        {
-            id: 6,
-            title: "Miss Bias",
-            content: useMemo(() => {
-                return <MissBiasTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true} userData={userData}/>
-            }, [statsToUse, previousStats, userData])
-        }
+        // {
+        //     id: 3,
+        //     title: "Putts / Hole",
+        //     content: useMemo(() => {
+        //         return <PuttsAHoleTab statsToUse={statsToUse} previousStats={previousStats} showDifference={currentStats === statsToUse}/>
+        //     }, [statsToUse, currentStats, previousStats])
+        // },
+        // {
+        //     id: 4,
+        //     title: "Made Putts",
+        //     content: useMemo(() => {
+        //         return <MadePuttsTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true}/>
+        //     }, [statsToUse, previousStats])
+        // },
+        // {
+        //     id: 5,
+        //     title: "Misreads",
+        //     content: useMemo(() => {
+        //         return <MisreadTab statsToUse={statsToUse}/>
+        //     }, [statsToUse])
+        // },
+        // {
+        //     id: 6,
+        //     title: "Miss Bias",
+        //     content: useMemo(() => {
+        //         return <MissBiasTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true} userData={userData}/>
+        //     }, [statsToUse, previousStats, userData])
+        // }
     ]
 
     const scrollTo = async (i) => {
@@ -122,7 +124,7 @@ export default function Stats({}) {
                     </Svg>
                 </Pressable>
             </View>
-            { sessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1 ? (
+            { !(sessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1) ? (
                 <View style={{
                         borderBottomWidth: 1,
                         borderBottomColor: colors.border.default,
