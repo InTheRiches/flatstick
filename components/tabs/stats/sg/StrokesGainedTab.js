@@ -7,13 +7,13 @@ import FontText from "../../../general/FontText";
 import SGOverTime from "./graphs/SGOverTime";
 import {roundTo} from "../../../../utils/roundTo";
 
-export const StrokesGainedTab = ({statsToUse, byMonthStats, showDifference = false, yearlyStats, previousStats}) => {
+export const StrokesGainedTab = ({statsToUse, byMonthStats, showDifference = false, previousStats}) => {
     const colors = useColors();
     const {width} = Dimensions.get("screen")
     const [graph, setGraph] = React.useState(0);
 
     const [showOverTime, setShowOverTime] = React.useState(false);
-    // loop through yearlyStats.months and determine how many months have non -999 strokesGained
+
     useEffect(() => {
         let count = 0;
         for (let i = 0; i < Object.keys(byMonthStats).length; i++) {

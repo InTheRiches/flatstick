@@ -1,14 +1,11 @@
 // hooks/useStats.js
 import {useState} from 'react';
 import {firestore, getAuth} from '@/utils/firebase';
-import {calculateSpecificStats, getPreviousStats, updateFirebaseYearlyStats} from '@/services/statsService';
+import {getPreviousStats} from '@/services/statsService';
 import {collection, doc, getDocs, query, setDoc} from "firebase/firestore";
 
 export const useStats = (userData, puttSessions) => {
     const [byMonthStats, setByMonthStats] = useState({});
-    const [yearlyStats, setYearlyStats] = useState({});
-    const [sixMonthStats, setSixMonthStats] = useState({});
-    const [threeMonthStats, setThreeMonthStats] = useState({});
     const [previousStats, setPreviousStats] = useState([]);
     const auth = getAuth();
 
@@ -36,11 +33,7 @@ export const useStats = (userData, puttSessions) => {
         });
 
         setByMonthStats(data);
-        console.log("Fetched monthly stats:", Object.keys(data));
-        // const stats = await getAllStats(auth.currentUser.uid, yearlyStats);
-        //setCurrentStats(stats.currentStats);
-        // setYearlyStats(stats.yearlyStats)
-        // return stats;
+
         return data;
     };
 
@@ -50,23 +43,12 @@ export const useStats = (userData, puttSessions) => {
         return stats;
     };
 
-    const updateYearStats = async (newYearlyStats) => {
-        setYearlyStats(newYearlyStats);
-        await updateFirebaseYearlyStats(newYearlyStats);
-    }
-
     return {
         byMonthStats,
-        yearlyStats,
-        sixMonthStats,
-        threeMonthStats,
         previousStats,
         saveIndividualMonthStats,
         fetchAllStats,
         initializeStats,
-        updateYearStats,
         getPreviousStats: fetchPreviousStats,
-        calculateSpecificStats: (putters, grips, nonPersistentData) =>
-            calculateSpecificStats(userData, puttSessions, putters, grips, nonPersistentData),
     };
 };

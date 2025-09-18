@@ -1,13 +1,8 @@
 // services/statsService.js
-import {collection, doc, getDocs, query, runTransaction, setDoc} from 'firebase/firestore';
-import {auth, deepMergeDefaults, firestore} from '@/utils/firebase';
-import {calculateBaselineStrokesGained, calculateTotalStrokesGained} from '@/utils/StrokesGainedUtils';
-import {createSimpleRefinedStats, createSimpleStats, createYearlyStats} from "@/utils/PuttUtils";
+import {collection, getDocs, query, setDoc} from 'firebase/firestore';
+import {deepMergeDefaults, firestore} from '@/utils/firebase';
+import {calculateBaselineStrokesGained} from '@/utils/StrokesGainedUtils';
 import {deepEqual} from "@/utils/RandomUtilities";
-import {updateUserData} from "@/services/userService";
-import {initializeBlankGrips, initializeBlankPutters} from "@/utils/stats/statsHelpers";
-import {processSession} from "@/utils/stats/sessionUtils";
-import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
 import {createMonthAggregateStats, INTERP_BREAK_MAP, METERS_PER_DEGREE} from "@/constants/Constants";
 import {getDistance, getElevationBilinear, getPuttGradient} from "@/utils/courses/gpsStatsEngine";
 import deepAdd from "@/utils/DeepAdd";
@@ -242,77 +237,10 @@ export const addAggregateStats = async (uid, session, byMonthStats, setPutters, 
     // strokesGained = (expectedPutts - totalPutts) / (holesPlayed / 18)
 }
 
-export const updateStats = async (uid, userData, sessions, putters, grips, setCurrentStats, setYearlyStats, setPutters, setGrips) => {
-    const newStats = createSimpleStats();
-    const newYearlyStats = createYearlyStats();
-    const strokesGained = calculateTotalStrokesGained(userData, sessions);
-    const newPutters = initializeBlankPutters(putters);
-    const newGrips = initializeBlankGrips(grips);
-
-    sessions.forEach((session) => processSession(session, newStats, newYearlyStats, newPutters, newGrips, userData));
-
-    if (newStats.rounds > 0) finalizeStats(newStats, strokesGained);
-
-    let totalPutts = 0; // TODO Implement calculation
-    await updateUserData(uid, { totalPutts, sessions: sessions.length, strokesGained: strokesGained.overall });
-    await setDoc(doc(firestore, `users/${uid}/stats/current`), newStats);
-
-    newYearlyStats.months.forEach((month, index) => {
-        if (index === newYearlyStats.months.length - 1) return;
-        if (month.strokesGained === -999 && newYearlyStats.months[index + 1].strokesGained !== -999) {
-            newYearlyStats.months[index] = index > 0 ? { ...newYearlyStats.months[index - 1] } : { ...month, strokesGained: 0 };
-        }
-        if (month.puttsAHole === -999 && newYearlyStats.months[index + 1].puttsAHole !== -999) {
-            newYearlyStats.months[index].puttsAHole = index > 0 ? { ...newYearlyStats.months[index - 1].puttsAHole } : createSimpleRefinedStats().puttsAHole;
-        }
-    });
-
-    await setDoc(doc(firestore, `users/${uid}/stats/${new Date().getFullYear()}`), newYearlyStats);
-
-    setCurrentStats(newStats);
-    setYearlyStats(newYearlyStats);
-    finalizePutters(setPutters, newStats, newPutters, strokesGained);
-    finalizeGrips(setGrips, newStats, newGrips, strokesGained);
-
-    return newStats;
-};
-
 export const getPreviousStats = async (uid) => {
     const statsQuery = query(collection(firestore, `users/${uid}/stats`));
     const querySnapshot = await getDocs(statsQuery);
     return querySnapshot.docs
         .filter((doc) => doc.id !== 'current' && doc.id.length > 4)
         .map((doc) => doc.data());
-};
-
-export const updateFirebaseYearlyStats = async (yearly) => {
-    const yearlyDocRef = doc(firestore, `users/${auth.currentUser.uid}/stats/` + new Date().getFullYear());
-    try {
-        await runTransaction(firestore, async (transaction) => {
-            transaction.update(yearlyDocRef, yearly);
-        });
-    } catch (error) {
-        console.warn("Update yearly stats transaction failed, attempting alternative:", error);
-        try {
-            await setDoc(yearlyDocRef, yearly);
-        } catch (error) {
-            console.error("Update yearly stats failed:", error)
-        }
-    }
-}
-
-export const calculateSpecificStats = (userData, puttSessions, putters, grips, nonPersistentData) => {
-    const stats = createSimpleStats();
-    const filteredSessions = puttSessions.filter(
-        (session) =>
-            (nonPersistentData.filtering.putter === 0 || session.putter === putters[nonPersistentData.filtering.putter].type) &&
-            (nonPersistentData.filtering.grip === 0 || session.grip === grips[nonPersistentData.filtering.grip].type)
-    );
-    const strokesGained = calculateTotalStrokesGained(userData, filteredSessions);
-    const newPutters = initializeBlankPutters(putters);
-    const newGrips = initializeBlankGrips(grips);
-
-    filteredSessions.forEach((session) => processSession(session, stats, newPutters, newGrips, userData));
-
-    return stats.rounds > 0 ? finalizeStats(stats, strokesGained) : createSimpleRefinedStats();
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import CheckBox from "@/components/general/buttons/Checkbox";
 import {BlurView} from "expo-blur";
 
 /**
@@ -9,8 +8,7 @@ import {BlurView} from "expo-blur";
  * - prediction: The result object from the predictPutt function.
  */
 const PuttPrediction = ({ prediction }) => {
-    const [showPrediction, setShowPrediction] = React.useState(true);
-
+    const showPrediction = true;
     // Show a loading indicator if the prediction is not yet available.
     if (!prediction) {
         return (
@@ -31,14 +29,14 @@ const PuttPrediction = ({ prediction }) => {
         <View style={styles.container}>
             {/* Main Aiming Instruction */}
             <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 12}}>
-                <Text style={styles.title}>Putt Data</Text>
-                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>
-                    <Text style={styles.title}>Show Prediction?</Text>
-                    <CheckBox
-                        isChecked={showPrediction}
-                        onPress={() => setShowPrediction(!showPrediction)}
-                    />
-                </View>
+                <Text style={styles.title}>Putt Prediction Data</Text>
+                {/*<View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-end"}}>*/}
+                {/*    <Text style={styles.title}>Show Prediction?</Text>*/}
+                {/*    <CheckBox*/}
+                {/*        isChecked={showPrediction}*/}
+                {/*        onPress={() => setShowPrediction(!showPrediction)}*/}
+                {/*    />*/}
+                {/*</View>*/}
             </View>
             {/* Secondary Stats */}
             <View style={styles.statsContainer}>
@@ -73,8 +71,6 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
         borderRadius: 15,
-        padding: 12,
-        marginTop: -16,
         // Shadow for iOS
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -91,7 +87,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     title: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: '600',
         color: 'black',
         textAlign: 'left',

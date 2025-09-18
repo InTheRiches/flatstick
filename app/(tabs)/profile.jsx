@@ -16,7 +16,7 @@ import {roundTo} from "../../utils/roundTo";
 import {convertUnits} from "../../utils/Conversions";
 
 export default function ProfileScreen() {
-    const { userData, currentStats, byMonthStats, yearlyStats, sessions } = useAppContext();
+    const { userData, currentStats, byMonthStats, sessions } = useAppContext();
     const colors = useColors();
     const router = useRouter();
 

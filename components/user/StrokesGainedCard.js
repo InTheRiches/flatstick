@@ -21,7 +21,7 @@ export default function StrokesGainedCard({ value, strokesGainedRef, byMonthStat
     // );
 
     const [showOverTime, setShowOverTime] = React.useState(false);
-    // loop through yearlyStats.months and determine how many months have non -999 strokesGained
+
     useEffect(() => {
         let count = 0;
         for (let i = 0; i < Object.keys(byMonthStats).length; i++) {

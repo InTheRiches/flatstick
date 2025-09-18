@@ -604,25 +604,6 @@ function cleanPuttsAHole(averagePerformance) {
     return refinedPuttsAHole;
 }
 
-const createYearlyStats = () => {
-    return {
-        strokesGained: 0,
-        puttsAHole: -999,
-        makePercent: -999,
-        misreadsARound: -999,
-        mishitsARound: -999,
-        months: Array(12).fill(null).map(() => (
-            {
-                strokesGained: -999,
-                puttsAHole: -999,
-                makePercent: -999,
-                misreadsARound: -999,
-                mishitsARound: -999
-            }
-        ))
-    }
-}
-
 // TODO three+ putt percentage?
 const createSimpleStats = () => {
     return {
@@ -1073,4 +1054,4 @@ function updateSimpleStats(userData, simpleStats, putt, category) {
     simpleStats.misreads.misreadSlopeBySlope[STAT_SLOPES[puttBreak[1]]][STAT_BREAKS[puttBreak[0]]][1]++;
 }
 
-export { calculateDistanceMissedMeters, calculateFullRoundStats, createYearlyStats, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };
+export { calculateDistanceMissedMeters, calculateFullRoundStats, createSimpleStats, cleanMisreads, createSimpleRefinedStats, updateSimpleStats, cleanMadePutts, cleanPuttsAHole, formatFeetAndInches, convertThetaToBreak, calculateStats, getLargeMissPoint, calculateDistanceMissedFeet, updatePuttsCopy, loadPuttData };

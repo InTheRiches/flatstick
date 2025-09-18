@@ -21,7 +21,9 @@ import {roundTo} from "../../../utils/roundTo";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
-import useUserLocation from "../../../hooks/useUserLocation";
+import {PuttPredictionModal} from "../../../components/simulations/full/popups/PuttPredictionModal";
+import {predictPutt} from "../../../utils/courses/predictionUtils";
+import {isPointInPolygon} from "../../../utils/courses/polygonUtils";
 
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
@@ -34,7 +36,7 @@ export default function PuttingGreen() {
     // const difficulty = "medium";
     // const mode = "practice";
 
-    const userLocation = useUserLocation(() => router.replace("/practice"));
+    const userLocation = {latitude: 42.204930, longitude: -85.632782}; // useUserLocation(() => router.replace("/practice"));
 
     const [taps, setTaps] = useState([]);
     const [pinLocations, setPinLocations] = useState([]);
@@ -45,12 +47,13 @@ export default function PuttingGreen() {
     const [holeNumber, setHoleNumber] = useState(1);
     const [roundData, setRoundData] = useState([]);
     const [startTime] = useState(new Date());
-
     const [loadingAnim] = useState(new Animated.Value(0));
     const [greenFound, setGreenFound] = useState(false);
+    const [prediction, setPrediction] = useState(null);
 
     const confirmExitRef = React.useRef(null);
     const editPuttRef = useRef(null);
+    const predictionRef = useRef(null);
 
     // load map data and LiDAR
     // TODO make this try a few times, and then stop, and give them a button to try again
@@ -75,6 +78,8 @@ export default function PuttingGreen() {
                 // If nothing was found, just return and let the loop try again
                 if (!result || !result.id || !result.greenCoords) return;
                 clearInterval(intervalId);
+
+                console.log("Found putting green:", result.id);
 
                 setGreenFound(true);
 
@@ -102,7 +107,9 @@ export default function PuttingGreen() {
                         timestamp: new Date().getTime()
                     }).catch((error) => {
                         console.error("Error saving LiDAR data:", error);
-                    })
+                    });
+
+                    console.log("Fetched new LiDAR data from 3DEP.");
 
                     return;
                 }
@@ -110,7 +117,7 @@ export default function PuttingGreen() {
                 const data = document.data();
                 if (data && data.lidar) {
                     setLidarData(data.lidar);
-
+                    console.log("Fetched existing LiDAR data from 3DEP.");
                     return;
                 }
 
@@ -249,6 +256,20 @@ export default function PuttingGreen() {
         });
     }
 
+    useEffect(() => {
+        const loadPrediction = async () => {
+            if (generatedHoles && lidarData) {
+                const prediction = await predictPutt(lidarData, taps.length > 0 ? taps[taps.length - 1] : generatedHoles[holeNumber - 1].start, generatedHoles[holeNumber-1].pin);
+                setPrediction(prediction);
+            }
+            else {
+                setPrediction(null);
+            }
+        }
+
+        loadPrediction().catch(console.error);
+    }, [taps, generatedHoles, holeNumber]);
+
     return !lidarData ? (
         <ScreenWrapper style={{justifyContent: "center", alignItems: "center", paddingHorizontal: 20}}>
             {!greenCoords ? (
@@ -371,9 +392,64 @@ export default function PuttingGreen() {
                         </View>
                     </View>
                 </View>
-                { generatedHoles ? (
-                    <Text>Slope: {generatedHoles[holeNumber-1].categories.slope} Break: {generatedHoles[holeNumber-1].categories.overallBreak}</Text>
-                ) : (
+                {generatedHoles && prediction && (
+                    <View style={{justifyContent: "center", alignItems: "center"}}>
+                        <Text style={{color: '#777'}}>📏 Distance</Text>
+                        <Text style={{fontSize: 18, fontWeight: '700', color: '#333',}}>{prediction.puttDistanceFeet.toFixed(1)} ft</Text>
+                    </View>
+                )}
+                <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 8, borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingBottom: 12}}>
+                    <Pressable onPress={() => {
+                        if (userLocation === null) return;
+                        // check if the user is on the green
+                        if (isPointInPolygon(userLocation, greenCoords)) {
+                            setTaps(prevTaps => [...prevTaps, {...userLocation, misReadSlope: false, misReadLine: false}]);
+                        }
+                    }} style={({pressed}) => ({
+                        paddingRight: 5,
+                        paddingLeft: 0,
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        flex: 1,
+                        borderColor: userLocation === null ? colors.button.disabled.border : colors.button.primary.border,
+                        backgroundColor: userLocation === null ? colors.button.disabled.background : pressed ? colors.button.primary.depressed : colors.button.primary.background,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: 'center',
+                    })}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={userLocation === null ? colors.button.disabled.text : colors.button.primary.text} width={20} height={20}>
+                            <Path fillRule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
+                        </Svg>
+                        <FontText style={{color: userLocation === null ? colors.button.disabled.text : colors.button.primary.text, marginLeft: 4, fontWeight: 500}}>Mark From Location</FontText>
+                    </Pressable>
+                    <Pressable onPress={() => {
+                        setTaps([]);
+                    }} style={({pressed}) => [{
+                        paddingHorizontal: 5,
+                        flex: 0.5,
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: colors.button.danger.border,
+                        backgroundColor:  pressed ? colors.button.danger.depressed : colors.button.danger.background,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: 'center',
+                    }]}>
+                        <FontText style={{color: colors.button.danger.text, fontWeight: 500}}>Clear Shots</FontText>
+                    </Pressable>
+                    <Pressable style={({pressed}) => ({alignItems: "center", justifyContent: "center", padding: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.button.primary.border, backgroundColor: pressed ? colors.button.primary.depressed : colors.button.primary.background})} onPress={() => {
+                        predictionRef.current.open(prediction);
+                    }}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={"black"} width={24} height={24}>
+                            <Path fillRule="evenodd"
+                                  d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
+                                  clipRule="evenodd"/>
+                        </Svg>
+                    </Pressable>
+                </View>
+                { !(generatedHoles && prediction && prediction.puttDistanceFeet) && (
                     <SecondaryButton onPress={() => {
                         if (!greenCoords || !lidarData || pinLocations.length === 0) return;
                         setGeneratedHoles(generatePracticeRound(greenCoords, lidarData, pinLocations));
@@ -403,6 +479,15 @@ export default function PuttingGreen() {
                     <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1, maxWidth: 128}}
                                    title="Back"
                                    disabled={holeNumber === 1} onPress={lastHole}></PrimaryButton>
+                    <Pressable style={({pressed}) => ({alignItems: "center", justifyContent: "center", padding: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.button.primary.border, backgroundColor: pressed ? colors.button.primary.depressed : colors.button.primary.background})} onPress={() => {
+                        predictionRef.current.open(prediction);
+                    }}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={"black"} width={24} height={24}>
+                            <Path fillRule="evenodd"
+                                  d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
+                                  clipRule="evenodd"/>
+                        </Svg>
+                    </Pressable>
                     <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1, maxWidth: 128}}
                                    title={holeNumber === holes ? "Submit" : "Next"}
                                    disabled={false}
@@ -441,6 +526,7 @@ export default function PuttingGreen() {
                     return newTaps;
                 });
             }}/>
+            <PuttPredictionModal puttPredictionRef={predictionRef}/>
         </>
     )
 }

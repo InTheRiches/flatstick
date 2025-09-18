@@ -17,9 +17,6 @@ const AppContext = createContext({
     grips: [],
     previousStats: [],
     nonPersistentData: {},
-    yearlyStats: {},
-    sixMonthStats: {},
-    threeMonthStats: {},
     isLoading: true,
     setIsLoading: () => {},
     setNonPersistentData: () => {},
@@ -37,7 +34,6 @@ const AppContext = createContext({
     deletePutter: () => {},
     newGrip: () => Promise.resolve(),
     deleteGrip: () => {},
-    calculateSpecificStats: () => {},
 });
 
 export const useAppContext = () => useContext(AppContext);
@@ -53,7 +49,7 @@ export function AppContextProvider({ children }) {
         updateData
     });
     const { sessions, refreshData, newSession, deleteSession } = useSessions();
-    const {byMonthStats, yearlyStats, sixMonthStats, threeMonthStats, saveIndividualMonthStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
+    const {byMonthStats, saveIndividualMonthStats, getAllStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
         sessions
     );
@@ -102,9 +98,6 @@ export function AppContextProvider({ children }) {
             previousStats,
             nonPersistentData,
             setNonPersistentData,
-            yearlyStats,
-            sixMonthStats,
-            threeMonthStats,
             isLoading,
             setIsLoading,
             initialize,
@@ -121,9 +114,8 @@ export function AppContextProvider({ children }) {
             deleteSession,
             newGrip,
             deleteGrip,
-            calculateSpecificStats,
         }),
-        [userData, sessions, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements, byMonthStats]
+        [userData, sessions, putters, grips, previousStats, nonPersistentData, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, isLoading, checkAchievements, byMonthStats]
     );
 
     return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>;

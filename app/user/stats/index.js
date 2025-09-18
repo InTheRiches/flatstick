@@ -32,7 +32,6 @@ export default function UserStats({}) {
     const [rawStats, setRawStats] = React.useState({});
     const [stats, setStats] = React.useState(createMonthAggregateStats());
     const [previousStats, setPreviousStats] = useState({});
-    const [yearlyStats, setYearlyStats] = useState({});
     const [putters, setPutters] = useState(null);
     const [grips, setGrips] = useState(null);
 
