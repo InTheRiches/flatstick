@@ -19,7 +19,6 @@ export const StrokesGainedTab = ({statsToUse, byMonthStats, showDifference = fal
         for (let i = 0; i < Object.keys(byMonthStats).length; i++) {
             const month = Object.keys(byMonthStats)[i];
             const stats = byMonthStats[month];
-            console.log("month: ", month);
             if (stats.strokesGained.expectedStrokes > 0) count++;
         }
 
@@ -69,7 +68,7 @@ export const StrokesGainedTab = ({statsToUse, byMonthStats, showDifference = fal
                     </View>
                 }
             </View>
-            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</FontText>
+            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes)</FontText>
             <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
                 <Toggleable toggled={graph === 0} onToggle={() => setGraph(0)} title={"Distance"}/>
                 <Toggleable toggled={graph === 1} onToggle={() => setGraph(1)} title={"Direction"}/>

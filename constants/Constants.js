@@ -87,6 +87,7 @@ export function createMonthAggregateStats() {
             slopes: getEmptySlopeBreakData()
         },
         misreadData: {
+            totalHolesMisread: 0, // percent = holesMisread / holesPlayed
             totalMisreads: 0,
             misreadLineByDistance: [0, 0, 0, 0], // 0-5ft, 5-10ft, 10-20ft, 20+ft (percentage of misreads that were line)
             misreadSlopeByDistance: [0, 0, 0, 0], // 0-5ft, 5-10ft, 10-20ft, 20+ft

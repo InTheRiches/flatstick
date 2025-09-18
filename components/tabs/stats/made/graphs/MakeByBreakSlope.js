@@ -25,7 +25,8 @@ export const MakeByBreakSlope = ({statsToUse}) => {
 
 function createPuttsMadeByBreak(currentStats) {
     // copy the object
-    const mySlopes = currentStats.madePutts.slopes;
+    const mySlopes = JSON.parse(JSON.stringify(currentStats.madeData.slopes));
+    const myPutts = JSON.parse(JSON.stringify(currentStats.totalPuttsBySlope));
 
     let max = -999;
 
@@ -35,8 +36,13 @@ function createPuttsMadeByBreak(currentStats) {
             if (slope === "neutral" && brek === "straight")
                 continue; // don't include neutral straight
 
-            if (mySlopes[slope][brek]*100 > max) {
-                max = mySlopes[slope][brek]*100;
+            if (myPutts[slope][brek] === 0) {
+                myPutts[slope][brek] = 1;
+                continue;
+            }
+
+            if ((mySlopes[slope][brek] / myPutts[slope][brek]) > max) {
+                max = (mySlopes[slope][brek] / myPutts[slope][brek]);
             }
         }
     }
@@ -54,28 +60,30 @@ function createPuttsMadeByBreak(currentStats) {
         };
     }
 
-    max += 5;
+    max += .05;
 
     // make another copy of mySlopes
     const mySlopesCopy = JSON.parse(JSON.stringify(mySlopes));
+    const dataForText = JSON.parse(JSON.stringify(mySlopes));
     for (let slope of ["downhill", "neutral", "uphill"]) {
         for (let brek of ["leftToRight", "rightToLeft", "straight"]) {
             if (mySlopesCopy[slope][brek] === 0) {
                 mySlopesCopy[slope][brek] = 0.03;
             }
-            mySlopesCopy[slope][brek] *= 100;
-            mySlopesCopy[slope][brek] = roundTo(mySlopesCopy[slope][brek] / max, 2);
+            console.log((mySlopes[slope][brek] / myPutts[slope][brek]), max);
+            mySlopesCopy[slope][brek] = roundTo(((mySlopes[slope][brek] / myPutts[slope][brek])) / max, 2);
+            dataForText[slope][brek] = roundTo((mySlopes[slope][brek] / myPutts[slope][brek]), 2);
         }
     }
 
     return {
-        "Downhill\nStraight": [mySlopesCopy.downhill.straight,  roundTo(mySlopes.downhill.straight*100, 0) + "%"],
-        "Downhill\nLeft to Right": [mySlopesCopy.downhill.leftToRight, roundTo(mySlopes.downhill.leftToRight*100, 0) + "%"],
-        "Neutral\nLeft to Right": [mySlopesCopy.neutral.leftToRight, roundTo(mySlopes.neutral.leftToRight*100, 0) + "%"],
-        "Uphill\nLeft to Right": [mySlopesCopy.uphill.leftToRight, roundTo(mySlopes.uphill.leftToRight*100, 0) + "%"],
-        "Uphill\nStraight": [mySlopesCopy.uphill.straight, roundTo(mySlopes.uphill.straight*100, 0) + "%"],
-        "Uphill\nRight to Left": [mySlopesCopy.uphill.rightToLeft, roundTo(mySlopes.uphill.rightToLeft*100, 0) + "%"],
-        "Neutral\nRight to Left": [mySlopesCopy.neutral.rightToLeft, roundTo(mySlopes.neutral.rightToLeft*100, 0) + "%"],
-        "Downhill\nRight to Left": [mySlopesCopy.downhill.rightToLeft, roundTo(mySlopes.downhill.rightToLeft*100, 0) + "%"],
+        "Downhill\nStraight": [mySlopesCopy.downhill.straight,  roundTo(dataForText.downhill.straight*100, 0) + "%"],
+        "Downhill\nLeft to Right": [mySlopesCopy.downhill.leftToRight, roundTo(dataForText.downhill.leftToRight*100, 0) + "%"],
+        "Neutral\nLeft to Right": [mySlopesCopy.neutral.leftToRight, roundTo(dataForText.neutral.leftToRight*100, 0) + "%"],
+        "Uphill\nLeft to Right": [mySlopesCopy.uphill.leftToRight, roundTo(dataForText.uphill.leftToRight*100, 0) + "%"],
+        "Uphill\nStraight": [mySlopesCopy.uphill.straight, roundTo(dataForText.uphill.straight*100, 0) + "%"],
+        "Uphill\nRight to Left": [mySlopesCopy.uphill.rightToLeft, roundTo(dataForText.uphill.rightToLeft*100, 0) + "%"],
+        "Neutral\nRight to Left": [mySlopesCopy.neutral.rightToLeft, roundTo(dataForText.neutral.rightToLeft*100, 0) + "%"],
+        "Downhill\nRight to Left": [mySlopesCopy.downhill.rightToLeft, roundTo(dataForText.downhill.rightToLeft*100, 0) + "%"],
     }
 }

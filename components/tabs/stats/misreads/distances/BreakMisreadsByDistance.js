@@ -11,7 +11,10 @@ export const BreakMisreadsByDistance = ({statsToUse}) => {
     const colorScheme = "light";
 
     const data = [
-        roundTo(statsToUse.misreads.misreadLineByDistance[0]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[1]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[2]*100, 0), roundTo(statsToUse.misreads.misreadLineByDistance[3]*100, 0)
+        statsToUse.totalPuttsByDistance[0] === 0 ? 0 : roundTo((statsToUse.misreadData.misreadLineByDistance[0] / statsToUse.totalPuttsByDistance[0])*100, 0),
+        statsToUse.totalPuttsByDistance[1] === 0 ? 0 : roundTo((statsToUse.misreadData.misreadLineByDistance[1] / statsToUse.totalPuttsByDistance[1])*100, 0),
+        statsToUse.totalPuttsByDistance[2] === 0 ? 0 : roundTo((statsToUse.misreadData.misreadLineByDistance[2] / statsToUse.totalPuttsByDistance[2])*100, 0),
+        statsToUse.totalPuttsByDistance[3] === 0 ? 0 : roundTo((statsToUse.misreadData.misreadLineByDistance[3] / statsToUse.totalPuttsByDistance[3])*100, 0),
     ];
 
     const biggestMisread = Math.max(...data, 1);

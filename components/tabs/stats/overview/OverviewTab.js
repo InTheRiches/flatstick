@@ -72,7 +72,7 @@ export const OverviewTab = ({
             </View>
 
             <FontText style={{ color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center" }}>
-                (per 18 holes, last 5 sessions)
+                (per 18 holes)
             </FontText>
 
             <View style={{ backgroundColor: colors.background.secondary, borderRadius: 12, paddingTop: 8, marginTop: 20 }}>
@@ -88,9 +88,9 @@ export const OverviewTab = ({
                     <FontText style={{ fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: "bold", flex: 1 }}>
                         Average Performance
                     </FontText>
-                    <FontText style={{ fontSize: 14, textAlign: "right", color: colors.text.secondary, fontWeight: "normal", flex: 1 }}>
-                        (last 5 sessions)
-                    </FontText>
+                    {/*<FontText style={{ fontSize: 14, textAlign: "right", color: colors.text.secondary, fontWeight: "normal", flex: 1 }}>*/}
+                    {/*    (last 5 sessions)*/}
+                    {/*</FontText>*/}
                 </View>
 
                 <View style={{ flexDirection: "row" }}>

@@ -10,6 +10,10 @@ import {useNavigation, useRouter} from "expo-router";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import Loading from "../../components/general/popups/Loading";
 import FontText from "../../components/general/FontText";
+import {PuttsAHoleTab} from "../../components/tabs/stats/putts";
+import {MadePuttsTab} from "../../components/tabs/stats/made";
+import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
+import MissBiasTab from "../../components/tabs/stats/missbias/MissBiasTab";
 
 export default function Stats({}) {
     const colors = useColors();
@@ -61,37 +65,37 @@ export default function Stats({}) {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
-                return <StrokesGainedTab statsToUse={statsToUse} byMonthStats={byMonthStats} previousStats={previousStats} showDifference={currentStats === statsToUse} yearlyStats={yearlyStats}/>
+                return <StrokesGainedTab statsToUse={statsToUse} byMonthStats={byMonthStats} previousStats={previousStats} showDifference={false} yearlyStats={yearlyStats}/>
             }, [statsToUse, byMonthStats, currentStats, previousStats, yearlyStats])
         },
-        // {
-        //     id: 3,
-        //     title: "Putts / Hole",
-        //     content: useMemo(() => {
-        //         return <PuttsAHoleTab statsToUse={statsToUse} previousStats={previousStats} showDifference={currentStats === statsToUse}/>
-        //     }, [statsToUse, currentStats, previousStats])
-        // },
-        // {
-        //     id: 4,
-        //     title: "Made Putts",
-        //     content: useMemo(() => {
-        //         return <MadePuttsTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true}/>
-        //     }, [statsToUse, previousStats])
-        // },
-        // {
-        //     id: 5,
-        //     title: "Misreads",
-        //     content: useMemo(() => {
-        //         return <MisreadTab statsToUse={statsToUse}/>
-        //     }, [statsToUse])
-        // },
-        // {
-        //     id: 6,
-        //     title: "Miss Bias",
-        //     content: useMemo(() => {
-        //         return <MissBiasTab statsToUse={statsToUse} previousStats={previousStats} showDifference={true} userData={userData}/>
-        //     }, [statsToUse, previousStats, userData])
-        // }
+        {
+            id: 3,
+            title: "Putts / Hole",
+            content: useMemo(() => {
+                return <PuttsAHoleTab statsToUse={statsToUse} previousStats={previousStats} showDifference={false}/>
+            }, [statsToUse, currentStats, previousStats])
+        },
+        {
+            id: 4,
+            title: "Made Putts",
+            content: useMemo(() => {
+                return <MadePuttsTab statsToUse={statsToUse} previousStats={previousStats} showDifference={false}/>
+            }, [statsToUse, previousStats])
+        },
+        {
+            id: 5,
+            title: "Misreads",
+            content: useMemo(() => {
+                return <MisreadTab statsToUse={statsToUse}/>
+            }, [statsToUse])
+        },
+        {
+            id: 6,
+            title: "Miss Bias",
+            content: useMemo(() => {
+                return <MissBiasTab statsToUse={statsToUse} previousStats={previousStats} showDifference={false} userData={userData}/>
+            }, [statsToUse, previousStats, userData])
+        }
     ]
 
     const scrollTo = async (i) => {

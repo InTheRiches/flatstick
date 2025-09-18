@@ -1,42 +1,64 @@
 import {Platform, Pressable, ScrollView, View} from "react-native";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
-import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
+import {compareStats, DataTable} from "../../../components/tabs/compare";
 import {useLocalSearchParams, useNavigation} from "expo-router";
-import {createSimpleRefinedStats} from "../../../utils/PuttUtils";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import {getUserStatsByID} from "../../../services/userService";
+import {createMonthAggregateStats} from "../../../constants/Constants";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
 // TODO redo this like https://chatgpt.com/s/t_687c324f7b8081919fe90943237b4165
+// TODO with a time range selector as well
 export default function CompareUsers({}) {
     const colors = useColors();
-    const {userData, currentStats} = useAppContext();
+    const {userData, currentStats, byMonthStats} = useAppContext();
     const navigation = useNavigation();
     const {id, jsonProfile} = useLocalSearchParams();
     const profile = JSON.parse(jsonProfile);
     const [loading, setLoading] = useState(true);
 
-    const [usersStats, setUsersStats] = useState(createSimpleRefinedStats());
+    const statsToUse = useMemo(() => {
+        let combined = [];
+        Object.keys(byMonthStats).forEach(m => {
+            if (byMonthStats[m]) {
+                combined = combined.concat(byMonthStats[m]);
+            }
+        });
+        return combined[0];
+    }, [byMonthStats]);
+
+    const [usersStats, setUsersStats] = useState(createMonthAggregateStats());
     const bannerRef = useRef(null);
 
     useForeground(() => {
         bannerRef.current?.load();
-    })
+    });
 
     useEffect(() => {
         getUserStatsByID(id).then((stats) => {
             if (stats) {
-                setUsersStats(stats);
+                console.log("Fetched stats for user with ID:", id, stats);
+                let combined = [];
+                Object.keys(stats).forEach(m => {
+                    if (stats[m]) {
+                        combined = combined.concat(stats[m]);
+                    }
+                });
+                setUsersStats(combined[0]);
                 setLoading(false);
             } else {
-                console.error("No stats found for user with ID:", id);
+                // setUsersStats(createSimpleRefinedStats());
                 setLoading(false);
+                // console.error("No stats found for user with ID:", id);
+                // alert("No stats found for that user.");
+                // navigation.goBack();
+                // setLoading(false);
             }
         });
     }, []);
@@ -95,18 +117,18 @@ export default function CompareUsers({}) {
                     <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>You</FontText>
                     <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</FontText>
                 </View>
-                <DataTable stats1={currentStats} stats2={usersStats} type={"users"}/>
-                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</FontText>
-                <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={0}/>
-                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>
-                <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={1}/>
-                <View style={{marginLeft: -24}}>
-                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
-                </View>
-                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>
-                <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={2}/>
-                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>
-                <MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={3}/>
+                <DataTable stats1={statsToUse} stats2={usersStats} type={"users"}/>
+                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</FontText>*/}
+                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={0}/>*/}
+                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>*/}
+                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={1}/>*/}
+                {/*<View style={{marginLeft: -24}}>*/}
+                {/*    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />*/}
+                {/*</View>*/}
+                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>*/}
+                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={2}/>*/}
+                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>*/}
+                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={3}/>*/}
             </ScrollView>
         </ScreenWrapper>
     )

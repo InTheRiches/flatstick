@@ -79,7 +79,6 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
         }
 
         const pin = hole.puttData.pinLocation;
-        let misreadHole = false;
 
         if (hole.puttData.taps.length > 2) monthStats.averageRound.threePlusPutts++;
         else if (hole.puttData.taps.length === 2) monthStats.averageRound.twoPutts++;
@@ -108,8 +107,6 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
             // thresholds (tune as needed, e.g. 0.01 = 1% slope)
             const SLOPE_THRESH = 0.01;
             const SIDE_THRESH = 0.01;
-
-            console.log("Degree of slope:", slope * 100, "%, side slope:", sideSlope * 100, "%");
 
             let breakDirection = INTERP_BREAK_MAP.n; // default neutral
 
@@ -155,6 +152,7 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
 
                 if (putt.misreadSlope || putt.misreadLine) {
                     monthStats.puttsAHole.whenMisread += hole.puttData.taps.length;
+                    monthStats.misreadData.totalHolesMisread++;
                 }
 
                 monthStats.averageRound.totalDistance += distance.feet;
@@ -188,6 +186,12 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
                 monthStats.missData.totalLatMiss += latIn;
                 monthStats.missData.totalLongMiss += longIn;
 
+                // find the distance using latIn and longIn to see if it matches distanceMissed
+                const checkDist = Math.sqrt(longIn * longIn + latIn * latIn);
+                if (Math.abs((checkDist/12) - distanceMissed.feet) > 1) {
+                    console.warn(`Distance mismatch on miss calculation. Calculated: ${(checkDist/12).toFixed(2)} ft, Actual: ${distanceMissed.feet.toFixed(2)} ft`);
+                }
+
                 // if short
                 if (longIn < 0) monthStats.missData.totalShortMisses++;
 
@@ -200,11 +204,6 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
             }
 
             if (putt.misreadSlope || putt.misreadLine) {
-                if (!misreadHole) {
-                    monthStats.puttsAHole.whenMisread += hole.puttData.taps.length;
-                    misreadHole = true;
-                }
-
                 monthStats.missData.totalMisreads++;
                 if (putt.misreadLine) {
                     monthStats.missData.totalLineMisreads++;

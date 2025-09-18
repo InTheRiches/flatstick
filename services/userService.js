@@ -47,19 +47,15 @@ export const getUserDataByID = async (id) => {
 }
 
 export const getUserStatsByID = async (id) => {
-    const docRef = doc(firestore, `users/${id}/stats/current`);
-    try {
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) return null;
+    const statsRef = collection(firestore, "users", id, "monthlyStats");
+    const snapshot = await getDocs(query(statsRef));
 
-        const data = docSnap.data();
-        if (data.deleted) return null;
+    const data = {};
+    snapshot.forEach((doc) => {
+        data[doc.id] = doc.data(); // doc.id is "2025-09"
+    });
 
-        return { ...data, id: docSnap.id };
-    } catch (e) {
-        console.error("Error fetching user stats: " + e);
-        return null;
-    }
+    return data;
 }
 
 export const getUserSessionsByID = async (id) => {
