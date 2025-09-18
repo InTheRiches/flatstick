@@ -22,8 +22,6 @@ export function getElevationBilinear(x, y, grid) {
 
     if (width === -1) return grid[0].value;
 
-    console.log("Grid value at 0 0:", grid[0]);
-
     const height = grid.length / width;
     if (!Number.isInteger(height)) {
         // Grid is not rectangular, cannot interpolate reliably.

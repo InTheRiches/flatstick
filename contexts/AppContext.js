@@ -28,7 +28,6 @@ const AppContext = createContext({
     updateData: () => Promise.resolve(),
     setUserData: () => {},
     processSession: () => Promise.resolve(),
-    refreshStats: () => Promise.resolve(),
     getAllStats: () => Promise.resolve(),
     newPutter: () => Promise.resolve(),
     newSession: () => Promise.resolve(),
@@ -54,7 +53,7 @@ export function AppContextProvider({ children }) {
         updateData
     });
     const { sessions, refreshData, newSession, deleteSession } = useSessions();
-    const { currentStats, byMonthStats, yearlyStats, sixMonthStats, threeMonthStats, rawRefreshStats, saveIndividualMonthStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
+    const {byMonthStats, yearlyStats, sixMonthStats, threeMonthStats, saveIndividualMonthStats, getAllStats, calculateSpecificStats, previousStats, getPreviousStats, initializeStats } = useStats(
         userData,
         sessions
     );
@@ -65,8 +64,8 @@ export function AppContextProvider({ children }) {
     const initialize = async () => {
         const newUserData = await initializeUser();
         await initializeStats();
-        await initializePutters(currentStats);
-        await initializeGrips(currentStats);
+        await initializePutters(byMonthStats);
+        await initializeGrips(byMonthStats);
 
         const sessions = await refreshData();
         // // loop through full round sessions
@@ -76,8 +75,6 @@ export function AppContextProvider({ children }) {
         // }
         // loop through full round sessions
 
-        //await rawRefreshStats(putters, grips, setPutters, setGrips, sessions, newUserData);
-
         // TODO remove this
         // const document = await getDoc(doc(firestore, "courses/265778472"));
         // const data = document.data();
@@ -86,14 +83,10 @@ export function AppContextProvider({ children }) {
         setIsLoading(false);
     };
 
-    const refreshStats = async (newUserData = undefined) => {
-        await rawRefreshStats(putters, grips, setPutters, setGrips,undefined, newUserData)
-    }
-
-    const processSession = async (session, greens) => {
+    const processSession = async (session, greens=[], greenLidar=[]) => {
         //checkAchievements(session);
-        //await newSession(session);
-        const updatedByMonthlyStats = await addAggregateStats(auth.currentUser.uid, session, byMonthStats, greens);
+        await newSession(session);
+        const updatedByMonthlyStats = await addAggregateStats(auth.currentUser.uid, session, byMonthStats, setPutters, setGrips, greens, greenLidar);
         const sessionDate = new Date(session.meta.date);
         const monthKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, '0')}`;
         await saveIndividualMonthStats(updatedByMonthlyStats[monthKey], monthKey);
@@ -103,7 +96,6 @@ export function AppContextProvider({ children }) {
         () => ({
             userData,
             sessions,
-            currentStats,
             byMonthStats,
             putters,
             grips,
@@ -119,7 +111,6 @@ export function AppContextProvider({ children }) {
             refreshData,
             updateData,
             setUserData,
-            refreshStats,
             getAllStats,
             newPutter,
             newSession,
@@ -132,7 +123,7 @@ export function AppContextProvider({ children }) {
             deleteGrip,
             calculateSpecificStats,
         }),
-        [userData, sessions, currentStats, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements, byMonthStats]
+        [userData, sessions, putters, grips, previousStats, nonPersistentData, yearlyStats, sixMonthStats, threeMonthStats, refreshData, updateData, setUserData, getAllStats, newPutter, newSession, getPreviousStats, deletePutter, deleteSession, newGrip, deleteGrip, calculateSpecificStats, isLoading, checkAchievements, byMonthStats]
     );
 
     return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>;

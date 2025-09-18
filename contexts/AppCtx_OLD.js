@@ -207,7 +207,6 @@ export function AppProvider({children}) {
                             setSession(token || null);
                             router.replace({pathname: `/`});
                         });
-                        refreshStats();
                     }).catch((error) => {
                         console.log(error);
                     });

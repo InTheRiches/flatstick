@@ -44,7 +44,7 @@ export default function IndividualSessionHeader({ session, isRecap, onInfoPress 
                     color: colors.text.primary,
                     fontWeight: 800
                 }}>
-                    {session.type === "sim" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}
+                    {session.type === "sim" || session.type=== "green" ? "18 HOLE SIMULATION" : session.holes + " HOLE ROUND"}
                 </FontText>
                 <FontText style={{
                     marginLeft: 32,

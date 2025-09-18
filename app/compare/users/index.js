@@ -3,7 +3,7 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import useColors from "../../../hooks/useColors";
 import {useAppContext} from "../../../contexts/AppContext";
 import Svg, {Path} from "react-native-svg";
-import {compareStats, DataTable} from "../../../components/tabs/compare";
+import {compareStats, DataTable, MiniDataTable} from "../../../components/tabs/compare";
 import {useLocalSearchParams, useNavigation} from "expo-router";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import FontText from "../../../components/general/FontText";
@@ -43,7 +43,6 @@ export default function CompareUsers({}) {
     useEffect(() => {
         getUserStatsByID(id).then((stats) => {
             if (stats) {
-                console.log("Fetched stats for user with ID:", id, stats);
                 let combined = [];
                 Object.keys(stats).forEach(m => {
                     if (stats[m]) {
@@ -118,17 +117,17 @@ export default function CompareUsers({}) {
                     <FontText style={{flex: 1, color: colors.text.secondary, fontWeight: 600, textAlign: "center"}}>{profile.firstName + " " + profile.lastName}</FontText>
                 </View>
                 <DataTable stats1={statsToUse} stats2={usersStats} type={"users"}/>
-                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</FontText>*/}
-                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={0}/>*/}
-                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>*/}
-                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={1}/>*/}
-                {/*<View style={{marginLeft: -24}}>*/}
-                {/*    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />*/}
-                {/*</View>*/}
-                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>*/}
-                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={2}/>*/}
-                {/*<FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>*/}
-                {/*<MiniDataTable stats1={currentStats} stats2={usersStats} type={"users"} distance={3}/>*/}
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{"< " + (userData.preferences.units === 0 ? "6ft" : "2m")}</FontText>
+                <MiniDataTable stats1={statsToUse} stats2={usersStats} type={"users"} distance={0}/>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "6-12ft" : "2-4m")}</FontText>
+                <MiniDataTable stats1={statsToUse} stats2={usersStats} type={"users"} distance={1}/>
+                <View style={{marginLeft: -24}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
+                </View>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? "12-20ft" : "4-7m")}</FontText>
+                <MiniDataTable stats1={statsToUse} stats2={usersStats} type={"users"} distance={2}/>
+                <FontText style={{flex: 1, color: colors.text.primary, fontWeight: 600, marginTop: 12, fontSize: 18}}>{(userData.preferences.units === 0 ? ">20ft" : ">7m")}</FontText>
+                <MiniDataTable stats1={statsToUse} stats2={usersStats} type={"users"} distance={3}/>
             </ScrollView>
         </ScreenWrapper>
     )

@@ -1,5 +1,5 @@
 // services/statsService.js
-import {collection, doc, getDoc, getDocs, query, runTransaction, setDoc} from 'firebase/firestore';
+import {collection, doc, getDocs, query, runTransaction, setDoc} from 'firebase/firestore';
 import {auth, deepMergeDefaults, firestore} from '@/utils/firebase';
 import {calculateBaselineStrokesGained, calculateTotalStrokesGained} from '@/utils/StrokesGainedUtils';
 import {createSimpleRefinedStats, createSimpleStats, createYearlyStats} from "@/utils/PuttUtils";
@@ -10,51 +10,31 @@ import {processSession} from "@/utils/stats/sessionUtils";
 import {finalizeGrips, finalizePutters, finalizeStats} from "@/utils/stats/finalizationUtils";
 import {createMonthAggregateStats, INTERP_BREAK_MAP, METERS_PER_DEGREE} from "@/constants/Constants";
 import {getDistance, getElevationBilinear, getPuttGradient} from "@/utils/courses/gpsStatsEngine";
+import deepAdd from "@/utils/DeepAdd";
 
-export const getAllStats = async (uid, yearlyStats) => {
-    const docRef = doc(firestore, `users/${uid}/stats/current`);
-    const document = await getDoc(docRef);
-    if (!document.exists()) {
-        return createSimpleRefinedStats();
-    }
-    const data = document.data();
-    const updatedStats = deepMergeDefaults(data, createSimpleRefinedStats());
-    if (!deepEqual(data, updatedStats)) {
-        await setDoc(docRef, updatedStats);
-    }
+export const getAllStats = async (uid) => {
+    const statsRef = collection(firestore, "users", uid, "monthlyStats");
+    const snapshot = await getDocs(query(statsRef));
 
-    let newYearlyStats = JSON.parse(JSON.stringify(yearlyStats || {}));
+    const data = {};
+    snapshot.forEach(async (doc) => {
+        const monthData = doc.data();
+        const updatedMonth = deepMergeDefaults(monthData, createMonthAggregateStats());
+        data[doc.id] = updatedMonth; // doc.id is "2025-09"
 
-    // this is because yearly stats don't update often, so we just assume that we don't have to update it
-    if (Object.keys(yearlyStats).length === 0) {
-        const yearlyDocument = await getDoc(doc(firestore, `users/${uid}/stats/${new Date().getFullYear()}`));
-        if (!yearlyDocument.exists()) {
-            await updateFirebaseYearlyStats(createYearlyStats());
-            return {currentStats: updatedStats, yearlyStats: newYearlyStats};
+        if (!deepEqual(data, updatedMonth)) {
+            await setDoc(doc(firestore, "users", uid, "monthlyStats", doc.id), updatedMonth);
         }
+    });
 
-        const yearlyData = yearlyDocument.data();
-
-        // check to make sure it is updated and has all the necessary fields
-        const updatedYearlyStats = deepMergeDefaults({ ...yearlyData }, createYearlyStats());
-
-        newYearlyStats = updatedYearlyStats;
-
-        // if they arent equal, update the stats in firebase
-        if (yearlyData !== updatedYearlyStats)
-            await updateFirebaseYearlyStats(updatedYearlyStats);
-    }
-
-    return {currentStats: updatedStats, yearlyStats: newYearlyStats};
+    return data;
 };
 
-export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
+export const addAggregateStats = async (uid, session, byMonthStats, setPutters, setGrips, greens=[], greenLidar = []) => {
     const sessionDate = new Date(session.meta.date);
     const monthKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, '0')}`;
 
-    console.log("byMonthStats before update:", byMonthStats[monthKey]);
-
-    const monthStats = createMonthAggregateStats(); // byMonthStats[monthKey] ||
+    const monthStats = createMonthAggregateStats();
 
     monthStats.holesPlayed += session.stats.holesPlayed;
     monthStats.rounds += 1;
@@ -66,10 +46,14 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
 
         let lidar = null;
 
-        for (const g of greens) {
-            if (g.hole === (index+1).toString()) {
-                lidar = g.lidar;
-                break;
+        if (greenLidar && greenLidar.length > 0) {
+            lidar = greenLidar;
+        } else {
+            for (const g of greens) {
+                if (g.hole === (index+1).toString()) {
+                    lidar = g.lidar;
+                    break;
+                }
             }
         }
 
@@ -219,9 +203,40 @@ export const addAggregateStats = async (uid, session, byMonthStats, greens) => {
         }
     });
 
-    console.log("Updated month stats for", monthKey, monthStats);
+    byMonthStats[monthKey] = byMonthStats[monthKey] ? deepAdd(byMonthStats[monthKey], monthStats) : monthStats;
 
-    byMonthStats[monthKey] = monthStats;
+    setGrips((prevGrips) =>
+        prevGrips.map((g) => {
+            if (g.type !== session.player.grip)
+                return g;
+            return {
+                ...g,
+                stats: {
+                    ...g.stats,
+                    [monthKey]: g.stats[monthKey]
+                        ? deepAdd(g.stats[monthKey], monthStats)
+                        : monthStats,
+                },
+            };
+        })
+    );
+
+    setPutters((prevPutters) =>
+        prevPutters.map((p) => {
+            if (p.type !== session.player.putter)
+                return p;
+            return {
+                ...p,
+                stats: {
+                    ...p.stats,
+                    [monthKey]: p.stats[monthKey]
+                        ? deepAdd(p.stats[monthKey], monthStats)
+                        : monthStats,
+                },
+            };
+        })
+    );
+
     return byMonthStats;
 
     // strokesGained = (expectedPutts - totalPutts) / (holesPlayed / 18)

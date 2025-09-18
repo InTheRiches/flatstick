@@ -235,7 +235,7 @@ export default function PuttingGreen() {
             holeHistory: detailedPutts,
             scorecard,
         }
-        processSession(newData).then(() => {
+        processSession(newData, null, lidarData).then(() => {
             router.push({
                 pathname: `/sessions/individual`,
                 params: {

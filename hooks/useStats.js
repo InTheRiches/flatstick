@@ -2,11 +2,9 @@
 import {useState} from 'react';
 import {firestore, getAuth} from '@/utils/firebase';
 import {calculateSpecificStats, getPreviousStats, updateFirebaseYearlyStats} from '@/services/statsService';
-import {createSimpleRefinedStats} from "@/utils/PuttUtils";
 import {collection, doc, getDocs, query, setDoc} from "firebase/firestore";
 
 export const useStats = (userData, puttSessions) => {
-    const [currentStats, setCurrentStats] = useState(createSimpleRefinedStats());
     const [byMonthStats, setByMonthStats] = useState({});
     const [yearlyStats, setYearlyStats] = useState({});
     const [sixMonthStats, setSixMonthStats] = useState({});
@@ -28,21 +26,6 @@ export const useStats = (userData, puttSessions) => {
         console.log("Fetched monthly stats 2:", Object.keys(newByMonthStats));
     }
 
-    const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, newUserData = userData) => {
-        return currentStats;
-        // return await updateStats(
-        //     auth.currentUser.uid,
-        //     newUserData,
-        //     sessions,
-        //     putters,
-        //     grips,
-        //     setCurrentStats,
-        //     setYearlyStats,
-        //     setPutters,
-        //     setGrips
-        // );
-    };
-
     const fetchAllStats = async () => {
         const statsRef = collection(firestore, "users", auth.currentUser.uid, "monthlyStats");
         const snapshot = await getDocs(query(statsRef));
@@ -58,7 +41,7 @@ export const useStats = (userData, puttSessions) => {
         //setCurrentStats(stats.currentStats);
         // setYearlyStats(stats.yearlyStats)
         // return stats;
-        return currentStats;
+        return data;
     };
 
     const fetchPreviousStats = async () => {
@@ -73,14 +56,12 @@ export const useStats = (userData, puttSessions) => {
     }
 
     return {
-        currentStats,
         byMonthStats,
         yearlyStats,
         sixMonthStats,
         threeMonthStats,
         previousStats,
         saveIndividualMonthStats,
-        rawRefreshStats,
         fetchAllStats,
         initializeStats,
         updateYearStats,

@@ -8,8 +8,6 @@ export const PuttsByDistance = ({statsToUse}) => {
     const {userData} = useAppContext();
     const colorScheme = "light";
 
-    console.log(statsToUse.puttsAHole.byFirstPuttDistance[2], statsToUse.holesByFirstPuttDistance[2])
-
     const data = [
         statsToUse.holesByFirstPuttDistance[0] === 0 ? 0 : statsToUse.puttsAHole.byFirstPuttDistance[0] / statsToUse.holesByFirstPuttDistance[0],
         statsToUse.holesByFirstPuttDistance[1] === 0 ? 0 : statsToUse.puttsAHole.byFirstPuttDistance[1] / statsToUse.holesByFirstPuttDistance[1],

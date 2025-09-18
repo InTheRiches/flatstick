@@ -14,26 +14,47 @@ import {PuttsAHoleTab} from "../../components/tabs/stats/putts";
 import {MadePuttsTab} from "../../components/tabs/stats/made";
 import {MisreadTab} from "../../components/tabs/stats/misreads/MisreadTab";
 import MissBiasTab from "../../components/tabs/stats/missbias/MissBiasTab";
+import deepAdd from "../../utils/DeepAdd";
+import {createMonthAggregateStats} from "../../constants/Constants";
 
 export default function Stats({}) {
     const colors = useColors();
     const router = useRouter();
     const navigation = useNavigation()
 
-    const {currentStats, byMonthStats, sessions, previousStats, yearlyStats, putters, grips, nonPersistentData, userData, calculateSpecificStats} = useAppContext();
+    const {currentStats, byMonthStats, sessions, previousStats, yearlyStats, putters, grips, nonPersistentData, userData} = useAppContext();
     const {width} = Dimensions.get("screen")
 
     const [tab, setTab] = useState(0);
     const [isUserScrolling, setIsUserScrolling] = useState(false);
     const statsToUse = useMemo(() => {
-        let combined = [];
-        Object.keys(byMonthStats).forEach(m => {
-            if (byMonthStats[m]) {
-                combined = combined.concat(byMonthStats[m]);
-            }
-        });
-        return combined[0];
-    }, [byMonthStats]);
+        let combined = createMonthAggregateStats();
+        if (nonPersistentData.filtering.putter !== 0) {
+            const putterStats = putters[nonPersistentData.filtering.putter].stats;
+            Object.keys(putterStats).forEach(m => {
+                if (putterStats[m]) {
+                    combined = deepAdd(combined, putterStats[m]);
+                }
+            });
+        }
+        if (nonPersistentData.filtering.grip !== 0) {
+            const gripStats = grips[nonPersistentData.filtering.grip].stats;
+            Object.keys(gripStats).forEach(m => {
+                if (gripStats[m]) {
+                    combined = deepAdd(combined, gripStats[m]);
+                }
+            });
+        }
+        if (nonPersistentData.filtering.grip === 0 && nonPersistentData.filtering.putter === 0) {
+            Object.keys(byMonthStats).forEach(m => {
+                if (byMonthStats[m]) {
+                    combined = deepAdd(combined, byMonthStats[m]);
+                }
+            });
+        }
+
+        return combined;
+    }, [byMonthStats, nonPersistentData.filtering.putter, putters, nonPersistentData.filtering.grip, grips]);
     const [isReady, setIsReady] = useState(false)
 
     const listRef = useRef(null);
@@ -44,13 +65,6 @@ export default function Stats({}) {
             setIsReady(true);
         });
     }, []);
-
-    // useEffect(() => {
-    //     setStatsToUse(
-    //         nonPersistentData.filtering.putter !== 0 && nonPersistentData.filtering.grip !== 0 ? calculateSpecificStats() :
-    //             nonPersistentData.filtering.putter !== 0 ? putters[nonPersistentData.filtering.putter].stats :
-    //                 nonPersistentData.filtering.grip !== 0 ? grips[nonPersistentData.filtering.grip].stats : currentStats);
-    // }, [nonPersistentData, currentStats]);
 
     const tabs  = [
         {
@@ -66,14 +80,14 @@ export default function Stats({}) {
             title:"Strokes Gained",
             content: useMemo(() => {
                 return <StrokesGainedTab statsToUse={statsToUse} byMonthStats={byMonthStats} previousStats={previousStats} showDifference={false} yearlyStats={yearlyStats}/>
-            }, [statsToUse, byMonthStats, currentStats, previousStats, yearlyStats])
+            }, [statsToUse, byMonthStats, previousStats, yearlyStats])
         },
         {
             id: 3,
             title: "Putts / Hole",
             content: useMemo(() => {
                 return <PuttsAHoleTab statsToUse={statsToUse} previousStats={previousStats} showDifference={false}/>
-            }, [statsToUse, currentStats, previousStats])
+            }, [statsToUse, previousStats])
         },
         {
             id: 4,
@@ -128,7 +142,7 @@ export default function Stats({}) {
                     </Svg>
                 </Pressable>
             </View>
-            { !(sessions.length === 0 || currentStats.rounds < 1 || statsToUse.rounds < 1) ? (
+            { (sessions.length === 0 || statsToUse.rounds < 1) ? (
                 <View style={{
                         borderBottomWidth: 1,
                         borderBottomColor: colors.border.default,
@@ -138,7 +152,7 @@ export default function Stats({}) {
                         paddingHorizontal: 32
                     }}>
                     <FontText style={{color: colors.text.primary, fontSize: 24, fontWeight: 600, textAlign: "center"}}>Not enough data</FontText>
-                    <FontText style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions logged!</FontText>
+                    <FontText style={{color: colors.text.secondary, fontSize: 18, marginTop: 12, textAlign: "center"}}>Come back when you have some sessions {!(nonPersistentData.filtering.grip === 0 && nonPersistentData.filtering.putter === 0) ? "with that putter or grip" : ""} logged!</FontText>
                 </View>
                 ) : (
                     <>

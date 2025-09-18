@@ -10,8 +10,6 @@ export function DataTable({stats1, stats2}) {
     const colors = useColors();
     const {userData} = useAppContext();
 
-    console.log("Stats1:", stats1);
-
     const distanceUnit = userData.preferences.units === 0 ? "ft" : "m";
     const styles = {
         worseData: {
@@ -185,37 +183,50 @@ export function MiniDataTable({stats1, stats2, distance}) {
     const isBetterThreePutts = (value1, value2) => value1 < value2;
     const isBetterMisreadPercentage = (value1, value2) => value1 < value2;
 
+    const strokesGained1 = roundTo((stats1.strokesGained.expectedStrokesByDistance[distance] - stats1.totalPuttsByDistance[distance]) / (stats1.holesPlayed / 18), 1);
+    const strokesGained2 = roundTo((stats2.strokesGained.expectedStrokesByDistance[distance] - stats2.totalPuttsByDistance[distance]) / (stats2.holesPlayed / 18), 1);
+    const avgMiss1 = roundTo(convertUnits(stats1.missData.missByDistance[distance] / stats1.missData.missedPuttsByDistance[distance], 0, userData.preferences.units), 1);
+    const avgMiss2 = roundTo(convertUnits(stats2.missData.missByDistance[distance] / stats2.missData.missedPuttsByDistance[distance], 0, userData.preferences.units), 1);
+    const makePercent1 = roundTo(stats1.madeData.byDistance[distance] / (stats1.totalPuttsByDistance[distance]), 1);
+    const makePercent2 = roundTo(stats2.madeData.byDistance[distance] / (stats2.totalPuttsByDistance[distance]), 1);
+    const lineMisreads1 = roundTo(stats1.misreadData.misreadLineByDistance[distance] / (stats1.totalPuttsByDistance[distance] / 18), 1);
+    const lineMisreads2 = roundTo(stats2.misreadData.misreadLineByDistance[distance] / (stats2.totalPuttsByDistance[distance] / 18), 1);
+    const speedMisreads1 = roundTo(stats1.misreadData.misreadSlopeByDistance[distance] / (stats1.totalPuttsByDistance[distance] / 18), 1);
+    const speedMisreads2 = roundTo(stats2.misreadData.misreadSlopeByDistance[distance] / (stats2.totalPuttsByDistance[distance] / 18), 1);
+    const puttsAHole1 = roundTo(stats1.totalPuttsByDistance[distance] / (stats1.holesByFirstPuttDistance[distance]), 1);
+    const puttsAHole2 = roundTo(stats2.totalPuttsByDistance[distance] / (stats2.holesByFirstPuttDistance[distance]), 1);
+
     return (
         <View style={{marginTop: 8}}>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <FontText style={{flex: 1, color: colors.text.primary}}>Strokes Gained</FontText>
-                <FontText style={getStyle(stats1.strokesGained.distance[distance], stats2.strokesGained.distance[distance], isBetterStrokesGained)}>{stats1.strokesGained.distance[distance]}</FontText>
-                <FontText style={getStyle(stats2.strokesGained.distance[distance], stats1.strokesGained.distance[distance], isBetterStrokesGained)}>{stats2.strokesGained.distance[distance]}</FontText>
+                <FontText style={getStyle(strokesGained1, strokesGained2, isBetterStrokesGained)}>{strokesGained1}</FontText>
+                <FontText style={getStyle(strokesGained2, strokesGained1, isBetterStrokesGained)}>{strokesGained2}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <FontText style={{flex: 1, color: colors.text.primary}}>Avg. Miss</FontText>
-                <FontText style={getStyle(stats1.avgMissDistance[distance], stats2.avgMissDistance[distance], isBetterAvgMiss)}>{stats1.avgMissDistance[distance]} {distanceUnit}</FontText>
-                <FontText style={getStyle(stats2.avgMissDistance[distance], stats1.avgMissDistance[distance], isBetterAvgMiss)}>{stats2.avgMissDistance[distance]} {distanceUnit}</FontText>
+                <FontText style={getStyle(avgMiss1, avgMiss2, isBetterAvgMiss)}>{avgMiss1} {distanceUnit}</FontText>
+                <FontText style={getStyle(avgMiss2, avgMiss1, isBetterAvgMiss)}>{avgMiss2} {distanceUnit}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <FontText style={{flex: 1, color: colors.text.primary}}>Make %</FontText>
-                <FontText style={getStyle((stats1.madePutts.distance[distance]/18)*100, (stats2.madePutts.distance[distance]/18)*100, isBetterMakePercentage)}>{roundTo((stats1.madePutts.distance[distance]/18)*100, 0)}%</FontText>
-                <FontText style={getStyle((stats2.madePutts.distance[distance]/18)*100, (stats1.madePutts.distance[distance]/18)*100, isBetterMakePercentage)}>{roundTo((stats2.madePutts.distance[distance]/18)*100, 0)}%</FontText>
+                <FontText style={getStyle(makePercent1*100, makePercent2*100, isBetterMakePercentage)}>{roundTo(makePercent1*100, 0)}%</FontText>
+                <FontText style={getStyle(makePercent2*100, makePercent1*100, isBetterMakePercentage)}>{roundTo(makePercent2*100, 0)}%</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <FontText style={{flex: 1, color: colors.text.primary}}>Putts a hole</FontText>
-                <FontText style={getStyle(stats1.puttsAHole.distance[distance], stats2.puttsAHole.distance[distance], isBetterThreePutts)}>{stats1.puttsAHole.distance[distance]}</FontText>
-                <FontText style={getStyle(stats2.puttsAHole.distance[distance], stats1.puttsAHole.distance[distance], isBetterThreePutts)}>{stats2.puttsAHole.distance[distance]}</FontText>
+                <FontText style={getStyle(puttsAHole1, puttsAHole2, isBetterThreePutts)}>{puttsAHole1}</FontText>
+                <FontText style={getStyle(puttsAHole2, puttsAHole1, isBetterThreePutts)}>{puttsAHole2}</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <FontText style={{flex: 1, color: colors.text.primary}}>Break Misread %</FontText>
-                <FontText style={getStyle(stats1.misreads.misreadLineByDistance[distance], stats2.misreads.misreadLineByDistance[distance], isBetterMisreadPercentage)}>{roundTo(stats1.misreads.misreadLineByDistance[distance]*100, 0)}%</FontText>
-                <FontText style={getStyle(stats2.misreads.misreadLineByDistance[distance], stats1.misreads.misreadLineByDistance[distance], isBetterMisreadPercentage)}>{roundTo(stats2.misreads.misreadLineByDistance[distance]*100, 0)}%</FontText>
+                <FontText style={getStyle(lineMisreads1, lineMisreads2, isBetterMisreadPercentage)}>{roundTo(lineMisreads1*100, 0)}%</FontText>
+                <FontText style={getStyle(lineMisreads2, lineMisreads1, isBetterMisreadPercentage)}>{roundTo(lineMisreads2*100, 0)}%</FontText>
             </View>
             <View style={{flexDirection: "row", borderTopWidth: 1, borderColor: colors.border.default, paddingVertical: 8}}>
                 <FontText style={{flex: 1, color: colors.text.primary}}>Speed Misread %</FontText>
-                <FontText style={getStyle(stats1.misreads.misreadSlopeByDistance[distance], stats2.misreads.misreadSlopeByDistance[distance], isBetterMisreadPercentage)}>{roundTo(stats1.misreads.misreadSlopeByDistance[distance]*100, 0)}%</FontText>
-                <FontText style={getStyle(stats2.misreads.misreadSlopeByDistance[distance], stats1.misreads.misreadSlopeByDistance[distance], isBetterMisreadPercentage)}>{roundTo(stats2.misreads.misreadSlopeByDistance[distance]*100, 0)}%</FontText>
+                <FontText style={getStyle(speedMisreads1, speedMisreads2, isBetterMisreadPercentage)}>{roundTo(speedMisreads1*100, 0)}%</FontText>
+                <FontText style={getStyle(speedMisreads2, speedMisreads1, isBetterMisreadPercentage)}>{roundTo(speedMisreads2*100, 0)}%</FontText>
             </View>
         </View>
     )

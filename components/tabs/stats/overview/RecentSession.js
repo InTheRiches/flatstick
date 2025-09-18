@@ -26,6 +26,14 @@ export const RECENT_SESSION_CONFIG = {
             { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
         ],
     },
+    "sim": { // TODO you can remove this later, kept for backwards compatibility
+        title: (s) => `${s.stats.holesPlayed} Hole Simulation`,
+        fields: [
+            { label: "SG", value: (s) => s.stats.strokesGained },
+            { label: "DIFFICULTY", value: (s) => s.difficulty },
+            { label: "TOTAL PUTTS", value: (s) => s.totalPutts },
+        ],
+    },
 };
 
 export const RecentSession = ({ recentSession }) => {

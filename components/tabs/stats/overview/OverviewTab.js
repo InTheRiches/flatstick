@@ -32,8 +32,6 @@ export const OverviewTab = ({
     //     difference = ((statsToUse.expectedPutts - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18)) - ((previousStats[0].expectedPutts - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18))
     // }
 
-    console.log(statsToUse)
-
     return (
         <ScrollView
             contentContainerStyle={{ paddingBottom: 24 }}

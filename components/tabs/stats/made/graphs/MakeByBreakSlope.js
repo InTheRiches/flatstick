@@ -70,7 +70,6 @@ function createPuttsMadeByBreak(currentStats) {
             if (mySlopesCopy[slope][brek] === 0) {
                 mySlopesCopy[slope][brek] = 0.03;
             }
-            console.log((mySlopes[slope][brek] / myPutts[slope][brek]), max);
             mySlopesCopy[slope][brek] = roundTo(((mySlopes[slope][brek] / myPutts[slope][brek])) / max, 2);
             dataForText[slope][brek] = roundTo((mySlopes[slope][brek] / myPutts[slope][brek]), 2);
         }

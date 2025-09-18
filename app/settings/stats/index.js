@@ -13,9 +13,7 @@ const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pu
 
 export default function StatSettings({}) {
     const colors = useColors();
-    const {putters, grips, userData, updateData, refreshStats, nonPersistentData} = useAppContext();
-
-    const [initialData, setInitialData] = useState(userData.preferences);
+    const {putters, grips, userData, updateData, nonPersistentData} = useAppContext();
 
     const [misHits, setMisHits] = useState(userData.preferences.countMishits);
     const filterPuttersRef = useRef(null);
@@ -29,22 +27,11 @@ export default function StatSettings({}) {
         bannerRef.current?.load();
     })
 
-    const toggleMisHits = () => {
-        updateData({...userData, preferences: {...userData.preferences, countMishits: !misHits}});
-
-        setMisHits(previousState => !previousState);
-    }
-
     return (
         <>
             <SafeAreaView style={{flex: 1, paddingHorizontal: 20, backgroundColor: colors.background.primary}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
-                        if (initialData !== userData.preferences) {
-                            refreshStats().catch(e => {
-                                console.log("Error overall updating stats: " + e)
-                            });
-                        }
                         navigation.goBack()
                     }} style={{padding: 4, paddingLeft: 0}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}

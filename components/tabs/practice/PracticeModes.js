@@ -33,7 +33,7 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
                 distance={userData.preferences.units === 0 ? "3 - 40ft" : "1 - 12m"}
                 time={"10 - 20min"}
                 focus={"Adaptability"}
-                onInfo={() => router.push({pathname: "/simulation/round/demo", params: {justInfo: true}})}
+                onInfo={() => router.push({pathname: "/simulation/putting-green/demo", params: {justInfo: true}})}
                 onPress={() => newSessionRef.current?.present()}/>
         </View>
     )

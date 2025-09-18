@@ -8,8 +8,6 @@ export const SGByBreakSlope = ({statsToUse}) => {
         return <View></View>
     }
 
-    console.log("created data: ", createStrokesGainedByBreak(statsToUse))
-
     return (
         <RadarChart graphSize={Dimensions.get("screen").width-36}
                     scaleCount={4}

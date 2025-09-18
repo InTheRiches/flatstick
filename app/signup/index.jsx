@@ -114,7 +114,7 @@ export default function CreateAccount() {
         setLoading(true);
 
         createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail).then(() => {
-            refreshStats
+            console.log("Account created successfully");
         });
     }
 
@@ -124,7 +124,6 @@ export default function CreateAccount() {
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-            // TODO refreshStats() here
         }).catch(error => {
             setLoading(false);
             console.error("Apple Sign In Error:", error);
@@ -137,7 +136,6 @@ export default function CreateAccount() {
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-            // TODO refreshStats() here
         });
     }
 
