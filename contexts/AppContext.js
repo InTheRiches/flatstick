@@ -49,16 +49,13 @@ export function AppContextProvider({ children }) {
         updateData
     });
     const { sessions, refreshData, newSession, deleteSession } = useSessions();
-    const {byMonthStats, saveIndividualMonthStats, getAllStats, previousStats, getPreviousStats, initializeStats } = useStats(
-        userData,
-        sessions
-    );
+    const {byMonthStats, saveIndividualMonthStats, getAllStats, previousStats, getPreviousStats, initializeStats } = useStats();
     const { putters, setPutters, newPutter, deletePutter, initializePutters } = usePutters();
     const { grips, setGrips, newGrip, deleteGrip, initializeGrips } = useGrips();
     const [isLoading, setIsLoading] = useState(true);
 
-    const initialize = async () => {
-        const newUserData = await initializeUser();
+    const initialize = async (user) => {
+        const newUserData = await initializeUser(user);
         await initializeStats();
         await initializePutters(byMonthStats);
         await initializeGrips(byMonthStats);

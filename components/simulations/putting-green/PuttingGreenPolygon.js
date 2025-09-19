@@ -234,7 +234,7 @@ const PuttingGreenPolygon = ({
             <GestureDetector gesture={Gesture.Simultaneous(longPressGesture, panGesture, pinchGesture)}>
                 <Animated.View>
                     <Svg width={svgSize} height={svgSize} style={{backgroundColor: "#246903", borderRadius: 12}} >
-                        <AnimatedG animatedProps={animatedProps}>
+                        <AnimatedG>
                             <Defs>
                                 <Pattern
                                     id="greenPattern"

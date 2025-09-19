@@ -3,8 +3,9 @@ import {useState} from 'react';
 import {firestore, getAuth} from '@/utils/firebase';
 import {getPreviousStats} from '@/services/statsService';
 import {collection, doc, getDocs, query, setDoc} from "firebase/firestore";
+import {createMonthAggregateStats} from "@/constants/Constants";
 
-export const useStats = (userData, puttSessions) => {
+export const useStats = () => {
     const [byMonthStats, setByMonthStats] = useState({});
     const [previousStats, setPreviousStats] = useState([]);
     const auth = getAuth();
@@ -31,6 +32,11 @@ export const useStats = (userData, puttSessions) => {
         snapshot.forEach((doc) => {
             data[doc.id] = doc.data(); // doc.id is "2025-09"
         });
+
+        if (Object.keys(data).length === 0) {
+            console.log("No monthly stats found for user, initializing empty stats.");
+            data[`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`] = createMonthAggregateStats();
+        }
 
         setByMonthStats(data);
 

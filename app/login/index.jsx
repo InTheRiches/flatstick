@@ -82,9 +82,15 @@ export default function Login() {
     const signInWithGoogle = () => {
         setLoading(true);
         googleSignIn(setLoading).then(token => {
+            console.log("Apple Sign In Token:", token);
             setLoading(false);
-            setSession(token || null);
-            router.replace({pathname: `/`});
+            if (token) {
+                setSession(token || null);
+                router.replace({pathname: `/`});
+            }
+        }).catch(error => {
+            setLoading(false);
+            console.error("Google Sign In Error:", error);
         });
     }
 

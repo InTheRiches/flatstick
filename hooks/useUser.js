@@ -4,14 +4,22 @@ import {getAuth} from '@/utils/firebase';
 import {fetchUserData, updateUserData} from '@/services/userService';
 import {registerForPushNotificationsAsync} from '@/utils/notifications/RegisterNotifications';
 import achievementData from "@/assets/achievements.json";
+import {getDefaultData} from "@/utils/userUtils";
 
 export const useUser = () => {
     const [userData, setUserData] = useState({});
     const auth = getAuth();
 
-    const initialize = async () => {
+    const initialize = async (user) => {
         if (!auth.currentUser) return;
-        const data = await fetchUserData(auth.currentUser.uid);
+
+        let data = userData;
+        console.log("Initializing user data for user:", user);
+        if (Object.keys(userData).length === 0) {
+            data = getDefaultData(user.displayName.split(" ")[0] || '', user.displayName.split(" ")[1] || '');
+        }
+        console.log("User is signed in with UID:", auth.currentUser.uid);
+        console.log("Fetched user data:", data);
 
         if (!data.achievements || data.achievements.length === 0) {
             const initialAchievements = achievementData.map(ach => {

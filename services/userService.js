@@ -9,7 +9,9 @@ import {isHolePuttDataInvalid} from "@/utils/sessions/SessionUtils";
 export const fetchUserData = async (uid) => {
     const docRef = doc(firestore, `users/${uid}`);
     const data = await getDoc(docRef);
-    if (!data.exists()) throw new Error('User document does not exist');
+    if (!data.exists()) {
+        console.log('User document does not exist');
+    }
     const userData = data.data();
     const updatedUserData = deepMergeDefaults(userData, getDefaultData(userData.firstName, userData.lastName));
     if (!deepEqual(userData, updatedUserData)) {

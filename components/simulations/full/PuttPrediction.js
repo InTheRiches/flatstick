@@ -1,6 +1,5 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {BlurView} from "expo-blur";
 
 /**
  * A component to display putt prediction data in a clean, readable card.
@@ -47,20 +46,16 @@ const PuttPrediction = ({ prediction }) => {
 
                 <View style={styles.statBlock}>
                     <Text style={styles.statLabel}>⛰️ Elevation</Text>
-                    <BlurView intensity={showPrediction ? 0 : 100} tint={"light"}>
-                        <Text style={[styles.statValue, elevationStyle]}>
-                            {isUphill ? '+' : ''}{prediction.elevationChangeInches.toFixed(1)} in ({elevationLabel})
-                        </Text>
-                    </BlurView>
+                    <Text style={[styles.statValue, elevationStyle]}>
+                        {isUphill ? '+' : ''}{prediction.elevationChangeInches.toFixed(1)} in ({elevationLabel})
+                    </Text>
                 </View>
             </View>
             <View style={{...styles.statBlock, marginTop: 12}}>
                 <Text style={styles.statLabel}>➰ Break</Text>
-                <BlurView intensity={showPrediction ? 0 : 100} tint={"light"}>
-                    <Text style={styles.statValue}>
-                        {prediction.aimingBreakInches > 0 ? '+' : ''}{prediction.aimingBreakInches.toFixed(1)} in ({breakLabel})
-                    </Text>
-                </BlurView>
+                <Text style={styles.statValue}>
+                    {prediction.aimingBreakInches > 0 ? '+' : ''}{prediction.aimingBreakInches.toFixed(1)} in ({breakLabel})
+                </Text>
             </View>
         </View>
     );
