@@ -82,6 +82,10 @@ const GreenPolygon = ({
         // }, 100);
     };
 
+    if (!greenCoords) {
+        return <View></View>
+    }
+
     const clippedFairway = clampLineToBounds(fairways, bounds);
     const fairwayPoints = clippedFairway.map(c =>
         c.map(p => {
@@ -104,7 +108,7 @@ const GreenPolygon = ({
 
     return (
             <View style={{width: svgSize, height: svgSize, overflow: "hidden", borderRadius: 12}}>
-                <SvgPanZoom initialZoom={1} minScale={1} maxScale={10} onZoom={(zoom) => console.log("zooming: ", zoom)} canvasWidth={svgSize} canvasHeight={svgSize} canvasStyle={{backgroundColor: "#246903"}}>
+                <SvgPanZoom onClick={() => console.log("clicked")} initialZoom={1} minScale={1.2} maxScale={4} canvasWidth={svgSize} canvasHeight={svgSize} canvasStyle={{backgroundColor: "#246903"}}>
                     <G>
                         <Defs>
                             <Pattern
@@ -181,14 +185,13 @@ const GreenPolygon = ({
                             const p = toSvgPointLatLon(tap);
 
                             return (
-                                <SvgPanZoomElement onClick={() => setTaps(taps.filter((t, i) => i !== index))}>
+                                <SvgPanZoomElement key={"tap-" + index} onClick={() => setTaps(taps.filter((t, i) => i !== index))}>
                                     <Circle
                                         cx={p.x}
                                         cy={p.y}
                                         r={4}
                                         fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
                                         stroke="black"
-                                        key={"tap-" + index}
                                     />
                                 </SvgPanZoomElement>
                             );
@@ -199,9 +202,11 @@ const GreenPolygon = ({
                                     fill="gold"
                                     stroke="black"
                                     r={4}
+                                    cx={toSvgPointLatLon(pinLocation).x}
+                                    cy={toSvgPointLatLon(pinLocation).y}
                                 />
-                                <Path fill={"black"} scale={0.35}
-                                      x={-4} y={-4} fillRule="evenodd"
+                                <Path fill={"black"} scale={0.25}
+                                      x={toSvgPointLatLon(pinLocation).x-3} y={toSvgPointLatLon(pinLocation).y-3} fillRule="evenodd"
                                       d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
                                       clipRule="evenodd"/>
                             </G>

@@ -6,7 +6,7 @@ export default function ScreenWrapper({children, style = {}, ...props}) {
     const inset = useSafeAreaInsets();
 
     return (
-        <View style={[{marginTop: StatusBar.currentHeight, paddingTop: inset.top, flex: 1}, style]} {...props}>
+        <View style={[{marginTop: StatusBar.currentHeight, paddingTop: Platform.OS === "ios" ? inset.top : 0, flex: 1}, style]} {...props}>
             {children}
         </View>
     );

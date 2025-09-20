@@ -234,7 +234,7 @@ const PuttingGreenPolygon = ({
             <GestureDetector gesture={Gesture.Simultaneous(longPressGesture, panGesture, pinchGesture)}>
                 <Animated.View>
                     <Svg width={svgSize} height={svgSize} style={{backgroundColor: "#246903", borderRadius: 12}} >
-                        <AnimatedG>
+                        <AnimatedG animatedProps={animatedProps}>
                             <Defs>
                                 <Pattern
                                     id="greenPattern"
@@ -271,7 +271,7 @@ const PuttingGreenPolygon = ({
                                     <AnimatedCircle
                                         fill="#76eeff"
                                         stroke="black"
-                                        r={8}
+                                        r={7}
                                     />
                                     <Path scale={0.6} x={-7} y={-7} d="M12 2l6.5 18.5L12 16l-6.5 4.5L12 2z"/>
                                 </AnimatedG>
