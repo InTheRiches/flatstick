@@ -107,7 +107,7 @@ const GreenPolygon = ({
     const greenPathData = lineGenerator(greenPoints);
 
     return (
-            <View style={{width: svgSize, height: svgSize, overflow: "hidden", borderRadius: 12}}>
+            <View style={{width: svgSize, height: svgSize, overflow: "hidden", borderRadius: 12, backgroundColor: "#246903"}}>
                 <SvgPanZoom onClick={() => console.log("clicked")} initialZoom={1} minScale={1.2} maxScale={4} canvasWidth={svgSize} canvasHeight={svgSize} canvasStyle={{backgroundColor: "#246903"}}>
                     <G>
                         <Defs>
