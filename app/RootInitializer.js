@@ -99,24 +99,19 @@ export default function RootInitializer({}) {
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                console.log("User: ", user);
                 user.getIdToken().then(async (token) => {
                     setSession(token);
-                    console.log("User 2: " + JSON.stringify(user));
+
                     await initialize(user).catch((error) => {
                         console.error("Initialization error:", error.stack);
                         setLocalLoading(false);
                     });
-                    if (screenToPush === "/") return;
 
                     router.push({pathname: screenToPush});
                 });
             }
             else {
                 setLocalLoading(false);
-                // if (Platform.OS === "ios") {
-                //     router.push({pathname: "/signup"});
-                // }
             }
         });
         return () => {

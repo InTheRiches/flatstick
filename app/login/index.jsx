@@ -10,6 +10,7 @@ import FontText from "../../components/general/FontText";
 import {AppleButton} from "@invertase/react-native-apple-authentication";
 import {useSession} from "../../contexts/AuthContext";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import {useAppContext} from "../../contexts/AppContext";
 
 const initialState = {
     password: "",
@@ -23,6 +24,7 @@ const initialState = {
 export default function Login() {
     const colors = useColors();
     const router = useRouter();
+    const {setUserData} = useAppContext();
     const {signIn, googleSignIn, appleSignIn, setSession} = useSession();
 
     const [state, setState] = useState(initialState);
@@ -81,8 +83,8 @@ export default function Login() {
 
     const signInWithGoogle = () => {
         setLoading(true);
-        googleSignIn(setLoading).then(token => {
-            console.log("Apple Sign In Token:", token);
+        googleSignIn(setLoading).then(({token, data}) => {
+            setUserData(data);
             setLoading(false);
             if (token) {
                 setSession(token || null);

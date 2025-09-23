@@ -1,4 +1,4 @@
-import {ActivityIndicator, Animated, Pressable, Text, View} from "react-native";
+import {ActivityIndicator, Animated, Platform, Pressable, Text, View} from "react-native";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import React, {useEffect, useRef, useState} from "react";
 import {getOSMPuttingGreenByLatLon} from "../../../utils/courses/putting-greens/greenFetching";
@@ -24,7 +24,19 @@ import {EditPuttModal} from "../../../components/simulations/full/popups/EditPut
 import {PuttPredictionModal} from "../../../components/simulations/full/popups/PuttPredictionModal";
 import {predictPutt} from "../../../utils/courses/predictionUtils";
 import {isPointInPolygon} from "../../../utils/courses/polygonUtils";
+import {
+    AdEventType,
+    BannerAd,
+    BannerAdSize,
+    InterstitialAd,
+    TestIds,
+    useForeground
+} from "react-native-google-mobile-ads";
+import useUserLocation from "../../../hooks/useUserLocation";
 
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
+const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 // TODO use compass to align user to the green
 export default function PuttingGreen() {
     const colors = useColors();
@@ -36,7 +48,7 @@ export default function PuttingGreen() {
     // const difficulty = "medium";
     // const mode = "practice";
 
-    const userLocation = {latitude: 42.204930, longitude: -85.632782}; // useUserLocation(() => router.replace("/practice"));
+    const userLocation = useUserLocation(() => router.replace("/practice")); // {latitude: 42.204930, longitude: -85.632782};
 
     const [taps, setTaps] = useState([]);
     const [pinLocations, setPinLocations] = useState([]);
@@ -50,10 +62,28 @@ export default function PuttingGreen() {
     const [loadingAnim] = useState(new Animated.Value(0));
     const [greenFound, setGreenFound] = useState(false);
     const [prediction, setPrediction] = useState(null);
+    const [adLoaded, setAdLoaded] = useState(false);
 
     const confirmExitRef = React.useRef(null);
     const editPuttRef = useRef(null);
     const predictionRef = useRef(null);
+    const bannerRef = useRef(null);
+
+    useEffect(() => {
+        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+        });
+
+        interstitial.load();
+
+        return () => {
+            unsubscribeLoaded();
+        }
+    }, []);
+
+    useForeground(() => {
+        bannerRef.current?.load();
+    });
 
     // load map data and LiDAR
     // TODO make this try a few times, and then stop, and give them a button to try again
@@ -140,6 +170,11 @@ export default function PuttingGreen() {
 
     const nextHole = () => {
         if (!generatedHoles) return;
+
+        if (((holes === 18 && holeNumber === 9) || (holes === 9 && holeNumber === 4)) && adLoaded) {
+            interstitial.show();
+            setAdLoaded(false);
+        }
 
         if (taps.length !== 0) { // this is so that when you go back and forth it doesn't overwrite with empty data
             setRoundData((prev) => {
@@ -323,7 +358,7 @@ export default function PuttingGreen() {
                     </Pressable>
                 </View>
                 <View>
-                    {generatedHoles ? <FontText style={{fontSize: 16, marginBottom: 10, marginTop: 32, color: colors.text.secondary}}>Tap on the green to mark each putt for the simulated hole.</FontText> : <FontText style={{fontSize: 16, marginBottom: 10, marginTop: 32, color: colors.text.secondary}}>Tap on the green to mark where the pins are. Tap again to remove them.</FontText>}
+                    {generatedHoles ? <FontText style={{fontSize: 16, marginBottom: 10, color: colors.text.secondary}}>Tap on the green to mark each putt for the simulated hole.</FontText> : <FontText style={{fontSize: 16, marginBottom: 10, marginTop: 32, color: colors.text.secondary}}>Tap on the green to mark where the pins are. Tap again to remove them.</FontText>}
                     {generatedHoles && <FontText style={{fontSize: 16, marginBottom: 10, color: colors.text.secondary}}>Long press on any putt to mark it as misread.</FontText>}
                     <FontText style={{fontSize: 16, marginBottom: 10, color: colors.text.secondary}}>Drag the green to pan, pinch to zoom.</FontText>
                     {(greenCoords) && (
@@ -392,13 +427,13 @@ export default function PuttingGreen() {
                         </View>
                     </View>
                 </View>
-                {generatedHoles && prediction && (
-                    <View style={{justifyContent: "center", alignItems: "center"}}>
-                        <Text style={{color: '#777'}}>📏 Distance</Text>
-                        <Text style={{fontSize: 18, fontWeight: '700', color: '#333',}}>{prediction.puttDistanceFeet.toFixed(1)} ft</Text>
-                    </View>
-                )}
-                <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 8, borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingBottom: 12}}>
+                {/*{generatedHoles && prediction && (*/}
+                {/*    <View style={{justifyContent: "center", alignItems: "center", marginTop: 10}}>*/}
+                {/*        <Text style={{color: '#777'}}>📏 Distance</Text>*/}
+                {/*        <Text style={{fontSize: 18, fontWeight: '700', color: '#333',}}>{prediction.puttDistanceFeet.toFixed(1)} ft</Text>*/}
+                {/*    </View>*/}
+                {/*)}*/}
+                <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 8, paddingBottom: 12}}>
                     <Pressable onPress={() => {
                         if (userLocation === null) return;
                         // check if the user is on the green
@@ -475,7 +510,10 @@ export default function PuttingGreen() {
                     </SecondaryButton>
                 )
                 }
-                <View style={{flexDirection: "row", justifyContent: "space-between", gap: 4, paddingHorizontal: 16, opacity: generatedHoles ? 1 : 0}}>
+                <View style={{marginLeft: -20}}>
+                    <BannerAd ref={bannerRef} unitId={bannerAdId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}/>
+                </View>
+                <View style={{flexDirection: "row", justifyContent: "space-between", gap: 4, marginBottom: 4, paddingHorizontal: 16, opacity: generatedHoles ? 1 : 0}}>
                     <PrimaryButton style={{borderRadius: 12, paddingVertical: 12, flex: 1, maxWidth: 128}}
                                    title="Back"
                                    disabled={holeNumber === 1} onPress={lastHole}></PrimaryButton>

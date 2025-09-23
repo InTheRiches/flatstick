@@ -62,7 +62,7 @@ export default function HomeScreen() {
             console.error('Error loading userfeed:', e);
         }
         setLoadingInitial(false);
-    }, [auth.currentUser.uid]);
+    }, [auth.currentUser]);
 
     const loadMore = useCallback(async () => {
         if (loadingMore || !hasMore) return;
@@ -83,7 +83,7 @@ export default function HomeScreen() {
             console.error('Error loading more userfeed:', e);
         }
         setLoadingMore(false);
-    }, [auth.currentUser.uid, lastDoc, loadingMore, hasMore]);
+    }, [auth.currentUser, lastDoc, loadingMore, hasMore]);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);

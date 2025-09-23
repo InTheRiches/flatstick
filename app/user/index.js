@@ -87,8 +87,12 @@ export default function UserScreen({}) {
 
         getAllStats(friendData.uid).then(stats => {
             if (!stats || Object.keys(stats).length === 0) {
-                alert("No stats found for that user.");
-                router.back();
+                setStats(createMonthAggregateStats());
+                const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+                setRawStats({
+                    [monthKey]: createMonthAggregateStats()
+                });
                 return;
             }
             let combined = [];

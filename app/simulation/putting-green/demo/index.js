@@ -58,7 +58,7 @@ export default function RoundDemo({}) {
                     router.back();
                 } else {
                     router.replace({
-                        pathname: `/simulation/round`, params: {
+                        pathname: `/simulation/putting-green`, params: {
                             localHoles: localHoles, difficulty: difficulty, mode: mode,
                         }
                     });

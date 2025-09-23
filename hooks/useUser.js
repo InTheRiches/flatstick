@@ -4,7 +4,6 @@ import {getAuth} from '@/utils/firebase';
 import {fetchUserData, updateUserData} from '@/services/userService';
 import {registerForPushNotificationsAsync} from '@/utils/notifications/RegisterNotifications';
 import achievementData from "@/assets/achievements.json";
-import {getDefaultData} from "@/utils/userUtils";
 
 export const useUser = () => {
     const [userData, setUserData] = useState({});
@@ -14,10 +13,18 @@ export const useUser = () => {
         if (!auth.currentUser) return;
 
         let data = userData;
-        console.log("Initializing user data for user:", user);
-        if (Object.keys(userData).length === 0) {
-            data = getDefaultData(user.displayName.split(" ")[0] || '', user.displayName.split(" ")[1] || '');
+        if (!data || Object.keys(data).length === 0) {
+            data = await fetchUserData(auth.currentUser.uid);
+            console.log(data);
         }
+        // console.log("Initializing user data for user:", user);
+        // if (Object.keys(userData).length === 0) {
+        //     if (user.displayName && user.displayName !== undefined)
+        //         data = getDefaultData(user.displayName.split(" ")[0] || '', user.displayName.split(" ")[1] || '');
+        //     else {
+        //         setUserData(fetchUserData(user.uid));
+        //     }
+        // }
         console.log("User is signed in with UID:", auth.currentUser.uid);
         console.log("Fetched user data:", data);
 
