@@ -30,8 +30,8 @@ export const RECENT_SESSION_CONFIG = {
         title: (s) => `${s.stats.holesPlayed} Hole Simulation`,
         fields: [
             { label: "SG", value: (s) => s.stats.strokesGained },
-            { label: "DIFFICULTY", value: (s) => s.difficulty },
-            { label: "TOTAL PUTTS", value: (s) => s.totalPutts },
+            { label: "DIFFICULTY", value: (s) => s.meta.difficulty },
+            { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
         ],
     },
 };

@@ -162,6 +162,8 @@ export default function UserScreen({}) {
         );
     }
 
+    const holesPlayed = stats.holesPlayed === 0 ? 1 : stats.holesPlayed;
+
     return (
         <>
             <ScreenWrapper style={{ paddingHorizontal: 24 }}>
@@ -169,11 +171,11 @@ export default function UserScreen({}) {
                     <ProfileHeader userData={friendData} isSelf={false} />
                     <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12}}>
                         <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
-                        <StrokesGainedCard strokesGainedRef={strokesGainedRef} byMonthStats={rawStats} value={roundTo((stats.strokesGained.expectedStrokes - stats.totalPutts) / (stats.holesPlayed / 18), 1)} />
+                        <StrokesGainedCard strokesGainedRef={strokesGainedRef} byMonthStats={rawStats} value={roundTo((stats.strokesGained.expectedStrokes - stats.totalPutts) / (holesPlayed / 18), 1)} />
                     </View>
                     <SessionsSection userId={friendData.uid} name={friendData.displayName} sessions={sessions} />
                     {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
-                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: roundTo(stats.totalPutts/(stats.holesPlayed/18), 1) }, { label: 'AVG. MISS', value: `${roundTo(convertUnits(stats.missData.totalMissDistance/stats.missData.totalMissedPutts, 0, userData.preferences.units), 1)}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
+                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: roundTo(stats.totalPutts/(holesPlayed/18), 1) }, { label: 'AVG. MISS', value: `${roundTo(convertUnits(stats.missData.totalMissDistance/(stats.missData.totalMissedPutts === 0 ? 1 : stats.missData.totalMissedPutts), 0, userData.preferences.units), 1)}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
                     <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>
                     {/*<StatsCard title="ACHIEVEMENTS" stats={[]} />*/}
                 </ScrollView>

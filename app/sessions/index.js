@@ -29,7 +29,7 @@ export default function Sessions({}) {
                 ListHeaderComponent={(
                     <View>
                         <View style={{flexDirection: "row", alignItems: "center", marginBottom: 12}}>
-                            <FontText style={{textAlign: "left", marginLeft: 64, width: "100%", color: colors.text.primary, fontSize: 22, fontWeight: 600}}>{name === undefined ? "Your" : name + "'s"} Sessions</FontText>
+                            <FontText style={{textAlign: "left", marginLeft: 64, width: "100%", color: colors.text.primary, fontSize: 22, fontWeight: 600, flex: 1}}>{name === undefined ? "Your" : name + "'s"} Sessions</FontText>
                             <Pressable onPress={navigation.goBack} style={{position: "absolute", left: 0, marginLeft: 14, padding: 10}}>
                                 <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
                                      stroke={colors.text.primary} width={24} height={24}>

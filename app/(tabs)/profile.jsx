@@ -37,17 +37,19 @@ export default function ProfileScreen() {
         getFriends(auth.currentUser.uid).then(setFriends);
     });
 
+    const holesPlayed = statsToUse.holesPlayed === 0 ? 1 : statsToUse.holesPlayed;
+
     return (
         <ScreenWrapper style={{ paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: colors.border.default }}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
                 <ProfileHeader userData={userData} isSelf={true}/>
                 <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12 }}>
                     <FriendsCard alert={userData.hasPendingFriendRequests} friendCount={friends.length} isFriend={false} isSelf={true} />
-                    <StrokesGainedCard strokesGainedRef={strokesGainedRef} value={roundTo((statsToUse.strokesGained.expectedStrokes - statsToUse.totalPutts) / (statsToUse.holesPlayed / 18), 1)} byMonthStats={byMonthStats} />
+                    <StrokesGainedCard strokesGainedRef={strokesGainedRef} value={roundTo((statsToUse.strokesGained.expectedStrokes - statsToUse.totalPutts) / (holesPlayed / 18), 1)} byMonthStats={byMonthStats} />
                 </View>
                 <SessionsSection sessions={sessions} isSelf={true}/>
                 {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
-                <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: roundTo(statsToUse.totalPutts/(statsToUse.holesPlayed/18), 1) }, { label: 'AVG. MISS', value: `${roundTo(convertUnits(statsToUse.missData.totalMissDistance/statsToUse.missData.totalMissedPutts, 0, userData.preferences.units), 1)}${userData.preferences.units === 0 ? "ft" : "m"}` }]} />
+                <StatsCard title="PUTTING STATS" onPress={() => router.push({pathname: "/(tabs)/stats"})} stats={[{ label: 'AVG. PUTTS', value: roundTo(statsToUse.totalPutts/(holesPlayed/18), 1) }, { label: 'AVG. MISS', value: `${roundTo(convertUnits(statsToUse.missData.totalMissDistance/(statsToUse.missData.totalMissedPutts === 0 ? 1 : statsToUse.missData.totalMissedPutts), 0, userData.preferences.units), 1)}${userData.preferences.units === 0 ? "ft" : "m"}` }]} />
                 <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "/(tabs)/compare"})} />
                 {/*<StatsCard title="ACHIEVEMENTS" stats={[]} onPress={() => router.push({pathname: "/achievements"})}/>*/}
             </ScrollView>
