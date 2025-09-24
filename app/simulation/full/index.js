@@ -306,6 +306,11 @@ export default function FullRound() {
             return;
         }
 
+        if (((holes === 18 && hole === 9) || (holes === 9 && hole === 4)) && adLoaded) {
+            interstitial.show();
+            setAdLoaded(false);
+        }
+
         saveHole();
 
         if (roundData[hole].putts !== undefined) {

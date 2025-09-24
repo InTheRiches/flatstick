@@ -380,7 +380,7 @@ export const NewRound = ({newSessionRef}) => {
                                 });
                             } else {
                                 router.push({
-                                    pathname: `/simulation/putt-green/demo`, params: {
+                                    pathname: `/simulation/putting-green/demo`, params: {
                                         justInfo: false, holes, difficulty: difficulty, mode: mode,
                                     },
                                 });

@@ -17,7 +17,7 @@ const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pu
 // TODO with a time range selector as well
 export default function CompareUsers({}) {
     const colors = useColors();
-    const {userData, currentStats, byMonthStats} = useAppContext();
+    const {userData, byMonthStats} = useAppContext();
     const navigation = useNavigation();
     const {id, jsonProfile} = useLocalSearchParams();
     const profile = JSON.parse(jsonProfile);
@@ -30,6 +30,13 @@ export default function CompareUsers({}) {
                 combined = combined.concat(byMonthStats[m]);
             }
         });
+        if (combined[0].holesPlayed === 0) {
+            alert("You need to have at least one putt logged to compare with other users.");
+            // set a timeout to go back so the page can properly render first
+            setTimeout(() => {
+                navigation.goBack();
+            }, 100);
+        }
         return combined[0];
     }, [byMonthStats]);
 
@@ -49,6 +56,13 @@ export default function CompareUsers({}) {
                         combined = combined.concat(stats[m]);
                     }
                 });
+                if (combined[0].holesPlayed === 0) {
+                    alert("This user has no putts logged. They need at least one putt logged to compare.");
+                    // set a timeout to go back so the page can properly render first
+                    setTimeout(() => {
+                        navigation.goBack();
+                    }, 100);
+                }
                 setUsersStats(combined[0]);
                 setLoading(false);
             } else {
@@ -62,7 +76,10 @@ export default function CompareUsers({}) {
         });
     }, []);
 
-    const betterPutter = compareStats(currentStats, usersStats);
+    const betterPutter = useMemo(() => {
+        if (loading) return -1;
+        return compareStats(statsToUse, usersStats);
+    }, [loading, statsToUse, usersStats]);
 
     return (
         <ScreenWrapper>

@@ -176,7 +176,7 @@ const GreenPolygon = ({
                                 cy={toSvgPointLatLon(userLocation).y}
                                 fill="#76eeff"
                                 stroke="black"
-                                r={4}
+                                r={6}
                             />
                         )
                         }
@@ -189,7 +189,7 @@ const GreenPolygon = ({
                                     <Circle
                                         cx={p.x}
                                         cy={p.y}
-                                        r={4}
+                                        r={6}
                                         fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
                                         stroke="black"
                                     />
@@ -201,7 +201,7 @@ const GreenPolygon = ({
                                 <Circle
                                     fill="gold"
                                     stroke="black"
-                                    r={4}
+                                    r={6}
                                     cx={toSvgPointLatLon(pinLocation).x}
                                     cy={toSvgPointLatLon(pinLocation).y}
                                 />
