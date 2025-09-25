@@ -141,7 +141,7 @@ export default function CreateAccount() {
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-        }).catch(error => {
+          .catch(error => {
             setLoading(false);
             console.error("Google Sign In Error:", error);
         });
