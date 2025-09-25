@@ -9,6 +9,7 @@ import {deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential} fr
 import {useAppContext} from "../../../../contexts/AppContext";
 import FontText from "../../../general/FontText";
 import {useSession} from "../../../../contexts/AuthContext";
+import {auth} from "../../../../utils/firebase";
 
 export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef}) {
     const colors = useColors();
@@ -23,38 +24,23 @@ export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef})
     }
 
     const submit = async () => {
+        console.log("Submitting re-authentication for account deletion...");
         if (password.length < 6) return;
 
-        const auth = getAuth()
         const credential = EmailAuthProvider.credential(
             auth.currentUser.email,
             password
         )
+        console.log("Re-authenticating user...");
         reauthenticateWithCredential(auth.currentUser, credential).then(async () => {
+            console.log("Re-authentication successful.");
             reauthenticateRef.current.dismiss();
             setPassword("");
 
             confirmDeleteRef.current.present();
-
-            await updateData({ deleted: true });
-
-            const currentUser = auth.currentUser;
-
-            await signOut();
-
-            deleteUser(currentUser).then(() => {
-                // User deleted.
-                console.log("User deleted");
-                setSession(null);
-                if (Platform.OS !== "ios") {
-                    router.replace({pathname: "/login"});
-                }
-            }).catch((error) => {
-                // An error ocurred
-                console.log(error);
-            });
         }).catch((error) => {
             setPasswordInvalid(true);
+            console.log("Re-authentication failed: ", error);
         });
     }
 
@@ -119,7 +105,9 @@ export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef})
                         textAlign: "center",
                         fontSize: 16
                     }}>!</FontText>}
-                    <SecondaryButton style={{aspectRatio: 1, borderRadius: 10}} onPress={submit} disabled={password.length < 6}>
+                    <SecondaryButton style={{aspectRatio: 1, borderRadius: 10}} onPress={() => {
+                        submit().catch((e) => console.log(e));
+                    }} disabled={password.length < 6}>
                         <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={password.length < 6 ? colors.button.disabled.text : colors.button.secondary.text} stroke={password.length < 6 ? colors.button.disabled.text : colors.button.secondary.text} width={20} height={20} strokeWidth={1}>
                             <Path fillRule="evenodd"
                                   d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z"

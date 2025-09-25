@@ -24,7 +24,8 @@ export const PuttsByBreakSlope = ({statsToUse}) => {
 
 function createPuttsByBreak(currentStats) {
     // copy the object
-    const mySlopes = currentStats.puttsAHole.slopes;
+    const mySlopes = currentStats.puttsAHole.byFirstPuttSlope;
+    const myHoles = {...currentStats.holesByFirstPuttSlope};
 
     let max = 0;
 
@@ -34,8 +35,13 @@ function createPuttsByBreak(currentStats) {
             if (slope === "neutral" && brek === "straight")
                 continue; // don't include neutral straight
 
-            if (mySlopes[slope][brek] > max) {
-                max = mySlopes[slope][brek];
+            if (myHoles[slope][brek] === 0) {
+                myHoles[slope][brek] = 1;
+                continue;
+            }
+
+            if ((mySlopes[slope][brek] / myHoles[slope][brek]) > max) {
+                max = (mySlopes[slope][brek] / myHoles[slope][brek]);
             }
         }
     }
@@ -56,13 +62,13 @@ function createPuttsByBreak(currentStats) {
     max += 0.2;
 
     return {
-        "Downhill\nStraight": [roundTo(mySlopes.downhill.straight / max, 2), mySlopes.downhill.straight + " Putts"],
-        "Downhill\nLeft to Right": [roundTo(mySlopes.downhill.leftToRight / max, 2), mySlopes.downhill.leftToRight + " Putts"],
-        "Neutral\nLeft to Right": [roundTo(mySlopes.neutral.leftToRight / max, 2), mySlopes.neutral.leftToRight + " Putts"],
-        "Uphill\nLeft to Right": [roundTo(mySlopes.uphill.leftToRight / max, 2), mySlopes.uphill.leftToRight + " Putts"],
-        "Uphill\nStraight": [roundTo(mySlopes.uphill.straight / max, 2), mySlopes.uphill.straight + " Putts"],
-        "Uphill\nRight to Left": [roundTo(mySlopes.uphill.rightToLeft / max, 2), mySlopes.uphill.rightToLeft + " Putts"],
-        "Neutral\nRight to Left": [roundTo(mySlopes.neutral.rightToLeft / max, 2), mySlopes.neutral.rightToLeft + " Putts"],
-        "Downhill\nRight to Left": [roundTo(mySlopes.downhill.rightToLeft / max, 2), mySlopes.downhill.rightToLeft + " Putts"],
+        "Downhill\nStraight": [(mySlopes.downhill.straight / myHoles.downhill.straight) / max, roundTo(mySlopes.downhill.straight / myHoles.downhill.straight, 1) + " Putts"],
+        "Downhill\nLeft to Right": [(mySlopes.downhill.leftToRight / myHoles.downhill.leftToRight) / max, roundTo(mySlopes.downhill.leftToRight / myHoles.downhill.leftToRight, 1) + " Putts"],
+        "Neutral\nLeft to Right": [(mySlopes.neutral.leftToRight / myHoles.neutral.leftToRight) / max, roundTo(mySlopes.neutral.leftToRight / myHoles.neutral.leftToRight, 1) + " Putts"],
+        "Uphill\nLeft to Right": [(mySlopes.uphill.leftToRight / myHoles.uphill.leftToRight) / max, roundTo(mySlopes.uphill.leftToRight / myHoles.uphill.leftToRight, 1)+ " Putts"],
+        "Uphill\nStraight": [(mySlopes.uphill.straight / myHoles.uphill.straight) / max, roundTo(mySlopes.uphill.straight / myHoles.uphill.straight, 1) + " Putts"],
+        "Uphill\nRight to Left": [(mySlopes.uphill.rightToLeft / myHoles.uphill.rightToLeft) / max, roundTo(mySlopes.uphill.rightToLeft / myHoles.uphill.rightToLeft, 1) + " Putts"],
+        "Neutral\nRight to Left": [(mySlopes.neutral.rightToLeft / myHoles.neutral.rightToLeft) / max, roundTo(mySlopes.neutral.rightToLeft / myHoles.neutral.rightToLeft, 1) + " Putts"],
+        "Downhill\nRight to Left": [(mySlopes.downhill.rightToLeft / myHoles.downhill.rightToLeft) / max, roundTo(mySlopes.downhill.rightToLeft / myHoles.downhill.rightToLeft, 1) + " Putts"],
     }
 }

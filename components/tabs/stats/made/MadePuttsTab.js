@@ -2,7 +2,6 @@ import useColors from "../../../../hooks/useColors";
 import {Dimensions, ScrollView, View} from "react-native";
 import React, {useMemo} from "react";
 import {MakeByBreakSlope, MakeByDistance} from "./graphs";
-import {useAppContext} from "../../../../contexts/AppContext";
 import {roundTo} from "../../../../utils/roundTo";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 import FontText from "../../../general/FontText";
@@ -16,9 +15,9 @@ export const MadePuttsTab = ({statsToUse, showDifference = false, previousStats}
 
     let difference = 0;
 
-    if (previousStats !== undefined && previousStats.length > 0 && difference)
-        difference = ((statsToUse.madePutts.overall - previousStats[0].madePutts.overall) * 100).toFixed(0);
-
+    // if (previousStats !== undefined && previousStats.length > 0 && difference)
+    //     difference = ((statsToUse.madePutts.overall - previousStats[0].madePutts.overall) * 100).toFixed(0);
+    //
     const madeByDistance = useMemo(() =>
         <>
             <View style={{alignItems: "center"}}>
@@ -36,7 +35,7 @@ export const MadePuttsTab = ({statsToUse, showDifference = false, previousStats}
             </View>
         </>
     , [statsToUse]);
-
+    //
     const madeBySlope = useMemo(() => (
         <MakeByBreakSlope statsToUse={statsToUse}></MakeByBreakSlope>
     ), [statsToUse]);
@@ -44,14 +43,14 @@ export const MadePuttsTab = ({statsToUse, showDifference = false, previousStats}
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 20}}>
             <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%", gap: 6}}>
-                <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{roundTo(statsToUse.madePutts.overall*100, 0)}%</FontText>
+                <FontText style={{color: colors.text.primary, fontSize: 48, fontWeight: 600}}>{roundTo((statsToUse.madeData.totalMadePutts/statsToUse.totalPutts)*100, 0)}%</FontText>
                 { previousStats !== undefined && previousStats.length > 0 && difference !== 0 &&
                     <View style={{backgroundColor: difference > 0 ? "#A1ECA8" : "#ffc3c3", alignItems: "center", justifyContent: "center", borderRadius: 32, paddingHorizontal: 10, paddingVertical: 4}}>
                         <FontText style={{color: difference > 0 ? "#275E2B" : "#a60303", fontSize: 14, fontWeight: 500}}>{difference > 0 ? `+${difference}%` : `${difference}%`}</FontText>
                     </View>
                 }
             </View>
-            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes, last 5 sessions)</FontText>
+            <FontText style={{color: colors.text.secondary, fontSize: 14, fontWeight: 400, textAlign: "center"}}>(over 18 holes)</FontText>
             <View style={{flexDirection: "row", gap: 10, marginTop: 24, marginBottom: 16}}>
                 <Toggleable toggled={byDistance} onToggle={() => setByDistance(true)} title={"By Distance"}/>
                 <Toggleable toggled={!byDistance} onToggle={() => setByDistance(false)} title={"By Direction"}/>

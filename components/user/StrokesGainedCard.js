@@ -3,7 +3,7 @@ import {Pressable, View} from 'react-native';
 import FontText from '../../components/general/FontText';
 import useColors from '../../hooks/useColors';
 
-export default function StrokesGainedCard({ value, strokesGainedRef, yearlyStats }) {
+export default function StrokesGainedCard({ value, strokesGainedRef, byMonthStats }) {
     const colors = useColors();
 
     // return (
@@ -21,21 +21,20 @@ export default function StrokesGainedCard({ value, strokesGainedRef, yearlyStats
     // );
 
     const [showOverTime, setShowOverTime] = React.useState(false);
-    // loop through yearlyStats.months and determine how many months have non -999 strokesGained
-    useEffect(() => {
-        if (!yearlyStats.months) return;
 
+    useEffect(() => {
         let count = 0;
-        for (let i = 0; i < yearlyStats.months.length; i++) {
-            if (yearlyStats.months[i].strokesGained !== -999) {
-                count++;
-            }
+        for (let i = 0; i < Object.keys(byMonthStats).length; i++) {
+            const month = Object.keys(byMonthStats)[i];
+            const stats = byMonthStats[month];
+
+            if (stats.strokesGained.expectedStrokes > 0) count++;
         }
 
         if (count > 1) {
             setShowOverTime(true);
         }
-    }, [yearlyStats]);
+    }, [byMonthStats]);
 
     return showOverTime ? (
         <Pressable onPress={() => strokesGainedRef.current.present()} style={({pressed}) => ({backgroundColor: pressed ? colors.button.primary.depressed : colors.button.primary.background, borderWidth: 1, borderColor: colors.border.default, flex: 0.5, flexDirection: 'col', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 })}>

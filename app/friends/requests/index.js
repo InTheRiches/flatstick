@@ -155,6 +155,7 @@ export default function FriendRequests({}) {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {received && requests.receivedRequests.length > 0 && requests.receivedRequests.map((request, index) => {
                         const date = new Date(request.date);
+                        console.log("Request profile: ", request);
                         return (
                             <Pressable key={"user-" + index} style={({pressed}) => [{
                                 padding: 8,

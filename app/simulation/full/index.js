@@ -27,9 +27,8 @@ import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPut
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
-import {newSession} from "../../../services/sessionService";
-import {SCHEMA_VERSION} from "../../../utils/constants";
-import {auth, firestore} from "../../../utils/firebase";
+import {SCHEMA_VERSION} from "../../../constants/Constants";
+import {firestore} from "../../../utils/firebase";
 import {
     fetchCourseElements,
     get3DEPElevationData,
@@ -38,7 +37,7 @@ import {
 } from "../../../utils/courses/courseFetching";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
-import {analyzeIndividualPutts, calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
+import {calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -50,14 +49,13 @@ export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
     const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
-    const {userData, grips, putters} = useAppContext();
+    const {userData, grips, putters, processSession} = useAppContext();
     const confirmExitRef = useRef(null);
     const puttTrackingRef = useRef(null);
     const noPuttDataModalRef = useRef(null);
     const scorecardRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
-
     const holes = parseInt(stringHoles);
     const course = JSON.parse(stringCourse);
     const frontNine = stringFront === "true";
@@ -87,7 +85,6 @@ export default function FullRound() {
         holedOut: false,
     });
     const [roundData, setRoundData] = useState([]);
-
     const [puttsLocked, setPuttsLocked] = useState(false);
 
     const [adLoaded, setAdLoaded] = useState(false);
@@ -165,7 +162,6 @@ export default function FullRound() {
 
         // load OSM course data
         console.log("Starting fetch for course elements...");
-        console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
         // check to see if it exists in our db first
         getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
             setOSMCourseId(res[0]?.id);
@@ -216,6 +212,11 @@ export default function FullRound() {
                         setFairways(rawFairways);
                         setAllBunkers(rawBunkers);
                         setHoleBunkers([]);
+
+                        recalculateHoleBunkers(processedGreens, rawBunkers);
+
+                        setStartTime(new Date());
+                        setHoleStartTime(new Date().getTime());
                     }).catch((err) => {
                         console.error("Error fetching course data from OSM:", err);
                         alert("Failed to fetch course data. Please try again later or contact support.");
@@ -230,6 +231,9 @@ export default function FullRound() {
                 setHoleBunkers([]);
 
                 recalculateHoleBunkers(data.greens, data.rawBunkers);
+
+                setStartTime(new Date());
+                setHoleStartTime(new Date().getTime());
             }).catch((err) => {
                 console.error("Error fetching course data from OSM:", err);
                 alert("Failed to fetch course data. Please try again later or contact support.");
@@ -302,6 +306,11 @@ export default function FullRound() {
             return;
         }
 
+        if (((holes === 18 && hole === 9) || (holes === 9 && hole === 4)) && adLoaded) {
+            interstitial.show();
+            setAdLoaded(false);
+        }
+
         saveHole();
 
         if (roundData[hole].putts !== undefined) {
@@ -309,6 +318,14 @@ export default function FullRound() {
             if (roundData[hole].puttData.holedOut) {// holed out
                 setPutts(0);
                 setPuttsLocked(true);
+            }
+            else if (roundData[hole].puttData && roundData[hole].puttData.taps.length > 0 && !roundData[hole].puttData.holedOut) {
+                setPutts(roundData[hole].puttData.taps.length);
+                setPuttsLocked(true);
+            }
+            else {
+                setPuttsLocked(false);
+                setPutts(2);
             }
             setHoleScore(roundData[hole].score);
             setApproachAccuracy(roundData[hole].approachAccuracy);
@@ -344,7 +361,6 @@ export default function FullRound() {
         let selectedGreenPolygon = null;
         for (const g of newGreens) {
             if (g.hole === holeNum.toString()) {
-                console.log("Selected green for hole " + holeNum);
                 selectedGreenPolygon = g;
                 break;
             }
@@ -380,27 +396,43 @@ export default function FullRound() {
         // save current hole
         saveHole();
 
-        setHoleScore(roundData[hole-2].score);
-        setApproachAccuracy(roundData[hole-2].approachAccuracy);
-        setFairwayAccuracy(roundData[hole-2].fairwayAccuracy);
-        setPenalties(roundData[hole-2].penalties);
-        setHoleStartTime(new Date().getTime() - roundData[hole-2].timeElapsed);
-        setPuttData(roundData[hole-2].puttData);
+        if (roundData[hole-2].putts !== undefined) {
+            setHoleScore(roundData[hole - 2].score);
+            setApproachAccuracy(roundData[hole - 2].approachAccuracy);
+            setFairwayAccuracy(roundData[hole - 2].fairwayAccuracy);
+            setPenalties(roundData[hole - 2].penalties);
+            setHoleStartTime(new Date().getTime() - roundData[hole - 2].timeElapsed);
+            setPuttData(roundData[hole - 2].puttData);
 
-        if (Object.keys(roundData[hole-2].puttData).length !== 0) {
-            if (roundData[hole-2].puttData.holedOut) {// holed out
-                setPutts(0);
-                setPuttsLocked(true);
+            if (Object.keys(roundData[hole - 2].puttData).length !== 0) {
+                if (roundData[hole - 2].puttData.holedOut) {// holed out
+                    setPutts(0);
+                    setPuttsLocked(true);
+                } else if (roundData[hole - 2].puttData && roundData[hole - 2].puttData.taps.length > 0 && !roundData[hole - 2].puttData.holedOut) {
+                    setPutts(roundData[hole - 2].puttData.taps.length);
+                    setPuttsLocked(true);
+                } else {
+                    setPuttsLocked(false);
+                    setPutts(2);
+                }
             }
-            // else if (roundData[hole-2].puttData.center) {
-            //     setPutts(1);
-            //     setPuttsLocked(true);
-            // } else {
-            //     setPutts(roundData[hole-2].putts);
-            //     setPuttsLocked(false);
-            // }
+            puttTrackingRef.current.setData(roundData[hole - 2].puttData);
+        } else {
+            setHoleScore(tee.holes[hole-2].par)
+            setPutts(2);
+            setPuttsLocked(false);
+            setApproachAccuracy("green");
+            setFairwayAccuracy("green");
+            setPenalties(0);
+            setHoleStartTime(new Date().getTime());
+            setPuttData({
+                taps: [],
+                pinLocation: null,
+                holedOut: false,
+            });
+
+            puttTrackingRef.current.resetData();
         }
-        puttTrackingRef.current.setData(roundData[hole-2].puttData);
 
         recalculateHoleBunkers(greens, allBunkers, hole - 1);
         setHole(hole - 1);
@@ -420,14 +452,13 @@ export default function FullRound() {
             if (data.puttData?.holedOut === 0) {
                 setPutts(0);
                 setPuttsLocked(true);
+            } else if (data.puttData && data.puttData.taps.length > 0 && !data.puttData.holedOut) {
+                setPutts(data.puttData.taps.length);
+                setPuttsLocked(true);
+            } else {
+                setPuttsLocked(false);
+                setPutts(2);
             }
-            // else if (data.puttData?.center) {
-            //     setPutts(1);
-            //     setPuttsLocked(true);
-            // } else {
-            //     setPutts(data.putts);
-            //     setPuttsLocked(false);
-            // }
 
             setHoleScore(data.score);
             setApproachAccuracy(data.approachAccuracy);
@@ -488,9 +519,8 @@ export default function FullRound() {
 
         const totalScore = updatedRoundData.reduce((acc, hole) => acc + (hole.approachAccuracy === undefined ? 0 : hole.score === 0 ? 4 : hole.score), 0);
 
-        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens, userData.preferences.units);
+        const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, shotPlacementData, missDistribution, detailedPutts, avgMissFeet} = calculateGPSRoundStats(updatedRoundData, greens, userData.preferences.units);
         const { name, par, rating, slope, yards } = tee;
-        const detailedPutts = analyzeIndividualPutts(updatedRoundData, greens);
 
         const scorecard = updatedRoundData.map((hole, index) => ({score: hole.puttData ? hole.score : -1, par: hole.par}));
 
@@ -538,14 +568,14 @@ export default function FullRound() {
             scorecard,
         }
 
-        newSession(auth.currentUser.uid, newData).then(() => {
-            // router.push({
-            //     pathname: `/sessions/individual/full`,
-            //     params: {
-            //         jsonSession: JSON.stringify(newData),
-            //         recap: "true"
-            //     }
-            // });
+        processSession(newData).then(() => {
+            router.push({
+                pathname: `/sessions/individual/full`,
+                params: {
+                    jsonSession: JSON.stringify(newData),
+                    recap: "true"
+                }
+            });
         }).catch(error => {
             console.error("Error saving session:", error);
             alert("Failed to save session. Please try again later.");
@@ -557,21 +587,13 @@ export default function FullRound() {
     };
 
     const updatePuttData = (data) => {
-        if (data.distance === 0) {// holed out
-            setPutts(0);
+        if (data.taps && data.taps.length > 0) {
+            setPutts(data.taps.length);
             setPuttsLocked(true);
-        }
-        else if (data.center) {
-            setPutts(1);
-            setPuttsLocked(true);
-        }
-        else {
-            if (puttsLocked) {
-                setPutts(2);
-            }
+        } else {
+            setPutts(2);
             setPuttsLocked(false);
         }
-
         setPuttData(data)
     }
 
@@ -590,7 +612,8 @@ export default function FullRound() {
                     opacity: 0.9
                 }}>
                     <ActivityIndicator size="large"/>
-                    <FontText style={{fontSize: 20, fontWeight: 600, marginBottom: 16, color: colors.text.primary}}>Loading course data...</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: 600, color: colors.text.primary}}>Loading course data...</FontText>
+                    <FontText style={{fontSize: 20, fontWeight: 600, marginBottom: 16, color: colors.text.primary, textAlign: "center"}}>This might take a while if you haven't loaded this course before.</FontText>
                 </View>
             ) : null}
             <ScreenWrapper style={{
@@ -715,6 +738,7 @@ export default function FullRound() {
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
             <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
                 try {
+                    confirmExitRef.current.dismiss();
                     submit();
                 } catch(e) {
                     console.error("Error submitting partial round: " + e);

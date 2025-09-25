@@ -2,7 +2,7 @@
   "expo": {
     "name": "Flatstick",
     "slug": "putt-perfect",
-    "version": "1.1.4",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/branding/appicon/play_store_512.png",
     "scheme": "myapp",

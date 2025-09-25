@@ -20,6 +20,7 @@ export const ShortPastBias = ({bias, units}) => {
     let left = shortPastBias / (userData.preferences.units === 0 ? 4 : 1) * (verticalBiasWidth/2 + (shortPastBias > 0 ? 25 : 0));
     left = left + (verticalBiasWidth/2);
     if (left < 10) left = 10;
+    if (left > (verticalBiasWidth-10)) left = verticalBiasWidth-10;
 
     if (Math.abs(shortPastBias) < 0.1) {
         left = (verticalBiasWidth/2) + 2.5;

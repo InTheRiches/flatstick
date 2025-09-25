@@ -26,8 +26,6 @@ export async function predictPutt(lidarGrid, tap, pin, stimp = 10) {
     const flatDistMeters = Math.sqrt(dx_m**2 + dy_m**2);
     const flatDistFeet = flatDistMeters * FEET_PER_METER;
 
-    console.log(`Putt flat distance: ${flatDistFeet.toFixed(2)} ft`);
-
     const zTap = getElevationBilinear(tap.longitude, tap.latitude, grid);
     const zPin = getElevationBilinear(pin.longitude, pin.latitude, grid);
     const dz_m = zPin - zTap; // Elevation change in meters

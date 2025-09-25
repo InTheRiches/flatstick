@@ -7,7 +7,6 @@ import {runOnJS} from "react-native-reanimated";
 import {useAppContext} from "../../contexts/AppContext";
 import FontText from "../general/FontText";
 
-// TODO adjust the size of the green. 2.5ft isnt that big. Maybe jump that to 4? 5?
 export function PuttingGreen({
                                  holedOut = false,
                                  setHoledOut,
@@ -56,7 +55,6 @@ export function PuttingGreen({
         }
     };
 
-    // TODO see if we can delete puttingGreenWidth
     const onLayout = (event) => {
         const {width: rawWidth, height: rawHeight} = event.nativeEvent.layout;
 

@@ -58,8 +58,6 @@ export default function RootLayout() {
                     <Stack.Screen name="(tabs)"/>
                     <Stack.Screen name={"simulation/pressure/index"}/>
                     <Stack.Screen name={"simulation/pressure/setup/index"}/>
-                    <Stack.Screen name={"simulation/round/index"}/>
-                    <Stack.Screen name={"simulation/round/demo/index"}/>
                     <Stack.Screen name={"simulation/real/demo/index"}/>
                     <Stack.Screen name={"simulation/real/index"}/>
                     <Stack.Screen name={"simulation/full/setup/index"}/>
@@ -79,6 +77,9 @@ export default function RootLayout() {
                     <Stack.Screen name={"friends/search/index"}/>
                     <Stack.Screen name={"friends/requests/index"}/>
                     <Stack.Screen name={"friends/user/index"}/>
+                    <Stack.Screen name={"simulation/putting-green/index"}/>
+                    <Stack.Screen name={"simulation/putting-green/demo/index"}/>
+                    <Stack.Screen name={"simulation/real/setup/index"}/>
                     <Stack.Screen name={"compare/putters/index"} />
                     <Stack.Screen name={"compare/grips/index"} />
                     <Stack.Screen name={"compare/users/search/index"} />

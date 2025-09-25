@@ -7,22 +7,20 @@ import FontText from "../../../general/FontText";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
-import {MisreadModal} from "../../popups/MisreadModal";
 import {GreenPolygon} from "../GreenPolygon";
 import useUserLocation from "../../../../hooks/useUserLocation";
 import {viewBounds} from "../../../../utils/courses/boundsUtils";
 import {isPointInPolygon} from "../../../../utils/courses/polygonUtils";
 import {EditPuttModal} from "./EditPuttModal";
-import PuttPrediction from "../PuttPrediction";
 import {predictPutt} from "../../../../utils/courses/predictionUtils";
+import {PuttPredictionModal} from "./PuttPredictionModal";
 
 // TODO when someone long presses on a shot, give option to mark it as a misread (slope or line) or delete it
 export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bunkers, greens, hole}) {
     const colors = useColors();
     const bottomSheetRef = useRef(null);
-    const misreadRef = useRef(null);
-    const fullBigMissModalRef = useRef(null);
     const editPuttRef = useRef(null);
+    const predictionRef = useRef(null);
 
     const screenHeight = Dimensions.get("window").height;
     const snapPoints = [`${((screenHeight - useSafeAreaInsets().top) / screenHeight) * 100}%`];
@@ -92,7 +90,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
         }
 
         loadPrediction().catch(console.error);
-    }, [taps, hole, pinLocation]);
+    }, [taps, pinLocation, greenLidar]);
 
     // renders
     return (
@@ -179,9 +177,17 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                             misreadRef={editPuttRef}
                         />
 
-                        <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 6}}>
-                            <View style={{aspectRatio: 1, width: 14, borderWidth: 1, marginRight: 6, borderRadius: "50%", backgroundColor: "#76eeff"}}></View>
-                            <Text style={{fontWeight: 500}}>Your Location</Text>
+                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 12}}>
+                            {prediction && prediction.puttDistanceFeet && (
+                                <View style={{position: "absolute", left: 0}}>
+                                    <Text style={{color: '#777'}}>📏 Distance</Text>
+                                    <Text style={{fontSize: 18, fontWeight: '700', color: '#333',}}>{prediction.puttDistanceFeet.toFixed(1)} ft</Text>
+                                </View>
+                            )}
+                            <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 6}}>
+                                <View style={{aspectRatio: 1, width: 14, borderWidth: 1, marginRight: 6, borderRadius: "50%", backgroundColor: "#76eeff"}}></View>
+                                <Text style={{fontWeight: 500, fontSize: 14}}>Your Location</Text>
+                            </View>
                         </View>
 
                         <View style={{flexDirection: "row", justifyContent: "space-around", gap: 8, marginTop: 12, borderBottomWidth: 1, borderBottomColor: colors.border.default, paddingBottom: 12}}>
@@ -231,6 +237,15 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                             }]}>
                                 <FontText style={{color: colors.button.danger.text, fontWeight: 500}}>Clear Shots</FontText>
                             </Pressable>
+                            <Pressable style={({pressed}) => ({alignItems: "center", justifyContent: "center", padding: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.button.primary.border, backgroundColor: pressed ? colors.button.primary.depressed : colors.button.primary.background})} onPress={() => {
+                                predictionRef.current.open(prediction);
+                            }}>
+                                <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={"black"} width={24} height={24}>
+                                    <Path fillRule="evenodd"
+                                          d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
+                                          clipRule="evenodd"/>
+                                </Svg>
+                            </Pressable>
                         </View>
 
                         <Pressable onPress={() => {
@@ -248,7 +263,6 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                             <FontText style={{color: colors.text.link, marginLeft: 4, fontSize: 16, fontWeight: 500, textAlign: "center"}}>Holed Out?</FontText>
                         </Pressable>
                     </View>
-                    <PuttPrediction prediction={prediction}/>
                     <View>
                         {(
                             (pinLocation === null || taps.length === 0)
@@ -295,7 +309,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                     return newTaps;
                 });
             }}/>
-            <MisreadModal misreadRef={misreadRef} setMisreadSlope={setMisReadSlope} setMisreadLine={setMisReadLine} misreadSlope={misReadSlope} misreadLine={misReadLine}/>
+            <PuttPredictionModal puttPredictionRef={predictionRef}/>
         </View>
     );
 }

@@ -127,10 +127,12 @@ function clampLineToBounds(points, bounds, closed = true) {
 const viewBounds = (greenCoords, holeBunkers) => {
     if (!greenCoords) return null;
 
-    const greenLatLon = greenCoords.map(p => ({
-        latitude: p.y,
-        longitude: p.x
-    }));
+    const greenLatLon = greenCoords.map(p => (
+        // check for if it has lat/lon keys or y/x keys
+        p.longitude !== undefined && p.longitude !== undefined
+            ? { latitude: p.latitude, longitude: p.longitude }
+            : { latitude: p.y, longitude: p.x }
+    ));
 
     // 1. Combine all coordinates into one array
     const allPoints = [

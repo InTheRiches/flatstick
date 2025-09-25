@@ -1,4 +1,4 @@
-import {Platform, Pressable, Switch, View} from "react-native";
+import {Platform, Pressable, View} from "react-native";
 import useColors from "../../../hooks/useColors";
 import React, {useRef, useState} from "react";
 import {FilterGrips, FilterPutters} from "../../../components/tabs/stats/settings/popups";
@@ -13,9 +13,7 @@ const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pu
 
 export default function StatSettings({}) {
     const colors = useColors();
-    const {putters, grips, userData, updateData, refreshStats, nonPersistentData} = useAppContext();
-
-    const [initialData, setInitialData] = useState(userData.preferences);
+    const {putters, grips, userData, updateData, nonPersistentData} = useAppContext();
 
     const [misHits, setMisHits] = useState(userData.preferences.countMishits);
     const filterPuttersRef = useRef(null);
@@ -29,22 +27,11 @@ export default function StatSettings({}) {
         bannerRef.current?.load();
     })
 
-    const toggleMisHits = () => {
-        updateData({...userData, preferences: {...userData.preferences, countMishits: !misHits}});
-
-        setMisHits(previousState => !previousState);
-    }
-
     return (
         <>
             <SafeAreaView style={{flex: 1, paddingHorizontal: 20, backgroundColor: colors.background.primary}}>
                 <View style={{flexDirection: "row", alignItems: "center", gap: 12}}>
                     <Pressable onPress={() => {
-                        if (initialData !== userData.preferences) {
-                            refreshStats().catch(e => {
-                                console.log("Error overall updating stats: " + e)
-                            });
-                        }
                         navigation.goBack()
                     }} style={{padding: 4, paddingLeft: 0}}>
                         <Svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5}
@@ -56,16 +43,16 @@ export default function StatSettings({}) {
                     <FontText style={{fontSize: 24, fontWeight: 500, color: colors.text.primary}}>Stat Settings</FontText>
                 </View>
                 <FontText style={{color: colors.text.secondary, fontWeight: 600, marginTop: 24, marginBottom: 6}}>PREFERENCES</FontText>
-                <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-                    <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Show Mishits</FontText>
-                    <Switch
-                        trackColor={{false: colors.switch.track, true: colors.switch.active.track}}
-                        thumbColor={misHits ? colors.switch.active.thumb : colors.switch.thumb}
-                        ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleMisHits}
-                        value={misHits}
-                    />
-                </View>
+                {/*<View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 8, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>*/}
+                {/*    <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Show Mishits</FontText>*/}
+                {/*    <Switch*/}
+                {/*        trackColor={{false: colors.switch.track, true: colors.switch.active.track}}*/}
+                {/*        thumbColor={misHits ? colors.switch.active.thumb : colors.switch.thumb}*/}
+                {/*        ios_backgroundColor="#3e3e3e"*/}
+                {/*        onValueChange={toggleMisHits}*/}
+                {/*        value={misHits}*/}
+                {/*    />*/}
+                {/*</View>*/}
                 <View style={{backgroundColor: colors.background.secondary, borderRadius: 12, paddingLeft: 10, paddingRight: 24, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
                     <FontText style={{color: colors.text.primary, fontSize: 18, fontWeight: 500}}>Filter Putters</FontText>
                     <Pressable

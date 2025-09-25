@@ -101,20 +101,17 @@ export default function RootInitializer({}) {
             if (user) {
                 user.getIdToken().then(async (token) => {
                     setSession(token);
-                    await initialize().catch((error) => {
+
+                    await initialize(user).catch((error) => {
                         console.error("Initialization error:", error.stack);
                         setLocalLoading(false);
                     });
-                    if (screenToPush === "/") return;
 
                     router.push({pathname: screenToPush});
                 });
             }
             else {
                 setLocalLoading(false);
-                // if (Platform.OS === "ios") {
-                //     router.push({pathname: "/signup"});
-                // }
             }
         });
         return () => {

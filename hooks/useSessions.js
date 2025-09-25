@@ -18,7 +18,7 @@ export const useSessions = () => {
     const addSession = async (data) => {
         await newSession(auth.currentUser.uid, data);
         setSessions((prev) => [...prev, data]);
-        await updateBestSession(data);
+        await updateBestSession(data); // TODO do something with this I dont like where it is at
     };
 
     // const addFullRound = async (data) => {
@@ -27,8 +27,8 @@ export const useSessions = () => {
     //     await updateBestSession(data);
     // };
 
-    const removeSession = async (sessionId) => {
-        await deleteSession(auth.currentUser.uid, sessionId);
+    const removeSession = async (sessionId, friends = []) => {
+        await deleteSession(auth.currentUser.uid, sessionId, friends);
         setSessions((prev) => prev.filter((session) => session.id !== sessionId));
     };
 

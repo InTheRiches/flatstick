@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.0</string>
+	<string>1.2.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -64,11 +64,13 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location when the app is in use.</string>
+    <string>Allow $(PRODUCT_NAME) to access your location when the app is in use. Location is used to find local courses and show user location on greens.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location even when the app is in the background.</string>
+    <string>Allow $(PRODUCT_NAME) to access your location even when the app is in the background. Location is used to find local courses and show user location on greens.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your location even when the app is in the background.</string>
+    <string>Allow $(PRODUCT_NAME) to access your location even when the app is in the background. Location is used to find local courses and show user location on greens.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app uses your photo library to allow you to personalize your experience within the app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app uses your photo library to allow you to personalize your experience within the app.</string>
 	<key>NSUserActivityTypes</key>
