@@ -106,7 +106,7 @@ export default function GolfCourseSearchScreen() {
     const newFullRoundRef = useRef(null);
     const navigation = useNavigation();
     const [club, setClub] = useState({});
-    const userLocation = useUserLocation();
+    const userLocation = useUserLocation(() => navigation.goBack());
 
     const setSearchQuery = (newQuery) => {
         if (query === newQuery) {
