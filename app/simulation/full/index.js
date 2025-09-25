@@ -166,7 +166,6 @@ export default function FullRound() {
 
         // load OSM course data
         console.log("Starting fetch for course elements...");
-        console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
         // check to see if it exists in our db first
         getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
             setOSMCourseId(res[0]?.id);
@@ -422,7 +421,6 @@ export default function FullRound() {
         let selectedGreenPolygon = null;
         for (const g of newGreens) {
             if (g.hole === holeNum.toString()) {
-                console.log("Selected green for hole " + holeNum);
                 selectedGreenPolygon = g;
                 break;
             }
@@ -792,13 +790,13 @@ export default function FullRound() {
                                    title={hole === holes ? "Submit" : "Next"}
                                    disabled={false}
                                    onPress={() => {
-                                        if ((puttData.taps.length === 0 || puttData.pinLocation === null) && !puttData.holedOut) {
-                                            // TODO this says next hole even when the last (should say "submit")
-                                            noPuttDataModalRef.current.present();
-                                        } else {
-                                            nextHole();
-                                        }
-                                    }}></PrimaryButton>
+                                       if ((puttData.taps.length === 0 || puttData.pinLocation === null) && !puttData.holedOut) {
+                                           // TODO this says next hole even when the last (should say "submit")
+                                           noPuttDataModalRef.current.present();
+                                       } else {
+                                           nextHole();
+                                       }
+                                   }}></PrimaryButton>
                 </View>
             </ScreenWrapper>
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
