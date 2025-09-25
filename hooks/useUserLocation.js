@@ -10,11 +10,9 @@ export default function useUserLocation(onDenial = () => {}) {
         (async () => {
             try {
                 const { status } = await Location.getForegroundPermissionsAsync();
-                console.log("Initial status:", status);
                 if (status && status !== "granted") {
                     const {secondStatus} = await Location.requestForegroundPermissionsAsync();
                     if (secondStatus && secondStatus !== "granted") {
-                        console.log("Second status:", secondStatus);
                         console.warn("Location permission denied");
                         return;
                     }

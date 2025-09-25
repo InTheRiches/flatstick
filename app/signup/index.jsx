@@ -122,7 +122,6 @@ export default function CreateAccount() {
     const signInWithApple = () => {
         setLoading(true);
         appleSignIn().then(token => {
-            console.log("Apple Sign In Token:", token);
             setLoading(false);
             if (token) {
                 setSession(token || null);
@@ -141,7 +140,7 @@ export default function CreateAccount() {
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-          .catch(error => {
+        }).catch(error => {
             setLoading(false);
             console.error("Google Sign In Error:", error);
         });

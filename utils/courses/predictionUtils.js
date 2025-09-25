@@ -17,8 +17,6 @@ export async function predictPutt(lidarGrid, tap, pin, stimp = 10) {
     const dy_deg = pin.latitude - tap.latitude;
     const lat_rad_mid = ((tap.latitude + pin.latitude) / 2) * (Math.PI / 180);
 
-    console.log(`Calculating putt from tap (${tap.latitude}, ${tap.longitude}) to pin (${pin.latitude}, ${pin.longitude})`);
-
     // Convert degree distances to meters
     const dx_m = dx_deg * METERS_PER_DEGREE * Math.cos(lat_rad_mid);
     const dy_m = dy_deg * METERS_PER_DEGREE;

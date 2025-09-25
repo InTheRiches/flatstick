@@ -138,8 +138,6 @@ export function adaptOldSession(old) {
             missYDistance: putt.yDistance ?? 0,
         }));
 
-        console.log("Adapting old session: ", old.id, " to new format.");
-
         return {
             id: old.id,
             meta: {

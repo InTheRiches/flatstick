@@ -5,7 +5,7 @@ import useColors from "../../../../hooks/useColors";
 import {Platform, TextInput, View} from "react-native";
 import {SecondaryButton} from "../../../general/buttons/SecondaryButton";
 import Svg, {Path} from "react-native-svg";
-import {deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential} from 'firebase/auth';
+import {EmailAuthProvider, reauthenticateWithCredential} from 'firebase/auth';
 import {useAppContext} from "../../../../contexts/AppContext";
 import FontText from "../../../general/FontText";
 import {useSession} from "../../../../contexts/AuthContext";
@@ -31,7 +31,7 @@ export function ReauthenticateForDeletion({reauthenticateRef, confirmDeleteRef})
             auth.currentUser.email,
             password
         )
-        console.log("Re-authenticating user...");
+
         reauthenticateWithCredential(auth.currentUser, credential).then(async () => {
             console.log("Re-authentication successful.");
             reauthenticateRef.current.dismiss();

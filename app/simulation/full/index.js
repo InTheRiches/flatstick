@@ -1,7 +1,7 @@
 import {useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
 import useColors from "../../../hooks/useColors";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
-import {ActivityIndicator, AppState, BackHandler, Platform, Pressable, View} from "react-native";
+import {ActivityIndicator, BackHandler, Platform, Pressable, View} from "react-native";
 import FontText from "../../../components/general/FontText";
 import ElapsedTimeClock from "../../../components/simulations/ElapsedTimeClock";
 import Svg, {Path, Rect} from "react-native-svg";
@@ -28,7 +28,7 @@ import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
 import {SCHEMA_VERSION} from "../../../constants/Constants";
-import {auth, firestore} from "../../../utils/firebase";
+import {firestore} from "../../../utils/firebase";
 import {
     fetchCourseElements,
     get3DEPElevationData,
@@ -49,7 +49,8 @@ const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
-    const {stringHoles, stringTee, stringFront, stringCourse} = useLocalSearchParams();
+    const {stringHoles, stringTee, stringFront, stringCourse, stringCurrentHole, stringHoleHistory, stringTimeElapsed} = useLocalSearchParams();
+
     const {userData, grips, putters, processSession} = useAppContext();
     const confirmExitRef = useRef(null);
     const puttTrackingRef = useRef(null);
@@ -57,14 +58,14 @@ export default function FullRound() {
     const scorecardRef = useRef(null);
 
     const tee = JSON.parse(stringTee);
-
     const holes = parseInt(stringHoles);
     const course = JSON.parse(stringCourse);
+
     const frontNine = stringFront === "true";
 
-    const [hole, setHole] = useState((holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
+    const [hole, setHole] = useState(stringCurrentHole !== "" && stringCurrentHole !== undefined ? parseInt(stringCurrentHole) : (holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
     const [startTime, setStartTime] = useState(new Date());
-    const [holeStartTime, setHoleStartTime] = useState(new Date().getTime());
+    const [holeStartTime, setHoleStartTime] = useState(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime());
 
     const [greens, setGreens] = useState({});
     const [allBunkers, setAllBunkers] = useState([]);
@@ -81,10 +82,15 @@ export default function FullRound() {
     const [penalties, setPenalties] = useState(0);
     const [approachAccuracy, setApproachAccuracy] = useState("green");
     const [fairwayAccuracy, setFairwayAccuracy] = useState("green");
-    const [puttData, setPuttData] = useState({
-        pinLocation: null,
-        taps: [],
-        holedOut: false,
+    const [puttData, setPuttData] = useState(() => {
+        if (stringHoleHistory !== "" && stringHoleHistory !== undefined) {
+            return JSON.parse(stringHoleHistory)[parseInt(stringCurrentHole) - 1].puttData;
+        }
+        return {
+            pinLocation: null,
+                taps: [],
+            holedOut: false,
+        };
     });
     const [roundData, setRoundData] = useState([]);
 
@@ -135,34 +141,38 @@ export default function FullRound() {
     useEffect(() => {
         const isNineHoleCourse = tee.number_of_holes === 9;
 
-        let initialRoundData = {};
+        if (stringHoleHistory !== "" && stringHoleHistory !== undefined) {
+            setRoundData(JSON.parse(stringHoleHistory));
+        } else {
+            let initialRoundData = {};
 
-        if (holes === 9) {
-            initialRoundData = isNineHoleCourse
-                ? tee.holes.map((teeHole) => ({
-                    par: teeHole.par,
-                    score: teeHole.par, // Default score is the par value
-                    yardage: teeHole.yardage,
-                    handicap: teeHole.handicap,
-                }))
-                : tee.holes
-                    .slice(frontNine ? 0 : 9, frontNine ? 9 : 18) // Select front or back nine based on frontNine flag
-                    .map((teeHole) => ({
+            if (holes === 9) {
+                initialRoundData = isNineHoleCourse
+                    ? tee.holes.map((teeHole) => ({
                         par: teeHole.par,
                         score: teeHole.par, // Default score is the par value
                         yardage: teeHole.yardage,
                         handicap: teeHole.handicap,
-                    }));
-        } else {
-            initialRoundData = tee.holes.map((teeHole) => ({
-                par: teeHole.par,
-                score: teeHole.par, // Default score is the par value
-                yardage: teeHole.yardage,
-                handicap: teeHole.handicap,
-            }));
-        }
+                    }))
+                    : tee.holes
+                        .slice(frontNine ? 0 : 9, frontNine ? 9 : 18) // Select front or back nine based on frontNine flag
+                        .map((teeHole) => ({
+                            par: teeHole.par,
+                            score: teeHole.par, // Default score is the par value
+                            yardage: teeHole.yardage,
+                            handicap: teeHole.handicap,
+                        }));
+            } else {
+                initialRoundData = tee.holes.map((teeHole) => ({
+                    par: teeHole.par,
+                    score: teeHole.par, // Default score is the par value
+                    yardage: teeHole.yardage,
+                    handicap: teeHole.handicap,
+                }));
+            }
 
-        setRoundData(initialRoundData);
+            setRoundData(initialRoundData);
+        }
 
         // load OSM course data
         console.log("Starting fetch for course elements...");
@@ -219,8 +229,9 @@ export default function FullRound() {
 
                         recalculateHoleBunkers(processedGreens, rawBunkers);
 
-                        setStartTime(new Date());
-                        setHoleStartTime(new Date().getTime());
+                        setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
+                        const holeTimeElapsed = roundData[hole - 1] !== undefined ? roundData[hole - 1].timeElapsed : 0;
+                        setHoleStartTime(new Date().getTime() - holeTimeElapsed);
                     }).catch((err) => {
                         console.error("Error fetching course data from OSM:", err);
                         alert("Failed to fetch course data. Please try again later or contact support.");
@@ -236,13 +247,16 @@ export default function FullRound() {
 
                 recalculateHoleBunkers(data.greens, data.rawBunkers);
 
-                setStartTime(new Date());
-                setHoleStartTime(new Date().getTime());
+                setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
+                const holeTimeElapsed = roundData[hole - 1] !== undefined && roundData[hole - 1].timeElapsed !== undefined ? roundData[hole - 1].timeElapsed : 0;
+                setHoleStartTime(new Date().getTime() - holeTimeElapsed);
             }).catch((err) => {
                 console.error("Error fetching course data from OSM:", err);
                 alert("Failed to fetch course data. Please try again later or contact support.");
                 router.replace("/");
             });
+        }).catch((err) => {
+            console.error("Error fetching course data from OSM:", err);
         })
     }, []);
 
@@ -283,7 +297,7 @@ export default function FullRound() {
         return () => {
             if (saveTimeout.current) clearTimeout(saveTimeout.current);
         };
-    }, [roundData, puttData, holeScore, putts, hole, approachAccuracy, fairwayAccuracy]);
+    }, [roundData, puttData, holeScore, putts, approachAccuracy, fairwayAccuracy]);
 
     const saveHole = (scoreOfHole = holeScore) => {
         const timeElapsed = new Date().getTime() - holeStartTime;
@@ -318,7 +332,9 @@ export default function FullRound() {
     };
 
     const saveRoundLocally = () => {
-        const timeElapsed = new Date().getTime() - holeStartTime;
+        const timeElapsed = new Date().getTime() - startTime
+        const holeTimeElapsed = new Date().getTime() - holeStartTime;
+
         const updatedRoundData = [...roundData];
         updatedRoundData[hole - 1] = {
             ...updatedRoundData[hole - 1],
@@ -327,7 +343,7 @@ export default function FullRound() {
             approachAccuracy,
             fairwayAccuracy,
             penalties,
-            timeElapsed,
+            holeTimeElapsed,
             puttData
         };
 
@@ -340,7 +356,7 @@ export default function FullRound() {
             stringCourse,
             timeElapsed,
             currentHole: hole,
-            holeHistory: updatedRoundData
+            holeHistory: JSON.stringify(updatedRoundData)
         }
         AsyncStorage.setItem('currentRound', JSON.stringify(roundDataToSerialize))
             .then(() => {
@@ -351,14 +367,14 @@ export default function FullRound() {
             });
     }
 
-    useEffect(() => {
-        const subscription = AppState.addEventListener("change", (state) => {
-            if (state === "background") {
-                saveRoundLocally();
-            }
-        });
-        return () => subscription.remove();
-    }, []);
+    // useEffect(() => {
+    //     const subscription = AppState.addEventListener("change", (state) => {
+    //         if (state === "background") {
+    //             saveRoundLocally();
+    //         }
+    //     });
+    //     return () => subscription.remove();
+    // }, []);
 
     const nextHole = () => {
         if ((holes === 9 && hole === 9 && frontNine) || hole === 18) {

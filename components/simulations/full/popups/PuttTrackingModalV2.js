@@ -98,6 +98,9 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
             <BottomSheetModal
                 ref={bottomSheetRef}
                 snapPoints={snapPoints}
+                enableHandlePanningGesture={false}
+                enableOverDrag={false}
+                enablePanDownToClose={false}
                 enableDynamicSizing={false}
                 onDismiss={() => {
                     updatePuttData({

@@ -1,13 +1,28 @@
-import {View} from "react-native";
+import {Pressable, View} from "react-native";
 import FontText from "../../general/FontText";
 import React from "react";
 import useColors from "../../../hooks/useColors";
+import {useRouter} from "expo-router";
 
 export default function ResumeSession({session}) {
     const colors = useColors();
+    const router = useRouter();
+
+    const hours = new Date(session.timestamp).getHours();
 
     return (
-        <View
+        <Pressable
+            onPress={() => {
+                router.push({pathname: "simulation/full", params: {
+                        stringHoles: session.stringHoles,
+                        stringTee: session.stringTee,
+                        stringFront: session.stringFront,
+                        stringCourse: session.stringCourse,
+                        stringCurrentHole: session.currentHole,
+                        stringHoleHistory: session.holeHistory,
+                        stringTimeElapsed: session.timeElapsed
+                    }})
+            }}
             style={{
                 backgroundColor: colors.background.secondary,
                 paddingHorizontal: 12,
@@ -19,16 +34,20 @@ export default function ResumeSession({session}) {
                 borderBottomRightRadius: 16
             }}>
             <View style={{
-                flexDirection: "row",
+                flexDirection: "column",
                 paddingBottom: 10,
             }}>
-                <View style={{flex: 1}}>
-                    <FontText style={{textAlign: "left", color: "#777777"}}>Unfinished Round</FontText>
-                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 24}}>Simulation</FontText>
+                <View style={{flexDirection: "row"}}>
+                    <View style={{flex: 1}}>
+                        <FontText style={{textAlign: "left", color: "#777777"}}>Unfinished Round</FontText>
+                    </View>
+                    <View style={{flex: 1}}>
+                        <FontText style={{textAlign: "right", color: "#777777"}}>Started at {hours > 12 ? hours - 12 : hours}:{new Date(session.timestamp).getMinutes()}</FontText>
+                    </View>
                 </View>
-                <View style={{flex: 1}}>
-                    <FontText style={{textAlign: "right", color: "#777777"}}>Started at {new Date(session.timestamp).getHours()}:{new Date(session.timestamp).getMinutes()}</FontText>
-                    <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24}}>Resume -></FontText>
+                <View style={{flexDirection: "row", alignItems: "center", gap: 1}}>
+                    <FontText style={{textAlign: "left", color: colors.text.primary, fontSize: 24, flex: 1}}>{session.type === "full" ? JSON.parse(session.stringCourse).course_name : "Simulation"}</FontText>
+                    <FontText style={{textAlign: "right", color: colors.text.primary, fontSize: 24, flex: 1}}>Resume -></FontText>
                 </View>
             </View>
             <View style={{flexDirection: "row", alignItems: "center"}}>
@@ -37,19 +56,19 @@ export default function ResumeSession({session}) {
                         height: 5,
                         backgroundColor: "black",
                         borderRadius: 24,
-                        flex: 1,
+                        flex: session.currentHole / parseInt(session.stringHoles),
                     }}></View>
                 <View
                     style={{
                         height: 5,
                         backgroundColor: colors.background.primary,
                         borderRadius: 24,
-                        flex: 1,
+                        flex: 1 - (session.currentHole / parseInt(session.stringHoles)),
                     }}></View>
                 <View style={{alignSelf: 'center', paddingLeft: 10}}>
                     <FontText style={{color: colors.text.primary}}>Hole {session.currentHole}</FontText>
                 </View>
             </View>
-        </View>
+        </Pressable>
     )
 }

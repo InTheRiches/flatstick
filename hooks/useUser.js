@@ -15,7 +15,6 @@ export const useUser = () => {
         let data = userData;
         if (!data || Object.keys(data).length === 0) {
             data = await fetchUserData(auth.currentUser.uid);
-            console.log(data);
         }
         // console.log("Initializing user data for user:", user);
         // if (Object.keys(userData).length === 0) {
@@ -25,8 +24,6 @@ export const useUser = () => {
         //         setUserData(fetchUserData(user.uid));
         //     }
         // }
-        console.log("User is signed in with UID:", auth.currentUser.uid);
-        console.log("Fetched user data:", data);
 
         if (!data.achievements || data.achievements.length === 0) {
             const initialAchievements = achievementData.map(ach => {

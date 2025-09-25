@@ -3,7 +3,6 @@ import data from "../assets/achievements.json";
 
 export const useAchievements = ({ userData, updateData }) => {
     const evaluateCriteria = useCallback((session, criteria) => {
-        console.log("evaluating criteria:", criteria, "for session:", session.id);
         // Normalize metric into an array if it's a string
         const metricPath = Array.isArray(criteria.metric)
             ? criteria.metric

@@ -2,9 +2,9 @@ import {Dimensions, Platform, View} from "react-native";
 import {isPointInPolygon} from "@/utils/courses/polygonUtils";
 import {clampLineToBounds} from "@/utils/courses/boundsUtils";
 import * as d3 from "d3-shape";
-import {Circle, Defs, G, Line, Path, Pattern, Rect} from "react-native-svg";
+import Svg, {Circle, Defs, G, Line, Path, Pattern, Rect} from "react-native-svg";
 import React, {useEffect, useMemo, useState} from "react";
-import SvgPanZoom, {SvgPanZoomElement} from "react-native-svg-pan-zoom";
+import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
 
 // *** MODIFIED: The GreenPolygon component now also renders bunkers ***
 const GreenPolygon = ({
@@ -22,6 +22,7 @@ const GreenPolygon = ({
                           misreadRef
                       }) => {
     const [showMisread, setShowMisread] = useState(-1);
+    const [zoomLevel, setZoomLevel] = useState(1);
 
     useEffect(() => {
         if (showMisread !== -1) {
@@ -63,17 +64,17 @@ const GreenPolygon = ({
             return;
         }
 
-        // // check to see if there is already a pin or tap within 5 pixels, if so, remove the putt
-        // const tapThreshold = 10; // pixels
-        // for (const tap of taps) {
-        //     const tapPoint = toSvgPointLatLon(tap);
-        //     const dx = tapPoint.x - x;
-        //     const dy = tapPoint.y - y;
-        //     if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
-        //         setTaps(taps.filter(t => t.latitude !== tap.latitude || t.longitude !== tap.longitude));
-        //         return;
-        //     }
-        // }
+        // check to see if there is already a pin or tap within 5 pixels, if so, remove the putt
+        const tapThreshold = 10; // pixels
+        for (const tap of taps) {
+            const tapPoint = toSvgPointLatLon(tap);
+            const dx = tapPoint.x - x;
+            const dy = tapPoint.y - y;
+            if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
+                setTaps(taps.filter(t => t.latitude !== tap.latitude || t.longitude !== tap.longitude));
+                return;
+            }
+        }
 
         onTap({ latitude: lat, longitude: lon });
         // // delay 0 ms to ensure tap is added before opening misread
@@ -106,9 +107,20 @@ const GreenPolygon = ({
 
     const greenPathData = lineGenerator(greenPoints);
 
+    // backgroundColor: "#246903"
+
     return (
-            <View style={{width: svgSize, height: svgSize, overflow: "hidden", borderRadius: 12, backgroundColor: "#246903"}}>
-                <SvgPanZoom onClick={() => console.log("clicked")} initialZoom={1} minScale={1.2} maxScale={4} canvasWidth={svgSize} canvasHeight={svgSize} canvasStyle={{backgroundColor: "#246903"}}>
+        <View style={{ flexShrink: 1, height: svgSize, width: svgSize, backgroundColor: "#246903", borderRadius: 12 }}>
+            <ReactNativeZoomableView maxZoom={5}
+                                        contentWidth={svgSize*4}
+                                        contentHeight={svgSize*4}
+                                        minZoom={0.25}
+                                     onZoomAfter={(event, event2, event3) => {
+                                         setZoomLevel(event3.zoomLevel);
+                                     }}
+                                     visualTouchFeedbackEnabled={false}
+                                        initialZoom={0.25} animatePin={false} onSingleTap={(event) => handlePress(event.nativeEvent.locationX/4, event.nativeEvent.locationY/4)}>
+                <Svg width={svgSize*4} height={svgSize*4} viewBox={"0 0 " + (svgSize) + " " + (svgSize)}>
                     <G>
                         <Defs>
                             <Pattern
@@ -136,9 +148,9 @@ const GreenPolygon = ({
                         {fairwayPoints.map((fairway, index) => {
                             return <Path key={"fairway-" + index} d={lineGenerator(fairway)} fill="url(#fairwayPattern)"/>
                         })}
-                        <SvgPanZoomElement onClick={(event) => handlePress(event.nativeEvent.touches[0].locationX, event.nativeEvent.touches[0].locationY)}>
+                        {/*<SvgPanZoomElement onClick={(event) => handlePress(event.nativeEvent.touches[0].locationX, event.nativeEvent.touches[0].locationY)}>*/}
                             <Path d={greenPathData} fill="url(#greenPattern)" stroke={"black"} strokeWidth={1.5}/>
-                        </SvgPanZoomElement>
+                        {/*</SvgPanZoomElement>*/}
                         {bunkers.map((bunkerCoords, index) => {
                             const bunkerPoints = bunkerCoords.coordinates.map(c => {
                                 const p = toSvgPointLatLon(c);
@@ -165,7 +177,7 @@ const GreenPolygon = ({
                                     x2={nextPoint.x}
                                     y2={nextPoint.y}
                                     stroke="blue"
-                                    strokeWidth={2}
+                                    strokeWidth={2/(zoomLevel/0.25)}
                                 />
                             );
                         })}
@@ -176,7 +188,8 @@ const GreenPolygon = ({
                                 cy={toSvgPointLatLon(userLocation).y}
                                 fill="#76eeff"
                                 stroke="black"
-                                r={6}
+                                strokeWidth={1.5/(zoomLevel/0.25)}
+                                r={8/(zoomLevel/0.25)}
                             />
                         )
                         }
@@ -185,15 +198,16 @@ const GreenPolygon = ({
                             const p = toSvgPointLatLon(tap);
 
                             return (
-                                <SvgPanZoomElement key={"tap-" + index} onClick={() => setTaps(taps.filter((t, i) => i !== index))}>
+                                // <SvgPanZoomElement key={"tap-" + index} onClick={() => setTaps(taps.filter((t, i) => i !== index))}>
                                     <Circle
                                         cx={p.x}
                                         cy={p.y}
-                                        r={6}
+                                        key={"tap-" + index}
+                                        r={8/(zoomLevel/0.25)}
                                         fill={tap.misreadLine || tap.misreadSlope ? "red" : "white"}
                                         stroke="black"
+                                        strokeWidth={1.5/(zoomLevel/0.25)}
                                     />
-                                </SvgPanZoomElement>
                             );
                         })}
                         {pinLocation && (
@@ -201,19 +215,21 @@ const GreenPolygon = ({
                                 <Circle
                                     fill="gold"
                                     stroke="black"
-                                    r={6}
+                                    strokeWidth={1.5/(zoomLevel/0.25)}
+                                    r={8/(zoomLevel/0.25)}
                                     cx={toSvgPointLatLon(pinLocation).x}
                                     cy={toSvgPointLatLon(pinLocation).y}
                                 />
-                                <Path fill={"black"} scale={0.25}
-                                      x={toSvgPointLatLon(pinLocation).x-3} y={toSvgPointLatLon(pinLocation).y-3} fillRule="evenodd"
-                                      d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"
-                                      clipRule="evenodd"/>
+                                {/*<Path fill={"black"} scale={0.25/(zoomLevel/0.25)}*/}
+                                {/*      x={toSvgPointLatLon(pinLocation).x-3} y={toSvgPointLatLon(pinLocation).y-3} fillRule="evenodd"*/}
+                                {/*      d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z"*/}
+                                {/*      clipRule="evenodd"/>*/}
                             </G>
                         )}
                     </G>
-                </SvgPanZoom>
-            </View>
+                </Svg>
+            </ReactNativeZoomableView>
+        </View>
     );
 };
 

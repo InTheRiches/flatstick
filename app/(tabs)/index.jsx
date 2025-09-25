@@ -96,11 +96,6 @@ export default function HomeScreen() {
     useFocusEffect(
         useCallback(() => {
             onRefresh();
-
-            return () => {
-                // Optional cleanup when screen loses focus
-                console.log('Screen unfocused');
-            };
         }, [])
     );
 
