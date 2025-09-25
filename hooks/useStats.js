@@ -1,19 +1,12 @@
 // hooks/useStats.js
 import {useState} from 'react';
-import {getAuth} from '@/utils/firebase';
-import {
-    calculateSpecificStats,
-    getAllStats,
-    getPreviousStats,
-    updateFirebaseYearlyStats,
-    updateStats
-} from '@/services/statsService';
+import {firestore, getAuth} from '@/utils/firebase';
+import {getPreviousStats} from '@/services/statsService';
+import {collection, doc, getDocs, query, setDoc} from "firebase/firestore";
+import {createMonthAggregateStats} from "@/constants/Constants";
 
-export const useStats = (userData, puttSessions) => {
-    const [currentStats, setCurrentStats] = useState({});
-    const [yearlyStats, setYearlyStats] = useState({});
-    const [sixMonthStats, setSixMonthStats] = useState({});
-    const [threeMonthStats, setThreeMonthStats] = useState({});
+export const useStats = () => {
+    const [byMonthStats, setByMonthStats] = useState({});
     const [previousStats, setPreviousStats] = useState([]);
     const auth = getAuth();
 
@@ -22,25 +15,32 @@ export const useStats = (userData, puttSessions) => {
         await getPreviousStats();
     }
 
-    const rawRefreshStats = async (putters, grips, setPutters, setGrips, sessions = puttSessions, newUserData = userData) => {
-        return await updateStats(
-            auth.currentUser.uid,
-            newUserData,
-            sessions,
-            putters,
-            grips,
-            setCurrentStats,
-            setYearlyStats,
-            setPutters,
-            setGrips
-        );
-    };
+    const saveIndividualMonthStats = async (newStats, docId) => {
+        console.log("Fetched monthly stats 1:", Object.keys(byMonthStats));
+        const newByMonthStats = {...byMonthStats, [docId]: newStats};
+        setByMonthStats(newByMonthStats);
+        await setDoc(doc(firestore, `users/${auth.currentUser.uid}/monthlyStats/${docId}`), newStats);
+
+        console.log("Fetched monthly stats 2:", Object.keys(newByMonthStats));
+    }
 
     const fetchAllStats = async () => {
-        const stats = await getAllStats(auth.currentUser.uid, yearlyStats);
-        setCurrentStats(stats.currentStats);
-        setYearlyStats(stats.yearlyStats)
-        return stats;
+        const statsRef = collection(firestore, "users", auth.currentUser.uid, "monthlyStats");
+        const snapshot = await getDocs(query(statsRef));
+
+        const data = {};
+        snapshot.forEach((doc) => {
+            data[doc.id] = doc.data(); // doc.id is "2025-09"
+        });
+
+        if (Object.keys(data).length === 0) {
+            console.log("No monthly stats found for user, initializing empty stats.");
+            data[`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`] = createMonthAggregateStats();
+        }
+
+        setByMonthStats(data);
+
+        return data;
     };
 
     const fetchPreviousStats = async () => {
@@ -49,23 +49,12 @@ export const useStats = (userData, puttSessions) => {
         return stats;
     };
 
-    const updateYearStats = async (newYearlyStats) => {
-        setYearlyStats(newYearlyStats);
-        await updateFirebaseYearlyStats(newYearlyStats);
-    }
-
     return {
-        currentStats,
-        yearlyStats,
-        sixMonthStats,
-        threeMonthStats,
+        byMonthStats,
         previousStats,
-        rawRefreshStats,
+        saveIndividualMonthStats,
         fetchAllStats,
         initializeStats,
-        updateYearStats,
         getPreviousStats: fetchPreviousStats,
-        calculateSpecificStats: (putters, grips, nonPersistentData) =>
-            calculateSpecificStats(userData, puttSessions, putters, grips, nonPersistentData),
     };
 };

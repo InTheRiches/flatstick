@@ -62,9 +62,7 @@ export default function HomeScreen() {
             // User deleted.
             console.log("User deleted");
             setSession(null);
-            if (Platform.OS !== "ios") {
-                router.replace({pathname: "/login"});
-            }
+            router.replace({pathname: "/login"});
         }).catch((error) => {
             // An error ocurred
             console.log(error);
@@ -72,11 +70,10 @@ export default function HomeScreen() {
     }
 
     const signOutUser = async () => {
+        console.log("Signing out user");
         await signOut();
         setSession(null);
-        if (Platform.OS !== "ios") {
-            router.replace({pathname: "/login"});
-        }
+        router.replace({pathname: "/login"});
     }
 
     const handleEmailPress = async () => {

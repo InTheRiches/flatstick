@@ -4,7 +4,6 @@ import React, {useMemo, useState} from "react";
 import {BreakMisreadsByDistance} from "./distances/BreakMisreadsByDistance";
 import {SlopeMisreadsByDistance} from "./distances/SlopeMisreadsByDistance";
 import {BreakMisreadsByBreakSlope} from "./distances/BreakMisreadsByBreakSlope";
-import {SlopeMisreadsByBreakSlope} from "./distances/SlopeMisreadsByBreakSlope";
 import FontText from "../../../general/FontText";
 import {Toggleable} from "../../../general/buttons/Toggleable";
 
@@ -19,9 +18,9 @@ export function MisreadTab({statsToUse}) {
     const breakMisreadsByBreakSlope = useMemo(() => (
         <BreakMisreadsByBreakSlope statsToUse={statsToUse}></BreakMisreadsByBreakSlope>
     ), [statsToUse]);
-    const slopeMisreadsByBreakSlope = useMemo(() => (
-        <SlopeMisreadsByBreakSlope statsToUse={statsToUse}></SlopeMisreadsByBreakSlope>
-    ), [statsToUse]);
+    // const slopeMisreadsByBreakSlope = useMemo(() => (
+    //     <SlopeMisreadsByBreakSlope statsToUse={statsToUse}></SlopeMisreadsByBreakSlope>
+    // ), [statsToUse]);
 
     return (
         <ScrollView contentContainerStyle={{paddingBottom: 0, alignItems: "center"}} showsVerticalScrollIndicator={false} bounces={false} style={{width: width, paddingHorizontal: 20}}>
@@ -36,24 +35,20 @@ export function MisreadTab({statsToUse}) {
                     alignItems: "center"
                 }}>
                     <FontText style={{fontSize: 16, textAlign: "left", color: colors.text.primary, fontWeight: "bold", flex: 1}}>Average Performance</FontText>
-                    <FontText style={{fontSize: 14, textAlign: "right", color: colors.text.secondary, fontWeight: "normal", flex: 1}}>(last 5 sessions)</FontText>
+                    {/*<FontText style={{fontSize: 14, textAlign: "right", color: colors.text.secondary, fontWeight: "normal", flex: 1}}>(last 5 sessions)</FontText>*/}
                 </View>
                 <View style={{flexDirection: "row"}}>
                     <View style={{
                         flexDirection: "column",
                         flex: 1,
-                        borderRightWidth: 1,
-                        borderColor: colors.border.default,
+                        // borderRightWidth: 1,
+                        // borderColor: colors.border.default,
                         paddingBottom: 8,
                         paddingTop: 6,
                         paddingLeft: 12,
                     }}>
                         <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Misreads a Round</FontText>
-                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.puttsMisread}</FontText>
-                    </View>
-                    <View style={{flexDirection: "column", flex: 1, paddingBottom: 8, paddingTop: 6, paddingLeft: 12}}>
-                        <FontText style={{fontSize: 14, textAlign: "left", color: colors.text.secondary}}>Mishits a Round</FontText>
-                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold"}}>{statsToUse.puttsMishits}</FontText>
+                        <FontText style={{fontSize: 20, color: colors.text.primary, fontWeight: "bold",}}>{statsToUse.misreadData.totalMisreads / (statsToUse.holesPlayed/18)}</FontText>
                     </View>
                 </View>
             </View>
@@ -72,7 +67,7 @@ export function MisreadTab({statsToUse}) {
                 <Toggleable toggled={!dirBreakStats} onToggle={() => setDirBreakStats(false)} title={"Slope Misreads"}/>
             </View>
             {dirBreakStats && breakMisreadsByBreakSlope}
-            {!dirBreakStats && slopeMisreadsByBreakSlope}
+            {/*{!dirBreakStats && slopeMisreadsByBreakSlope}*/}
             <FontText style={{marginTop: 24, fontWeight: 700, fontSize: 16, marginBottom: 10}}>HOW TO READ THE DATA</FontText>
             <View>
                 <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>

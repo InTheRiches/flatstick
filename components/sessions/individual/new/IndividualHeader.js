@@ -16,7 +16,7 @@ export default function IndividualHeader({ session, isRecap, infoModalRef }) {
     };
 
     return (
-        <View style={{ marginRight: 12, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }}>
+        <View style={{ marginRight: 12, justifyContent: "space-between", flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
             <View>
                 <Pressable onPress={() => {
                     if (isRecap) navigation.navigate("(tabs)");
@@ -27,7 +27,7 @@ export default function IndividualHeader({ session, isRecap, infoModalRef }) {
                     </Svg>
                 </Pressable>
                 <FontText style={{ marginLeft: 32, fontSize: 20, fontWeight: "800", color: colors.text.primary }}>
-                    {session.type === "sim" ? "18 HOLE SIMULATION" : `${session.stats.holes} HOLE ROUND`}
+                    {session.type === "sim" || session.type === "green" ? "18 HOLE SIMULATION" : `${session.stats.holes} HOLE ROUND`}
                 </FontText>
                 <FontText style={{ marginLeft: 32, fontSize: 16, fontWeight: "600", color: colors.text.secondary }}>
                     {formatTimestamp()}

@@ -250,7 +250,7 @@ export const BareScorecardCard = ({data, front = true, roundedBottom = false, ro
     );
 };
 
-export const PuttScorecardCard = ({data, strokesGained, totalPutts, front = true}) => {
+export const PuttScorecardCard = ({data, strokesGained, totalPutts, front = true, roundedBottom = false, roundedTop = false}) => {
     const colors = useColors();
 
     // const totalPar = data.reduce((acc, hole) => hole.score !== -1 ? acc + hole.par : acc, 0);
@@ -268,8 +268,10 @@ export const PuttScorecardCard = ({data, strokesGained, totalPutts, front = true
     return (
         <View style={{
             backgroundColor: "#0B0B0B",
-            borderTopRightRadius: 16,
-            borderTopLeftRadius: 16,
+            borderTopRightRadius: roundedTop ? 16 : 0,
+            borderTopLeftRadius: roundedTop ? 16 : 0,
+            borderBottomRightRadius: roundedBottom ? 16 : 0,
+            borderBottomLeftRadius: roundedBottom ? 16 : 0,
             paddingHorizontal: 16,
             paddingVertical: 10
         }}>

@@ -51,24 +51,10 @@ export const googleSignIn = async () => {
         const userCredential = await signInWithCredential(auth, credential);
         const userDoc = await getDoc(doc(firestore, `users/${userCredential.user.uid}`));
         if (!userDoc.exists()) {
-            await setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
-                date: new Date().toISOString(),
-                totalPutts: 0,
-                sessions: 0,
-                firstName: user.user.givenName,
-                lastName: user.user.familyName || '',
-                strokesGained: 0,
-                preferences: {
-                    countMishits: true,
-                    selectedPutter: 0,
-                    theme: 0,
-                    units: 0,
-                    reminders: false,
-                    selectedGrip: 0,
-                },
-            });
+            await setDoc(doc(firestore, `users/${userCredential.user.uid}`), getDefaultData(user.user.givenName, user.user.familyName || ''));
+            return {token: userCredential.user.getIdToken(), data: getDefaultData(user.user.givenName, user.user.familyName || '')};
         }
-        return userCredential.user.getIdToken();
+        return {token: userCredential.user.getIdToken(), data: userDoc.data()};
     } catch (error) {
         if (isErrorWithCode(error)) {
             switch (error.code) {

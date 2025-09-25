@@ -8,7 +8,7 @@ import CustomBackdrop from "../../../general/popups/CustomBackdrop";
 import FontText from "../../../general/FontText";
 
 export function SetUnits({setUnitsRef}) {
-    const {userData, updateData, refreshStats} = useAppContext()
+    const {userData, updateData} = useAppContext()
     const colors = useColors();
 
     const setUnits = (units) => {
@@ -16,7 +16,7 @@ export function SetUnits({setUnitsRef}) {
         const newPreferences = {...userData.preferences, units: units};
 
         try {
-            updateData({preferences: newPreferences}).then(r => refreshStats({...userData, preferences: newPreferences}));
+            updateData({preferences: newPreferences});
         } catch (e) {
             console.error(e);
         }

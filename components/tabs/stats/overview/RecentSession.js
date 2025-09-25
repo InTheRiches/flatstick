@@ -2,25 +2,36 @@ import {Pressable, View} from "react-native";
 import useColors from "../../../../hooks/useColors";
 import FontText from "../../../general/FontText";
 import {useRouter} from "expo-router";
-import {auth} from "../../../../utils/firebase";
 
 export const RECENT_SESSION_CONFIG = {
     "real": {
         title: (s) => `${s.stats.holesPlayed} Hole Round`,
+        url: "/sessions/individual",
         fields: [
             { label: "SG", value: (s) => s.stats.strokesGained },
-            { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
+            { label: "COURSE", value: (s) => s.meta.courseName ?? "Unknown" },
         ],
     },
     "full": {
         title: (s) => `${s.stats.holesPlayed} Hole Round`,
+        url: "/sessions/individual/full",
         fields: [
             { label: "SCORE", value: (s) => s.stats.score, flex: 0.3 },
             { label: "COURSE", value: (s) => s.meta.courseName },
         ],
     },
-    "sim": {
+    "green": {
         title: (s) => `${s.stats.holesPlayed} Hole Simulation`,
+        url: "/sessions/individual",
+        fields: [
+            { label: "SG", value: (s) => s.stats.strokesGained },
+            { label: "DIFFICULTY", value: (s) => s.meta.difficulty },
+            { label: "TOTAL PUTTS", value: (s) => s.stats.totalPutts },
+        ],
+    },
+    "sim": { // TODO you can remove this later, kept for backwards compatibility
+        title: (s) => `${s.stats.holesPlayed} Hole Simulation`,
+        url: "/sessions/individual",
         fields: [
             { label: "SG", value: (s) => s.stats.strokesGained },
             { label: "DIFFICULTY", value: (s) => s.meta.difficulty },
@@ -36,17 +47,17 @@ export const RecentSession = ({ recentSession }) => {
     const config = RECENT_SESSION_CONFIG[recentSession.meta.type] ?? {
         title: () => "Unknown Session",
         fields: [],
+        url: "/sessions/individual",
     };
 
     return (
         <Pressable
             onPress={() =>
                 router.push({
-                    pathname: "sessions/individual",
+                    pathname: config.url,
                     params: {
                         jsonSession: JSON.stringify(recentSession),
-                        recap: false,
-                        userId: auth.currentUser.uid,
+                        recap: false
                     },
                 })
             }

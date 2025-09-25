@@ -9,7 +9,9 @@ import {isHolePuttDataInvalid} from "@/utils/sessions/SessionUtils";
 export const fetchUserData = async (uid) => {
     const docRef = doc(firestore, `users/${uid}`);
     const data = await getDoc(docRef);
-    if (!data.exists()) throw new Error('User document does not exist');
+    if (!data.exists()) {
+        console.log('User document does not exist');
+    }
     const userData = data.data();
     const updatedUserData = deepMergeDefaults(userData, getDefaultData(userData.firstName, userData.lastName));
     if (!deepEqual(userData, updatedUserData)) {
@@ -34,14 +36,10 @@ export const getUserDataByID = async (id) => {
 
     try {
         const docSnap = await getDoc(docRef);
-        console.log("doc snap: " + JSON.stringify(docSnap.data()));
         if (!docSnap.exists()) return null;
 
         const data = docSnap.data();
-        console.log("doc data1: " + JSON.stringify(data));
         if (data.deleted) return null;
-
-        console.log("doc data: " + JSON.stringify(data));
 
         return { ...data, uid: docSnap.id };
     } catch (e) {
@@ -51,19 +49,15 @@ export const getUserDataByID = async (id) => {
 }
 
 export const getUserStatsByID = async (id) => {
-    const docRef = doc(firestore, `users/${id}/stats/current`);
-    try {
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) return null;
+    const statsRef = collection(firestore, "users", id, "monthlyStats");
+    const snapshot = await getDocs(query(statsRef));
 
-        const data = docSnap.data();
-        if (data.deleted) return null;
+    const data = {};
+    snapshot.forEach((doc) => {
+        data[doc.id] = doc.data(); // doc.id is "2025-09"
+    });
 
-        return { ...data, id: docSnap.id };
-    } catch (e) {
-        console.error("Error fetching user stats: " + e);
-        return null;
-    }
+    return data;
 }
 
 export const getUserSessionsByID = async (id) => {

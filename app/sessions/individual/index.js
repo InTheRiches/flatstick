@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from "react";
 import {BackHandler, Platform, ScrollView, View} from "react-native";
 import {useFocusEffect, useLocalSearchParams, useNavigation} from "expo-router";
 import {AdEventType, InterstitialAd, TestIds} from "react-native-google-mobile-ads";
-import {getBestSession} from "../../../utils/sessions/best";
 import Loading from "../../../components/general/popups/Loading";
 import ScreenWrapper from "../../../components/general/ScreenWrapper";
 import StrokesGainedSection from "../../../components/sessions/individual/new/StrokesGainedSection";
@@ -16,6 +15,8 @@ import {adaptOldSession} from "../../../services/userService";
 import {useAppContext} from "../../../contexts/AppContext";
 import {doc, getDoc} from "firebase/firestore";
 import {auth, firestore} from "../../../utils/firebase";
+import {PuttScorecardCard} from "../../../components/simulations/full/ScorecardCard";
+import ScorecardHeader from "../../../components/sessions/individual/full/ScorecardHeader";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios"
     ? "ca-app-pub-2701716227191721/6686596809"
@@ -33,7 +34,6 @@ export default function IndividualSession() {
 
     const [session, setSession] = useState(jsonSession ? JSON.parse(jsonSession) : null);
     const [loading, setLoading] = useState(!jsonSession);
-    const [bestSession, setBestSession] = useState({ strokesGained: "~" });
 
     // Fetch session if we don't already have it
     useEffect(() => {
@@ -97,14 +97,9 @@ export default function IndividualSession() {
         }, [navigation])
     );
 
-    useEffect(() => {
-        // TODO make this not just get the user's best session, but the best session of whoever the session belongs to (or just remove this for sessions that arent the user's)
-        getBestSession().then(setBestSession);
-    }, []);
-
     if (loading || !session || !userData) return <Loading />;
 
-    const numOfHoles = session.stats.holesPlayed;
+    const numOfHoles = session.meta === "green" ? session.stats.totalPutts : session.stats.holesPlayed;
 
     return loading ? <Loading /> : (
         <>
@@ -112,8 +107,12 @@ export default function IndividualSession() {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginBottom: 86 }}>
                         <IndividualHeader session={session} isRecap={isRecap} infoModalRef={infoModalRef} />
+                        {session.meta.type === "real" && (
+                            <ScorecardHeader session={session}/>
+                        )}
+                        <PuttScorecardCard data={session.scorecard} front={true} roundedBottom={true} roundedTop={false} totalPutts={session.stats.totalPutts} strokesGained={session.stats.strokesGained}/>
                         <View style={{flexDirection: "row"}}>
-                            <StrokesGainedSection session={session} bestSession={bestSession} showBest={userId === undefined}/>
+                            <StrokesGainedSection session={session}/>
                             <PerformanceSection session={session} numOfHoles={numOfHoles} preferences={userData.preferences} />
                         </View>
 

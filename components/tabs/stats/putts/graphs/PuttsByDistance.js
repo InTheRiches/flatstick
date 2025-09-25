@@ -9,13 +9,14 @@ export const PuttsByDistance = ({statsToUse}) => {
     const colorScheme = "light";
 
     const data = [
-        statsToUse.puttsAHole.distance[0], statsToUse.puttsAHole.distance[1], statsToUse.puttsAHole.distance[2], statsToUse.puttsAHole.distance[3]
+        statsToUse.holesByFirstPuttDistance[0] === 0 ? 0 : statsToUse.puttsAHole.byFirstPuttDistance[0] / statsToUse.holesByFirstPuttDistance[0],
+        statsToUse.holesByFirstPuttDistance[1] === 0 ? 0 : statsToUse.puttsAHole.byFirstPuttDistance[1] / statsToUse.holesByFirstPuttDistance[1],
+        statsToUse.holesByFirstPuttDistance[2] === 0 ? 0 : statsToUse.puttsAHole.byFirstPuttDistance[2] / statsToUse.holesByFirstPuttDistance[2],
+        statsToUse.holesByFirstPuttDistance[3] === 0 ? 0 : statsToUse.puttsAHole.byFirstPuttDistance[3] / statsToUse.holesByFirstPuttDistance[3],
     ]
 
     // find the biggest value in the data
     const maxValue = Math.max(...data);
-
-
 
     return (
         <BarChart

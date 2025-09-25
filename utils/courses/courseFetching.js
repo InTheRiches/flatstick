@@ -121,7 +121,6 @@ function processCourseData(courseData) {
                 .filter((coord) => coord !== undefined);
 
             if (el.tags?.['golf'] === 'hole' && el.tags?.['ref']) {
-                console.log(`Found hole with ref ${el.tags['ref']}`);
                 rawHoles.push({ref: el.tags['ref'], nodes: coordinates});
             }
 

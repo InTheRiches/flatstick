@@ -27,7 +27,6 @@ import {NoPuttDataModal} from "../../../components/simulations/full/popups/NoPut
 import {roundTo} from "../../../utils/roundTo";
 import {ScorecardModal} from "../../../components/simulations/full/popups/ScorecardModal";
 import {DarkTheme} from "../../../constants/ModularColors";
-import {newSession} from "../../../services/sessionService";
 import {SCHEMA_VERSION} from "../../../constants/Constants";
 import {auth, firestore} from "../../../utils/firebase";
 import {
@@ -40,7 +39,6 @@ import {doc, getDoc, setDoc} from "firebase/firestore";
 import {getPolygonCentroid} from "../../../utils/courses/polygonUtils";
 import {calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {analyzeIndividualPutts, calculateGPSRoundStats} from "../../../utils/courses/gpsStatsEngine";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
@@ -168,6 +166,7 @@ export default function FullRound() {
 
         // load OSM course data
         console.log("Starting fetch for course elements...");
+        console.log(`Course location: lat=${course.location.latitude}, lon=${course.location.longitude}`);
         // check to see if it exists in our db first
         getOSMIdByLatLon(course.location.latitude, course.location.longitude).then((res) => {
             setOSMCourseId(res[0]?.id);
@@ -423,6 +422,7 @@ export default function FullRound() {
         let selectedGreenPolygon = null;
         for (const g of newGreens) {
             if (g.hole === holeNum.toString()) {
+                console.log("Selected green for hole " + holeNum);
                 selectedGreenPolygon = g;
                 break;
             }

@@ -8,7 +8,6 @@ import SessionsSection from '../../components/user/SessionsSection';
 import StatsCard from "../../components/user/StatsCard";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {getUserDataByID, getUserSessionsByID} from "../../services/userService";
-import {createSimpleStats} from "../../utils/PuttUtils";
 import {
     acceptFriendRequest,
     cancelFriendRequest,
@@ -23,6 +22,10 @@ import {SecondaryButton} from "../../components/general/buttons/SecondaryButton"
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import StrokesGainedModal from "../../components/user/StrokesGainedModal";
 import {getAllStats} from "../../services/statsService";
+import {roundTo} from "../../utils/roundTo";
+import {convertUnits} from "../../utils/Conversions";
+import {createMonthAggregateStats} from "../../constants/Constants";
+import {useAppContext} from "../../contexts/AppContext";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -30,14 +33,10 @@ export default function UserScreen({}) {
     const {userDataString, userId = ""} = useLocalSearchParams();
     const router = useRouter();
 
-    console.log("userId:", userId);
-
     const [friendData, setFriendData] = React.useState(
         userDataString ? JSON.parse(userDataString) : null
     );
     const [loadingUser, setLoadingUser] = React.useState(!userDataString);
-    console.log("initial friendData:", friendData);
-    console.log("loadingUser:", !userDataString);
 
     useEffect(() => {
         if (!friendData && userId) {
@@ -49,7 +48,6 @@ export default function UserScreen({}) {
                 .catch((err) => console.error("Error fetching user data:", err))
                 .finally(() => setLoadingUser(false));
         } else if (friendData) {
-            console.log("Initial friendData:", friendData);
             setIsFriend(friendData.friends.includes(auth.currentUser.uid));
         }
     }, [userId]);
@@ -61,11 +59,12 @@ export default function UserScreen({}) {
         bannerRef.current?.load();
     })
     const [sessions, setSessions] = React.useState([]);
-    const [yearlyStats, setYearlyStats] = React.useState({});
-    const [stats, setStats] = React.useState(createSimpleStats());
+    const [rawStats, setRawStats] = React.useState({});
+    const [stats, setStats] = React.useState(createMonthAggregateStats());
     const [isFriend, setIsFriend] = React.useState(false);
     const [adLoaded, setAdLoaded] = React.useState(false);
     const [pending, setPending] = React.useState("none");
+    const {userData} = useAppContext();
     const removeFriendRef = useRef(null);
     const cancelRequestRef = useRef(null);
     const userScreenRef = useRef(null);
@@ -86,9 +85,24 @@ export default function UserScreen({}) {
             console.error("Error fetching user sessions:", error);
         });
 
-        getAllStats(friendData.uid, {}).then(stats => {
-            setStats(stats.currentStats);
-            setYearlyStats(stats.yearlyStats);
+        getAllStats(friendData.uid).then(stats => {
+            if (!stats || Object.keys(stats).length === 0) {
+                setStats(createMonthAggregateStats());
+                const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+                setRawStats({
+                    [monthKey]: createMonthAggregateStats()
+                });
+                return;
+            }
+            let combined = [];
+            Object.keys(stats).forEach(m => {
+                if (stats[m]) {
+                    combined = combined.concat(stats[m]);
+                }
+            });
+            setStats(combined[0]);
+            setRawStats(stats);
         })
 
         getRequests(friendData.uid).then((requests) => {
@@ -152,6 +166,8 @@ export default function UserScreen({}) {
         );
     }
 
+    const holesPlayed = stats.holesPlayed === 0 ? 1 : stats.holesPlayed;
+
     return (
         <>
             <ScreenWrapper style={{ paddingHorizontal: 24 }}>
@@ -159,11 +175,11 @@ export default function UserScreen({}) {
                     <ProfileHeader userData={friendData} isSelf={false} />
                     <View style={{ flexDirection: 'row', gap: 20, marginBottom: 12}}>
                         <FriendsCard pending={pending} userScreenRef={userScreenRef} friendCount={friendData.friends.length} isFriend={isFriend} isSelf={false} />
-                        <StrokesGainedCard strokesGainedRef={strokesGainedRef} yearlyStats={yearlyStats} value={stats.strokesGained.overall} />
+                        <StrokesGainedCard strokesGainedRef={strokesGainedRef} byMonthStats={rawStats} value={roundTo((stats.strokesGained.expectedStrokes - stats.totalPutts) / (holesPlayed / 18), 1)} />
                     </View>
                     <SessionsSection userId={friendData.uid} name={friendData.displayName} sessions={sessions} />
                     {/*<StatsCard title="ROUND STATS" stats={[{ label: 'AVG. SCORE', value: 77 }, { label: 'HANDICAP', value: 8.9 }]} />*/}
-                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: stats.avgPuttsARound }, { label: 'AVG. MISS', value: `${stats.avgMiss}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
+                    <StatsCard title="PUTTING STATS" stats={[{ label: 'AVG. PUTTS', value: roundTo(stats.totalPutts/(holesPlayed/18), 1) }, { label: 'AVG. MISS', value: `${roundTo(convertUnits(stats.missData.totalMissDistance/(stats.missData.totalMissedPutts === 0 ? 1 : stats.missData.totalMissedPutts), 0, userData.preferences.units), 1)}ft` }]} onPress={() => router.push({pathname: "user/stats", params: {uid: friendData.uid, userDataString: JSON.stringify(friendData)}})}/>
                     <StatsCard title="COMPARE STATS" stats={[]} onPress={() => router.push({pathname: "compare/users", params: {id: friendData.uid, jsonProfile: JSON.stringify(friendData)}})}/>
                     {/*<StatsCard title="ACHIEVEMENTS" stats={[]} />*/}
                 </ScrollView>
@@ -188,7 +204,7 @@ export default function UserScreen({}) {
                     <SecondaryButton onPress={() => router.back()} title={"Back"}
                                      style={{paddingVertical: 10, borderRadius: 10, flex: 0.7}}></SecondaryButton>
                 </View>
-                <StrokesGainedModal yearlyStats={yearlyStats} strokesGainedRef={strokesGainedRef}/>
+                <StrokesGainedModal byMonthStats={rawStats} strokesGainedRef={strokesGainedRef}/>
             </ScreenWrapper>
             <RemoveFriendModal removeFriendRef={removeFriendRef} remove={removeAsFriend}/>
             <CancelRequestModal cancelRequestRef={cancelRequestRef} cancel={removeRequest}/>

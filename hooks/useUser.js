@@ -9,9 +9,24 @@ export const useUser = () => {
     const [userData, setUserData] = useState({});
     const auth = getAuth();
 
-    const initialize = async () => {
+    const initialize = async (user) => {
         if (!auth.currentUser) return;
-        const data = await fetchUserData(auth.currentUser.uid);
+
+        let data = userData;
+        if (!data || Object.keys(data).length === 0) {
+            data = await fetchUserData(auth.currentUser.uid);
+            console.log(data);
+        }
+        // console.log("Initializing user data for user:", user);
+        // if (Object.keys(userData).length === 0) {
+        //     if (user.displayName && user.displayName !== undefined)
+        //         data = getDefaultData(user.displayName.split(" ")[0] || '', user.displayName.split(" ")[1] || '');
+        //     else {
+        //         setUserData(fetchUserData(user.uid));
+        //     }
+        // }
+        console.log("User is signed in with UID:", auth.currentUser.uid);
+        console.log("Fetched user data:", data);
 
         if (!data.achievements || data.achievements.length === 0) {
             const initialAchievements = achievementData.map(ach => {

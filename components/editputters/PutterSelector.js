@@ -25,6 +25,17 @@ export function PutterSelector({id, name, stats, selectedPutter, setSelectedPutt
         ])
     );
 
+    const combinedStats = useMemo(() => {
+        if (!stats) return {holesPlayed: 18, totalPutts: 0, strokesGained: {expectedStrokes: 0}, rounds: 1};
+        let combined = [];
+        Object.keys(stats).forEach(m => {
+            if (stats[m]) {
+                combined = combined.concat(stats[m]);
+            }
+        });
+        return combined[0];
+    }, [stats]);
+
     // make a composite gesture
     const hold = Gesture.LongPress().onStart((data) => {
         runOnJS(setEditing)(!editing);
@@ -75,8 +86,8 @@ export function PutterSelector({id, name, stats, selectedPutter, setSelectedPutt
                     <FontText style={{fontSize: id !== 0 ? 16 : 18, color: colors.text.primary, fontWeight: 500}}>{name}</FontText>
                     {   id !== 0 && (
                         <View style={{flexDirection: "row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
-                            <FontText style={{color: colors.text.secondary, width: "40%"}}>Rounds: {stats.rounds}</FontText>
-                            <FontText style={{color: colors.text.secondary}}>Strokes Gained: {stats.strokesGained.overall}</FontText>
+                            <FontText style={{color: colors.text.secondary, width: "40%"}}>Rounds: {combinedStats.rounds}</FontText>
+                            <FontText style={{color: colors.text.secondary}}>Strokes Gained: {combinedStats.holesPlayed === 0 ? "?" : (combinedStats.strokesGained.expectedStrokes - combinedStats.totalPutts) / (combinedStats.holesPlayed / 18)}</FontText>
                         </View>
                     )
                     }

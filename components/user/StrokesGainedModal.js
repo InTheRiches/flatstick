@@ -1,12 +1,12 @@
-import React, {useCallback, useRef} from "react";
+import React, {useCallback} from "react";
 import {BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
-import {Image, View} from "react-native";
+import {View} from "react-native";
 import SGOverTime from "../tabs/stats/sg/graphs/SGOverTime";
 import CustomBackdrop from "../general/popups/CustomBackdrop";
 import useColors from "../../hooks/useColors";
 import FontText from "../general/FontText";
 
-export default function StrokesGainedModal({strokesGainedRef, yearlyStats}) {
+export default function StrokesGainedModal({strokesGainedRef, byMonthStats}) {
     const colors = useColors();
 
     const myBackdrop = useCallback(
@@ -35,7 +35,7 @@ export default function StrokesGainedModal({strokesGainedRef, yearlyStats}) {
                 <View style={{marginHorizontal: 24, marginBottom: 8}}>
                     <FontText style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>STROKES GAINED</FontText>
 
-                    <SGOverTime statsToUse={yearlyStats} months={12}></SGOverTime>
+                    <SGOverTime statsToUse={byMonthStats} months={12}></SGOverTime>
                 </View>
             </BottomSheetView>
         </BottomSheetModal>

@@ -25,7 +25,8 @@ export const BreakMisreadsByBreakSlope = ({statsToUse}) => {
 
 function createMisreadsByBreak(currentStats) {
     // copy the object
-    const mySlopes = currentStats.misreads.misreadLineBySlope;
+    const mySlopes = JSON.parse(JSON.stringify(currentStats.misreadData.misreadLineBySlope));
+    const myPutts = JSON.parse(JSON.stringify(currentStats.totalPuttsBySlope));
 
     let max = -999;
 
@@ -35,8 +36,13 @@ function createMisreadsByBreak(currentStats) {
             if (slope === "neutral" && brek === "straight")
                 continue; // don't include neutral straight
 
-            if (mySlopes[slope][brek]*100 > max) {
-                max = mySlopes[slope][brek]*100;
+            if (myPutts[slope][brek] === 0) {
+                myPutts[slope][brek] = 1;
+                continue;
+            }
+
+            if ((mySlopes[slope][brek] / myPutts[slope][brek])*100 > max) {
+                max = (mySlopes[slope][brek] / myPutts[slope][brek])*100;
             }
         }
     }
@@ -63,8 +69,7 @@ function createMisreadsByBreak(currentStats) {
             if (mySlopesCopy[slope][brek] === 0) {
                 mySlopesCopy[slope][brek] = 0.03;
             }
-            mySlopesCopy[slope][brek] *= 100;
-            mySlopesCopy[slope][brek] = roundTo(mySlopesCopy[slope][brek] / max, 2);
+            mySlopesCopy[slope][brek] = roundTo((mySlopesCopy[slope][brek] / myPutts[slope][brek]) / max, 2);
         }
     }
 

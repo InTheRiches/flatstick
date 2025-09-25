@@ -43,6 +43,7 @@ export function RecentSessionSummary({unfinished}) {
     switch(sessions[0].meta.type) {
         case "real":
             return getRealSimulation(userData, colors, colorScheme, date, sessions[0], sessions.length, unfinished, router);
+        case"green":
         case "sim":
             return getHoleSimulation(userData, colors, colorScheme, date, sessions[0], sessions.length, unfinished, router);
         case "full":

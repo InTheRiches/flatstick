@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
 import {ActivityIndicator, FlatList, Platform, RefreshControl, Text, View} from "react-native";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
@@ -10,6 +10,7 @@ import {useAppContext} from "@/contexts/AppContext";
 import {Header} from "@/components/tabs/Header";
 import {FullFeedItem} from "@/components/tabs/home/FullFeedItem";
 import {SimFeedItem} from "@/components/tabs/home/SimFeedItem";
+import {useFocusEffect} from "expo-router";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 const PAGE_SIZE = 10;
@@ -53,7 +54,7 @@ export default function HomeScreen() {
             );
             const snapshot = await getDocs(feedQuery);
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log('snapshot.docs:', auth.currentUser.uid, snapshot.docs.length, docs.length);
+
             setSessions(docs);
             setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
             setHasMore(snapshot.docs.length === PAGE_SIZE);
@@ -61,7 +62,7 @@ export default function HomeScreen() {
             console.error('Error loading userfeed:', e);
         }
         setLoadingInitial(false);
-    }, [auth.currentUser.uid]);
+    }, [auth.currentUser]);
 
     const loadMore = useCallback(async () => {
         if (loadingMore || !hasMore) return;
@@ -82,7 +83,7 @@ export default function HomeScreen() {
             console.error('Error loading more userfeed:', e);
         }
         setLoadingMore(false);
-    }, [auth.currentUser.uid, lastDoc, loadingMore, hasMore]);
+    }, [auth.currentUser, lastDoc, loadingMore, hasMore]);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -90,11 +91,18 @@ export default function HomeScreen() {
         setTimeout(() => {
             setRefreshing(false);
         }, 1500);
-    }, []);
-
-    useEffect(() => {
-        loadInitial();
     }, [loadInitial]);
+
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+
+            return () => {
+                // Optional cleanup when screen loses focus
+                console.log('Screen unfocused');
+            };
+        }, [])
+    );
 
     const renderFooter = () => {
         if (!loadingMore && !hasMore) {
@@ -123,16 +131,19 @@ export default function HomeScreen() {
             return (
                 <View style={{ alignItems: 'center', marginVertical: 8 }}>
                     <BannerAd
-                        unitId={bannerAdId} // replace with your AdMob unit ID in production
+                        unitId={bannerAdId}
                         size={BannerAdSize.MEDIUM_RECTANGLE}
                     />
                 </View>
             );
         }
-        if (item.session.type === "full") {
+        if (item.session.type === "full" || item.session.type === "real") {
             return <FullFeedItem userData={userData} item={item} />;
         }
         else if (item.session.type === "sim") {
+            return <SimFeedItem userData={userData} item={item} />;
+        }
+        else if (item.session.type=="green") {
             return <SimFeedItem userData={userData} item={item} />;
         }
     };

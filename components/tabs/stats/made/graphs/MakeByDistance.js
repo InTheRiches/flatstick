@@ -3,6 +3,7 @@ import {Dimensions} from "react-native";
 import React from "react";
 import useColors from "../../../../../hooks/useColors";
 import {useAppContext} from "../../../../../contexts/AppContext";
+import {roundTo} from "../../../../../utils/roundTo";
 
 export const MakeByDistance = ({statsToUse}) => {
     const colors = useColors();
@@ -17,7 +18,10 @@ export const MakeByDistance = ({statsToUse}) => {
                 labels: userData.preferences.units === 0 ? ['<6 ft', '6-12 ft', '12-20 ft', '>20 ft'] : ['<2 m', '2-4 m', '4-7 m', '>7 m'],
                 datasets: [{
                     data: [
-                        statsToUse.madePutts.distance[0]*100, statsToUse.madePutts.distance[1]*100, statsToUse.madePutts.distance[2]*100, statsToUse.madePutts.distance[3]*100
+                        roundTo(statsToUse.madeData.byDistance[0] / statsToUse.totalPuttsByDistance[0], 2)*100,
+                        roundTo(statsToUse.madeData.byDistance[1] / statsToUse.totalPuttsByDistance[1], 2)*100,
+                        roundTo(statsToUse.madeData.byDistance[2] / statsToUse.totalPuttsByDistance[2], 2)*100,
+                        roundTo(statsToUse.madeData.byDistance[3] / statsToUse.totalPuttsByDistance[3], 2)*100
                     ]},
                     {data: [75, 50, 20, 10]},
                 ],

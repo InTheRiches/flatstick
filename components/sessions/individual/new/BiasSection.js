@@ -22,8 +22,8 @@ export default function BiasSection({ session }) {
                 <BiasStat label="PERCENT LONG" value={session.stats.percentShort !== undefined ? roundTo((1 - session.stats.percentShort) * 100, 0) + "%" : "N/A"} right />
             </View>
             <View style={{ marginTop: 20 }}>
-                <LeftRightBias bias={session.meta.type === "full" && session.meta.units === 0 ? roundTo(session.stats.leftRightBias/12, 1) : session.stats.leftRightBias} units={session.meta.units} />
-                <ShortPastBias bias={session.meta.type === "full" && session.meta.units === 0 ? roundTo(session.stats.shortPastBias/12, 1) : session.stats.shortPastBias} units={session.meta.units} />
+                <LeftRightBias bias={(session.meta.type === "full" || session.meta.type === "green" || session.meta.type === "real") && session.meta.units === 0 ? roundTo(session.stats.leftRightBias/12, 1) : session.stats.leftRightBias} units={session.meta.units} />
+                <ShortPastBias bias={(session.meta.type === "full" || session.meta.type === "green" || session.meta.type === "real") && session.meta.units === 0 ? roundTo(session.stats.shortPastBias/12, 1) : session.stats.shortPastBias} units={session.meta.units} />
             </View>
         </>
     );

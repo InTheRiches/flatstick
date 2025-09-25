@@ -16,18 +16,17 @@ function calculateWeightedScore(stats) {
     };
 
     let score = 0;
-    score += stats.strokesGained.overall * weights.strokesGained;
-    score -= stats.avgMiss * weights.avgMiss;
-    score += (stats.onePutts / 18) * 10 * weights.makePercentage;
+    score += (stats.strokesGained.expectedStrokes - stats.totalPutts) * weights.strokesGained;
+    score -= (stats.avgMiss / stats.totalPutts) * weights.avgMiss;
+    score += (stats.averageRound.onePutts / (stats.holesPlayed)) * weights.makePercentage;
 
-    score -= Math.abs(stats.leftRightBias) * weights.leftRightBias;
-    score -= Math.abs(stats.shortPastBias) * weights.shortLongBias;
-    score -= Math.abs(stats.puttsMisread) * weights.puttsMisread;
-    score -= Math.abs(stats.puttsMishits) * weights.puttsMishits;
-    score += stats.onePutts * weights.onePutts;
-    score += stats.twoPutts * weights.twoPutts;
-    score += stats.threePutts * weights.threePutts;
-    score += stats.puttsAHole.puttsAHole * weights.puttsAHole;
+    score -= Math.abs((stats.missData.totalLongMiss / stats.missData.totalMissedPutts) / 12) * weights.leftRightBias;
+    score -= Math.abs((stats.missData.totalLatMiss / stats.missData.totalMissedPutts) / 12) * weights.shortLongBias;
+    score -= Math.abs(stats.misreadData.totalMisreads / (stats.holesPlayed / 18)) * weights.puttsMisread;
+    score += (stats.averageRound.onePutts / (stats.holesPlayed / 18)) * weights.onePutts;
+    score += (stats.averageRound.twoPutts / (stats.holesPlayed / 18)) * weights.twoPutts;
+    score += (stats.averageRound.threePlusPutts / (stats.holesPlayed / 18)) * weights.threePutts;
+    score += (stats.totalPutts / (stats.holesPlayed)) * weights.puttsAHole;
     return score;
 }
 

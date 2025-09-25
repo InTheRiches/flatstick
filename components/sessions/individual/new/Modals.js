@@ -9,7 +9,7 @@ export default function Modals({
                                    shareSessionRef, confirmDeleteRef, infoModalRef,
                                    isRecap, navigation
                                }) {
-    const {deleteSession} = useAppContext();
+    const {deleteSession, userData} = useAppContext();
 
     return (
         <>
@@ -18,9 +18,11 @@ export default function Modals({
                 confirmDeleteRef={confirmDeleteRef}
                 cancel={() => confirmDeleteRef.current.dismiss()}
                 onDelete={() => {
-                    deleteSession(session.id).then(() => {
+                    deleteSession(session.id, userData.friends).then(() => {
                         if (isRecap) navigation.navigate("(tabs)");
                         else navigation.goBack();
+                    }).catch((e) => {
+                        console.error("Error deleting session:", e);
                     });
                 }}
             />

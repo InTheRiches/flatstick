@@ -9,6 +9,7 @@ import FontText from "../../components/general/FontText";
 import ScreenWrapper from "../../components/general/ScreenWrapper";
 import {AppleButton} from "@invertase/react-native-apple-authentication";
 import {SecondaryButton} from "../../components/general/buttons/SecondaryButton";
+import {useAppContext} from "../../contexts/AppContext";
 
 const initialState = {
     skill: -1,
@@ -26,8 +27,8 @@ export default function CreateAccount() {
     const colors = useColors();
 
     const router = useRouter();
-
     const {googleSignIn, appleSignIn, createEmailAccount, setSession} = useSession();
+    const {setUserData} = useAppContext();
 
     const [state, setState] = useState(initialState);
     const [loading, setLoading] = useState(false);
@@ -114,17 +115,19 @@ export default function CreateAccount() {
         setLoading(true);
 
         createEmailAccount(state.email, state.password, firstName, lastName, setLoading, setErrorCode, setInvalidEmail).then(() => {
-            refreshStats
+            console.log("Account created successfully");
         });
     }
 
     const signInWithApple = () => {
         setLoading(true);
         appleSignIn().then(token => {
+            console.log("Apple Sign In Token:", token);
             setLoading(false);
-            setSession(token || null);
-            router.replace({pathname: `/`});
-            // TODO refreshStats() here
+            if (token) {
+                setSession(token || null);
+                router.replace({pathname: `/`});
+            }
         }).catch(error => {
             setLoading(false);
             console.error("Apple Sign In Error:", error);
@@ -133,11 +136,14 @@ export default function CreateAccount() {
 
     const signInWithGoogle = () => {
         setLoading(true);
-        googleSignIn(setLoading).then(token => {
+        googleSignIn(setLoading).then(({token, data}) => {
+            setUserData(data);
             setLoading(false);
             setSession(token || null);
             router.replace({pathname: `/`});
-            // TODO refreshStats() here
+          .catch(error => {
+            setLoading(false);
+            console.error("Google Sign In Error:", error);
         });
     }
 
@@ -151,7 +157,7 @@ export default function CreateAccount() {
                 flexDirection: "column",
                 paddingHorizontal: 20,
             }}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center", flex: 1, width: "100%"}}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{justifyContent: "center", width: "100%"}}>
                     <FontText style={{color: colors.text.primary, fontSize: 30, fontWeight: 600, textAlign: "center"}}>Create Your Account</FontText>
                     <Pressable onPress={() => router.push({pathname: `/login`})} style={{
                         marginBottom: 32,
@@ -161,7 +167,7 @@ export default function CreateAccount() {
                     </Pressable>
                     <View style={{flexDirection: "row", gap: 12, width: "100%", marginBottom: 12}}>
                         <Pressable style={({pressed}) => [{ flex: 1, elevation: pressed ? 0 : 1, borderRadius: 8, paddingVertical: 8, backgroundColor: "white", alignItems: "center", justifyContent: "center"}]}
-                            onPress={signInWithGoogle}>
+                                   onPress={signInWithGoogle}>
                             <Svg xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 48 48" style={{width: 28, height: 28}}>
                                 <Defs>

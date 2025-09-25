@@ -16,6 +16,7 @@ import {OverviewTab} from "../../../components/tabs/stats/overview";
 import {fetchGrips} from "../../../services/gripService";
 import {fetchPutters} from "../../../services/putterService";
 import {getAllStats, getPreviousStats} from "../../../services/statsService";
+import {createMonthAggregateStats} from "../../../constants/Constants";
 
 // todo make sure that on the user's profile it doesnt allow them to go here if the sessions are less than 2
 export default function UserStats({}) {
@@ -28,9 +29,9 @@ export default function UserStats({}) {
 
     const userData = JSON.parse(userDataString);
 
-    const [currentStats, setCurrentStats] = useState({});
+    const [rawStats, setRawStats] = React.useState({});
+    const [stats, setStats] = React.useState(createMonthAggregateStats());
     const [previousStats, setPreviousStats] = useState({});
-    const [yearlyStats, setYearlyStats] = useState({});
     const [putters, setPutters] = useState(null);
     const [grips, setGrips] = useState(null);
 
@@ -39,8 +40,19 @@ export default function UserStats({}) {
             fetchGrips(uid).then(setGrips),
             fetchPutters(uid).then(setPutters),
             getAllStats(uid, {}).then((stats) => {
-                setCurrentStats(stats.currentStats);
-                setYearlyStats(stats.yearlyStats);
+                if (!stats || Object.keys(stats).length === 0) {
+                    alert("No stats found for that user.");
+                    router.back();
+                    return;
+                }
+                let combined = [];
+                Object.keys(stats).forEach(m => {
+                    if (stats[m]) {
+                        combined = combined.concat(stats[m]);
+                    }
+                });
+                setStats(combined[0]);
+                setRawStats(stats);
             }).catch((err) => {
                 console.log(err);
             }),
@@ -64,44 +76,44 @@ export default function UserStats({}) {
             id: 1,
             title: "Overview",
             content: useMemo(() => {
-                return <OverviewTab statsToUse={currentStats} userData={userData} previousStats={previousStats}/>
+                return <OverviewTab statsToUse={stats} userData={userData} previousStats={previousStats}/>
                 // KEEP CURRENT STATS IN THE DEPS, OR ELSE WHEN UNITS CHANGE IT WILL NOT UPDATE
-            }, [currentStats, previousStats, userData])
+            }, [previousStats, userData, stats])
         },
         {
             id: 2,
             title:"Strokes Gained",
             content: useMemo(() => {
-                return <StrokesGainedTab statsToUse={currentStats} showDifference={false} previousStats={previousStats} yearlyStats={yearlyStats}/>
-            }, [currentStats, previousStats, yearlyStats])
+                return <StrokesGainedTab statsToUse={stats} showDifference={false} previousStats={previousStats} byMonthStats={rawStats}/>
+            }, [previousStats, stats, rawStats])
         },
         {
             id: 3,
             title: "Putts / Hole",
             content: useMemo(() => {
-                return <PuttsAHoleTab statsToUse={currentStats}/>
-            }, [currentStats])
+                return <PuttsAHoleTab statsToUse={stats}/>
+            }, [stats])
         },
         {
             id: 4,
             title: "Made Putts",
             content: useMemo(() => {
-                return <MadePuttsTab statsToUse={currentStats} showDifference={false} previousStats={previousStats}/>
-            }, [currentStats, previousStats])
+                return <MadePuttsTab statsToUse={stats} showDifference={false} previousStats={previousStats}/>
+            }, [previousStats, stats])
         },
         {
             id: 5,
             title: "Misreads",
             content: useMemo(() => {
-                return <MisreadTab statsToUse={currentStats}/>
-            }, [currentStats])
+                return <MisreadTab statsToUse={stats}/>
+            }, [stats])
         },
         {
             id: 6,
             title: "Miss Bias",
             content: useMemo(() => {
-                return <MissBiasTab statsToUse={currentStats} showDifference={false} previousStats={previousStats} userData={userData}/>
-            }, [currentStats, previousStats, userData])
+                return <MissBiasTab statsToUse={stats} showDifference={false} previousStats={previousStats} userData={userData}/>
+            }, [previousStats, userData, stats])
         }
     ]
 
@@ -142,7 +154,7 @@ export default function UserStats({}) {
                 </View>
             </View>
             {
-                currentStats.rounds < 1 ? (
+                stats.rounds < 1 ? (
                     <View style={{
                         borderBottomWidth: 1,
                         borderBottomColor: colors.border.default,
