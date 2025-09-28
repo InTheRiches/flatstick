@@ -1,15 +1,15 @@
 import React, {useEffect, useRef, useState} from 'react';
 import useColors from "@/hooks/useColors";
-import {NewRealRound, NewRound} from "@/components/tabs/practice/popups";
+import {NewRound} from "@/components/tabs/practice/popups";
 import {Platform, ScrollView, View} from "react-native";
 import {PracticeModes, RecentSessionSummary, SeeAllSessions} from "@/components/tabs/practice";
 import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 import ScreenWrapper from "@/components/general/ScreenWrapper";
 import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-google-mobile-ads";
 import {Header} from "../../components/tabs/Header";
-import FontText from "../../components/general/FontText";
 import ResumeSession from "../../components/tabs/practice/ResumeSession";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {UnfinishedRound} from "../../components/tabs/practice/popups/UnfinishedRound";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -17,8 +17,8 @@ export default function HomeScreen() {
     const colors = useColors();
 
     const newSessionRef = useRef(null);
-    const newRealRoundRef = useRef(null);
     const bannerRef = useRef(null);
+    const unfinishedRoundRef = useRef(null);
 
     const [unfinishedRound, setUnfinishedRound] = useState(null);
 
@@ -27,6 +27,7 @@ export default function HomeScreen() {
             if (item === null) return;
 
             setUnfinishedRound(JSON.parse(item));
+            unfinishedRoundRef.current.setUnfinishedRound(JSON.parse(item));
         })
     }, [])
 
@@ -52,7 +53,7 @@ export default function HomeScreen() {
                             <ResumeSession session={unfinishedRound}></ResumeSession>
                         )}
                         <SeeAllSessions/>
-                        <PracticeModes newRealRoundRef={newRealRoundRef} newSessionRef={newSessionRef}></PracticeModes>
+                        <PracticeModes newSessionRef={newSessionRef} unfinishedRound={unfinishedRound} unfinishedRoundRef={unfinishedRoundRef}></PracticeModes>
                     </ScrollView>
                 </View>
                 <View style={{position: "absolute", bottom: 0}}>
@@ -60,7 +61,7 @@ export default function HomeScreen() {
                 </View>
             </ScreenWrapper>
             <NewRound newSessionRef={newSessionRef}></NewRound>
-            <NewRealRound newRealRoundRef={newRealRoundRef}></NewRealRound>
+            <UnfinishedRound onCancel={() => unfinishedRoundRef.current.dismiss()} onFinish={() => {}} onIgnore={() => {}} unfinishedRoundRef={unfinishedRoundRef}/>
         </BottomSheetModalProvider>
     );
 }

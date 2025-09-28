@@ -30,8 +30,6 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
     const [pinLocation, setPinLocation] = useState(null);
     const userLocation = useUserLocation();
 
-    const [misReadSlope, setMisReadSlope] = useState(false);
-    const [misReadLine, setMisReadLine] = useState(false);
     const [holedOut, setHoledOut] = useState(false);
     const [greenCoords, setGreenCoords] = useState([]);
     const [greenLidar, setGreenLidar] = useState(null);
@@ -109,6 +107,7 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                         holedOut: holedOut,
                     });
                 }}
+                handleIndicatorStyle={{backgroundColor: colors.background.primary}}
                 backdropComponent={myBackdrop}
                 backgroundStyle={{backgroundColor: colors.background.primary}}
                 keyboardBlurBehavior={"restore"}>
@@ -176,8 +175,12 @@ export function PuttTrackingModal({puttTrackingRef, updatePuttData, fairways, bu
                             pinLocation={pinLocation}
                             userLocation={userLocation}
                             holedOut={holedOut}
-                            setHoledOut={setHoledOut}
+                            setHoledOut={(val) => {
+                                setHoledOut(val);
+                                setTapMode("pin");
+                            }}
                             misreadRef={editPuttRef}
+                            tapMode={tapMode}
                         />
 
                         <View style={{flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 12}}>

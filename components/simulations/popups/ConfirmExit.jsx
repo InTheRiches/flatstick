@@ -8,7 +8,7 @@ import {SecondaryButton} from "../../general/buttons/SecondaryButton";
 import FontText from "../../general/FontText";
 import {Exclamation} from "../../../assets/svg/SvgComponents";
 
-export function ConfirmExit({ confirmExitRef, end, cancel, partial, canPartial = true}) {
+export function ConfirmExit({ confirmExitRef, end, cancel, partial, saveForLater, canPartial = true}) {
     const colors = useColors();
     const colorScheme = "light";
 
@@ -63,6 +63,8 @@ export function ConfirmExit({ confirmExitRef, end, cancel, partial, canPartial =
                         <FontText style={{textAlign: "center", color: colors.button.danger.text, fontWeight: 500}}>End
                             Session</FontText>
                     </Pressable>
+                    <PrimaryButton key={"secondary"} onPress={saveForLater} title={"Save for Later"}
+                                   style={{marginTop: 10, paddingVertical: 10, borderRadius: 10, width: "100%"}}></PrimaryButton>
                     {colorScheme === "light" ?
                         [
                             (canPartial &&

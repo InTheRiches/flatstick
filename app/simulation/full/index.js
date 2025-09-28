@@ -44,8 +44,7 @@ const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-ap
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
-// TODO when a person marks a holed out putt, it forces putts = 1, but when a person puts putts=1, it doesnt force the hole to be holed out
-// TODO When a person marks that they holed out from off the green, it should also disable the distance field, as that is not needed
+// TODO fix the time on the unfinished round "started at x" being completely wrong, its also wrong literally everywhere else
 export default function FullRound() {
     const colors = useColors();
     const router = useRouter();
@@ -84,11 +83,13 @@ export default function FullRound() {
     const [fairwayAccuracy, setFairwayAccuracy] = useState("green");
     const [puttData, setPuttData] = useState(() => {
         if (stringHoleHistory !== "" && stringHoleHistory !== undefined) {
+            console.log("Current hole: " + stringCurrentHole);
+            console.log("Setting puttData to " + JSON.stringify(JSON.parse(stringHoleHistory)[parseInt(stringCurrentHole) - 1].puttData));
             return JSON.parse(stringHoleHistory)[parseInt(stringCurrentHole) - 1].puttData;
         }
         return {
             pinLocation: null,
-                taps: [],
+            taps: [],
             holedOut: false,
         };
     });
@@ -138,10 +139,35 @@ export default function FullRound() {
         </Svg>
     );
 
+    const resumeData = () => {
+        const holeData = JSON.parse(stringHoleHistory)[parseInt(stringCurrentHole) - 1];
+
+        setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
+        const holeTimeElapsed = holeData !== undefined && holeData.timeElapsed !== undefined ? holeData.timeElapsed : 0;
+        setHoleStartTime(new Date().getTime() - holeTimeElapsed);
+        puttTrackingRef.current.setData(puttData);
+
+        setHoleScore(holeData.score);
+
+        if (holeData.puttData.holedOut) {// holed out
+            setPutts(0);
+            setPuttsLocked(true);
+        }
+        else if (holeData.puttData && holeData.puttData.taps.length > 0 && !holeData.puttData.holedOut) {
+            setPutts(holeData.puttData.taps.length);
+            setPuttsLocked(true);
+        }
+        else {
+            setPuttsLocked(false);
+            setPutts(2);
+        }
+    }
+
     useEffect(() => {
         const isNineHoleCourse = tee.number_of_holes === 9;
 
         if (stringHoleHistory !== "" && stringHoleHistory !== undefined) {
+            console.log("hole history: " + stringHoleHistory)
             setRoundData(JSON.parse(stringHoleHistory));
         } else {
             let initialRoundData = {};
@@ -229,9 +255,7 @@ export default function FullRound() {
 
                         recalculateHoleBunkers(processedGreens, rawBunkers);
 
-                        setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
-                        const holeTimeElapsed = roundData[hole - 1] !== undefined ? roundData[hole - 1].timeElapsed : 0;
-                        setHoleStartTime(new Date().getTime() - holeTimeElapsed);
+                        resumeData();
                     }).catch((err) => {
                         console.error("Error fetching course data from OSM:", err);
                         alert("Failed to fetch course data. Please try again later or contact support.");
@@ -247,9 +271,7 @@ export default function FullRound() {
 
                 recalculateHoleBunkers(data.greens, data.rawBunkers);
 
-                setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
-                const holeTimeElapsed = roundData[hole - 1] !== undefined && roundData[hole - 1].timeElapsed !== undefined ? roundData[hole - 1].timeElapsed : 0;
-                setHoleStartTime(new Date().getTime() - holeTimeElapsed);
+                resumeData();
             }).catch((err) => {
                 console.error("Error fetching course data from OSM:", err);
                 alert("Failed to fetch course data. Please try again later or contact support.");
@@ -335,6 +357,8 @@ export default function FullRound() {
         const timeElapsed = new Date().getTime() - startTime
         const holeTimeElapsed = new Date().getTime() - holeStartTime;
 
+        console.log("Saving hole " + hole)
+
         const updatedRoundData = [...roundData];
         updatedRoundData[hole - 1] = {
             ...updatedRoundData[hole - 1],
@@ -355,6 +379,7 @@ export default function FullRound() {
             stringFront,
             stringCourse,
             timeElapsed,
+            startedAt: startTime,
             currentHole: hole,
             holeHistory: JSON.stringify(updatedRoundData)
         }
@@ -816,7 +841,9 @@ export default function FullRound() {
                 </View>
             </ScreenWrapper>
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} puttTrackingRef={puttTrackingRef} noPuttDataModalRef={noPuttDataModalRef}/>
-            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
+            <ConfirmExit confirmExitRef={confirmExitRef} saveForLater={() => {
+                router.replace("/practice");
+            }} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
                 try {
                     confirmExitRef.current.dismiss();
                     submit();

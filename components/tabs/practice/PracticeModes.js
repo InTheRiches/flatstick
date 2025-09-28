@@ -6,7 +6,7 @@ import useColors from "../../../hooks/useColors";
 import FontText from "../../general/FontText";
 import {useRouter} from "expo-router";
 
-export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef}) {
+export function PracticeModes({newSessionRef, unfinishedRound, unfinishedRoundRef}) {
     const colors = useColors();
     const {userData} = useAppContext();
 
@@ -20,7 +20,14 @@ export function PracticeModes({newSessionRef, newRealRoundRef, newFullRoundRef})
                 name={"FULL ROUND TRACKING"}
                 time={"90-240 min"}
                 focus={"Realism"}
-                onPress={() => router.push({pathname: `/simulation/full/setup`})}/>
+                onPress={() => {
+                    if (unfinishedRound) {
+                        unfinishedRoundRef.current.present();
+                        return;
+                    }
+
+                    router.push({pathname: `/simulation/full/setup`})
+                }}/>
             <PracticeMode
                 description={"Just focus on your putting with detailed tracking on a real course."}
                 name={"JUST PUTT TRACKING"}

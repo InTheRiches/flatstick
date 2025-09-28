@@ -1,10 +1,11 @@
-import {Dimensions, Platform, View} from "react-native";
+import {Dimensions, Platform, Pressable, View} from "react-native";
 import {isPointInPolygon} from "@/utils/courses/polygonUtils";
 import {clampLineToBounds} from "@/utils/courses/boundsUtils";
 import * as d3 from "d3-shape";
 import Svg, {Circle, Defs, G, Line, Path, Pattern, Rect} from "react-native-svg";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {createRef, useEffect, useMemo, useState} from "react";
 import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
+import FontText from "../../general/FontText";
 
 // *** MODIFIED: The GreenPolygon component now also renders bunkers ***
 const GreenPolygon = ({
@@ -19,10 +20,13 @@ const GreenPolygon = ({
                           fairways,
                         holedOut,
                         setHoledOut,
-                          misreadRef
+                          misreadRef,
+    tapMode
                       }) => {
     const [showMisread, setShowMisread] = useState(-1);
-    const [zoomLevel, setZoomLevel] = useState(1);
+    const [zoomLevel, setZoomLevel] = useState(0.25);
+
+    const zoomableViewRef = createRef();
 
     useEffect(() => {
         if (showMisread !== -1) {
@@ -55,6 +59,7 @@ const GreenPolygon = ({
             setHoledOut(false);
             return; // don't allow taps if holed out
         }
+
         // --- Convert to Lat/Lon ---
         const lon = (x / svgSize) * bounds.range + bounds.minLon;
         const lat = bounds.maxLat - (y / svgSize) * bounds.range;
@@ -63,24 +68,22 @@ const GreenPolygon = ({
             console.warn("Tapped point is outside the green polygon.");
             return;
         }
-
-        // check to see if there is already a pin or tap within 5 pixels, if so, remove the putt
-        const tapThreshold = 10; // pixels
-        for (const tap of taps) {
-            const tapPoint = toSvgPointLatLon(tap);
-            const dx = tapPoint.x - x;
-            const dy = tapPoint.y - y;
-            if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
-                setTaps(taps.filter(t => t.latitude !== tap.latitude || t.longitude !== tap.longitude));
-                return;
+        // you should not be able to delete putts while editing the pin position
+        if (tapMode !== "pin") {
+            // check to see if there is already a pin or tap within 5 pixels, if so, remove the putt
+            const tapThreshold = 10; // pixels
+            for (const tap of taps) {
+                const tapPoint = toSvgPointLatLon(tap);
+                const dx = tapPoint.x - x;
+                const dy = tapPoint.y - y;
+                if (Math.sqrt(dx * dx + dy * dy) < tapThreshold) {
+                    setTaps(taps.filter(t => t.latitude !== tap.latitude || t.longitude !== tap.longitude));
+                    return;
+                }
             }
         }
 
         onTap({ latitude: lat, longitude: lon });
-        // // delay 0 ms to ensure tap is added before opening misread
-        // setTimeout(() => {
-        //     scale.value = scale.value+0.001; // trigger re-calculation of inverseAnimatedProps
-        // }, 100);
     };
 
     if (!greenCoords) {
@@ -107,19 +110,46 @@ const GreenPolygon = ({
 
     const greenPathData = lineGenerator(greenPoints);
 
-    // backgroundColor: "#246903"
-
     return (
-        <View style={{ flexShrink: 1, height: svgSize, width: svgSize, backgroundColor: "#246903", borderRadius: 12 }}>
-            <ReactNativeZoomableView maxZoom={5}
-                                        contentWidth={svgSize*4}
-                                        contentHeight={svgSize*4}
-                                        minZoom={0.25}
-                                     onZoomAfter={(event, event2, event3) => {
-                                         setZoomLevel(event3.zoomLevel);
-                                     }}
-                                     visualTouchFeedbackEnabled={false}
-                                        initialZoom={0.25} animatePin={false} onSingleTap={(event) => handlePress(event.nativeEvent.locationX/4, event.nativeEvent.locationY/4)}>
+        <View style={{ flexShrink: 1, height: svgSize, width: svgSize, backgroundColor: "#246903", borderRadius: 12, overflow: "hidden" }}>
+            {(holedOut) && (
+                <Pressable onPress={() => setHoledOut(false)} style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: '50%',
+                    transform: [{ translateX: -svgSize / 2 }],
+                    backgroundColor: 'rgba(255, 255, 255, 0.80)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 99,
+                    aspectRatio: 1,
+                    width: svgSize
+                }}>
+                    <FontText style={{ fontSize: 18, fontWeight: '700', color: '#333' }}>
+                        {holedOut ? "You holed out" : "Miss logged as >3ft"}
+                    </FontText>
+                    <FontText style={{ fontSize: 14, color: '#555' }}>
+                        No need to mark your putts
+                    </FontText>
+                    <FontText style={{ fontSize: 14, color: '#555' }}>
+                        If you want to override that, tap on the map
+                    </FontText>
+                </Pressable>
+            )}
+            <ReactNativeZoomableView
+                maxZoom={6}
+                contentWidth={svgSize*4}
+                contentHeight={svgSize*4}
+                minZoom={0.25}
+                ref={zoomableViewRef}
+                onZoomAfter={(event, event2, event3) => {
+                    setZoomLevel(event3.zoomLevel);
+                }}
+                pinchToZoomInSensitivity={1}
+                visualTouchFeedbackEnabled={false}
+                initialZoom={0.25}
+                animatePin={false}
+                onSingleTap={(event) => handlePress(event.nativeEvent.locationX/4, event.nativeEvent.locationY/4)}>
                 <Svg width={svgSize*4} height={svgSize*4} viewBox={"0 0 " + (svgSize) + " " + (svgSize)}>
                     <G>
                         <Defs>
