@@ -308,7 +308,6 @@ export default function PuttingGreen() {
     return !lidarData ? (
         <ScreenWrapper style={{justifyContent: "center", alignItems: "center", paddingHorizontal: 20}}>
             {!greenCoords ? (
-                // Waiting for green screen
                 <>
                     <Text style={{fontSize: 22,fontWeight: "600",textAlign: "center",marginBottom: 10}}>Searching for a Putting Green...</Text>
                     <ActivityIndicator size="large" color="#43ac0a" style={{ marginTop: 20 }} />

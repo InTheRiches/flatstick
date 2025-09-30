@@ -9,7 +9,7 @@ import {BannerAd, BannerAdSize, TestIds, useForeground} from "react-native-googl
 import {Header} from "../../components/tabs/Header";
 import ResumeSession from "../../components/tabs/practice/ResumeSession";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {UnfinishedRound} from "../../components/tabs/practice/popups/UnfinishedRound";
+import {UnfinishedRoundModal} from "../../components/tabs/practice/popups/UnfinishedRoundModal";
 
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1882654810" : "ca-app-pub-2701716227191721/3548415690";
 
@@ -61,7 +61,7 @@ export default function HomeScreen() {
                 </View>
             </ScreenWrapper>
             <NewRound newSessionRef={newSessionRef}></NewRound>
-            <UnfinishedRound onCancel={() => unfinishedRoundRef.current.dismiss()} onFinish={() => {}} onIgnore={() => {}} unfinishedRoundRef={unfinishedRoundRef}/>
+            <UnfinishedRoundModal onCancel={() => unfinishedRoundRef.current.dismiss()} onFinish={() => {}} onIgnore={() => {}} unfinishedRoundRef={unfinishedRoundRef}/>
         </BottomSheetModalProvider>
     );
 }

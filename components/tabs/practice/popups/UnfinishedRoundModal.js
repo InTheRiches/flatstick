@@ -10,7 +10,7 @@ import {Exclamation} from "../../../../assets/svg/SvgComponents";
 import {useRouter} from "expo-router";
 
 // TODO maybe add a 4th button that automatically uploads the unfinished round as a partial to the db for ease of use
-export function UnfinishedRound({ unfinishedRoundRef,  onCancel}) {
+export function UnfinishedRoundModal({ unfinishedRoundRef,  onCancel}) {
     const colors = useColors();
     const bottomSheetRef = useRef(null);
     const colorScheme = "light";
@@ -39,16 +39,29 @@ export function UnfinishedRound({ unfinishedRoundRef,  onCancel}) {
     }, []);
 
     const onFinish = () => {
-        console.log(Object.keys(unfinishedRound));
-        router.push({pathname: "simulation/full", params: {
-                stringHoles: unfinishedRound.stringHoles,
-                stringTee: unfinishedRound.stringTee,
-                stringFront: unfinishedRound.stringFront,
-                stringCourse: unfinishedRound.stringCourse,
-                stringCurrentHole: unfinishedRound.currentHole,
-                stringHoleHistory: unfinishedRound.holeHistory,
-                stringTimeElapsed: unfinishedRound.timeElapsed
-            }})
+        switch(unfinishedRound.type) {
+            case "full":
+                router.push({pathname: "simulation/full", params: {
+                        stringHoles: unfinishedRound.stringHoles,
+                        stringTee: unfinishedRound.stringTee,
+                        stringFront: unfinishedRound.stringFront,
+                        stringCourse: unfinishedRound.stringCourse,
+                        stringCurrentHole: unfinishedRound.currentHole,
+                        stringHoleHistory: unfinishedRound.holeHistory,
+                        stringTimeElapsed: unfinishedRound.timeElapsed
+                    }})
+                break;
+            case "real":
+                router.push({pathname: "simulation/real", params: {
+                    stringHoles: unfinishedRound.stringHoles,
+                    stringFront: unfinishedRound.stringFront,
+                    stringCourse: unfinishedRound.stringCourse,
+                    stringCurrentHole: unfinishedRound.currentHole,
+                    stringHoleHistory: unfinishedRound.holeHistory,
+                    stringTimeElapsed: unfinishedRound.timeElapsed
+                }});
+                break;
+        }
     }
 
     // renders
@@ -135,7 +148,8 @@ export function UnfinishedRound({ unfinishedRoundRef,  onCancel}) {
                                 break;
                             default:
                                 alert("Failed to resume session. Something went wrong.")
-                    }}} style={({pressed}) => [{
+                        }
+                    }} style={({pressed}) => [{
                         backgroundColor: pressed ? colors.button.danger.depressed : colors.button.danger.background,
                         paddingVertical: 10,
                         borderRadius: 10,

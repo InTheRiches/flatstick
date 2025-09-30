@@ -38,19 +38,19 @@ import {GreenPolygon} from "../../../components/simulations/full/GreenPolygon";
 import {viewBounds} from "../../../utils/courses/boundsUtils";
 import {EditPuttModal} from "../../../components/simulations/full/popups/EditPuttModal";
 import {PuttPredictionModal} from "../../../components/simulations/full/popups/PuttPredictionModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/6686596809" : "ca-app-pub-2701716227191721/1702380355";
 const bannerAdId = __DEV__ ? TestIds.BANNER : Platform.OS === "ios" ? "ca-app-pub-2701716227191721/1687213691" : "ca-app-pub-2701716227191721/8611403632";
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 // TODO when a person marks a holed out putt, it forces putts = 1, but when a person puts putts=1, it doesnt force the hole to be holed out
-// TODO When a person marks that they holed out from off the green, it should also disable the distance field, as that is not needed
 export default function PuttsOnlyRound() {
     const colors = useColors();
     const router = useRouter();
     const userLocation = useUserLocation();
 
-    const {stringHoles, stringFront, stringCourse} = useLocalSearchParams();
+    const {stringHoles, stringFront, stringCourse, stringCurrentHole, stringHoleHistory, stringTimeElapsed} = useLocalSearchParams();
     const {userData, grips, putters} = useAppContext();
     const confirmExitRef = useRef(null);
     const noPuttDataModalRef = useRef(null);
@@ -61,9 +61,9 @@ export default function PuttsOnlyRound() {
     const course = JSON.parse(stringCourse);
     const frontNine = stringFront === "true";
 
-    const [hole, setHole] = useState((holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
+    const [hole, setHole] = useState(stringCurrentHole !== "" && stringCurrentHole !== undefined ? parseInt(stringCurrentHole) : (holes === 9 && !frontNine) ? 10 : 1); // Start at hole 10 if it's the back nine, otherwise start at hole 1
     const [startTime, setStartTime] = useState(new Date());
-    const [holeStartTime, setHoleStartTime] = useState(new Date().getTime());
+    const [holeStartTime, setHoleStartTime] = useState(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime());
 
     const [greens, setGreens] = useState({});
     const [allBunkers, setAllBunkers] = useState([]);
@@ -80,6 +80,55 @@ export default function PuttsOnlyRound() {
 
     const [adLoaded, setAdLoaded] = useState(false);
     const bannerRef = useRef(null);
+    const saveTimeout = useRef(null);
+
+    const saveRoundLocally = async () => {
+        const timeElapsed = new Date().getTime() - startTime
+        const holeTimeElapsed = new Date().getTime() - holeStartTime;
+
+        const updatedRoundData = [...roundData];
+        updatedRoundData[hole - 1] = {
+            ...updatedRoundData[hole - 1],
+            timeElapsed: holeTimeElapsed,
+            hole,
+            pinLocation,
+            taps,
+            holedOut
+        };
+
+        const roundDataToSerialize = {
+            type: "real",
+            timestamp: new Date().getTime(),
+            stringHoles,
+            stringFront,
+            stringCourse,
+            osmCourseID: OSMCourseId,
+            holesPlayed: roundData.reduce((acc, hole) => hole.taps && (hole.taps.length || hole.holedOut) > 0 ? 1 + acc : acc, 0),
+            timeElapsed,
+            startedAt: startTime,
+            currentHole: hole,
+            holeHistory: JSON.stringify(updatedRoundData)
+        }
+        await AsyncStorage.setItem('currentRound', JSON.stringify(roundDataToSerialize))
+            .catch((e) => {
+                console.error(e);
+            });
+
+        console.log("Successfully saved round to AsyncStorage.")
+    }
+
+    useEffect(() => {
+        if (((holes === 9 && hole === 9 && frontNine) || hole === 18)) return;
+        if (saveTimeout.current) clearTimeout(saveTimeout.current);
+
+        saveTimeout.current = setTimeout(async () => {
+            saveRoundLocally();
+        }, 1000); // adjust debounce window (ms) as needed
+
+        return () => {
+            if (saveTimeout.current) clearTimeout(saveTimeout.current);
+        };
+    }, [roundData, holedOut, taps, pinLocation]);
 
     useForeground(() => {
         bannerRef.current?.load();
@@ -144,11 +193,13 @@ export default function PuttsOnlyRound() {
                         setStartTime(new Date());
                         setHoleStartTime(new Date().getTime());
                         for (const g of processedGreens) {
-                            if (g.hole === "1") {
+                            if (g.hole === hole.toString()) {
                                 setCurrentGreen(g);
                                 break;
                             }
                         }
+
+                        resumeData();
                     }).catch((err) => {
                         console.error("Error fetching course data from OSM:", err);
                         alert("Failed to fetch course data. Please try again later or contact support.");
@@ -167,11 +218,14 @@ export default function PuttsOnlyRound() {
                 setStartTime(new Date());
                 setHoleStartTime(new Date().getTime());
                 for (const g of data.greens) {
-                    if (g.hole === "1") {
+                    if (g.hole === hole.toString()) {
+                        console.log("green: " + Object.keys(g.geojson))
                         setCurrentGreen(g);
                         break;
                     }
                 }
+
+                resumeData();
             }).catch((err) => {
                 console.error("Error fetching course data from OSM:", err);
                 alert("Failed to fetch course data. Please try again later or contact support.");
@@ -179,6 +233,24 @@ export default function PuttsOnlyRound() {
             });
         })
     }, []);
+
+    const resumeData = () => {
+        console.log("Attempting to resume round data from parameters...");
+        if (stringHoleHistory === undefined || stringCurrentHole === undefined || stringTimeElapsed === undefined) return;
+        console.log("Resuming round data from parameters...");
+
+        const holeData = JSON.parse(stringHoleHistory)[parseInt(stringCurrentHole) - 1];
+
+        setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
+        const holeTimeElapsed = holeData !== undefined && holeData.timeElapsed !== undefined ? holeData.timeElapsed : 0;
+        setHoleStartTime(new Date().getTime() - holeTimeElapsed);
+
+        setTaps(holeData !== undefined && holeData.taps !== undefined ? holeData.taps : []);
+        setPinLocation(holeData !== undefined && holeData.pinLocation !== undefined ? holeData.pinLocation : null);
+        setHoledOut(holeData !== undefined && holeData.holedOut !== undefined ? holeData.holedOut : false);
+        setRoundData(JSON.parse(stringHoleHistory));
+        console.log(stringHoleHistory);
+    }
 
     useFocusEffect(
         React.useCallback(() => {
@@ -340,6 +412,8 @@ export default function PuttsOnlyRound() {
             holedOut
         };
 
+        AsyncStorage.removeItem("currentRound");
+
         const {totalPutts, totalMisses, totalMadePutts, madePercent, strokesGained, leftRightBiasInches, shortPastBiasInches, puttCounts, totalDistanceFeet, holesPlayed, percentHigh, percentShort, missDistribution, avgMissFeet, detailedPutts} = calculateGPSPuttsOnlyStats(updatedRoundData, greens, userData.preferences.units);
 
         const scorecard = Array.from({ length: holesPlayed > 9 ? holes : 9 }, (_, i) => {
@@ -401,6 +475,7 @@ export default function PuttsOnlyRound() {
     };
 
     const fullReset = () => {
+        AsyncStorage.removeItem("currentRound");
         router.replace("/(tabs)/practice");
     };
 
@@ -544,7 +619,7 @@ export default function PuttsOnlyRound() {
                     <Pressable onPress={() => {
                         if (userLocation === null) return;
                         // check if the user is on the green
-                        if (isPointInPolygon(userLocation, greenCoords)) {
+                        if (isPointInPolygon(userLocation, currentGreen?.geojson.coordinates)) {
                             if (tapMode === "pin") {
                                 setPinLocation(userLocation);
                                 return;
@@ -604,6 +679,7 @@ export default function PuttsOnlyRound() {
                         setPinLocation(null);
                     }
                     setHoledOut(!holedOut);
+                    setTapMode("pin");
                 }} style={{
                     marginTop: 12,
                     flexDirection: "row",
@@ -639,13 +715,16 @@ export default function PuttsOnlyRound() {
                 </View>
             </ScreenWrapper>
             <NoPuttDataModal nextHole={nextHole} isLastHole={(holes === 9 && hole === 9 && frontNine) || hole === 18} noPuttDataModalRef={noPuttDataModalRef}/>
-            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
+            <ConfirmExit confirmExitRef={confirmExitRef} cancel={() => confirmExitRef.current.dismiss()} canPartial={roundData.reduce((acc, hole) => hole.taps && (hole.taps.length || hole.holedOut) > 0 ? 1 + acc : acc, 0) > 1} partial={() => {
                 try {
                     confirmExitRef.current.dismiss();
+                    AsyncStorage.removeItem("currentRound");
                     submit();
                 } catch(e) {
                     console.error("Error submitting partial round: " + e);
                 }
+            }} saveForLater={() => {
+                router.replace("/practice");
             }} end={fullReset}></ConfirmExit>
             <EditPuttModal editPuttRef={editPuttRef} setMisreadSlope={(index) => {
                 setTaps(prev => {

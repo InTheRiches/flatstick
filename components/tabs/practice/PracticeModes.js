@@ -33,7 +33,14 @@ export function PracticeModes({newSessionRef, unfinishedRound, unfinishedRoundRe
                 name={"JUST PUTT TRACKING"}
                 time={"90-240 min"}
                 focus={"Realism"}
-                onPress={() => router.push({pathname: `/simulation/real/setup`})}/>
+                onPress={() => {
+                    if (unfinishedRound) {
+                        unfinishedRoundRef.current.present();
+                        return;
+                    }
+
+                    router.push({pathname: `/simulation/real/setup`})
+                }}/>
             <PracticeMode
                 description={"A realistic mode simulating 9-18 unique holes to track putting performance and improve skills."}
                 name={"PUTTING SIMULATION"}

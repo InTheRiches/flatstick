@@ -140,6 +140,8 @@ export default function FullRound() {
     );
 
     const resumeData = () => {
+        if (stringHoleHistory === undefined || stringCurrentHole === "" || stringTimeElapsed) return;
+
         const holeData = JSON.parse(stringHoleHistory)[parseInt(stringCurrentHole) - 1];
 
         setStartTime(new Date(stringTimeElapsed !== "" && stringTimeElapsed !== undefined ? new Date().getTime() - parseInt(stringTimeElapsed) : new Date().getTime()));
@@ -308,19 +310,6 @@ export default function FullRound() {
         }
     }, []);
 
-    useEffect(() => {
-        if (((holes === 9 && hole === 9 && frontNine) || hole === 18)) return;
-        if (saveTimeout.current) clearTimeout(saveTimeout.current);
-
-        saveTimeout.current = setTimeout(async () => {
-            saveRoundLocally();
-        }, 1000); // adjust debounce window (ms) as needed
-
-        return () => {
-            if (saveTimeout.current) clearTimeout(saveTimeout.current);
-        };
-    }, [roundData, puttData, holeScore, putts, approachAccuracy, fairwayAccuracy]);
-
     const saveHole = (scoreOfHole = holeScore) => {
         const timeElapsed = new Date().getTime() - holeStartTime;
 
@@ -379,6 +368,7 @@ export default function FullRound() {
             stringFront,
             stringCourse,
             timeElapsed,
+            holesPlayed: roundData.reduce((acc, hole) => hole.puttData && (hole.puttData.taps.length || hole.puttData.holedOut) > 0 ? 1 + acc : acc, 0),
             startedAt: startTime,
             currentHole: hole,
             holeHistory: JSON.stringify(updatedRoundData)
@@ -391,6 +381,19 @@ export default function FullRound() {
                 console.error(e);
             });
     }
+
+    useEffect(() => {
+        if (((holes === 9 && hole === 9 && frontNine) || hole === 18)) return;
+        if (saveTimeout.current) clearTimeout(saveTimeout.current);
+
+        saveTimeout.current = setTimeout(async () => {
+            saveRoundLocally();
+        }, 1000); // adjust debounce window (ms) as needed
+
+        return () => {
+            if (saveTimeout.current) clearTimeout(saveTimeout.current);
+        };
+    }, [roundData, puttData, holeScore, putts, approachAccuracy, fairwayAccuracy]);
 
     // useEffect(() => {
     //     const subscription = AppState.addEventListener("change", (state) => {
@@ -846,6 +849,7 @@ export default function FullRound() {
             }} cancel={() => confirmExitRef.current.dismiss()} canPartial={hole > 1} partial={() => {
                 try {
                     confirmExitRef.current.dismiss();
+                    AsyncStorage.removeItem("currentRound");
                     submit();
                 } catch(e) {
                     console.error("Error submitting partial round: " + e);
