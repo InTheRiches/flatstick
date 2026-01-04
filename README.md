@@ -3,6 +3,8 @@
 
 ---
 
+<img width="1920" height="1920" alt="image" src="https://github.com/user-attachments/assets/1f468ee4-63cf-440e-b98d-5201d53f814a" />
+
 ## Features
 
 - **Putts Tracking** – Log each putt, including distance, direction, slope, and break.  
