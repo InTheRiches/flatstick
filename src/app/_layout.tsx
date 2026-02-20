@@ -5,6 +5,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 
 import { ThemeProvider } from "@/theme/context"
+import { UserProvider } from "@/context/UserContext"
 import {useAuth} from "@/hooks/useAuth";
 
 SplashScreen.preventAutoHideAsync()
@@ -16,7 +17,7 @@ if (__DEV__) {
   require("@/devtools/ReactotronConfig")
 }
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const { isAuthed, initializing } = useAuth()
   const segments = useSegments()
   const router = useRouter()
@@ -44,12 +45,22 @@ export default function RootLayout() {
   }
 
   return (
-      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-        <ThemeProvider>
-          <KeyboardProvider>
-            <Slot />
-          </KeyboardProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
+    <KeyboardProvider>
+      <Slot />
+    </KeyboardProvider>
+  )
+}
+
+export default function RootLayout() {
+  const { initializing, user } = useAuth()
+
+  return (
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <ThemeProvider>
+        <UserProvider authUser={user} authInitializing={initializing}>
+          <RootLayoutContent />
+        </UserProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   )
 }

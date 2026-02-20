@@ -4,16 +4,26 @@ import { Ionicons } from "@expo/vector-icons"
 
 import { useAppTheme } from "@/theme/context"
 import { ThemedStyle } from "@/theme/types"
+import { UserProfile } from "@/models/user"
 
-export function ProfileHeader() {
+interface ProfileHeaderProps {
+    userProfile?: UserProfile
+}
+
+export function ProfileHeader({ userProfile }: ProfileHeaderProps) {
     const router = useRouter()
     const { themed, theme } = useAppTheme()
 
     // 🔒 Placeholder until you add global user context
-    const user = {
-        name: "Hayden Williams",
-        memberSince: "October 2024",
-    }
+    const user = userProfile
+        ? {
+            name: userProfile.displayName || `${userProfile.firstName} ${userProfile.lastName}`,
+            memberSince: new Date(userProfile.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+          }
+        : {
+            name: "Hayden Williams",
+            memberSince: "October 2024",
+          }
 
     return (
         <View style={themed($container)}>
