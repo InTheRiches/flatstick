@@ -1,15 +1,17 @@
 {
   "expo": {
-    "name": "rnfbexpodemo",
-    "slug": "rnfbexpodemo",
+    "name": "flatstick",
+    "slug": "flatstick",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rnfbexpodemo",
+    "scheme": "flatstick",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.flatstick",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,13 +21,42 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.flatstick",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "forceStaticLinking": [
+              "RNFBApp",
+              "RNFBAnalytics",
+              "RNFBAppCheck",
+              "RNFBAppDistribution",
+              "RNFBAuth",
+              "RNFBCrashlytics",
+              "RNFBDatabase",
+              "RNFBFirestore",
+              "RNFBFunctions",
+              "RNFBInAppMessaging",
+              "RNFBInstallations",
+              "RNFBMessaging",
+              "RNFBML",
+              "RNFBPerf",
+              "RNFBRemoteConfig",
+              "RNFBStorage"
+            ],
+            "useFrameworks": "static",
+            "ccacheEnabled": true
+          }
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -38,7 +69,15 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/app-check",
+      "@react-native-firebase/app-distribution",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
+      "@react-native-firebase/messaging",
+      "@react-native-firebase/perf",
+      "./scripts/withCustomAppCheck"
     ],
     "experiments": {
       "typedRoutes": true,
