@@ -25,7 +25,7 @@ import {createUserProfile} from "@/models/user.factory";
 
 export function useAuth() {
   const [initializing, setInitializing] = useState(true)
-  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(getAuth().currentUser)
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null)
 
   const [signingUp, setSigningUp] = useState(false)
   const [signingIn, setSigningIn] = useState(false)
@@ -35,7 +35,9 @@ export function useAuth() {
   const db = getFirestore()
 
   useEffect(() => {
+    console.log("🔐 Setting up auth state listener...")
     const unsubscribe = onAuthStateChanged(auth, (u) => {
+      console.log("🔐 Auth state changed - user:", u?.uid || "no user")
       setUser(u)
       setInitializing(false)
     })
@@ -90,7 +92,10 @@ export function useAuth() {
         }
       }
 
-      const defaultState: UserProfile = createUserProfile({id: createdUser.uid, firstName: displayName ?? "New User", lastName: ""})
+      const firstName = displayName && displayName.includes(" ") ? displayName.split(" ")[0] : displayName || "New User"
+      const lastName = displayName && displayName.includes(" ") ? displayName.split(" ").slice(1).join(" ") : ""
+
+      const defaultState: UserProfile = createUserProfile({id: createdUser.uid, firstName, lastName})
 
       try {
         await setDoc(doc(db, "users", createdUser.uid), defaultState)

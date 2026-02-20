@@ -100,13 +100,13 @@ const $avatar: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $name: ThemedStyle<TextStyle> = (theme) => ({
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "700",
     color: theme.colors.text,
 })
 
 const $subtext: ThemedStyle<TextStyle> = (theme) => ({
-    fontSize: 12,
+    fontSize: 14,
     color: theme.colors.textDim,
     marginTop: 2,
 })

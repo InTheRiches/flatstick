@@ -179,23 +179,20 @@ export function Button(props: ButtonProps) {
 }
 
 const $baseViewStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  minHeight: 56,
+  minHeight:  44,
   borderRadius: 4,
   justifyContent: "center",
   alignItems: "center",
-  paddingVertical: spacing.sm,
-  paddingHorizontal: spacing.sm,
   overflow: "hidden",
 })
 
-const $baseTextStyle: ThemedStyle<TextStyle> = ({ typography }) => ({
-  fontSize: 16,
+const $baseTextStyle: ThemedStyle<TextStyle> = (theme) => ({
+  fontSize: 18,
   lineHeight: 20,
-  fontWeight: "medium",
+  fontWeight: "600",
   textAlign: "center",
-  flexShrink: 1,
-  flexGrow: 0,
   zIndex: 2,
+  color: theme.colors.buttons.textColor
 })
 
 const $rightAccessoryStyle: ThemedStyle<ViewStyle> = ({ spacing }) => ({
@@ -212,9 +209,13 @@ const $viewPresets: Record<Presets, ThemedStyleArray<ViewStyle>> = {
     $styles.row,
     $baseViewStyle,
     ({ colors }) => ({
+      alignItems: "center",
+      backgroundColor: colors.buttons.background,
+      borderColor: colors.buttons.border,
+      borderRadius: 30,
       borderWidth: 1,
-      borderColor: colors.palette.neutral400,
-      backgroundColor: colors.palette.neutral100,
+      flexDirection: "row",
+      justifyContent: "center"
     }),
   ],
   filled: [

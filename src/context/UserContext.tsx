@@ -89,8 +89,16 @@ export function UserProvider({ children, authUser, authInitializing }: UserProvi
           setError("User profile not found")
         }
       } catch (err: any) {
-        console.error("Error loading user profile:", err)
-        setError(err?.message ?? "Failed to load user profile")
+        const errorMessage = err?.message ?? "Failed to load user profile"
+
+        // Check for permission errors specifically
+        if (errorMessage.includes("permission") || errorMessage.includes("PERMISSION")) {
+          console.error("🔐 Firebase Permission Error - User may not be authenticated properly:", errorMessage)
+        } else {
+          console.error("Error loading user profile:", errorMessage)
+        }
+
+        setError(errorMessage)
       } finally {
         setLoading(false)
       }
@@ -178,15 +186,21 @@ export function UserProvider({ children, authUser, authInitializing }: UserProvi
 
   /**
    * Load user profile when auth user changes
+   * Only loads after auth is fully initialized AND user exists
    */
   useEffect(() => {
+    // IMPORTANT: Wait for auth to fully initialize before attempting to load profile
     if (authInitializing) {
       return
     }
 
+    // Only attempt to load profile if we have a valid, authenticated user
     if (authUser?.uid) {
+      console.log("Auth initialized with user:", authUser.uid, "- Loading user profile...")
       loadUserProfile(authUser.uid)
     } else {
+      // No authenticated user - clear any existing profile data
+      console.log("Auth initialized but no user - clearing user data")
       clearUserData()
     }
 
@@ -224,11 +238,3 @@ export function useUser(): UserContextType {
   }
   return context
 }
-
-
-
-
-
-
-
-

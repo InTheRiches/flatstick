@@ -2919,6 +2919,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/slider@npm:^4.5.2":
+  version: 4.5.7
+  resolution: "@react-native-community/slider@npm:4.5.7"
+  checksum: 10c0/9154c88972eb97ecb53190ff215148b41ec195619991e51061f543dc67c8b2463d1d195dd9c166755b8db1cc4d5a1ae8a152c3ecd5d3285cc4a14c35fddb3716
+  languageName: node
+  linkType: hard
+
 "@react-native-firebase/ai@npm:23.8.5":
   version: 23.8.5
   resolution: "@react-native-firebase/ai@npm:23.8.5"
@@ -9715,6 +9722,7 @@ __metadata:
     "@expo-google-fonts/inter": "npm:^0.4.2"
     "@expo/config-plugins": "npm:^54.0.4"
     "@expo/vector-icons": "npm:^15.0.3"
+    "@react-native-community/slider": "npm:^4.5.2"
     "@react-native-firebase/ai": "npm:23.8.5"
     "@react-native-firebase/analytics": "npm:23.8.5"
     "@react-native-firebase/app": "npm:23.8.5"
