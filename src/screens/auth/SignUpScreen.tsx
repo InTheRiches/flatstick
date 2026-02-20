@@ -11,11 +11,14 @@ import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { useAuth } from "@/hooks/useAuth"
+import {useRouter} from "expo-router";
 
 export const SignUpScreen: FC = function SignUpScreen() {
   const $containerInsets = useSafeAreaInsetsStyle(["top"]) // match SignInScreen pattern
   const { themed, theme } = useAppTheme()
   const { signUp, signingUp, error } = useAuth()
+
+  const router = useRouter()
 
   const [form, setForm] = useState({
     name: "",
@@ -52,12 +55,12 @@ export const SignUpScreen: FC = function SignUpScreen() {
   }
 
   return (
-    <Screen contentContainerStyle={[$styles.flex1, $styles.px, $containerInsets]}>
-      <View style={themed($header)}>
-        <TouchableOpacity onPress={() => {}} style={themed($headerBack)}>
-          <FeatherIcon color={theme.colors.text} name="chevron-left" size={30} />
-        </TouchableOpacity>
-      </View>
+    <Screen contentContainerStyle={[$styles.screen2, $containerInsets]}>
+      {/*<View style={themed($header)}>*/}
+      {/*  <TouchableOpacity onPress={() => {}} style={themed($headerBack)}>*/}
+      {/*    <FeatherIcon color={theme.colors.text} name="chevron-left" size={30} />*/}
+      {/*  </TouchableOpacity>*/}
+      {/*</View>*/}
 
       <Text style={themed($title)}>{"Let's Get Started!"}</Text>
 
@@ -124,7 +127,7 @@ export const SignUpScreen: FC = function SignUpScreen() {
         </View>
       </View>
 
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => router.replace("/(auth)/sign-in")}>
         <Text style={themed($formFooter)}>
           Already have an account? <Text style={themed($link)}>Sign in</Text>
         </Text>
@@ -142,18 +145,6 @@ const $container =
     marginBottom: bottomBorder ? 0 : theme.spacing.xs,
   })
 
-const $row =
-  (bottomBorder: boolean): ThemedStyle<ViewStyle> =>
-  (theme) => ({
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    borderBottomWidth: bottomBorder ? 1 : 0,
-    borderBottomColor: theme.colors.border,
-    paddingBottom: bottomBorder ? theme.spacing.sm : 0,
-    marginBottom: bottomBorder ? theme.spacing.md : theme.spacing.xs,
-  })
-
 const $header: ThemedStyle<ViewStyle> = (theme) => ({
   flexDirection: "row",
   alignItems: "center",
@@ -168,15 +159,13 @@ const $headerBack: ThemedStyle<ViewStyle> = (theme) => ({
   marginLeft: -theme.spacing.md,
 })
 
-const $iconColor: ThemedStyle<TextStyle> = (theme) => ({
-  color: theme.colors.text,
-})
-
 const $title: ThemedStyle<TextStyle> = (theme) => ({
   fontSize: 31,
+  lineHeight: 31,
   fontWeight: "700",
   color: theme.colors.text,
   marginBottom: theme.spacing.xs / 2,
+  marginTop: theme.spacing.xxl
 })
 
 const $subtitle: ThemedStyle<TextStyle> = (theme) => ({
@@ -186,14 +175,11 @@ const $subtitle: ThemedStyle<TextStyle> = (theme) => ({
 })
 
 const $form: ThemedStyle<ViewStyle> = (theme) => ({
-  flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: 0,
   marginTop: theme.spacing.lg,
 })
 
 const $formAction: ThemedStyle<ViewStyle> = (theme) => ({
-  marginTop: theme.spacing.xs,
+  marginTop: theme.spacing.lg,
   marginBottom: theme.spacing.md,
 })
 

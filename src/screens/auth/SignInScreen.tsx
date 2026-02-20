@@ -10,11 +10,14 @@ import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { useAuth } from "@/hooks/useAuth"
+import {useRouter} from "expo-router";
 
 export const SignInScreen: FC = function SignInScreen() {
   const $containerInsets = useSafeAreaInsetsStyle(["top"]) // keep consistent with other screens
   const { themed } = useAppTheme()
   const { signIn, signingIn, error } = useAuth()
+
+  const router = useRouter()
 
   const [emptyFieldsError, setEmptyFieldsError] = useState(false)
 
@@ -53,7 +56,7 @@ export const SignInScreen: FC = function SignInScreen() {
             Sign in to <Text style={themed($highlight)}>Flatstick</Text>
           </Text>
 
-          <Text style={themed($subtitle)}>Get access to your portfolio and more</Text>
+          <Text style={themed($subtitle)}>Improve your putting and so much more...</Text>
         </View>
 
         <View style={themed($form)}>
@@ -111,7 +114,7 @@ export const SignInScreen: FC = function SignInScreen() {
         </View>
       </View>
 
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => router.replace("/(auth)/sign-up")}>
         <Text style={themed($formFooter)}>
           {"Don't have an account? "}
           <Text style={themed($link)}>Sign up</Text>

@@ -37,7 +37,6 @@
             "forceStaticLinking": [
               "RNFBApp",
               "RNFBAnalytics",
-              "RNFBAppCheck",
               "RNFBAppDistribution",
               "RNFBAuth",
               "RNFBCrashlytics",
@@ -71,13 +70,11 @@
         }
       ],
       "@react-native-firebase/app",
-      "@react-native-firebase/app-check",
       "@react-native-firebase/app-distribution",
       "@react-native-firebase/auth",
       "@react-native-firebase/crashlytics",
       "@react-native-firebase/messaging",
-      "@react-native-firebase/perf",
-      "./scripts/withCustomAppCheck"
+      "@react-native-firebase/perf"
     ],
     "experiments": {
       "typedRoutes": true,

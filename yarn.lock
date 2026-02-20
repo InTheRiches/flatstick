@@ -2943,19 +2943,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-firebase/app-check@npm:23.8.5":
-  version: 23.8.5
-  resolution: "@react-native-firebase/app-check@npm:23.8.5"
-  peerDependencies:
-    "@react-native-firebase/app": 23.8.5
-    expo: ">=47.0.0"
-  peerDependenciesMeta:
-    expo:
-      optional: true
-  checksum: 10c0/cfc6c2ee7d42baa9e774074dd3cf4fa1b6293be2105408151def3a6db53758bb6348fe272106114b8c001e644a98c7809cacb6e5ac2a76b759f879650fb5760a
-  languageName: node
-  linkType: hard
-
 "@react-native-firebase/app-distribution@npm:23.8.5":
   version: 23.8.5
   resolution: "@react-native-firebase/app-distribution@npm:23.8.5"
@@ -9731,7 +9718,6 @@ __metadata:
     "@react-native-firebase/ai": "npm:23.8.5"
     "@react-native-firebase/analytics": "npm:23.8.5"
     "@react-native-firebase/app": "npm:23.8.5"
-    "@react-native-firebase/app-check": "npm:23.8.5"
     "@react-native-firebase/app-distribution": "npm:23.8.5"
     "@react-native-firebase/auth": "npm:23.8.5"
     "@react-native-firebase/crashlytics": "npm:23.8.5"

@@ -30,6 +30,7 @@ const palette = {
 
   emerald: "#00674F",
   tintedEmerald: "#003228",
+  error: "#C03403",
 
   angry100: "#F2D6CD",
   angry500: "#C03403",
@@ -52,9 +53,15 @@ const buttons = {
   }
 }
 
+const backgrounds = {
+  default: palette.neutral200,
+  elevated: palette.white,
+}
+
 export const colors = {
   palette,
   buttons,
+  backgrounds,
   transparent: "rgba(0, 0, 0, 0)",
   text: palette.neutral800,
   textDim: palette.neutral600,

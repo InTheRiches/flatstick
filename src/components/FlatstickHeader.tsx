@@ -41,7 +41,7 @@ export function FlatstickHeader({ bottomBorder = false, onPressSettings }: Flats
             hitSlop={10}
             style={({ pressed }) => themed($settingsButton(pressed))}
           >
-            <Ionicons name="settings-sharp" size={22} color={theme.colors.background} />
+            <Ionicons name="settings-sharp" size={22} color={theme.colors.backgrounds.default} />
           </Pressable>
         </View>
       </View>
@@ -78,7 +78,7 @@ const $row =
 const $settingsButton =
   (pressed: boolean): ThemedStyle<ViewStyle> =>
   (theme) => ({
-    backgroundColor: theme.colors.buttonBackground,
+    backgroundColor: theme.colors.buttons.background,
     opacity: pressed ? 0.85 : 1,
     width: 36,
     height: 36,

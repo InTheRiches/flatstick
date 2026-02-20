@@ -21,5 +21,5 @@ export const setSystemUIBackgroundColor = (color: string) => {
  * @param theme The theme object to use for the background color
  */
 export const setImperativeTheming = (theme: Theme) => {
-  setSystemUIBackgroundColor(theme.colors.background)
+  setSystemUIBackgroundColor(theme.colors.backgrounds.default)
 }

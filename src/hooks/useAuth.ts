@@ -1,5 +1,6 @@
 // src/app/hooks/useAuth.ts
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { AppState, AppStateStatus } from "react-native"
 
 // Auth (modular)
 import {
@@ -40,6 +41,38 @@ export function useAuth() {
     })
     return unsubscribe
   }, [auth])
+
+  const signOut = useCallback(async () => {
+    try {
+      await modularSignOut(auth)
+    } catch (err) {
+      console.warn("signOut error", err)
+    }
+  }, [auth])
+
+  // Reload user token when app comes to foreground to detect deleted accounts
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+      if (nextAppState === "active" && user) {
+        try {
+          // Force token refresh - this will fail if account was deleted
+          await user.reload()
+          // Get fresh token to verify account still exists
+          const token = await user.getIdToken(true)
+          console.log("App came to foreground, user token refreshed:", token)
+        } catch (err: any) {
+          console.log("User account no longer valid, signing out:", err?.code)
+          // If reload fails, account was likely deleted - sign out locally
+          if (err?.code === "auth/user-token-expired" || err?.code === "auth/user-disabled") {
+            await signOut()
+          }
+        }
+      }
+    }
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange)
+    return () => subscription.remove()
+  }, [user, signOut])
 
   async function signUp(email: string, password: string, displayName?: string) {
     setSigningUp(true)
@@ -101,13 +134,6 @@ export function useAuth() {
     }
   }
 
-  async function signOut() {
-    try {
-      await modularSignOut(auth)
-    } catch (err) {
-      console.warn("signOut error", err)
-    }
-  }
 
   return {
     user,

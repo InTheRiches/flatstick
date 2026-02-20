@@ -8,15 +8,13 @@ import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import {PracticeModes} from "@/components/app/home/PracticeModes";
 import {PerformanceSummary} from "@/components/app/home/PerformanceSummary";
 
-export const HomeScreen: FC = function HomeScreen() {
+export const SocialScreen: FC = function SocialScreen() {
     const $containerInsets = useSafeAreaInsetsStyle(["top"])
 
     return (
         <Screen contentContainerStyle={[$styles.screen, $containerInsets]}>
             <FlatstickHeader />
 
-            <PracticeModes />
-            <PerformanceSummary />
         </Screen>
     )
 }

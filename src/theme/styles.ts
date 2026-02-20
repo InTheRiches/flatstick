@@ -6,7 +6,8 @@ export const $styles = {
   flex1: { flex: 1 } as ViewStyle,
   flexWrap: { flexWrap: "wrap" } as ViewStyle,
   px: { paddingHorizontal: 16 } as ViewStyle,
-  screen: { flex: 1, alignItems: "center", paddingHorizontal: 16 } as ViewStyle,
+  screen: { flex: 1, paddingHorizontal: 24 } as ViewStyle,
+  screen2: { flex: 1, paddingHorizontal: 36 } as ViewStyle,
 
   toggleInner: {
     width: "100%",

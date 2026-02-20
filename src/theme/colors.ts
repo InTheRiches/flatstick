@@ -30,6 +30,7 @@ const palette = {
 
   emerald: "#00674F",
   tintedEmerald: "#003228",
+  error: "#C03403",
 
   angry100: "#F2D6CD",
   angry500: "#C03403",
@@ -52,6 +53,11 @@ const buttons = {
   }
 }
 
+const backgrounds = {
+    default: palette.neutral200,
+    elevated: palette.white,
+}
+
 export const colors = {
   /**
    * The palette is available to use, but prefer using the name.
@@ -60,6 +66,7 @@ export const colors = {
    */
   palette,
   buttons,
+  backgrounds,
   /**
    * A helper for making something see-thru.
    */
@@ -78,10 +85,6 @@ export const colors = {
    * Tertiary text information, or text on top of colored backgrounds.
    */
   textDim2: palette.neutral400,
-  /**
-   * The default color of the screen background.
-   */
-  background: palette.neutral200,
   /**
    * The default border color.
    */

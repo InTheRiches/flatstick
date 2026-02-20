@@ -1,20 +1,7 @@
-import { FC } from "react"
+import {SocialScreen} from "@/screens/app/SocialScreen";
 
-import { FlatstickHeader } from "@/components/FlatstickHeader"
-import { FullFeedItem } from "@/components/FullFeedItem"
-import { Screen } from "@/components/Screen"
-import { $styles } from "@/theme/styles"
-import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+export default function Index() {
+    console.log("Running testFirebase...")
 
-export const SocialScreen: FC = function SocialScreen() {
-    const $containerInsets = useSafeAreaInsetsStyle(["top"])
-
-    return (
-        <Screen contentContainerStyle={[$styles.flex1, $styles.px, $containerInsets]}>
-            <FlatstickHeader />
-
-            {/* Demo FullFeedItem shown beneath the header as requested */}
-            <FullFeedItem />
-        </Screen>
-    )
+    return <SocialScreen />
 }
