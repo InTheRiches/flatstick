@@ -32,8 +32,8 @@ export const EquipmentRow: FC<EquipmentRowProps> = ({ item, isSelected, onSelect
             return metaText
         }
         const maybeGrip = doc as GripDoc
-        if (maybeGrip.summary && (maybeGrip.summary as any).totalPutts != null) {
-            return `${(maybeGrip.summary as any).totalPutts} putts`
+        if (maybeGrip.summary && (maybeGrip.summary as any).totalRounds != null) {
+            return `${(maybeGrip.summary as any).totalRounds} rounds`
         }
         return ""
     }

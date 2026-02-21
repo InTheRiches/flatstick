@@ -23,8 +23,8 @@ export function Equipment({ selectedPutter, selectedGrip }: EquipmentProps) {
         : ""
 
     const gripSubtitle = selectedGrip
-        ? (selectedGrip.summary?.totalPutts != null
-            ? `${selectedGrip.summary.totalPutts} putts`
+        ? (selectedGrip.summary?.totalRounds != null
+            ? `${selectedGrip.summary.totalRounds} rounds`
             : "")
         : ""
 

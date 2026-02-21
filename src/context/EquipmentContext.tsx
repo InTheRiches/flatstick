@@ -2,17 +2,15 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import {
     collection,
-    doc,
     getFirestore,
     onSnapshot,
-    setDoc,
     Unsubscribe,
 } from "@react-native-firebase/firestore"
 
 import type { GripDoc, PutterDoc } from "@/models/equipment"
 import type {ISODateString, UUID} from "@/models/common"
 import { useUser } from "@/context/UserContext"
-import {addPutterRecord, updatePutterRecord} from "@/services/firebase/equipment";
+import {addGripRecord, addPutterRecord, updateGripRecord, updatePutterRecord} from "@/services/firebase/equipment";
 
 export interface EquipmentContextType {
     putters: PutterDoc[]
@@ -26,8 +24,8 @@ export interface EquipmentContextType {
     createPutter: (input: Partial<PutterDoc>) => Promise<UUID>
     updatePutter: (updates: Partial<PutterDoc>) => Promise<void>
     archivePutter: (id: string) => Promise<void>
-    createGrip: (input: CreateGripInput) => Promise<string>
-    updateGrip: (id: string, updates: Partial<GripDoc>) => Promise<void>
+    createGrip: (input: Partial<GripDoc>) => Promise<string>
+    updateGrip: (updates: Partial<GripDoc>) => Promise<void>
     archiveGrip: (id: string) => Promise<void>
 }
 
@@ -40,21 +38,12 @@ export type CreatePutterInput = {
     summary?: PutterDoc["summary"]
 }
 
-export type CreateGripInput = {
-    name: string
-    nameLower: string
-    lastUsedAt?: ISODateString | null
-    summary?: GripDoc["summary"]
-}
-
 const EquipmentContext = createContext<EquipmentContextType | undefined>(undefined)
 
 interface EquipmentProviderProps {
     children: React.ReactNode,
     authInitializing?: boolean,
 }
-
-const nowIso = (): ISODateString => new Date().toISOString()
 
 export function EquipmentProvider({ children, authInitializing = false }: EquipmentProviderProps) {
     const { authUser, userProfile, syncUserProfile } = useUser()
@@ -246,46 +235,38 @@ export function EquipmentProvider({ children, authInitializing = false }: Equipm
     )
 
     const createGrip = useCallback(
-        async (input: CreateGripInput) => {
+        async (input: Partial<GripDoc>) => {
             const uid = requireAuthUid()
-            const now = nowIso()
-            const docRef = doc(collection(db, "users", uid, "grips"))
-            const data: GripDoc = {
-                id: docRef.id,
-                name: input.name,
-                nameLower: input.nameLower,
-                createdAt: now,
-                updatedAt: now,
-                archived: false,
-                lastUsedAt: input.lastUsedAt ?? undefined,
-                summary: input.summary,
+            try {
+                const newGrip = await addGripRecord(uid, input)
+                return newGrip.id
+            } catch (error: any) {
+                console.error("Error creating putter:", error)
+                setError(error?.message ?? "Failed to create putter")
+                throw error
             }
-
-            await setDoc(docRef, data)
-            return docRef.id
         },
-        [db, requireAuthUid]
+        [requireAuthUid]
     )
 
     const updateGrip = useCallback(
-        async (id: string, updates: Partial<GripDoc>) => {
+        async (updates: Partial<GripDoc>) => {
             const uid = requireAuthUid()
-            const docRef = doc(db, "users", uid, "grips", id)
-            await setDoc(
-                docRef,
-                {
-                    ...updates,
-                    updatedAt: nowIso(),
-                },
-                { merge: true }
-            )
+            try {
+                await updateGripRecord(uid, updates)
+                return;
+            } catch (error: any) {
+                console.error("Error updating grip:", error)
+                setError(error?.message ?? "Failed to update grip")
+                throw error
+            }
         },
-        [db, requireAuthUid]
+        [requireAuthUid]
     )
 
     const archiveGrip = useCallback(
         async (id: string) => {
-            await updateGrip(id, { archived: true })
+            await updateGrip({ id, archived: true })
         },
         [updateGrip]
     )

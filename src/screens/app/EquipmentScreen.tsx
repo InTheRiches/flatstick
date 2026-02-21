@@ -12,12 +12,14 @@ import NewPutterModal from "@/components/app/equipment/modals/NewPutterModal";
 import {BottomSheetModal} from "@gorhom/bottom-sheet";
 import EditPutterModal, {EditPutterReference} from "@/components/app/equipment/modals/EditPutterModal";
 import NewGripModal from "@/components/app/equipment/modals/NewGripModal";
+import EditGripModal, {EditGripReference} from "@/components/app/equipment/modals/EditGripModal";
 
 export const EquipmentScreen: FC = function EquipmentScreen() {
     const $containerInsets = useSafeAreaInsetsStyle(["top"])
     const newPutterModalRef = React.useRef<BottomSheetModal>(null)
     const newGripModalRef = React.useRef<BottomSheetModal>(null)
     const editingPutterModalRef = React.useRef<EditPutterReference>(null)
+    const editingGripModalRef = React.useRef<EditGripReference>(null)
 
     // Use app contexts for canonical data
     const { putters: putterDocs, grips: gripDocs, setSelectedPutterId, setSelectedGripId } = useEquipment()
@@ -61,7 +63,12 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
         if (maybePutter.brand) {
             console.log("Editing putter", maybePutter.brand)
             editingPutterModalRef.current?.setPutter(maybePutter);
-            setTimeout(() => editingPutterModalRef.current?.open(), 0)
+            editingPutterModalRef.current?.open()
+        } else {
+            const maybeGrip = item as GripDoc
+            console.log("Editing grip", maybeGrip.name)
+            editingGripModalRef.current?.setGrip(maybeGrip);
+            editingGripModalRef.current?.open()
         }
     }
 
@@ -69,7 +76,7 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
         if (type === "putter") {
             newPutterModalRef.current?.present();
         }
-            else {
+        else {
                 newGripModalRef.current?.present();
         }
     }
@@ -91,6 +98,7 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
             <NewPutterModal reference={newPutterModalRef} />
             <NewGripModal reference={newGripModalRef} />
             <EditPutterModal reference={editingPutterModalRef} />
+            <EditGripModal reference={editingGripModalRef} />
         </Screen>
     )
 }

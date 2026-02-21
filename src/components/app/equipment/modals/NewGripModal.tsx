@@ -7,7 +7,6 @@ import {BottomSheetModalFactory} from "../../modals/BottomSheetFactory"
 import {Text} from "@/components/Text"
 import {TextField} from "@/components/TextField"
 import {Button} from "@/components/Button"
-import {Checkbox} from "@/components/Toggle/Checkbox"
 import {useAppTheme} from "@/theme/context"
 import {$styles} from "@/theme/styles"
 import {useEquipment} from "@/context"
@@ -36,11 +35,7 @@ export default function NewGripModal({reference}: NewGripModalProps) {
     const [category, setCategory] = useState<GripCategory>("conventional")
     const [showCategoryPicker, setShowCategoryPicker] = useState(false)
 
-    // Optional toggle (matches your doc shape, but for "New" it should be false by default)
-    const [archived, setArchived] = useState(false)
-
-    const nameValid = name.trim().length >= 2
-    const isSaveEnabled = nameValid
+    const isSaveEnabled = name.trim().length >= 2
 
     const selectedCategoryLabel = useMemo(() => {
         return GRIP_CATEGORIES.find((c) => c.value === category)?.label ?? "Select"
@@ -53,11 +48,11 @@ export default function NewGripModal({reference}: NewGripModalProps) {
     const onSave = async () => {
         if (!isSaveEnabled) return
 
-        // await createGrip({
-        //     name: name.trim(),
-        //     category,
-        //     archived,
-        // })
+        await createGrip({
+            name: name.trim(),
+            nameLower: name.trim().toLowerCase(),
+            category,
+        })
 
         reference.current?.dismiss()
     }
