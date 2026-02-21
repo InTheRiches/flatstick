@@ -50,12 +50,18 @@ const buttons = {
     background: palette.tintedEmerald,
     border: palette.emerald,
     textColor: palette.neutral100,
+  },
+  disabled: {
+    background: palette.neutral300,
+    border: palette.neutral300,
+    textColor: palette.neutral500,
   }
 }
 
 const backgrounds = {
   default: palette.neutral200,
   elevated: palette.white,
+    overlay: palette.overlay20,
 }
 
 export const colors = {

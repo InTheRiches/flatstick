@@ -1,19 +1,29 @@
 import {ISODateString} from "@/models/common";
 
+export type GripCategory =
+    | "conventional"
+    | "left-hand-low"
+    | "claw"
+    | "arm-lock"
+    | "broomstick"
+    | "prayer"
+    | "other"
+
 export interface GripDoc {
     id: string
     name: string
     nameLower: string
-    type?: "claw" | "conventional" | "leftHandLow" | "other"
+    category: GripCategory
 
     createdAt: ISODateString
     updatedAt: ISODateString
+    lastUsedAt?: ISODateString
 
     archived: boolean
-    lastUsedAt?: ISODateString | null
 
     summary?: {
         totalPutts: number
+        totalRounds: number
         makePct_6ft: number
         avgMissFt: number
         updatedAt: ISODateString
@@ -22,18 +32,16 @@ export interface GripDoc {
 
 export interface PutterDoc {
     id: string            // same as doc id
-    name: string          // "Scotty Newport 2"
-    nameLower: string     // for search
-    brand?: string
-    model?: string
-    loftDeg?: number
-    lieDeg?: number
+    brand: string
+    model: string
+    loftDeg: number | null
+    lieDeg: number | null
 
     createdAt: ISODateString
     updatedAt: ISODateString
+    lastUsedAt?: ISODateString
 
     archived: boolean     // instead of deleting (keeps stats usable)
-    lastUsedAt?: ISODateString | null
 
     // quick display stats (denormalized, optional)
     summary?: {
@@ -43,4 +51,12 @@ export interface PutterDoc {
         avgMissFt: number
         updatedAt: ISODateString
     }
+}
+
+export type EquipmentType = "putter" | "grip" | "club"
+
+export type ActiveSetup = {
+    putterId?: string | null
+    gripId?: string | null
+    clubIds?: Record<string, string | null> // placeholder for future club slots
 }

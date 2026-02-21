@@ -10,8 +10,9 @@ import {
 } from "@react-native-firebase/firestore"
 
 import type { GripDoc, PutterDoc } from "@/models/equipment"
-import type { ISODateString } from "@/models/common"
+import type {ISODateString, UUID} from "@/models/common"
 import { useUser } from "@/context/UserContext"
+import {addPutterRecord, updatePutterRecord} from "@/services/firebase/equipment";
 
 export interface EquipmentContextType {
     putters: PutterDoc[]
@@ -22,8 +23,8 @@ export interface EquipmentContextType {
     error: string | null
     setSelectedPutterId: (putterId: string | null) => Promise<void>
     setSelectedGripId: (gripId: string | null) => Promise<void>
-    createPutter: (input: CreatePutterInput) => Promise<string>
-    updatePutter: (id: string, updates: Partial<PutterDoc>) => Promise<void>
+    createPutter: (input: Partial<PutterDoc>) => Promise<UUID>
+    updatePutter: (updates: Partial<PutterDoc>) => Promise<void>
     archivePutter: (id: string) => Promise<void>
     createGrip: (input: CreateGripInput) => Promise<string>
     updateGrip: (id: string, updates: Partial<GripDoc>) => Promise<void>
@@ -31,10 +32,8 @@ export interface EquipmentContextType {
 }
 
 export type CreatePutterInput = {
-    name: string
-    nameLower: string
-    brand?: string
-    model?: string
+    brand: string
+    model: string
     loftDeg?: number
     lieDeg?: number
     lastUsedAt?: ISODateString | null
@@ -44,7 +43,6 @@ export type CreatePutterInput = {
 export type CreateGripInput = {
     name: string
     nameLower: string
-    type?: GripDoc["type"]
     lastUsedAt?: ISODateString | null
     summary?: GripDoc["summary"]
 }
@@ -211,50 +209,38 @@ export function EquipmentProvider({ children, authInitializing = false }: Equipm
     )
 
     const createPutter = useCallback(
-        async (input: CreatePutterInput) => {
+        async (input: Partial<PutterDoc>) => {
             const uid = requireAuthUid()
-            const now = nowIso()
-            const docRef = doc(collection(db, "users", uid, "putters"))
-            const data: PutterDoc = {
-                id: docRef.id,
-                name: input.name,
-                nameLower: input.nameLower,
-                brand: input.brand,
-                model: input.model,
-                loftDeg: input.loftDeg,
-                lieDeg: input.lieDeg,
-                createdAt: now,
-                updatedAt: now,
-                archived: false,
-                lastUsedAt: input.lastUsedAt ?? null,
-                summary: input.summary,
+            try {
+                const newPutter = await addPutterRecord(uid, input)
+                return newPutter.id
+            } catch (error: any) {
+                console.error("Error creating putter:", error)
+                setError(error?.message ?? "Failed to create putter")
+                throw error
             }
-
-            await setDoc(docRef, data)
-            return docRef.id
         },
-        [db, requireAuthUid]
+        [requireAuthUid]
     )
 
     const updatePutter = useCallback(
-        async (id: string, updates: Partial<PutterDoc>) => {
+        async (updates: Partial<PutterDoc>) => {
             const uid = requireAuthUid()
-            const docRef = doc(db, "users", uid, "putters", id)
-            await setDoc(
-                docRef,
-                {
-                    ...updates,
-                    updatedAt: nowIso(),
-                },
-                { merge: true }
-            )
+            try {
+                await updatePutterRecord(uid, updates)
+                return;
+            } catch (error: any) {
+                console.error("Error updating putter:", error)
+                setError(error?.message ?? "Failed to update putter")
+                throw error
+            }
         },
-        [db, requireAuthUid]
+        [requireAuthUid]
     )
 
     const archivePutter = useCallback(
         async (id: string) => {
-            await updatePutter(id, { archived: true })
+            await updatePutter({ id, archived: true })
         },
         [updatePutter]
     )
@@ -268,11 +254,10 @@ export function EquipmentProvider({ children, authInitializing = false }: Equipm
                 id: docRef.id,
                 name: input.name,
                 nameLower: input.nameLower,
-                type: input.type,
                 createdAt: now,
                 updatedAt: now,
                 archived: false,
-                lastUsedAt: input.lastUsedAt ?? null,
+                lastUsedAt: input.lastUsedAt ?? undefined,
                 summary: input.summary,
             }
 

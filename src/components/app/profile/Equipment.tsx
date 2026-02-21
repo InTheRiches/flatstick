@@ -5,6 +5,7 @@ import {Image, ImageStyle, Pressable, TextStyle, View, ViewStyle} from "react-na
 import {Text} from "@/components/Text";
 import {ThemedStyle} from "@/theme/types";
 import {GripDoc, PutterDoc} from "@/models/equipment";
+import {$styles} from "@/theme/styles";
 
 interface EquipmentProps {
     selectedPutter?: PutterDoc,
@@ -29,7 +30,7 @@ export function Equipment({ selectedPutter, selectedGrip }: EquipmentProps) {
 
     return (
         <View style={$container}>
-            <Text style={$title}>Equipment</Text>
+            <Text style={$styles.sectionHeader}>Equipment</Text>
             <Pressable        onPress={() => router.push("/equipment")}
                                        style={({ pressed }) => [themed($card), pressed && themed($cardPressed)]}
                                        accessibilityRole="button"
@@ -46,7 +47,7 @@ export function Equipment({ selectedPutter, selectedGrip }: EquipmentProps) {
                                 />
                             </View>
                             <View style={$textContainer}>
-                                <Text style={themed($name)}>{selectedPutter.name}</Text>
+                                <Text style={themed($name)}>{selectedPutter.brand} {selectedPutter.model}</Text>
                                 <Text style={themed($description)}>{putterSubtitle}</Text>
                             </View>
                         </View>
@@ -158,11 +159,4 @@ const $container: ViewStyle = {
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-}
-
-const $title: TextStyle = {
-    fontSize: 18,
-    textAlign: "left",
-    width: "100%",
-    fontWeight: "700",
 }

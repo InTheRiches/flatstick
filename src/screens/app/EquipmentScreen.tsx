@@ -1,18 +1,23 @@
-import React, { FC, useMemo } from "react"
+import React, {FC, useMemo, useState} from "react"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { Screen } from "@/components/Screen"
 import { $styles } from "@/theme/styles"
 import PageHeader from "@/components/headers/PageHeader"
 import {
     EquipmentTabs,
-    type EquipmentType,
-    type ActiveSetup,
-} from "@/components/golf/equipment"
+} from "@/components/app/equipment"
 import { useEquipment, useUser } from "@/context"
-import type { PutterDoc, GripDoc } from "@/models/equipment"
+import type {PutterDoc, GripDoc, ActiveSetup, EquipmentType} from "@/models/equipment"
+import NewPutterModal from "@/components/app/equipment/modals/NewPutterModal";
+import {BottomSheetModal} from "@gorhom/bottom-sheet";
+import EditPutterModal, {EditPutterReference} from "@/components/app/equipment/modals/EditPutterModal";
+import NewGripModal from "@/components/app/equipment/modals/NewGripModal";
 
 export const EquipmentScreen: FC = function EquipmentScreen() {
     const $containerInsets = useSafeAreaInsetsStyle(["top"])
+    const newPutterModalRef = React.useRef<BottomSheetModal>(null)
+    const newGripModalRef = React.useRef<BottomSheetModal>(null)
+    const editingPutterModalRef = React.useRef<EditPutterReference>(null)
 
     // Use app contexts for canonical data
     const { putters: putterDocs, grips: gripDocs, setSelectedPutterId, setSelectedGripId } = useEquipment()
@@ -30,10 +35,19 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
     // Handlers wired to EquipmentContext so selections persist to user preferences
     const handleUpdateActive = async (type: "putter" | "grip" | "clubs", id: string) => {
         if (type === "putter") {
+            // if its the same putter set the active to null (deselect)
+            if (activeSetup.putterId === id) {
+                await setSelectedPutterId(null)
+                return
+            }
             await setSelectedPutterId(id)
             return
         }
         if (type === "grip") {
+            if (activeSetup.gripId === id) {
+                await setSelectedGripId(null)
+                return
+            }
             await setSelectedGripId(id)
             return
         }
@@ -43,12 +57,21 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
 
     const handleEdit = (item: PutterDoc | GripDoc) => {
         // Placeholder for edit modal; include original doc when available
-        console.log("TODO open edit modal", item)
+        const maybePutter = item as PutterDoc
+        if (maybePutter.brand) {
+            console.log("Editing putter", maybePutter.brand)
+            editingPutterModalRef.current?.setPutter(maybePutter);
+            setTimeout(() => editingPutterModalRef.current?.open(), 0)
+        }
     }
 
     const handleAdd = (type: EquipmentType) => {
-        // Placeholder for add modal
-        console.log("TODO open add modal", type)
+        if (type === "putter") {
+            newPutterModalRef.current?.present();
+        }
+            else {
+                newGripModalRef.current?.present();
+        }
     }
 
     return (
@@ -64,6 +87,10 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
                 onEdit={handleEdit}
                 onAdd={handleAdd}
             />
+
+            <NewPutterModal reference={newPutterModalRef} />
+            <NewGripModal reference={newGripModalRef} />
+            <EditPutterModal reference={editingPutterModalRef} />
         </Screen>
     )
 }

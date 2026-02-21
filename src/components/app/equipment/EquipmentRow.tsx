@@ -5,6 +5,7 @@ import type { ThemedStyle } from "@/theme/types"
 import { useAppTheme } from "@/theme/context"
 import { Text } from "@/components/Text"
 import type { PutterDoc, GripDoc } from "@/models/equipment"
+import { getDisplayName } from "@/utils/equipmentUtils"
 
 type Doc = PutterDoc | GripDoc
 
@@ -20,8 +21,15 @@ export const EquipmentRow: FC<EquipmentRowProps> = ({ item, isSelected, onSelect
 
     const getMetaText = (doc: Doc) => {
         const maybePutter = doc as PutterDoc
-        if (maybePutter.summary && (maybePutter.summary as any).totalRounds != null) {
-            return `${(maybePutter.summary as any).totalRounds} rounds`
+        if (maybePutter.brand && maybePutter.summary && (maybePutter.summary as any).totalRounds != null) {
+            let metaText = `${(maybePutter.summary as any).totalRounds} rounds`
+            if (maybePutter.lieDeg != null) {
+                metaText += `, ${maybePutter.lieDeg}° lie`
+            }
+            if (maybePutter.loftDeg != null) {
+                metaText += `, ${maybePutter.loftDeg}° loft`
+            }
+            return metaText
         }
         const maybeGrip = doc as GripDoc
         if (maybeGrip.summary && (maybeGrip.summary as any).totalPutts != null) {
@@ -49,7 +57,7 @@ export const EquipmentRow: FC<EquipmentRowProps> = ({ item, isSelected, onSelect
             {/* Middle: text */}
             <View style={themed($textCol)}>
                 <Text style={themed($title)} numberOfLines={1}>
-                    {item.name}
+                    {getDisplayName(item)}
                 </Text>
 
                 <Text style={themed($subtitle)} numberOfLines={1}>
@@ -73,7 +81,7 @@ export const EquipmentRow: FC<EquipmentRowProps> = ({ item, isSelected, onSelect
                     hitSlop={10}
                     style={({ pressed }) => [themed($iconButton), pressed && themed($iconButtonPressed)]}
                 >
-                    <Ionicons name="pencil" size={18} color={theme.colors.textDim} />
+                    <Ionicons name="pencil" size={18} color={theme.colors.buttons.textColor} />
                 </Pressable>
             </View>
         </Pressable>
@@ -84,8 +92,9 @@ export const EquipmentRow: FC<EquipmentRowProps> = ({ item, isSelected, onSelect
 const $row: ThemedStyle<ViewStyle> = (theme) => ({
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
+    paddingVertical: theme.spacing.xs,
+    paddingLeft: theme.spacing.xs,
+    paddingRight: theme.spacing.sm,
     // Give every row an elevated background and a subtle border when NOT selected
     backgroundColor: theme.colors.backgrounds.elevated,
     borderWidth: 1,
@@ -139,7 +148,7 @@ const $title: ThemedStyle<TextStyle> = (theme) => ({
 const $subtitle: ThemedStyle<TextStyle> = (theme) => ({
     color: theme.colors.textDim,
     fontSize: 13,
-    marginTop: 2,
+    marginTop: -4,
 })
 
 
@@ -169,14 +178,15 @@ const $spacer: ThemedStyle<ViewStyle> = () => ({
     width: 1,
 })
 
-const $iconButton: ThemedStyle<ViewStyle> = () => ({
+const $iconButton: ThemedStyle<ViewStyle> = (theme) => ({
     width: 34,
     height: 34,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: theme.colors.buttons.background
 })
 
-const $iconButtonPressed: ThemedStyle<ViewStyle> = () => ({
-    opacity: 0.75,
+const $iconButtonPressed: ThemedStyle<ViewStyle> = (theme) => ({
+    backgroundColor: theme.colors.buttons.pressed.background
 })

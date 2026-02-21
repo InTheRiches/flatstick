@@ -3,11 +3,9 @@ import { View, type ViewStyle, Pressable, Text, type TextStyle } from "react-nat
 import type { ThemedStyle } from "@/theme/types"
 import { useAppTheme } from "@/theme/context"
 import { EquipmentListTab } from "./EquipmentListTab"
-import * as ActiveTabModule from "./ActiveEquipmentTab"
-import type { ActiveSetup } from "./types"
-import type { PutterDoc, GripDoc } from "@/models/equipment"
+import type {PutterDoc, GripDoc, ActiveSetup} from "@/models/equipment"
 
-type TabKey = "Active" | "Putters" | "Grips" | "Clubs"
+type TabKey = "Putters" | "Grips" | "Clubs"
 
 interface EquipmentTabsProps {
     putters: PutterDoc[]

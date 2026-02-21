@@ -5,8 +5,8 @@ import type { ThemedStyle } from "@/theme/types"
 import { useAppTheme } from "@/theme/context"
 import { EquipmentRow } from "./EquipmentRow"
 import { EquipmentSearchBar } from "./EquipmentSearchBar"
-import type { EquipmentType } from "./types"
-import type { PutterDoc, GripDoc } from "@/models/equipment"
+import type {PutterDoc, GripDoc, EquipmentType} from "@/models/equipment"
+import { getDisplayName } from "@/utils/equipmentUtils"
 
 type Doc = PutterDoc | GripDoc
 
@@ -35,11 +35,12 @@ export const EquipmentListTab: FC<EquipmentListTabProps> = ({
     const filteredItems = useMemo(() => {
         if (!searchQuery) return items
         const lower = searchQuery.toLowerCase()
-        return items.filter((item) => item.name.toLowerCase().includes(lower))
+        return items.filter((item) => getDisplayName(item).toLowerCase().includes(lower))
     }, [items, searchQuery])
 
     const renderItem = ({ item }: { item: Doc }) => (
         <EquipmentRow
+            key={item.id}
             item={item}
             isSelected={item.id === selectedId}
             onSelect={onSelect}
@@ -125,4 +126,3 @@ const $emptyAction: ThemedStyle<TextStyle> = (theme) => ({
     fontWeight: "600",
     fontSize: 14,
 })
-
