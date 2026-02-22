@@ -127,7 +127,7 @@ export default function SelectCourseDetailsModal({reference, onConfirm}: SelectC
         {value: "back", label: "Back 9"},
     ]
 
-    const isSaveEnabled = !!(club && selectedCourse && selectedTee)
+    const isSaveEnabled = !!(club && selectedCourse && (selectedTee || teeOptions.length == 0))
 
     const onPressSave = async () => {
         if (!isSaveEnabled || !club || !selectedCourse || !selectedTee) return
@@ -192,7 +192,7 @@ export default function SelectCourseDetailsModal({reference, onConfirm}: SelectC
                             />
                         </View>
                     ) : (
-                        <Text text={`No ${gender} tees available for this course.`} style={$helperDisabled}/>
+                        <Text text={`No ${gender} tees known for this course.`} style={$helperDisabled}/>
                     )}
 
                     <View style={$section}>

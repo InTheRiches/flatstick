@@ -28,7 +28,7 @@ export const PracticeModes = memo(function PracticeModes() {
             {/* Pods */}
             <View style={themed($podsWrap)}>
                 <Pressable
-                    onPress={() => router.push("/(sessions)/search")}
+                    onPress={() => router.push("/(golf)/search")}
                     style={({ pressed }) => [themed($pod), pressed && themed($podPressed)]}
                     accessibilityRole="button"
                     accessibilityLabel={`Start full round mode.`}

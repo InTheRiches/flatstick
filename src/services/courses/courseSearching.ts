@@ -259,6 +259,228 @@ export async function searchGolfClubs(params: {
     return results
 }
 
+// ---------------------------------------------------------------------------
+// Overpass API types
+// ---------------------------------------------------------------------------
+
+type OverpassElement = {
+    type: "node" | "way" | "relation"
+    id: number
+    lat?: number   // present on nodes
+    lon?: number   // present on nodes
+    center?: { lat: number; lon: number } // present on ways/relations with "out center"
+    tags?: Record<string, string>
+}
+
+type OverpassResponse = {
+    elements: OverpassElement[]
+}
+
+/** A lightweight result from Overpass – no Golf API data yet. */
+export type OverpassResult = {
+    /** Unique OSM element id (stringified for stable key use) */
+    osmId: string
+    name: string
+    coordinate: LatLng
+    distanceMi?: number
+    distanceKm?: number
+}
+
+/** Extract the best display name from an Overpass element's tags. */
+function overpassName(el: OverpassElement): string | undefined {
+    const t = el.tags ?? {}
+    return t["name"] || t["official_name"] || t["short_name"] || undefined
+}
+
+/** Get the representative lat/lon for an Overpass element. */
+function overpassCenter(el: OverpassElement): LatLng | undefined {
+    if (el.lat != null && el.lon != null) return { latitude: el.lat, longitude: el.lon }
+    if (el.center) return { latitude: el.center.lat, longitude: el.center.lon }
+    return undefined
+}
+
+/** Shared Overpass fetch + dedup logic. Returns raw OverpassResult[]. */
+async function fetchOverpassGolfCourses(params: {
+    south: number
+    west: number
+    north: number
+    east: number
+    userLocation: LatLng
+    signal?: AbortSignal
+    limit?: number
+}): Promise<OverpassResult[]> {
+    const { south, west, north, east, userLocation, signal, limit = 60 } = params
+
+    const overpassQuery = [
+        `[out:json][timeout:25];`,
+        `(`,
+        `  nwr["leisure"="golf_course"](${south},${west},${north},${east});`,
+        `);`,
+        `out center ${limit};`,
+    ].join("\n")
+
+    const overpassRes = await fetch("https://overpass-api.de/api/interpreter", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "User-Agent": "Flatstick/1.0 (contact: support@flatstick.app)",
+        },
+        body: "data=" + encodeURIComponent(overpassQuery),
+        signal,
+    })
+
+    if (!overpassRes.ok) {
+        const text = await overpassRes.text().catch(() => "")
+        console.warn("Overpass failed:", overpassRes.status, text.slice(0, 300))
+        return []
+    }
+
+    const overpassJson: OverpassResponse = await overpassRes.json()
+    const elements: OverpassElement[] = Array.isArray(overpassJson?.elements)
+        ? overpassJson.elements
+        : []
+
+    if (!elements.length) return []
+
+    // Deduplicate by name, keeping the element closest to the reference point
+    const nameToEl = new Map<string, { el: OverpassElement; center: LatLng; dist: number }>()
+
+    for (const el of elements) {
+        const name = overpassName(el)?.trim()
+        if (!name) continue
+        const center = overpassCenter(el)
+        if (!center) continue
+
+        const dist = haversineMeters(userLocation, center)
+        const existing = nameToEl.get(name)
+        if (!existing || dist < existing.dist) {
+            nameToEl.set(name, { el, center, dist })
+        }
+    }
+
+    return Array.from(nameToEl.entries()).map(([name, { el, center, dist }]) => {
+        const km = metersToKm(dist)
+        const mi = metersToMi(dist)
+        return {
+            osmId: String(el.id),
+            name,
+            coordinate: center,
+            distanceKm: Math.round(km),
+            distanceMi: Math.round(mi * 10) / 10,
+        }
+    }).sort((a, b) => (a.distanceMi ?? Infinity) - (b.distanceMi ?? Infinity))
+}
+
+/**
+ * Fast nearby-search using ONLY Overpass (no Golf API calls).
+ * Returns lightweight OverpassResult[] suitable for map markers.
+ * Call `searchGolfClubs` with the course name to enrich on demand.
+ *
+ * `params.south/west/north/east` – map bounding box coordinates.
+ * `params.userLocation` – optional reference point (defaults to bbox centre).
+ * `params.signal` – AbortSignal for cancellation.
+ * `params.limit` – max Overpass elements to fetch (default 60).
+ */
+export async function searchNearbyGolfCourses(params: {
+    south: number
+    west: number
+    north: number
+    east: number
+    userLocation?: LatLng | null
+    signal?: AbortSignal
+    limit?: number
+}): Promise<OverpassResult[]> {
+    const { south, west, north, east, signal, limit = 60 } = params
+
+    const userLocation: LatLng = params.userLocation ?? {
+        latitude: (south + north) / 2,
+        longitude: (west + east) / 2,
+    }
+
+    return fetchOverpassGolfCourses({ south, west, north, east, userLocation, signal, limit })
+}
+
+/**
+ * Full pipeline: Overpass → Golf Course API enrichment → ClubResult[].
+ * Use this when you need tee/rating data up front (e.g. text search fallback).
+ *
+ * `params.south/west/north/east` – map bounding box coordinates.
+ * `params.userLocation` – optional reference point (defaults to bbox centre).
+ * `params.signal` – AbortSignal for cancellation.
+ * `params.limit` – max Overpass elements to fetch (default 60).
+ */
+export async function searchNearbyGolfClubs(params: {
+    south: number
+    west: number
+    north: number
+    east: number
+    userLocation?: LatLng | null
+    signal?: AbortSignal
+    limit?: number
+}): Promise<ClubResult[]> {
+    const { south, west, north, east, signal, limit = 60 } = params
+
+    const userLocation: LatLng = params.userLocation ?? {
+        latitude: (south + north) / 2,
+        longitude: (west + east) / 2,
+    }
+
+    const overpassResults = await fetchOverpassGolfCourses({
+        south, west, north, east, userLocation, signal, limit,
+    })
+
+    if (!overpassResults.length) return []
+
+    // Fan-out: one Golf API call per unique Overpass name
+    const searchPromises = overpassResults.map(({ name }) =>
+        searchGolfClubs({
+            query: name,
+            userLocation,
+            signal,
+            limit: 10,
+        }).catch((err: any) => {
+            if (err?.name === "AbortError") throw err
+            console.warn(`Golf API search failed for "${name}":`, err)
+            return [] as ClubResult[]
+        })
+    )
+
+    const allResultArrays = await Promise.all(searchPromises)
+
+    // Merge + deduplicate by clubName
+    const merged = new Map<string, ClubResult>()
+
+    for (const results of allResultArrays) {
+        for (const club of results) {
+            const key = club.clubName.toLowerCase()
+            if (!merged.has(key)) {
+                merged.set(key, club)
+            } else {
+                const existing = merged.get(key)!
+                const existingIds = new Set(existing.courses.map((c) => c.id))
+                for (const course of club.courses) {
+                    if (!existingIds.has(course.id)) {
+                        existing.courses.push(course)
+                        existingIds.add(course.id)
+                    }
+                }
+                if (
+                    club.distanceKm != null &&
+                    (existing.distanceKm == null || club.distanceKm < existing.distanceKm)
+                ) {
+                    existing.distanceKm = club.distanceKm
+                    existing.distanceMi = club.distanceMi
+                    existing.id = club.id
+                }
+            }
+        }
+    }
+
+    return Array.from(merged.values()).sort(
+        (a, b) => (a.distanceMi ?? Infinity) - (b.distanceMi ?? Infinity)
+    )
+}
+
 /**
  * Small helper for a course search screen:
  * Call this each time query changes; it cancels the previous request.

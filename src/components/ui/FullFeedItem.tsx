@@ -1,6 +1,6 @@
 import { Pressable, View, ViewStyle, Image, ImageStyle, TextStyle } from "react-native"
 
-import { Scorecard } from "@/components/golf/Scorecard/Scorecard"
+import { Scorecard } from "@/components/app/golf/Scorecard/Scorecard"
 import { Text } from "@/components/ui/Text"
 import { useAppTheme } from "@/theme/context"
 import { ThemedStyle } from "@/theme/types"

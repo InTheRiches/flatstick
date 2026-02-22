@@ -1,6 +1,5 @@
-import { FC, useState, useEffect, useContext } from "react"
+import { FC, useState, useEffect } from "react"
 import {View, Alert, Switch, TouchableOpacity, ViewStyle, TextStyle, ScrollView} from "react-native"
-import FeatherIcon from "@expo/vector-icons/Feather"
 import { useRouter } from "expo-router"
 import auth, { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword, FirebaseAuthTypes } from "@react-native-firebase/auth"
 
@@ -17,8 +16,6 @@ import PageHeader from "@/components/headers/PageHeader";
 
 export const SettingsScreen: FC = function SettingsScreen() {
     const { themed, theme, setThemeContextOverride } = useAppTheme()
-    const $containerInsets = useSafeAreaInsetsStyle(["top", "bottom"])
-    const router = useRouter()
 
     const { userProfile, authUser, syncUserProfile } = useUser()
 
@@ -127,47 +124,51 @@ export const SettingsScreen: FC = function SettingsScreen() {
         setThemeContextOverride(newModeProp)
 
         // Sync to user profile
-        if (userProfile) {
-            syncUserProfile({
-                preferences: {
-                    ...userProfile.preferences,
-                    theme: mode,
-                },
-            })
-        }
+        if (!userProfile)
+            return;
+
+        syncUserProfile({
+            preferences: {
+                ...userProfile.preferences,
+                theme: mode,
+            },
+        })
     }
 
     const toggleNotifications = (value: boolean) => {
-        if (userProfile) {
-            syncUserProfile({
-                preferences: {
-                    ...userProfile.preferences,
-                    remindersEnabled: value,
-                },
-            })
-        }
+        if (!userProfile)
+            return;
+
+        syncUserProfile({
+            preferences: {
+                ...userProfile.preferences,
+                remindersEnabled: value,
+            },
+        })
     }
 
     const toggleMishits = (value: boolean) => {
-        if (userProfile) {
-            syncUserProfile({
-                preferences: {
-                    ...userProfile.preferences,
-                    countMishits: value,
-                },
-            })
-        }
+        if (!userProfile)
+            return;
+
+        syncUserProfile({
+            preferences: {
+                ...userProfile.preferences,
+                countMishits: value,
+            },
+        })
     }
 
     const toggleUnits = (value: "imperial" | "metric") => {
-        if (userProfile) {
-            syncUserProfile({
-                preferences: {
-                    ...userProfile.preferences,
-                    units: value,
-                },
-            })
-        }
+        if (!userProfile)
+            return;
+
+        syncUserProfile({
+            preferences: {
+                ...userProfile.preferences,
+                units: value,
+            },
+        })
     }
 
     const isEmailProvider = authUser?.providerData.some((p: FirebaseAuthTypes.UserInfo) => p.providerId === "password")
