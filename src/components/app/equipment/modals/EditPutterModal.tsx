@@ -4,10 +4,10 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet"
 import { TextStyle, View, ViewStyle } from "react-native"
 
 import { useAppTheme } from "@/theme/context"
-import { Text } from "@/components/Text"
-import { TextField } from "@/components/TextField"
+import { Text } from "@/components/ui/Text"
+import { TextField } from "@/components/ui/TextField"
 import { Checkbox } from "@/components/Toggle/Checkbox"
-import { Button } from "@/components/Button"
+import { Button } from "@/components/ui/Button"
 import { BottomSheetModalFactory } from "../../modals/BottomSheetFactory"
 import { $styles } from "@/theme/styles"
 

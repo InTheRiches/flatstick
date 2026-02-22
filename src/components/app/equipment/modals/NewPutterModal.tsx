@@ -1,13 +1,13 @@
 import React, { useState } from "react"
 import { BottomSheetModal } from "@gorhom/bottom-sheet"
 import { useAppTheme } from "@/theme/context"
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import { BottomSheetModalFactory } from "../../modals/BottomSheetFactory"
 import { $styles } from "@/theme/styles"
-import { TextField } from "@/components/TextField"
+import { TextField } from "@/components/ui/TextField"
 import { Checkbox } from "@/components/Toggle/Checkbox"
 import {TextStyle, ViewStyle} from "react-native";
-import {Button} from "@/components/Button";
+import {Button} from "@/components/ui/Button";
 import {useEquipment} from "@/context";
 import {CreatePutterInput} from "@/context/EquipmentContext";
 import {PutterDoc} from "@/models/equipment";

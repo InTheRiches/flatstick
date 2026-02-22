@@ -61,7 +61,7 @@ export const EquipmentListTab: FC<EquipmentListTabProps> = ({
         <View style={themed($container)}>
              <View style={themed($topBar)}>
                  <View style={{flex: 1}}>
-                    <EquipmentSearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder={`Search ${title}...`} />
+                    <EquipmentSearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder={`Search ${title.toLowerCase()}...`} />
                  </View>
                  <Pressable
                      style={({ pressed }) => [themed($addButton), pressed && { opacity: 0.6 }]}

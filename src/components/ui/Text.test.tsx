@@ -2,7 +2,7 @@ import { NavigationContainer } from "@react-navigation/native"
 import { render } from "@testing-library/react-native"
 
 import { Text } from "./Text"
-import { ThemeProvider } from "../theme/context"
+import { ThemeProvider } from "../../theme/context"
 
 /* This is an example component test using react-native-testing-library. For more
  * information on how to write your own, see the documentation here:

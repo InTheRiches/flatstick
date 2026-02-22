@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { Pressable, StyleSheet, View, type TextStyle, type ViewStyle } from "react-native"
 import Svg, { Circle, Rect } from "react-native-svg"
 
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import { useAppTheme } from "@/theme/context"
 
 import type { ScorecardHole, ScorecardProps } from "./types"

@@ -2,7 +2,7 @@ import {useRouter} from "expo-router";
 import {useAppTheme} from "@/theme/context";
 import {Image, ImageStyle, TextStyle, View, ViewStyle} from "react-native";
 
-import {Text} from "@/components/Text";
+import {Text} from "@/components/ui/Text";
 import {ThemedStyle} from "@/theme/types";
 import React from "react";
 import {Ionicons} from "@expo/vector-icons";

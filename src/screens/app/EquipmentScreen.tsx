@@ -1,6 +1,6 @@
 import React, {FC, useMemo, useState} from "react"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
-import { Screen } from "@/components/Screen"
+import { Screen } from "@/components/ui/Screen"
 import { $styles } from "@/theme/styles"
 import PageHeader from "@/components/headers/PageHeader"
 import {
@@ -82,7 +82,7 @@ export const EquipmentScreen: FC = function EquipmentScreen() {
     }
 
     return (
-        <Screen contentContainerStyle={[$styles.screen, $containerInsets]}>
+        <Screen>
             <PageHeader title="Equipment" />
 
             <EquipmentTabs

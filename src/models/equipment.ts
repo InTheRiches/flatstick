@@ -1,4 +1,5 @@
 import {ISODateString} from "@/models/common";
+import {DropdownOption} from "@/components/ui/DropdownPicker";
 
 export type GripCategory =
     | "conventional"
@@ -8,6 +9,16 @@ export type GripCategory =
     | "broomstick"
     | "prayer"
     | "other"
+
+export const GRIP_CATEGORIES: DropdownOption[] = [
+    {value: "conventional", label: "Conventional", description: "Traditional reverse-overlap / standard"},
+    {value: "left-hand-low", label: "Left-Hand Low", description: "AKA cross-handed"},
+    {value: "claw", label: "Claw", description: "Lead hand + claw trail hand"},
+    {value: "arm-lock", label: "Arm Lock", description: "Grip anchored along forearm"},
+    {value: "broomstick", label: "Broomstick", description: "Long putter style"},
+    {value: "prayer", label: "Prayer", description: "Palms facing each other"},
+    {value: "other", label: "Other", description: "Anything else / custom"},
+]
 
 export interface GripDoc {
     id: string

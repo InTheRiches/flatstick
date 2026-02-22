@@ -74,7 +74,7 @@ const $container: ThemedStyle<ViewStyle> = (theme) => ({
     width: "100%",
     paddingTop: theme.spacing.sm,
     paddingBottom: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
 })
 
 const $row: ThemedStyle<ViewStyle> = () => ({

@@ -4,10 +4,10 @@ import FeatherIcon from "@expo/vector-icons/Feather"
 import { useRouter } from "expo-router"
 import auth, { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword, FirebaseAuthTypes } from "@react-native-firebase/auth"
 
-import { Screen } from "@/components/Screen"
-import { Text } from "@/components/Text"
-import { TextField } from "@/components/TextField"
-import { Button } from "@/components/Button"
+import { Screen } from "@/components/ui/Screen"
+import { Text } from "@/components/ui/Text"
+import { TextField } from "@/components/ui/TextField"
+import { Button } from "@/components/ui/Button"
 import { $styles } from "@/theme/styles"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { useAppTheme } from "@/theme/context"
@@ -176,7 +176,7 @@ export const SettingsScreen: FC = function SettingsScreen() {
     const currentTheme = userProfile?.preferences.theme || "system"
 
     return (
-        <Screen contentContainerStyle={[$styles.screen2, $containerInsets]} preset="scroll">
+        <Screen contentContainerStyle={$styles.screen2} preset="scroll">
             <PageHeader title={"Settings"} />
 
             <ScrollView contentContainerStyle={themed($content)} showsVerticalScrollIndicator={false}>

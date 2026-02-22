@@ -1,6 +1,6 @@
 import {TextStyle, TouchableOpacity, View, ViewStyle} from "react-native";
 import FeatherIcon from "@expo/vector-icons/Feather";
-import {Text} from "@/components/Text";
+import {Text} from "@/components/ui/Text";
 import {ThemedStyle} from "@/theme/types";
 import {useRouter} from "expo-router";
 import {useAppTheme} from "@/theme/context";

@@ -2,12 +2,11 @@
 import React, { memo } from "react"
 import { Pressable, TextStyle, View, ViewStyle } from "react-native"
 
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import { useAppTheme } from "@/theme/context"
 import {ThemedStyle} from "@/theme/types";
 import {$styles} from "@/theme/styles";
-
-type PracticeModeKey = "greenSim" | "puttingOnly" | "fullRound"
+import {useRouter} from "expo-router";
 
 export interface PracticeModeLastResult {
     primaryStat?: string
@@ -19,6 +18,7 @@ export interface PracticeModeLastResult {
 
 export const PracticeModes = memo(function PracticeModes() {
     const { themed, theme } = useAppTheme()
+    const router = useRouter()
 
     return (
         <View style={[themed($container)]}>
@@ -28,7 +28,7 @@ export const PracticeModes = memo(function PracticeModes() {
             {/* Pods */}
             <View style={themed($podsWrap)}>
                 <Pressable
-                    onPress={() => {}}
+                    onPress={() => router.push("/(sessions)/search")}
                     style={({ pressed }) => [themed($pod), pressed && themed($podPressed)]}
                     accessibilityRole="button"
                     accessibilityLabel={`Start full round mode.`}

@@ -4,7 +4,6 @@ import {useEquipment, useUser} from "@/context";
 export default function Profile() {
     const { userProfile } = useUser()
     const { selectedPutter, selectedGrip } = useEquipment()
-    console.log("Running testFirebase...")
 
     return <ProfileScreen userProfile={userProfile ?? undefined}  selectedPutter={selectedPutter ?? undefined} selectedGrip={selectedGrip ?? undefined} />
 }

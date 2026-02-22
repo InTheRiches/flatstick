@@ -2,7 +2,7 @@ import {useRouter} from "expo-router";
 import {useAppTheme} from "@/theme/context";
 import {Image, ImageStyle, Pressable, TextStyle, View, ViewStyle} from "react-native";
 
-import {Text} from "@/components/Text";
+import {Text} from "@/components/ui/Text";
 import {ThemedStyle} from "@/theme/types";
 import {GripDoc, PutterDoc} from "@/models/equipment";
 import {$styles} from "@/theme/styles";

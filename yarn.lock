@@ -1820,6 +1820,11 @@
 "@types/estree@^1.0.6":
   version "1.0.8"
 
+"@types/geojson@^7946.0.13":
+  version "7946.0.16"
+  resolved "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.16.tgz"
+  integrity sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==
+
 "@types/graceful-fs@^4.1.3":
   version "4.1.9"
   dependencies:
@@ -3091,6 +3096,11 @@ expo-localization@^17.0.8:
   version "17.0.8"
   dependencies:
     rtl-detect "^1.0.2"
+
+expo-location@^19.0.8:
+  version "19.0.8"
+  resolved "https://registry.npmjs.org/expo-location/-/expo-location-19.0.8.tgz"
+  integrity sha512-H/FI75VuJ1coodJbbMu82pf+Zjess8X8Xkiv9Bv58ZgPKS/2ztjC1YO1/XMcGz7+s9DrbLuMIw22dFuP4HqneA==
 
 expo-modules-autolinking@3.0.24:
   version "3.0.24"
@@ -4717,6 +4727,13 @@ react-native-keyboard-controller@1.18.5:
   dependencies:
     react-native-is-edge-to-edge "^1.2.1"
 
+react-native-maps@^1.27.1:
+  version "1.27.1"
+  resolved "https://registry.npmjs.org/react-native-maps/-/react-native-maps-1.27.1.tgz"
+  integrity sha512-wGMFwo7oy1MhRogLj203f193VeY1WD/wXaJKQP7pNRUzcExmqhD3wrQyE1aRneD4ffNO0VkaqCIdcToT0aI7AQ==
+  dependencies:
+    "@types/geojson" "^7946.0.13"
+
 react-native-mmkv@*, react-native-mmkv@3.3.3:
   version "3.3.3"
 
@@ -4748,7 +4765,7 @@ react-native-url-polyfill@3.0.0:
   dependencies:
     whatwg-url-without-unicode "8.0.0-3"
 
-react-native-web@*, react-native-web@~0.21.0:
+react-native-web@*, "react-native-web@>= 0.11", react-native-web@~0.21.0:
   version "0.21.2"
   dependencies:
     "@babel/runtime" "^7.18.6"
@@ -4775,7 +4792,7 @@ react-native-worklets@>=0.5.0, react-native-worklets@0.5.1:
     convert-source-map "^2.0.0"
     semver "7.7.2"
 
-react-native@*, react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.48.4, react-native@0.81.5:
+react-native@*, "react-native@>= 0.76.0", react-native@>=0.40.0, react-native@>=0.42.0, react-native@>=0.48.4, react-native@0.81.5:
   version "0.81.5"
   dependencies:
     "@jest/create-cache-key-function" "^29.7.0"
@@ -4837,7 +4854,7 @@ react-style-singleton@^2.2.2, react-style-singleton@^2.2.3:
     get-nonce "^1.0.0"
     tslib "^2.0.0"
 
-react@*, "react@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react@^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc", "react@^18.0.0 || ^19.0.0", react@^19.1.0, "react@>= 16.8.0", "react@>= 18.2.0", react@>=16.8, react@>=17.0.0, react@19.1.0:
+react@*, "react@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react@^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc", "react@^18.0.0 || ^19.0.0", react@^19.1.0, "react@>= 16.8.0", "react@>= 18.2.0", "react@>= 18.3.1", react@>=16.8, react@>=17.0.0, react@19.1.0:
   version "19.1.0"
 
 reactotron-core-client@*, reactotron-core-client@^2.9.4, reactotron-core-client@2.9.9:

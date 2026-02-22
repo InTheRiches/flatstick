@@ -3,7 +3,7 @@ import { Pressable, type TextStyle, View, type ViewStyle } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import type { ThemedStyle } from "@/theme/types"
 import { useAppTheme } from "@/theme/context"
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import type { PutterDoc, GripDoc } from "@/models/equipment"
 import { getDisplayName } from "@/utils/equipmentUtils"
 

@@ -1,8 +1,8 @@
 import { FC } from "react"
 
-import { FlatstickHeader } from "@/components/FlatstickHeader"
-import { FullFeedItem } from "@/components/FullFeedItem"
-import { Screen } from "@/components/Screen"
+import { FlatstickHeader } from "@/components/ui/FlatstickHeader"
+import { FullFeedItem } from "@/components/ui/FullFeedItem"
+import { Screen } from "@/components/ui/Screen"
 import { $styles } from "@/theme/styles"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import {PracticeModes} from "@/components/app/home/PracticeModes";

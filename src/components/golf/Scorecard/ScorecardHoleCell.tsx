@@ -1,7 +1,7 @@
 import { View, type ViewStyle, type TextStyle } from "react-native"
 import Svg, { Circle, Rect } from "react-native-svg"
 
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 

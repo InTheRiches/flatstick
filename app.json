@@ -11,7 +11,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.flatstick",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location when the app is in use.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location even when the app is in the background.",
+        "NSLocationAlwaysUsageDescription": "Allow $(PRODUCT_NAME) to access your location even when the app is in the background."
+      }
     },
     "android": {
       "adaptiveIcon": {

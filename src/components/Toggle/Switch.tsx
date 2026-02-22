@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useCallback } from "react"
 import { Animated, Image, ImageStyle, Platform, StyleProp, View, ViewStyle } from "react-native"
 
-import { iconRegistry } from "@/components/Icon"
+import { iconRegistry } from "@/components/ui/Icon"
 import { isRTL } from "@/i18n"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
