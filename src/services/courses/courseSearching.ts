@@ -6,94 +6,19 @@
 // - normalizes + filters tee sets (optional)
 // - sorts results by distance when location is available
 
+import {LatLng} from "@/models/common";
+import {
+    ClubResult,
+    CourseApiCourse,
+    CourseApiTees,
+    GolfApiSearchResponse, OverpassElement, OverpassResponse,
+    OverpassResult,
+    ParsedTees
+} from "@/models/courses";
+import {normalizeUserQueryForGolfAPI} from "@/utils/searching";
+
 const GOLF_API_KEY = "P3YWERWFDOPBUUV66UDLRJDTLY" // TODO: move to env / server
 const GOLF_API_URL = "https://api.golfcourseapi.com/v1/search"
-
-export type LatLng = { latitude: number; longitude: number }
-
-export type TeeSet = {
-    name: string
-    par: number
-    rating: number
-    slope: number
-    yards: number
-    number_of_holes: number
-    holes: any[]
-}
-
-export type ParsedTees = { male: TeeSet[]; female: TeeSet[] }
-
-export type CourseApiLocation = {
-    address?: string
-    city?: string
-    state?: string
-    country?: string
-    latitude?: number
-    longitude?: number
-    [k: string]: any
-}
-
-export type CourseApiHole = {
-    par?: number
-    yardage?: number
-    handicap?: number
-    [k: string]: any
-}
-
-export type CourseApiTee = {
-    tee_name?: string
-    course_rating?: number
-    slope_rating?: number
-    bogey_rating?: number
-    total_yards?: number
-    total_meters?: number
-    number_of_holes?: number
-    par_total?: number
-    front_course_rating?: number
-    front_slope_rating?: number
-    front_bogey_rating?: number
-    back_course_rating?: number
-    back_slope_rating?: number
-    back_bogey_rating?: number
-    holes?: CourseApiHole[]
-    [k: string]: any
-}
-
-export type CourseApiTees = {
-    female?: CourseApiTee[]
-    male?: CourseApiTee[]
-    [k: string]: any
-}
-
-export type CourseApiCourse = {
-    id: string | number
-    club_name: string
-    course_name?: string
-    location?: CourseApiLocation
-    tees?: CourseApiTees
-    // ...other fields from API
-    [k: string]: any
-}
-
-export type GolfApiSearchResponse = {
-    courses?: CourseApiCourse[]
-}
-
-export type ClubCourse = {
-    id: string
-    courseName?: string
-    location?: { latitude: number; longitude: number }
-    tees: ParsedTees
-    raw: Omit<CourseApiCourse, "club_name" | "tees">
-}
-
-export type ClubResult = {
-    clubName: string
-    distanceKm?: number // undefined when no location
-    distanceMi?: number
-    id: string // representative id (first / closest)
-    courses: ClubCourse[]
-}
 
 function safeNumber(n: any): number | undefined {
     const v = typeof n === "string" ? Number(n) : n
@@ -155,9 +80,124 @@ export function parseTees(teesData: CourseApiTees | undefined): ParsedTees {
     return parsed
 }
 
+// ---------------------------------------------------------------------------
+// Query normalization + variant helpers
+// ---------------------------------------------------------------------------
+
+/** Light clean: collapse whitespace, trim. Does NOT abbreviate. */
+function normalizeLight(input: string): string {
+    return input.trim().replace(/\s+/g, " ")
+}
+
+/**
+ * Returns 1–2 query strings to try against the Golf API:
+ * - always the raw (lightly cleaned) variant
+ * - an abbreviated variant only when the query contains golf terms
+ *   AND abbreviation actually changes the string (guardrail A)
+ */
+export function buildCourseQueryVariants(userInput: string): string[] {
+    const raw = normalizeLight(userInput)
+
+    // Guardrail A: only expand to two queries when golf/country terms are present
+    const shouldVariant = /\b(golf|country)\b/i.test(raw) || /\bclub\b/i.test(raw)
+
+    console.log(`Should generate variant for "${raw}"?`, shouldVariant)
+
+    if (!shouldVariant) return [raw]
+
+    const abbreviated = normalizeUserQueryForGolfAPI(raw)
+    console.log(`Abbreviated "${raw}" → "${abbreviated}"`)
+    // Dedupe – if abbreviation produced the same string, only send one request
+    return Array.from(new Set([raw, abbreviated])).filter(Boolean)
+}
+
+/**
+ * Score how well a club name matches the user's original query.
+ * Higher = better match. Used to rank merged results.
+ */
+function scoreClubNameMatch(userQuery: string, clubName: string): number {
+    const q = userQuery.toLowerCase().trim()
+    const n = clubName.toLowerCase().trim()
+
+    if (n === q) return 100
+    if (n.startsWith(q)) return 80
+    if (n.includes(q)) return 60
+    if (q.includes(n)) return 40
+
+    // Token overlap: what fraction of the user's words appear in the club name?
+    const qTokens = q.split(/\s+/)
+    const nTokens = new Set(n.split(/\s+/))
+    const overlap = qTokens.filter((t) => nTokens.has(t)).length
+    return Math.round((overlap / qTokens.length) * 30)
+}
+
+function dedupeBy<T>(items: T[], keyFn: (x: T) => string): T[] {
+    const map = new Map<string, T>()
+    for (const it of items) {
+        const k = keyFn(it)
+        if (!map.has(k)) map.set(k, it)
+    }
+    return Array.from(map.values())
+}
+
+/**
+ * Run `searchGolfClubs` for each query variant in parallel, merge results,
+ * deduplicate by club id, and rank by name-match quality then distance.
+ */
+export async function searchGolfClubsWithVariants(params: {
+    userQuery: string
+    userLocation?: LatLng | null
+    signal?: AbortSignal
+    limit?: number
+}): Promise<ClubResult[]> {
+    const { userQuery, userLocation, signal, limit = 40 } = params
+
+    const variants = buildCourseQueryVariants(userQuery)
+
+    console.debug("Golf search variants:", variants)
+
+    const settled = await Promise.allSettled(
+        variants.map((q) =>
+            searchGolfClubs({ query: q, userLocation, signal, limit })
+        )
+    )
+
+    const merged = settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+
+    // if the size is 0 after merging, it means all searches failed or returned no results, and thus try one last time by just removing the tailing references to golf/country/club (e.g. "Pebble Beach Golf and Country Club" → "Pebble Beach")
+    if (merged.length === 0) {
+        const fallbackQuery = userQuery.replace(/\s*\b(golf and country club|golf|country|club)\b\s*$/i, "").trim()
+        if (fallbackQuery && fallbackQuery !== userQuery) {
+            console.debug(`No results from variants, trying fallback query: "${fallbackQuery}"`)
+            try {
+                const fallbackResults = await searchGolfClubs({ query: fallbackQuery, userLocation, signal, limit })
+                merged.push(...fallbackResults)
+            } catch (e) {
+                console.warn(`Fallback search failed for "${fallbackQuery}":`, e)
+            }
+        }
+    }
+
+    const deduped = dedupeBy(merged, (c) => c.id ?? c.clubName.toLowerCase().trim())
+
+    deduped.sort((a, b) => {
+        const sa = scoreClubNameMatch(userQuery, a.clubName)
+        const sb = scoreClubNameMatch(userQuery, b.clubName)
+        if (sb !== sa) return sb - sa
+        return (a.distanceMi ?? Infinity) - (b.distanceMi ?? Infinity)
+    })
+
+    return deduped.slice(0, limit)
+}
+
+// ---------------------------------------------------------------------------
+// Core Golf API search (single query)
+// ---------------------------------------------------------------------------
+
 /**
  * Search courses from golfcourseapi and group by club (club_name).
  * Pass an AbortSignal so you can cancel in-flight requests when user keeps typing.
+ * Prefer `searchGolfClubsWithVariants` for user-facing text searches.
  */
 export async function searchGolfClubs(params: {
     query: string
@@ -257,33 +297,6 @@ export async function searchGolfClubs(params: {
     }
 
     return results
-}
-
-// ---------------------------------------------------------------------------
-// Overpass API types
-// ---------------------------------------------------------------------------
-
-type OverpassElement = {
-    type: "node" | "way" | "relation"
-    id: number
-    lat?: number   // present on nodes
-    lon?: number   // present on nodes
-    center?: { lat: number; lon: number } // present on ways/relations with "out center"
-    tags?: Record<string, string>
-}
-
-type OverpassResponse = {
-    elements: OverpassElement[]
-}
-
-/** A lightweight result from Overpass – no Golf API data yet. */
-export type OverpassResult = {
-    /** Unique OSM element id (stringified for stable key use) */
-    osmId: string
-    name: string
-    coordinate: LatLng
-    distanceMi?: number
-    distanceKm?: number
 }
 
 /** Extract the best display name from an Overpass element's tags. */
@@ -484,6 +497,7 @@ export async function searchNearbyGolfClubs(params: {
 /**
  * Small helper for a course search screen:
  * Call this each time query changes; it cancels the previous request.
+ * Uses variant search (raw + abbreviated) for better API coverage.
  */
 export function makeCancelableCourseSearch() {
     let controller: AbortController | null = null
@@ -493,8 +507,8 @@ export function makeCancelableCourseSearch() {
         controller = new AbortController()
 
         try {
-            return await searchGolfClubs({
-                query,
+            return await searchGolfClubsWithVariants({
+                userQuery: query,
                 userLocation,
                 signal: controller.signal,
                 limit: 30,

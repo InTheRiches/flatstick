@@ -9,12 +9,13 @@ import {
 } from "react-native"
 import MapView, { Callout, Marker, type Region } from "react-native-maps"
 import { Ionicons } from "@expo/vector-icons"
-import type { ClubResult, LatLng, OverpassResult } from "@/services/courses/courseSearching"
-import { searchGolfClubs, searchNearbyGolfCourses } from "@/services/courses/courseSearching"
+import {searchGolfClubsWithVariants} from "@/services/courses/courseSearching"
+import { searchNearbyGolfCourses } from "@/services/courses/courseSearching"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { Text } from "@/components/ui/Text"
-import {normalizeOSMGolfName} from "@/utils/searching";
+import {ClubResult, OverpassResult} from "@/models/courses";
+import {LatLng} from "@/models/common";
 
 interface NearbyCoursesMapProps {
     userCoords: LatLng | null
@@ -114,8 +115,8 @@ export const NearbyCoursesMap: FC<NearbyCoursesMapProps> = ({
     const handleMarkerPress = useCallback(async (result: OverpassResult) => {
         setFetchingOsmId(result.osmId)
         try {
-            const clubs = await searchGolfClubs({
-                query: normalizeOSMGolfName(result.name),
+            const clubs = await searchGolfClubsWithVariants({
+                userQuery: result.name,
                 userLocation: userCoords,
                 limit: 5,
             })
@@ -296,6 +297,7 @@ const $badge: ThemedStyle<ViewStyle> = (theme) => ({
 const $badgeText: ThemedStyle<TextStyle> = () => ({
     color: "#fff",
     fontSize: 11,
+    marginTop: -4,
     fontWeight: "700",
 })
 

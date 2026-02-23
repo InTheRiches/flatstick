@@ -1,62 +1,91 @@
-import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import * as Location from "expo-location"
-import {ActivityIndicator, FlatList, TextInput, type TextStyle, View, type ViewStyle} from "react-native";
+import React, {FC, useEffect, useState} from "react";
+import {ActivityIndicator, View, type TextStyle, type ViewStyle, Pressable} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import type {ThemedStyle} from "@/theme/types";
 import {useAppTheme} from "@/theme/context";
 import { Screen } from "@/components/ui/Screen"
-import {ClubResult, makeCancelableCourseSearch} from "@/services/courses/courseSearching";
-import {Text} from "@/components/ui/Text";
-import {$styles} from "@/theme/styles";
-import CourseRowComponent from "@/components/app/golf/search/CourseRow";
-import SelectCourseDetailsModal, {type SelectCourseDetailsModalReference, type CourseSelectionDetails} from "@/components/app/golf/modals/SelectCourseDetailsModal";
-import PageHeader from "@/components/headers/PageHeader";
+import {useRoundTimerEngine} from "@/hooks/useTimerEngine";
+import {HoleState} from "@/models/session.types";
+import {PuttingHeader} from "@/components/app/golf/putting/PuttingHeader";
+import {Button} from "@/components/ui/Button";
+import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
+import type {ThemedStyle} from "@/theme/types";
+import {ActionRow} from "@/components/app/golf/putting/ActionRow";
 
-export const PuttingScreen: FC = function PuttingScreen() {
-    const [location, setLocation] = useState<Location.LocationObject | null>(null)
+interface PuttingScreenProps {
+    course: CourseSelectionDetails | null;
+}
+
+export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ course }) {
     const { themed, theme } = useAppTheme()
-    const [loading, setLoading] = useState(false)
-    // const modalRef = useRef<SelectCourseDetailsModalReference>(null)
+
+    const [loading] = useState(false)
+    const [isPinEditMode, setIsPinEditMode] = useState(false)
+
+    const [holeState, setHoleState] = useState<HoleState>({
+        holeNumber: 1,
+        status: "inProgress",
+    } as HoleState)
+
+    const timerEngine = useRoundTimerEngine(course?.numberOfHoles)
 
     useEffect(() => {
-        (async () => {
-            const { status } = await Location.requestForegroundPermissionsAsync()
-            if (status !== "granted") return
-
-            const loc = await Location.getCurrentPositionAsync({})
-            setLocation(loc)
-        })()
+        // placeholder for any effect logic
     }, [])
 
     return (
         <Screen>
-            <PageHeader title={"Choose Course"} />
+            <PuttingHeader holeState={holeState} timer={timerEngine} teeSet={course?.selectedTee}/>
 
-            {loading && <ActivityIndicator color={theme.colors.tint} style={{marginTop: 12}} />}
+            <View style={{aspectRatio: 1, width: "100%", backgroundColor: "green", marginTop: 24, borderRadius: 16}}>
+                <Pressable
+                    style={({ pressed }) => [
+                        themed($pinButton),
+                        isPinEditMode && themed($pinButtonActive)
+                    ]}
+                    onPress={() => setIsPinEditMode(!isPinEditMode)}
+                    hitSlop={8}
+                >
+                    <Ionicons
+                        name="flag"
+                        size={20}
+                        color={
+                            isPinEditMode
+                                ? theme.colors.buttons.textColor
+                                : theme.colors.buttons.secondary.textColor
+                        }
+                    />
+                </Pressable>
+            </View>
+
+            <ActionRow actionLabel={isPinEditMode ? "Edit pin location" : "Add first shot"} onAction={() => {}} onDelete={() => {}} onUndo={() => {}}/>
+
+
+            {loading && <ActivityIndicator color={theme.colors.tint} style={$loadingIndicator} />}
         </Screen>
     )
 }
 
-// {location && (
-//     <MapView
-//         style={{ height: 200, borderRadius: 16 }}
-//         initialRegion={{
-//             latitude: location.coords.latitude,
-//             longitude: location.coords.longitude,
-//             latitudeDelta: 0.1,
-//             longitudeDelta: 0.1,
-//         }}
-//         showsUserLocation
-//     >
-//         {courses.map((course) => (
-//             <Marker
-//                 key={course.id}
-//                 coordinate={{
-//                     latitude: course.lat,
-//                     longitude: course.lng,
-//                 }}
-//                 title={course.name}
-//             />
-//         ))}
-//     </MapView>
-// )}
+const $pinButtonActive: ThemedStyle<ViewStyle> = (theme) => ({
+    backgroundColor: theme.colors.buttons.background,
+    borderColor: theme.colors.buttons.background,
+})
+
+const $pinButton: ThemedStyle<ViewStyle> = (theme) => ({
+    borderRadius: 8,
+    backgroundColor: theme.colors.buttons.secondary.background, // Matching search bar bg
+    borderColor: theme.colors.buttons.secondary.border,
+    padding: 12,
+    marginTop: 8,
+    marginRight: 8,
+    aspectRatio: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    position: "absolute",
+    right: 0,
+    top: 0
+})
+
+const $loadingIndicator: ViewStyle = {
+    marginTop: 12,
+}

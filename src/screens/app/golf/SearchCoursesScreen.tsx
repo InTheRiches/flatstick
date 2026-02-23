@@ -5,7 +5,7 @@ import {Ionicons} from "@expo/vector-icons"
 import type {ThemedStyle} from "@/theme/types"
 import {useAppTheme} from "@/theme/context"
 import {Screen} from "@/components/ui/Screen"
-import {ClubResult, makeCancelableCourseSearch} from "@/services/courses/courseSearching"
+import {makeCancelableCourseSearch} from "@/services/courses/courseSearching"
 import {Text} from "@/components/ui/Text"
 import CourseRowComponent from "@/components/app/golf/search/CourseRow"
 import {NearbyCoursesMap} from "@/components/app/golf/search/NearbyCoursesMap"
@@ -15,9 +15,13 @@ import SelectCourseDetailsModal, {
 } from "@/components/app/golf/modals/SelectCourseDetailsModal"
 import PageHeader from "@/components/headers/PageHeader"
 import {normalizeUserQueryForGolfAPI} from "@/utils/searching";
+import {useNavPayloadStore} from "@/hooks/useNavPayloadStore";
+import {useRouter} from "expo-router";
+import {ClubResult} from "@/models/courses";
 
 export const SearchCoursesScreen: FC = function SearchCoursesScreen() {
     const {themed, theme} = useAppTheme()
+    const router = useRouter()
 
     const [location, setLocation] = useState<Location.LocationObject | null>(null)
     const [query, setQuery] = useState("")
@@ -53,7 +57,7 @@ export const SearchCoursesScreen: FC = function SearchCoursesScreen() {
                 const userLoc = location
                     ? {latitude: location.coords.latitude, longitude: location.coords.longitude}
                     : undefined
-                const res = await search(normalizeUserQueryForGolfAPI(query), userLoc)
+                const res = await search(query, userLoc)
                 if (!mounted) return
                 setResults(res)
             } catch (e) {
@@ -77,6 +81,13 @@ export const SearchCoursesScreen: FC = function SearchCoursesScreen() {
 
     const handleCourseDetailsConfirm = useCallback((_details: CourseSelectionDetails) => {
         // TODO: navigate / save selection
+        const key = `${_details.club.id}:${Date.now()}`
+        useNavPayloadStore.getState().setPayload(key, { _details })
+
+        router.push({
+            pathname: "/(golf)/putting",
+            params: { key }
+        })
     }, [])
 
     const userCoords = useMemo(

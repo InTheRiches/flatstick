@@ -8,16 +8,30 @@ export function normalizeUserQueryForGolfAPI(input: string): string {
 
     // 1️⃣ Full long-form replacements → API abbreviations
     const replacements: Array<[RegExp, string]> = [
-        // Golf and Country Club variations
+        // MOST specific first
+
+        // Golf and Country Club
         [/\bGolf\s*(and|&)\s*Country\s*Club\b/gi, "G&Cc"],
 
-        // Golf Club
-        [/\bGolf\s*Club\b/gi, "Gc"],
+        // Golf and Country
+        [/\bGolf\s*(and|&)\s*Country\b/gi, "G&Cc"],
+
+        // Golf and
+        [/\bGolf\s*(and|&)\b/gi, "G&"],
+
+        // Golf Club (only when Club follows)
+        [/\bGolf\s+Club\b/gi, "Gc"],
+
+        // Golf Course (only when Course follows)
+        [/\bGolf\s+Course\b/gi, "Gc"],
 
         // Country Club
-        [/\bCountry\s*Club\b/gi, "Cc"],
+        [/\bCountry\s+Club\b/gi, "Cc"],
 
-        // Initial-based weird formats
+        // Standalone Golf
+        [/\bGolf\b/gi, "G"],
+
+        // Weird dotted formats
         [/\bG\.\s*&\s*C\.\s*C\.\b/gi, "G&Cc"],
         [/\bG\.\s*C\.\b/gi, "Gc"],
     ]
