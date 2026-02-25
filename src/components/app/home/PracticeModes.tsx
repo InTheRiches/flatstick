@@ -2,11 +2,11 @@
 import React, { memo } from "react"
 import { Pressable, TextStyle, View, ViewStyle } from "react-native"
 
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import { useAppTheme } from "@/theme/context"
 import {ThemedStyle} from "@/theme/types";
-
-type PracticeModeKey = "greenSim" | "puttingOnly" | "fullRound"
+import {$styles} from "@/theme/styles";
+import {useRouter} from "expo-router";
 
 export interface PracticeModeLastResult {
     primaryStat?: string
@@ -18,16 +18,17 @@ export interface PracticeModeLastResult {
 
 export const PracticeModes = memo(function PracticeModes() {
     const { themed, theme } = useAppTheme()
+    const router = useRouter()
 
     return (
         <View style={[themed($container)]}>
             {/* Header */}
-            <Text style={themed($title)}>Start Practice</Text>
+            <Text style={$styles.sectionHeader}>Start Practice</Text>
 
             {/* Pods */}
             <View style={themed($podsWrap)}>
                 <Pressable
-                    onPress={() => {}}
+                    onPress={() => router.push("/(golf)/search")}
                     style={({ pressed }) => [themed($pod), pressed && themed($podPressed)]}
                     accessibilityRole="button"
                     accessibilityLabel={`Start full round mode.`}
@@ -131,13 +132,6 @@ export const PracticeModes = memo(function PracticeModes() {
 
 const $container: ThemedStyle<ViewStyle> = (theme) => ({
     gap: 12,
-})
-
-const $title: ThemedStyle<TextStyle> = (theme) => ({
-    fontSize: 18,
-    textAlign: "left",
-    width: "100%",
-    fontWeight: "700",
 })
 
 const $podsWrap: ThemedStyle<ViewStyle> = () => ({
@@ -251,10 +245,4 @@ const $emptyTitle: ThemedStyle<TextStyle> = (theme) => ({
     fontSize: 13,
     fontWeight: "600",
     color: theme.colors.text,
-})
-
-const $emptyHint: ThemedStyle<TextStyle> = (theme) => ({
-    fontSize: 12,
-    color: theme.colors.textDim,
-    marginTop: -8
 })

@@ -1,18 +1,21 @@
 import { FC } from "react"
 
-import { Screen } from "@/components/Screen"
+import { Screen } from "@/components/ui/Screen"
 import { $styles } from "@/theme/styles"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import {ProfileHeader} from "@/components/app/profile/ProfileHeader";
 import {Equipment} from "@/components/app/profile/Equipment";
 import {FriendsSummary} from "@/components/app/profile/FriendsSummary";
 import { UserProfile } from "@/models/user"
+import type {GripDoc, PutterDoc} from "@/models/equipment";
 
 interface ProfileScreenProps {
-    userProfile?: UserProfile
+    userProfile?: UserProfile,
+    selectedPutter?: PutterDoc,
+    selectedGrip?: GripDoc,
 }
 
-export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen({ userProfile }) {
+export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen({ userProfile, selectedPutter, selectedGrip }) {
     const $containerInsets = useSafeAreaInsetsStyle(["top"])
 
     return (
@@ -21,7 +24,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen({ us
 
             <FriendsSummary />
 
-            <Equipment/>
+            <Equipment selectedPutter={selectedPutter} selectedGrip={selectedGrip} />
         </Screen>
     )
 }

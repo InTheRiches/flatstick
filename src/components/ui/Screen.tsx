@@ -247,7 +247,7 @@ export function Screen(props: ScreenProps) {
     backgroundColor,
     KeyboardAvoidingViewProps,
     keyboardOffset = 0,
-    safeAreaEdges,
+    safeAreaEdges = ["top"],
     SystemBarsProps,
     systemBarStyle,
   } = props
@@ -258,7 +258,7 @@ export function Screen(props: ScreenProps) {
     <View
       style={[
         $containerStyle,
-        { backgroundColor: backgroundColor || colors.background },
+        { backgroundColor: backgroundColor || colors.backgrounds.default },
         $containerInsets,
       ]}
     >
@@ -274,7 +274,7 @@ export function Screen(props: ScreenProps) {
         style={[$styles.flex1, KeyboardAvoidingViewProps?.style]}
       >
         {isNonScrolling(props.preset) ? (
-          <ScreenWithoutScrolling {...props} />
+          <ScreenWithoutScrolling {...props} contentContainerStyle={[$styles.screen]} />
         ) : (
           <ScreenWithScrolling {...props} />
         )}

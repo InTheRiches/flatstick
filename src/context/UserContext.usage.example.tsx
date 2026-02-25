@@ -13,9 +13,9 @@
 
 import { useUser } from "@/context/UserContext"
 
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import {View} from "react-native";
-import {Button} from "@/components/Button";
+import {Button} from "@/components/ui/Button";
 
 /**
  * Example 1: Display user profile in a component

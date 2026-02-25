@@ -20,6 +20,14 @@ export type MissBucket = "center" | "left" | "right" | "farLeft" | "farRight" | 
 
 export type MissDistribution = Record<MissBucket, number>
 
+export type HoleState = {
+  holeNumber: number // 1..18
+  status: "notStarted" | "inProgress" | "completed"
+  // keep per-hole scoring/putting fields here
+  strokes?: number
+  putts?: number
+}
+
 export interface GeoPoint {
   lat: number
   lon: number
@@ -71,11 +79,6 @@ export interface PuttBiases {
   percentHigh: number // 0..1
 }
 
-export interface PlayerInfo {
-  putter: string // e.g. "default" or a putter type
-  grip: string // e.g. "default" or a grip type
-}
-
 export interface SessionBase {
   id: SessionId
   userId: UUID // add this in new system
@@ -84,7 +87,6 @@ export interface SessionBase {
   deletedAt?: ISODateString | null
 
   meta: SessionMetaBase
-  player: PlayerInfo
 }
 
 export interface PuttAttempt {

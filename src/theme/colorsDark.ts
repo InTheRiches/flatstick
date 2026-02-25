@@ -34,6 +34,7 @@ const palette = {
 
   angry100: "#F2D6CD",
   angry500: "#C03403",
+    angry800: "#7A1B01",
 
   black: "#000000",
   white: "#FFFFFF",
@@ -50,12 +51,38 @@ const buttons = {
     background: palette.tintedEmerald,
     border: palette.emerald,
     textColor: palette.neutral100,
+  },
+  disabled: {
+    background: palette.neutral300,
+    border: palette.neutral300,
+    textColor: palette.neutral500,
+  },
+  danger: {
+    background: palette.angry500,
+    border: palette.angry500,
+    textColor: palette.neutral100,
+    pressed: {
+      background: palette.angry800,
+      border: palette.angry800,
+      textColor: palette.neutral100,
+    }
+  },
+  secondary: {
+    background: palette.white,
+    border: palette.neutral300,
+    textColor: palette.neutral800,
+    pressed: {
+      background: palette.neutral400,
+      border: palette.neutral400,
+      textColor: palette.neutral800,
+    }
   }
 }
 
 const backgrounds = {
   default: palette.neutral200,
   elevated: palette.white,
+    overlay: palette.overlay20,
 }
 
 export const colors = {

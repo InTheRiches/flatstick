@@ -1,52 +1,82 @@
 import {useRouter} from "expo-router";
 import {useAppTheme} from "@/theme/context";
-import {Image, ImageStyle, TextStyle, View, ViewStyle} from "react-native";
+import {Image, ImageStyle, Pressable, TextStyle, View, ViewStyle} from "react-native";
 
-import {Text} from "@/components/Text";
+import {Text} from "@/components/ui/Text";
 import {ThemedStyle} from "@/theme/types";
+import {GripDoc, PutterDoc} from "@/models/equipment";
+import {$styles} from "@/theme/styles";
 
-export function Equipment() {
+interface EquipmentProps {
+    selectedPutter?: PutterDoc,
+    selectedGrip?: GripDoc
+}
+
+export function Equipment({ selectedPutter, selectedGrip }: EquipmentProps) {
     const router = useRouter()
-    const {themed, theme} = useAppTheme()
+    const {themed} = useAppTheme()
+
+    const putterSubtitle = selectedPutter
+        ? (selectedPutter.summary?.totalRounds != null
+            ? `${selectedPutter.summary.totalRounds} rounds`
+            : (selectedPutter.summary?.totalPutts != null ? `${selectedPutter.summary.totalPutts} putts` : ""))
+        : ""
+
+    const gripSubtitle = selectedGrip
+        ? (selectedGrip.summary?.totalRounds != null
+            ? `${selectedGrip.summary.totalRounds} rounds`
+            : "")
+        : ""
 
     return (
         <View style={$container}>
-            <Text style={$title}>Equipment</Text>
-            <View style={themed($card)}>
+            <Text style={$styles.sectionHeader}>Equipment</Text>
+            <Pressable        onPress={() => router.push("/equipment")}
+                                       style={({ pressed }) => [themed($card), pressed && themed($cardPressed)]}
+                                       accessibilityRole="button"
+                                       accessibilityLabel={`Start green simulation mode.`}>
                 <View style={themed($section)}>
                     <Text style={themed($subtitle)}>Active Putter</Text>
-                    <View style={$innerSection}>
-                        <View style={themed($avatar)}>
-                            <Image
-                                source={require("@assets/branding/FlatstickMallet.png")}
-                                resizeMode="contain"
-                                style={$image}
-                            />
+                    { selectedPutter ? (
+                        <View style={$innerSection}>
+                            <View style={themed($avatar)}>
+                                <Image
+                                    source={require("@assets/branding/FlatstickMallet.png")}
+                                    resizeMode="contain"
+                                    style={$image}
+                                />
+                            </View>
+                            <View style={$textContainer}>
+                                <Text style={themed($name)}>{selectedPutter.brand} {selectedPutter.model}</Text>
+                                <Text style={themed($description)}>{putterSubtitle}</Text>
+                            </View>
                         </View>
-                        <View style={$textContainer}>
-                            <Text style={themed($name)}>Scotty Cameron Phantom X5</Text>
-                            <Text style={themed($description)}>39 rounds</Text>
-                        </View>
-                    </View>
+                    ) : (
+                        <Text style={themed($name)}>No putter selected</Text>
+                    )}
                 </View>
                 <View style={themed($seperator)} />
                 <View style={themed($section)}>
                     <Text style={themed($subtitle)}>Active Grip</Text>
-                    <View style={$innerSection}>
-                        <View style={themed($avatar)}>
-                            <Image
-                                source={require("@assets/branding/FlatstickMallet.png")}
-                                resizeMode="contain"
-                                style={$image}
-                            />
+                    { selectedGrip ? (
+                        <View style={$innerSection}>
+                            <View style={themed($avatar)}>
+                                <Image
+                                    source={require("@assets/branding/FlatstickMallet.png")}
+                                    resizeMode="contain"
+                                    style={$image}
+                                />
+                            </View>
+                            <View style={$textContainer}>
+                                <Text style={themed($name)}>{selectedGrip.name}</Text>
+                                <Text style={themed($description)}>{gripSubtitle}</Text>
+                            </View>
                         </View>
-                        <View style={$textContainer}>
-                            <Text style={themed($name)}>Claw Grip</Text>
-                            <Text style={themed($description)}>6 rounds</Text>
-                        </View>
-                    </View>
+                    ) : (
+                        <Text style={themed($name)}>No grip selected</Text>
+                    )}
                 </View>
-            </View>
+            </Pressable>
         </View>
     )
 }
@@ -121,15 +151,12 @@ const $card: ThemedStyle<ViewStyle> = (theme) => ({
     borderColor: theme.colors.border
 })
 
+const $cardPressed: ThemedStyle<ViewStyle> = (theme) => ({
+    borderColor: theme.colors.tint
+})
+
 const $container: ViewStyle = {
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-}
-
-const $title: TextStyle = {
-    fontSize: 18,
-    textAlign: "left",
-    width: "100%",
-    fontWeight: "700",
 }

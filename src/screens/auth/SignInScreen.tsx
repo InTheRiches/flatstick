@@ -1,10 +1,10 @@
 import { useState, FC } from "react"
 import { View, Image, TouchableOpacity, ViewStyle, TextStyle, ImageStyle } from "react-native"
 
-import { Button } from "@/components/Button"
-import { Screen } from "@/components/Screen"
-import { Text } from "@/components/Text"
-import { TextField } from "@/components/TextField"
+import { Button } from "@/components/ui/Button"
+import { Screen } from "@/components/ui/Screen"
+import { Text } from "@/components/ui/Text"
+import { TextField } from "@/components/ui/TextField"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
@@ -41,97 +41,96 @@ export const SignInScreen: FC = function SignInScreen() {
   }
 
   return (
-    <Screen contentContainerStyle={[$styles.screen, $containerInsets]}>
-      <View style={themed($container(false))}>
-        <View style={themed($header)}>
-          <Image
-            accessible
-            accessibilityLabel="App Logo"
-            resizeMode="contain"
-            style={themed($headerImg)}
-            source={require("@assets/branding/FlatstickMallet.png")}
-          />
+      <Screen contentContainerStyle={[$styles.screen, $containerInsets]}>
+        <View style={themed($container(false))}>
+          <View style={themed($header)}>
+            <Image
+                accessible
+                accessibilityLabel="App Logo"
+                resizeMode="contain"
+                style={themed($headerImg)}
+                source={require("@assets/branding/FlatstickMallet.png")}
+            />
 
-          <Text style={themed($title)}>
-            Sign in to <Text style={themed($highlight)}>Flatstick</Text>
+            <Text style={themed($title)}>
+              Sign in to <Text style={themed($highlight)}>Flatstick</Text>
+            </Text>
+
+            <Text style={themed($subtitle)}>Improve your putting and so much more...</Text>
+          </View>
+
+          <View style={themed($form)}>
+            <View style={themed($container(false))}>
+              <TextField
+                  label="Email address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  clearButtonMode="while-editing"
+                  keyboardType="email-address"
+                  onChangeText={(email) => {
+                    setEmptyFieldsError(false)
+                    setForm({ ...form, email })
+                  }}
+                  placeholder="john@example.com"
+                  value={form.email}
+                  status={emptyFieldsError ? "error" : undefined}
+                  containerStyle={themed($container(false))}
+              />
+            </View>
+
+            <View style={themed($container(false))}>
+              <TextField
+                  label="Password"
+                  autoCorrect={false}
+                  clearButtonMode="while-editing"
+                  onChangeText={(password) => {
+                    setEmptyFieldsError(false)
+                    setForm({ ...form, password })
+                  }}
+                  placeholder="********"
+                  secureTextEntry
+                  value={form.password}
+                  status={emptyFieldsError ? "error" : undefined}
+                  containerStyle={themed($container(false))}
+              />
+            </View>
+
+            {error ? <Text style={{ color: "#ff4d4f", marginBottom: 8 }}>{error}</Text> : null}
+            {emptyFieldsError ? <Text style={{ color: "#ff4d4f", marginBottom: 8 }}>Please fill in both fields</Text> : null}
+
+            <View style={themed($formAction)}>
+              <Button
+                  text={signingIn ? "Signing in..." : "Sign in"}
+                  style={themed($btn)}
+                  onPress={handleSignIn}
+                  disabled={signingIn}
+              />
+            </View>
+
+            <TouchableOpacity onPress={() => {}}>
+              <Text style={themed($formLink)}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <TouchableOpacity onPress={() => router.replace("/(auth)/sign-up")}>
+          <Text style={themed($formFooter)}>
+            {"Don't have an account? "}
+            <Text style={themed($link)}>Sign up</Text>
           </Text>
-
-          <Text style={themed($subtitle)}>Improve your putting and so much more...</Text>
-        </View>
-
-        <View style={themed($form)}>
-          <View style={themed($container(false))}>
-            <TextField
-              label="Email address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              keyboardType="email-address"
-              onChangeText={(email) => {
-                setEmptyFieldsError(false)
-                setForm({ ...form, email })
-              }}
-              placeholder="john@example.com"
-              value={form.email}
-              status={emptyFieldsError ? "error" : undefined}
-              containerStyle={themed($container(false))}
-            />
-          </View>
-
-          <View style={themed($container(false))}>
-            <TextField
-              label="Password"
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              onChangeText={(password) => {
-                setEmptyFieldsError(false)
-                setForm({ ...form, password })
-              }}
-              placeholder="********"
-              secureTextEntry
-              value={form.password}
-              status={emptyFieldsError ? "error" : undefined}
-              containerStyle={themed($container(false))}
-            />
-          </View>
-
-          {error ? <Text style={{ color: "#ff4d4f", marginBottom: 8 }}>{error}</Text> : null}
-          {emptyFieldsError ? <Text style={{ color: "#ff4d4f", marginBottom: 8 }}>Please fill in both fields</Text> : null}
-
-          <View style={themed($formAction)}>
-            <Button
-              text={signingIn ? "Signing in..." : "Sign in"}
-              style={themed($btn)}
-              textStyle={themed($btnText)}
-              onPress={handleSignIn}
-              disabled={signingIn}
-            />
-          </View>
-
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={themed($formLink)}>Forgot password?</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <TouchableOpacity onPress={() => router.replace("/(auth)/sign-up")}>
-        <Text style={themed($formFooter)}>
-          {"Don't have an account? "}
-          <Text style={themed($link)}>Sign up</Text>
-        </Text>
-      </TouchableOpacity>
-    </Screen>
+        </TouchableOpacity>
+      </Screen>
   )
 }
 
 const $container =
-  (bottomBorder: boolean): ThemedStyle<ViewStyle> =>
-  (theme) => ({
-    width: "100%",
-    paddingTop: theme.spacing.sm,
-    marginBottom: bottomBorder ? 0 : theme.spacing.xs,
-    alignItems: "center",
-  })
+    (bottomBorder: boolean): ThemedStyle<ViewStyle> =>
+        (theme) => ({
+          width: "100%",
+          paddingTop: theme.spacing.sm,
+          marginBottom: bottomBorder ? 0 : theme.spacing.xs,
+          alignItems: "center",
+        })
 
 const $header: ThemedStyle<ViewStyle> = (theme) => ({
   alignItems: "center",
@@ -197,22 +196,8 @@ const $link: ThemedStyle<TextStyle> = (theme) => ({
 })
 
 const $btn: ThemedStyle<ViewStyle> = (theme) => ({
-  alignItems: "center",
-  backgroundColor: theme.colors.buttons.background,
-  borderColor: theme.colors.buttons.border,
-  borderRadius: 30,
-  borderWidth: 1,
-  flexDirection: "row",
-  justifyContent: "center",
   paddingHorizontal: theme.spacing.lg,
   paddingVertical: theme.spacing.sm,
-})
-
-const $btnText: ThemedStyle<TextStyle> = (theme) => ({
-  color: theme.colors.buttons.textColor,
-  fontSize: 18,
-  fontWeight: "600",
-  lineHeight: 26,
 })
 
 export default SignInScreen

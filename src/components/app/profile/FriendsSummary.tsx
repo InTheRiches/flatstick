@@ -2,10 +2,11 @@ import {useRouter} from "expo-router";
 import {useAppTheme} from "@/theme/context";
 import {Image, ImageStyle, TextStyle, View, ViewStyle} from "react-native";
 
-import {Text} from "@/components/Text";
+import {Text} from "@/components/ui/Text";
 import {ThemedStyle} from "@/theme/types";
 import React from "react";
 import {Ionicons} from "@expo/vector-icons";
+import {$styles} from "@/theme/styles";
 
 export function FriendsSummary() {
     const router = useRouter()
@@ -13,7 +14,7 @@ export function FriendsSummary() {
 
     return (
         <View style={$container}>
-            <Text style={$title}>Friends</Text>
+            <Text style={$styles.sectionHeader}>Friends</Text>
             <View style={themed($card)}>
                 <View>
                     <Text style={themed($subtitle)}>24 Friends</Text>
@@ -122,11 +123,4 @@ const $container: ViewStyle = {
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 12,
-}
-
-const $title: TextStyle = {
-    fontSize: 18,
-    textAlign: "left",
-    width: "100%",
-    fontWeight: "700",
 }

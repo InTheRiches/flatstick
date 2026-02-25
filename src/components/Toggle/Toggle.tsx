@@ -17,7 +17,7 @@ import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 
-import { Text, TextProps } from "../Text"
+import { Text, TextProps } from "../ui/Text"
 
 export interface ToggleProps<T> extends Omit<TouchableOpacityProps, "style"> {
   /**

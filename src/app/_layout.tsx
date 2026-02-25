@@ -6,6 +6,7 @@ import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-c
 
 import { ThemeProvider } from "@/theme/context"
 import { UserProvider } from "@/context/UserContext"
+import { EquipmentProvider } from "@/context/EquipmentContext"
 import {useAuth} from "@/hooks/useAuth";
 
 SplashScreen.preventAutoHideAsync()
@@ -58,7 +59,9 @@ export default function RootLayout() {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ThemeProvider>
         <UserProvider authUser={user} authInitializing={initializing}>
-          <RootLayoutContent />
+          <EquipmentProvider authInitializing={initializing}>
+            <RootLayoutContent />
+          </EquipmentProvider>
         </UserProvider>
       </ThemeProvider>
     </SafeAreaProvider>

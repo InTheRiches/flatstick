@@ -2,9 +2,10 @@
 import React, { memo, useMemo } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 
-import { Text } from "@/components/Text"
+import { Text } from "@/components/ui/Text"
 import { ThemedStyle } from "@/theme/types"
 import { useAppTheme } from "@/theme/context"
+import {$styles} from "@/theme/styles";
 
 type DayKey = string // e.g. "2026-02-19"
 
@@ -51,7 +52,7 @@ export const PerformanceSummary = memo(function PerformanceSummary() {
 
     return (
         <View style={[themed($container)]}>
-            <Text style={themed($title)}>Last 7 Days</Text>
+            <Text style={$styles.sectionHeader}>Last 7 Days</Text>
 
             {!hasEnoughFor7 || !currentAgg ? (
                 <View style={themed($placeholderCard)}>
@@ -287,14 +288,6 @@ function clamp01(x: number) {
 const $container: ThemedStyle<ViewStyle> = () => ({
     gap: 8,
     marginTop: 16
-})
-
-const $title: ThemedStyle<TextStyle> = (theme) => ({
-    fontSize: 18,
-    fontWeight: "700",
-    color: theme.colors.text,
-    textAlign: "left",
-    width: "100%",
 })
 
 const $card: ThemedStyle<ViewStyle> = (theme) => ({
