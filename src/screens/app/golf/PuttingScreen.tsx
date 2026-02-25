@@ -10,6 +10,7 @@ import {Button} from "@/components/ui/Button";
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
 import type {ThemedStyle} from "@/theme/types";
 import {ActionRow} from "@/components/app/golf/putting/ActionRow";
+import * as Location from "expo-location";
 
 interface PuttingScreenProps {
     course: CourseSelectionDetails | null;
@@ -18,6 +19,7 @@ interface PuttingScreenProps {
 export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ course }) {
     const { themed, theme } = useAppTheme()
 
+    const [location, setLocation] = useState<Location.LocationObject | null>(null)
     const [loading] = useState(false)
     const [isPinEditMode, setIsPinEditMode] = useState(false)
 
@@ -29,7 +31,29 @@ export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ co
     const timerEngine = useRoundTimerEngine(course?.numberOfHoles)
 
     useEffect(() => {
-        // placeholder for any effect logic
+        let subscription: { remove: () => void; }
+
+        ;(async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync()
+            if (status !== "granted") return
+
+            subscription = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.Highest,
+                    timeInterval: 2000,     // every 2 seconds
+                    distanceInterval: 1,    // or every 1 meter
+                },
+                (loc) => {
+                    setLocation(loc)
+                }
+            )
+        })()
+
+        return () => {
+            if (subscription) {
+                subscription.remove()
+            }
+        }
     }, [])
 
     return (
@@ -71,7 +95,7 @@ const $pinButtonActive: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $pinButton: ThemedStyle<ViewStyle> = (theme) => ({
-    borderRadius: 8,
+    borderRadius: 50,
     backgroundColor: theme.colors.buttons.secondary.background, // Matching search bar bg
     borderColor: theme.colors.buttons.secondary.border,
     padding: 12,
