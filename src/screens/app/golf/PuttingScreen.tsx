@@ -37,13 +37,15 @@ export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ co
             const { status } = await Location.requestForegroundPermissionsAsync()
             if (status !== "granted") return
 
+            const watchOptions: Location.LocationWatchOptions = {
+                accuracy: Location.Accuracy.Highest,
+                timeInterval: 2000,     // every 2 seconds
+                distanceInterval: 1,    // or every 1 meter
+            }
+
             subscription = await Location.watchPositionAsync(
-                {
-                    accuracy: Location.Accuracy.Highest,
-                    timeInterval: 2000,     // every 2 seconds
-                    distanceInterval: 1,    // or every 1 meter
-                },
-                (loc) => {
+                watchOptions,
+                (loc: Location.LocationObject) => {
                     setLocation(loc)
                 }
             )
