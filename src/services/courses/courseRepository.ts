@@ -17,12 +17,19 @@
  */
 
 import type { CourseData, PuttingGreenData } from "@/models/course"
-import {
-    doc,
-    getDoc,
-    setDoc,
-    type Firestore,
-} from "firebase/firestore"
+import {doc, FirebaseFirestoreTypes, getDoc} from "@react-native-firebase/firestore"
+import {getFunctions, httpsCallable} from "@react-native-firebase/functions"
+
+// Cloud Functions callable endpoints
+const SAVE_COURSE_FN = "saveCourseData"
+const SAVE_PUTTING_GREEN_FN = "savePuttingGreenData"
+
+// Helper to call a Firebase callable function
+async function callFunction(name: string, data: any): Promise<any> {
+  // Use the react-native-firebase library
+  const fn = httpsCallable(getFunctions(), name)
+  return fn(data)
+}
 
 // ---------------------------------------------------------------------------
 // Collection paths
@@ -57,7 +64,7 @@ export function isCacheStale(lastFetchedAt: number, maxAgeMs: number): boolean {
  * @param osmId - OSM way/relation id of the course.
  */
 export async function getCachedCourse(
-  db: Firestore,
+  db: FirebaseFirestoreTypes.Module,
   osmId: number,
 ): Promise<CourseData | null> {
   const ref = doc(db, COURSES_COLLECTION, String(osmId))
@@ -67,18 +74,17 @@ export async function getCachedCourse(
 }
 
 /**
- * Persist a `CourseData` document to Firestore.
- * Overwrites any existing document for the same OSM id.
+ * Save a CourseData document via Cloud Function.
+ * Only privileged backend services should be able to call this.
  *
- * @param db   - Injected Firestore instance.
+ * @param _db
  * @param data - The assembled course dataset to persist.
  */
 export async function saveCourse(
-  db: Firestore,
+  _db: FirebaseFirestoreTypes.Module, // kept for API compatibility, not used
   data: CourseData,
 ): Promise<void> {
-  const ref = doc(db, COURSES_COLLECTION, String(data.osmId))
-  await setDoc(ref, data)
+  await callFunction(SAVE_COURSE_FN, { courseData: data })
 }
 
 // ---------------------------------------------------------------------------
@@ -93,7 +99,7 @@ export async function saveCourse(
  * @param osmGreenId - OSM way id of the putting green.
  */
 export async function getCachedPuttingGreen(
-  db: Firestore,
+  db: FirebaseFirestoreTypes.Module,
   osmGreenId: number,
 ): Promise<PuttingGreenData | null> {
   const ref = doc(db, PUTTING_GREENS_COLLECTION, String(osmGreenId))
@@ -110,11 +116,17 @@ export async function getCachedPuttingGreen(
  * @param osmGreenId - OSM way id of the putting green.
  * @param data       - The assembled putting-green dataset to persist.
  */
+/**
+ * Save a PuttingGreenData document via Cloud Function.
+ * Only privileged backend services should be able to call this.
+ *
+ * @param osmGreenId - OSM way id of the putting green.
+ * @param data       - The assembled putting-green dataset to persist.
+ */
 export async function savePuttingGreen(
-  db: Firestore,
+  _db: FirebaseFirestoreTypes.Module, // kept for API compatibility, not used
   osmGreenId: number,
   data: PuttingGreenData,
 ): Promise<void> {
-  const ref = doc(db, PUTTING_GREENS_COLLECTION, String(osmGreenId))
-  await setDoc(ref, data)
+  await callFunction(SAVE_PUTTING_GREEN_FN, { osmGreenId, greenData: data })
 }

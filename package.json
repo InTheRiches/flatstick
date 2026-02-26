@@ -23,7 +23,7 @@
     "@react-native-firebase/crashlytics": "23.8.5",
     "@react-native-firebase/database": "23.8.5",
     "@react-native-firebase/firestore": "23.8.5",
-    "@react-native-firebase/functions": "23.8.5",
+    "@react-native-firebase/functions": "^23.8.6",
     "@react-native-firebase/in-app-messaging": "23.8.5",
     "@react-native-firebase/installations": "23.8.5",
     "@react-native-firebase/messaging": "23.8.5",

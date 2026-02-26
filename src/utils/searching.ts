@@ -30,6 +30,8 @@ export function normalizeUserQueryForGolfAPI(input: string): string {
 
         // Standalone Golf
         [/\bGolf\b/gi, "G"],
+        [/\bGol\b/gi, "G"],
+        [/\bGo\b/gi, "G"],
 
         // Weird dotted formats
         [/\bG\.\s*&\s*C\.\s*C\.\b/gi, "G&Cc"],

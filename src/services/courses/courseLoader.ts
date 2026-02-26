@@ -17,24 +17,24 @@
 import type { CourseData, ProcessedGreen, PuttingGreenData } from "@/models/course"
 import type { LatLng } from "@/models/geo"
 import {
-    fetchCourseGeometry,
-    fetchCourseIdsByLocation,
-    fetchPuttingGreenByLocation,
+  fetchCourseGeometry,
+  fetchCourseIdsByLocation,
+  fetchPuttingGreenByLocation,
 } from "@/services/osm/osm.client"
 import type { OsmCourseCandidate } from "@/services/osm/osm.types"
 import { fetch3DEPSamples } from "@/services/usgs/usgs.client"
 import {
-    extractCourseFeatures,
-    extractPuttingGreenBoundary,
+  extractCourseFeatures,
+  extractPuttingGreenBoundary,
 } from "@/utils/courses/normalize/osm.normalizer"
 import { buildLidarGrid } from "@/utils/courses/normalize/usgs.normalizer"
-import type { Firestore } from "firebase/firestore"
+import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore"
 import {
-    getCachedCourse,
-    getCachedPuttingGreen,
-    isCacheStale,
-    saveCourse,
-    savePuttingGreen,
+  getCachedCourse,
+  getCachedPuttingGreen,
+  isCacheStale,
+  saveCourse,
+  savePuttingGreen,
 } from "./courseRepository"
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ export type CourseLoadError =
  */
 export async function loadCourseData(params: {
   location: LatLng
-  db: Firestore
+  db: FirebaseFirestoreTypes.Module
   signal?: AbortSignal
   cacheMaxAgeMs?: number
 }): Promise<Result<CourseData, CourseLoadError>> {
@@ -195,6 +195,8 @@ export async function loadCourseData(params: {
       greens: greensWithLidar,
       bunkers: features.bunkers,
       fairways: features.fairways,
+      teeBoxes: features.teeBoxes,
+      holes: features.holes,
       lastFetchedAt: Date.now(),
     }
 
@@ -241,7 +243,7 @@ export type GreenLoadError =
  */
 export async function loadPuttingGreenData(params: {
   location: LatLng
-  db: Firestore
+  db: FirebaseFirestoreTypes.Module
   signal?: AbortSignal
   cacheMaxAgeMs?: number
 }): Promise<Result<PuttingGreenData, GreenLoadError>> {

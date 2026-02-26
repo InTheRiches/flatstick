@@ -9,7 +9,7 @@
  *   - Output: types from `@/models/course` and `@/models/geo`
  */
 
-import type { BunkerPolygon, FairwayPolygon, ProcessedGreen } from "@/models/course"
+import type { BunkerPolygon, FairwayPolygon, HolePath, ProcessedGreen, TeeBox } from "@/models/course"
 import type { BoundingBox, LatLng, XYPoint } from "@/models/geo"
 import type { OverpassElement, OverpassResponse } from "@/services/osm/osm.types"
 import { isPointInPolygonXY } from "@/utils/courses/geometry/polygon.utils"
@@ -28,6 +28,8 @@ export type OsmCourseFeatures = {
   identifiedGreens: Array<Omit<ProcessedGreen, "lidar">>
   bunkers: BunkerPolygon[]
   fairways: FairwayPolygon[]
+  teeBoxes: TeeBox[]
+  holes: HolePath[]
   /**
    * Count of green polygons that could not be matched to any hole line.
    * Used for diagnostics / warnings — not an error that aborts loading.
@@ -127,14 +129,31 @@ export function extractCourseFeatures(
 
   const rawBunkers: BunkerPolygon[] = []
   const rawFairways: FairwayPolygon[] = []
+  const rawTeeBoxes: TeeBox[] = []
 
   for (const el of elements) {
+    if (el.type === "node" && el.tags?.golf === "tee" && el.tags?.ref) {
+      rawTeeBoxes.push({
+        osmId: el.id,
+        hole: el.tags.ref,
+        coordinates: [{ latitude: el.lat, longitude: el.lon }],
+      })
+    }
+
     if (el.type === "way" && el.nodes) {
       const coords = resolveWayCoords(el.nodes, nodeMap)
       const golf = el.tags?.golf
 
       if (golf === "hole" && el.tags?.ref) {
         rawHoles.push({ ref: el.tags.ref, nodes: coords })
+      }
+
+      if (golf === "tee" && el.tags?.ref) {
+        rawTeeBoxes.push({
+          osmId: el.id,
+          hole: el.tags.ref,
+          coordinates: coords,
+        })
       }
 
       if (coords.length < 3) continue // polygons need ≥ 3 points
@@ -197,7 +216,14 @@ export function extractCourseFeatures(
     })
   }
 
-  return { identifiedGreens, bunkers: rawBunkers, fairways: rawFairways, unmatchedGreenCount }
+  return {
+    identifiedGreens,
+    bunkers: rawBunkers,
+    fairways: rawFairways,
+    teeBoxes: rawTeeBoxes,
+    holes: rawHoles.map((h) => ({ hole: h.ref, coordinates: h.nodes })),
+    unmatchedGreenCount,
+  }
 }
 
 /**

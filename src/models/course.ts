@@ -68,6 +68,19 @@ export type FairwayPolygon = {
   coordinates: LatLng[]
 }
 
+/** A tee box polygon or point. */
+export type TeeBox = {
+  osmId: number
+  hole: string
+  coordinates: LatLng[]
+}
+
+/** A hole path (centerline from tee to green). */
+export type HolePath = {
+  hole: string
+  coordinates: LatLng[]
+}
+
 // ---------------------------------------------------------------------------
 // Full course dataset (Firestore-cacheable)
 // ---------------------------------------------------------------------------
@@ -88,6 +101,10 @@ export type CourseData = {
   bunkers: BunkerPolygon[]
   /** All fairway polygons/segments across the course. */
   fairways: FairwayPolygon[]
+  /** All tee boxes across the course. */
+  teeBoxes: TeeBox[]
+  /** All hole paths across the course. */
+  holes: HolePath[]
   /** Unix epoch ms when this record was last fetched from the network. */
   lastFetchedAt: number
 }

@@ -17,7 +17,7 @@
 import type { CourseData } from "@/models/course"
 import type { LatLng } from "@/models/geo"
 import { loadCourseData, type CourseLoadError } from "@/services/courses/courseLoader"
-import type { Firestore } from "firebase/firestore"
+import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore"
 import { useEffect, useState } from "react"
 
 // ---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ export type CourseDataState =
  */
 export function useCourseData(
   location: LatLng | null,
-  db: Firestore,
+  db: FirebaseFirestoreTypes.Module,
   cacheMaxAgeMs?: number,
 ): CourseDataState {
   const [state, setState] = useState<CourseDataState>({ status: "idle" })

@@ -28,6 +28,7 @@ async function postOverpassQuery(
   query: string,
   signal?: AbortSignal,
 ): Promise<OverpassResponse> {
+  console.log("Posting query: ", OVERPASS_URL, "\n", query)
   const res = await fetch(OVERPASS_URL, {
     method: "POST",
     headers: {
@@ -128,6 +129,8 @@ export async function fetchCourseGeometry(
     `  way["golf"="bunker"](area.course_area);`,
     `  relation["golf"="fairway"](area.course_area);`,
     `  way["golf"="fairway"](area.course_area);`,
+    `  way["golf"="tee"](area.course_area);`,
+    `  node["golf"="tee"](area.course_area);`,
     `);`,
     `out body;`,
     `>;`,

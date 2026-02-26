@@ -1,23 +1,22 @@
-import React, {FC, useCallback, useEffect, useMemo, useRef, useState} from "react"
-import * as Location from "expo-location"
-import {ActivityIndicator, FlatList, TextInput, type TextStyle, View, type ViewStyle} from "react-native"
-import {Ionicons} from "@expo/vector-icons"
-import type {ThemedStyle} from "@/theme/types"
-import {useAppTheme} from "@/theme/context"
-import {Screen} from "@/components/ui/Screen"
-import {makeCancelableCourseSearch} from "@/services/courses/courseSearching"
-import {Text} from "@/components/ui/Text"
-import CourseRowComponent from "@/components/app/golf/search/CourseRow"
-import {NearbyCoursesMap} from "@/components/app/golf/search/NearbyCoursesMap"
 import SelectCourseDetailsModal, {
-    type SelectCourseDetailsModalReference,
     type CourseSelectionDetails,
+    type SelectCourseDetailsModalReference,
 } from "@/components/app/golf/modals/SelectCourseDetailsModal"
+import CourseRowComponent from "@/components/app/golf/search/CourseRow"
+import { NearbyCoursesMap } from "@/components/app/golf/search/NearbyCoursesMap"
 import PageHeader from "@/components/headers/PageHeader"
-import {normalizeUserQueryForGolfAPI} from "@/utils/searching";
-import {useNavPayloadStore} from "@/hooks/useNavPayloadStore";
-import {useRouter} from "expo-router";
-import {ClubResult} from "@/models/courses";
+import { Screen } from "@/components/ui/Screen"
+import { Text } from "@/components/ui/Text"
+import { useNavPayloadStore } from "@/hooks/useNavPayloadStore"
+import { ClubResult } from "@/models/courses"
+import { makeCancelableCourseSearch } from "@/services/courses/courseSearching"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
+import { Ionicons } from "@expo/vector-icons"
+import * as Location from "expo-location"
+import { useRouter } from "expo-router"
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { ActivityIndicator, FlatList, TextInput, type TextStyle, View, type ViewStyle } from "react-native"
 
 export const SearchCoursesScreen: FC = function SearchCoursesScreen() {
     const {themed, theme} = useAppTheme()
@@ -85,7 +84,7 @@ export const SearchCoursesScreen: FC = function SearchCoursesScreen() {
         useNavPayloadStore.getState().setPayload(key, { _details })
 
         router.push({
-            pathname: "/(golf)/putting",
+            pathname: "/(golf)/round",
             params: { key }
         })
     }, [])
