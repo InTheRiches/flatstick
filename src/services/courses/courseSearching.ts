@@ -6,7 +6,7 @@
 // - normalizes + filters tee sets (optional)
 // - sorts results by distance when location is available
 
-import {LatLng} from "@/models/common";
+import { LatLng } from "@/models/common";
 import {
     ClubResult,
     CourseApiCourse,
@@ -15,7 +15,7 @@ import {
     OverpassResult,
     ParsedTees
 } from "@/models/courses";
-import {normalizeUserQueryForGolfAPI} from "@/utils/searching";
+import { normalizeUserQueryForGolfAPI } from "@/utils/searching";
 
 const GOLF_API_KEY = "P3YWERWFDOPBUUV66UDLRJDTLY" // TODO: move to env / server
 const GOLF_API_URL = "https://api.golfcourseapi.com/v1/search"

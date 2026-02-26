@@ -1,6 +1,6 @@
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import React, { useImperativeHandle, useState } from "react";
-import { TextStyle, View, ViewStyle } from "react-native";
+import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 
 import { BottomSheetModalFactory } from "@/components/app/modals/BottomSheetFactory";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,7 @@ import DropdownPicker from "@/components/ui/DropdownPicker";
 import { Text } from "@/components/ui/Text";
 import type { Shot } from "@/hooks/courses/useRoundTracking";
 import { useAppTheme } from "@/theme/context";
+import BunkerIcon from "@assets/icons/lieTypes/bunkerLie";
 
 export interface ShotDetailsModalReference {
   open: () => void;
@@ -48,14 +49,8 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
     innerRef.current?.dismiss();
   };
 
-  const lieOptions = [
-    { label: "Tee", value: "tee" },
-    { label: "Fairway", value: "fairway" },
-    { label: "Rough", value: "rough" },
-    { label: "Bunker", value: "bunker" },
-    { label: "Recovery", value: "recovery" },
-    { label: "Green", value: "green" },
-    { label: "Other", value: "other" },
+  const lieIconOptions: { label: string; value: Shot["lie"]; Icon: React.ComponentType<any> }[] = [
+    { label: "Bunker", value: "bunker", Icon: BunkerIcon },
   ];
 
   const clubOptions = [
@@ -98,12 +93,20 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
         <Text preset="heading" style={$title}>Shot Details</Text>
 
         <View style={$form}>
-          <DropdownPicker
-            label="Lie"
-            options={lieOptions}
-            value={lie}
-            onChange={(val) => setLie(val as Shot["lie"])}
-          />
+          <View style={$lieRow}>
+            {lieIconOptions.map(({ label, value, Icon }) => (
+              <TouchableOpacity
+                key={value}
+                onPress={() => setLie(value)}
+                style={lie === value ? [$lieButton, $lieButtonSelected] : $lieButton}
+                accessibilityRole="button"
+                accessibilityState={{ selected: lie === value }}
+              >
+                <Icon width={36} height={36} />
+                <Text style={$lieLabel}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           <DropdownPicker
             label="Club"
@@ -169,4 +172,27 @@ const $footer: ViewStyle = {
 
 const $button: ViewStyle = {
   flex: 1,
+};
+
+const $lieRow: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  paddingVertical: 8,
+};
+
+const $lieButton: ViewStyle = {
+  alignItems: "center",
+  padding: 8,
+  borderRadius: 8,
+};
+
+const $lieButtonSelected: ViewStyle = {
+  backgroundColor: "rgba(0,0,0,0.06)",
+};
+
+const $lieLabel: TextStyle = {
+  marginTop: 6,
+  fontSize: 12,
 };

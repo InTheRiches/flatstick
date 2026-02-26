@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getFirestore } from "@react-native-firebase/firestore";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from "react-native";
-import MapView, { Marker, Polygon, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, Polygon, Polyline } from "react-native-maps";
 
 import { Button } from "@/components/ui/Button";
 import { Screen } from "@/components/ui/Screen";
@@ -12,6 +12,8 @@ import type { ThemedStyle } from "@/theme/types";
 
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
 import ShotDetailsModal, { type ShotDetailsModalReference } from "@/components/app/golf/modals/ShotDetailsModal";
+import { RoundActions } from "@/components/app/golf/round/RoundActions";
+import { RoundHeader } from "@/components/app/golf/round/RoundHeader";
 import { useCourseData } from "@/hooks/courses/useCourseData";
 import { useCourseMap } from "@/hooks/courses/useCourseMap";
 import { useLocationTracking } from "@/hooks/courses/useLocationTracking";
@@ -199,7 +201,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     }
 
     return (
-        <Screen preset="fixed" style={$screen}>
+        <Screen useSafeAreaInsets={false} preset="fixed" style={$screen}>
             <MapView
                 ref={mapRef}
                 style={$map}
@@ -207,14 +209,13 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 showsUserLocation={false} // We render our own marker
                 onPanDrag={onPanDrag}
             >
-                {/* Render Fairways */}
+                {/* Render Fairways, stroke used to be rgba(144, 238, 144, 0.8) */}
                 {courseData?.fairways.map((fairway, index) => (
                     <Polygon
                         key={`fairway-${index}`}
                         coordinates={fairway.coordinates}
                         fillColor="rgba(144, 238, 144, 0.4)"
-                        strokeColor="rgba(144, 238, 144, 0.8)"
-                        strokeWidth={1}
+                        strokeColor="none"
                     />
                 ))}
 
@@ -224,8 +225,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                         key={`bunker-${index}`}
                         coordinates={bunker.coordinates}
                         fillColor="rgba(245, 222, 179, 0.8)"
-                        strokeColor="rgba(210, 180, 140, 1)"
-                        strokeWidth={1}
+                        strokeColor="rgb(175, 143, 100)"
+                        strokeWidth={2}
                     />
                 ))}
 
@@ -234,7 +235,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     <Polygon
                         key={`green-${index}`}
                         coordinates={green.polygon.map(p => ({ latitude: p.y, longitude: p.x }))}
-                        fillColor={green.hole === activeHole.toString() ? "rgba(0, 255, 0, 0.6)" : "rgba(0, 128, 0, 0.4)"}
+                        fillColor={green.hole === activeHole.toString() ? "rgba(0, 255, 0, 0.4)" : "rgba(0, 128, 0, 0.4)"}
                         strokeColor="rgba(0, 100, 0, 1)"
                         strokeWidth={2}
                     />
@@ -245,9 +246,9 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     <Polygon
                         key={`tee-${index}`}
                         coordinates={tee.coordinates}
-                        fillColor={tee.hole === activeHole.toString() ? "rgba(255, 255, 255, 0.8)" : "rgba(200, 200, 200, 0.5)"}
-                        strokeColor="rgba(100, 100, 100, 1)"
-                        strokeWidth={1}
+                        fillColor="rgba(0, 110, 0, 0.4)"
+                        strokeColor="rgba(0, 80, 0, 1)"
+                        strokeWidth={2}
                     />
                 ))}
 
@@ -290,17 +291,9 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             </MapView>
 
             {/* Top Overlay: Hole Navigation */}
-            <View style={themed($topOverlay)}>
-                <Pressable onPress={prevHole} style={themed($navButton)}>
-                    <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
-                </Pressable>
-                <View style={$holeInfo}>
-                    <Text preset="heading" style={{ color: theme.colors.text }}>Hole {activeHole}</Text>
-                </View>
-                <Pressable onPress={nextHole} style={themed($navButton)}>
-                    <Ionicons name="chevron-forward" size={24} color={theme.colors.text} />
-                </Pressable>
-            </View>
+            <RoundHeader prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} />
+
+            <RoundActions />
 
             {/* Floating Recenter Button */}
             {isPannedAway && (
@@ -358,35 +351,6 @@ const $centeredFill: ViewStyle = {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-};
-
-const $topOverlay: ThemedStyle<ViewStyle> = (theme) => ({
-    position: "absolute",
-    top: 60,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: theme.colors.backgrounds.elevated,
-    borderRadius: 30,
-    padding: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-});
-
-const $navButton: ThemedStyle<ViewStyle> = (theme) => ({
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: theme.colors.buttons.secondary.background,
-});
-
-const $holeInfo: ViewStyle = {
-    flex: 1,
-    alignItems: "center",
 };
 
 const $bottomOverlay: ThemedStyle<ViewStyle> = (theme) => ({

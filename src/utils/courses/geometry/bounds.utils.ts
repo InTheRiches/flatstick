@@ -228,3 +228,53 @@ export function clampPolylinesToBounds(
     return out
   })
 }
+
+export const getRegionForCoordinates = (
+  points: LatLng[], 
+  edgePadding?: { top: number; right: number; bottom: number; left: number }
+) => {
+  if (points.length === 0) {
+    throw new Error('Points array cannot be empty');
+  }
+
+  // Initialize with first point
+  let minLat = points[0].latitude;
+  let maxLat = points[0].latitude;
+  let minLng = points[0].longitude;
+  let maxLng = points[0].longitude;
+
+  // Find bounding box
+  points.forEach(point => {
+    minLat = Math.min(minLat, point.latitude);
+    maxLat = Math.max(maxLat, point.latitude);
+    minLng = Math.min(minLng, point.longitude);
+    maxLng = Math.max(maxLng, point.longitude);
+  });
+
+  const latitudeDelta = maxLat - minLat;
+  const longitudeDelta = maxLng - minLng;
+
+  // Calculate center
+  const latitude = (minLat + maxLat) / 2;
+  const longitude = (minLng + maxLng) / 2;
+
+  // Apply padding if provided
+  // Note: This is a simplified padding calculation
+  // Real edge padding conversion requires map dimensions
+  let paddingMultiplier = 1.4; // Default padding
+  
+  if (edgePadding) {
+    // Rough approximation: use average padding as a ratio
+    const avgPadding = (edgePadding.top + edgePadding.bottom + 
+                        edgePadding.left + edgePadding.right) / 4;
+    // Adjust multiplier based on padding (assuming ~300px map size as baseline)
+    paddingMultiplier = 1 + (avgPadding / 150);
+  }
+
+  return {
+    latitude,
+    longitude,
+    latitudeDelta: latitudeDelta * paddingMultiplier,
+    longitudeDelta: longitudeDelta * paddingMultiplier,
+  };
+};

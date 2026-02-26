@@ -17,8 +17,8 @@
  */
 
 import type { CourseData, PuttingGreenData } from "@/models/course"
-import {doc, FirebaseFirestoreTypes, getDoc} from "@react-native-firebase/firestore"
-import {getFunctions, httpsCallable} from "@react-native-firebase/functions"
+import { doc, FirebaseFirestoreTypes, getDoc, setDoc } from "@react-native-firebase/firestore"
+import { getFunctions, httpsCallable } from "@react-native-firebase/functions"
 
 // Cloud Functions callable endpoints
 const SAVE_COURSE_FN = "saveCourseData"
@@ -84,7 +84,10 @@ export async function saveCourse(
   _db: FirebaseFirestoreTypes.Module, // kept for API compatibility, not used
   data: CourseData,
 ): Promise<void> {
-  await callFunction(SAVE_COURSE_FN, { courseData: data })
+  const ref = doc(_db, COURSES_COLLECTION, String(data.osmId))
+  return setDoc(ref, data) // directly write to Firestore for simplicity; no need for backend validation at this time
+
+  // await callFunction(SAVE_COURSE_FN, { courseData: data })
 }
 
 // ---------------------------------------------------------------------------

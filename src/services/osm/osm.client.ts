@@ -12,8 +12,8 @@
  */
 
 import type {
-    OsmCourseCandidate,
-    OverpassResponse,
+  OsmCourseCandidate,
+  OverpassResponse,
 } from "./osm.types"
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter"
@@ -117,7 +117,7 @@ export async function fetchCourseGeometry(
   signal?: AbortSignal,
 ): Promise<OverpassResponse> {
   const query = [
-    `[out:json][timeout:25];`,
+    `[out:json][timeout:60];`,
     `(`,
     `  way(${osmId});`,
     `  relation(${osmId});`,

@@ -132,10 +132,16 @@ export function extractCourseFeatures(
   const rawTeeBoxes: TeeBox[] = []
 
   for (const el of elements) {
-    if (el.type === "node" && el.tags?.golf === "tee" && el.tags?.ref) {
+    if (el.type === "node" && el.tags?.golf === "tee") {
       rawTeeBoxes.push({
         osmId: el.id,
-        hole: el.tags.ref,
+        coordinates: [{ latitude: el.lat, longitude: el.lon }],
+      })
+    }
+
+    if (el.type === "node" && el.tags?.golf === "bunker") {
+      rawBunkers.push({
+        osmId: el.id,
         coordinates: [{ latitude: el.lat, longitude: el.lon }],
       })
     }
@@ -148,10 +154,9 @@ export function extractCourseFeatures(
         rawHoles.push({ ref: el.tags.ref, nodes: coords })
       }
 
-      if (golf === "tee" && el.tags?.ref) {
+      if (golf === "tee") {
         rawTeeBoxes.push({
           osmId: el.id,
-          hole: el.tags.ref,
           coordinates: coords,
         })
       }

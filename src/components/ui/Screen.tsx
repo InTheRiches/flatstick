@@ -1,3 +1,4 @@
+import { useScrollToTop } from "@react-navigation/native"
 import { ReactNode, useRef, useState } from "react"
 import {
   KeyboardAvoidingView,
@@ -10,7 +11,6 @@ import {
   View,
   ViewStyle,
 } from "react-native"
-import { useScrollToTop } from "@react-navigation/native"
 import { SystemBars, SystemBarsProps, SystemBarStyle } from "react-native-edge-to-edge"
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 
@@ -61,6 +61,10 @@ interface BaseScreenProps {
    * Pass any additional props directly to the KeyboardAvoidingView component.
    */
   KeyboardAvoidingViewProps?: KeyboardAvoidingViewProps
+  /**
+   * Whether to use safe area container insets
+   */
+  useSafeAreaInsets?: boolean
 }
 
 interface FixedScreenProps extends BaseScreenProps {
@@ -250,16 +254,19 @@ export function Screen(props: ScreenProps) {
     safeAreaEdges = ["top"],
     SystemBarsProps,
     systemBarStyle,
+    useSafeAreaInsets = true,
   } = props
 
   const $containerInsets = useSafeAreaInsetsStyle(safeAreaEdges)
+
+  console.log("safeAreaInsets", useSafeAreaInsets)
 
   return (
     <View
       style={[
         $containerStyle,
         { backgroundColor: backgroundColor || colors.backgrounds.default },
-        $containerInsets,
+        useSafeAreaInsets ? $containerInsets : undefined,
       ]}
     >
       <SystemBars

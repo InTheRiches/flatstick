@@ -71,7 +71,6 @@ export type FairwayPolygon = {
 /** A tee box polygon or point. */
 export type TeeBox = {
   osmId: number
-  hole: string
   coordinates: LatLng[]
 }
 
