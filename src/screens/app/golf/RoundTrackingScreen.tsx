@@ -293,7 +293,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             {/* Top Overlay: Hole Navigation */}
             <RoundHeader prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} />
 
-            <RoundActions />
+            <RoundActions trackingState={trackingState} startTracking={handleStartTracking} endTracking={handleEndTracking} />
 
             {/* Floating Recenter Button */}
             {isPannedAway && (
@@ -301,33 +301,6 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     <Ionicons name="locate" size={24} color={theme.colors.text} />
                 </Pressable>
             )}
-
-            {/* Bottom Overlay: Tracking Controls */}
-            <View style={themed($bottomOverlay)}>
-                {trackingState === "idle" ? (
-                    <Button
-                        text="Start Shot Tracking"
-                        preset="filled"
-                        onPress={handleStartTracking}
-                        disabled={!userLocation}
-                        style={$actionButton}
-                    />
-                ) : (
-                    <Button
-                        text="End Shot Tracking"
-                        preset="filled"
-                        onPress={handleEndTracking}
-                        style={[$actionButton, { backgroundColor: theme.colors.error }]}
-                    />
-                )}
-
-                <Button
-                    text="Enter Putting Mode"
-                    preset="default"
-                    onPress={() => console.log("Navigate to putting mode")}
-                    style={$actionButton}
-                />
-            </View>
 
             <ShotDetailsModal
                 reference={modalRef}

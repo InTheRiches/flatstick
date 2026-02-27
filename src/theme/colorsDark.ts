@@ -29,6 +29,13 @@ const palette = {
   accent100: "#FFBB50",
 
   emerald: "#00674F",
+  emerald100: "#D1EDEA",
+  emerald200: "#A3D5C1",
+  emerald300: "#74B999",
+  emerald400: "#469F71",
+  emerald500: "#1B6649",
+  emerald550: "#114f37",
+  emerald600: "#003228",
   tintedEmerald: "#003228",
   error: "#C03403",
 
@@ -48,7 +55,7 @@ const buttons = {
   border: palette.emerald,
   textColor: palette.neutral100,
   pressed: {
-    background: palette.tintedEmerald,
+    background: palette.emerald550,
     border: palette.emerald,
     textColor: palette.neutral100,
   },
