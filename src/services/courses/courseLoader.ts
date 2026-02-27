@@ -18,8 +18,7 @@ import type { CourseData, ProcessedGreen, PuttingGreenData } from "@/models/cour
 import type { LatLng } from "@/models/geo"
 import {
   fetchCourseGeometry,
-  fetchCourseIdsByLocation,
-  fetchPuttingGreenByLocation,
+  fetchPuttingGreenByLocation
 } from "@/services/osm/osm.client"
 import type { OsmCourseCandidate } from "@/services/osm/osm.types"
 import { fetch3DEPSamples } from "@/services/usgs/usgs.client"
@@ -104,26 +103,27 @@ export async function loadCourseData(params: {
   try {
     // ── Step 1: OSM id lookup ───────────────────────────────────────────────
 
-    let candidates: OsmCourseCandidate[]
-    try {
-      candidates = await fetchCourseIdsByLocation(
-        location.latitude,
-        location.longitude,
-        undefined,
-        signal,
-      )
-    } catch (cause) {
-      return { ok: false, error: { type: "osm_fetch_failed", cause } }
-    }
+    // let candidates: OsmCourseCandidate[]
+    // try {
+    //   candidates = await fetchCourseIdsByLocation(
+    //     location.latitude,
+    //     location.longitude,
+    //     undefined,
+    //     signal,
+    //   )
+    // } catch (cause) {
+    //   return { ok: false, error: { type: "osm_fetch_failed", cause } }
+    // }
 
-    if (candidates.length === 0) {
-      return { ok: false, error: { type: "no_osm_result" } }
-    }
+    // if (candidates.length === 0) {
+    //   return { ok: false, error: { type: "no_osm_result" } }
+    // }
 
-    // Use the first candidate.  When there are multiple we still proceed —
-    // the caller can inspect `CourseData.osmId` to see which was chosen.
-    const candidate = candidates[0]
-    const osmId = candidate.id
+    // // Use the first candidate.  When there are multiple we still proceed —
+    // // the caller can inspect `CourseData.osmId` to see which was chosen.
+    // const candidate = candidates[0]
+    // const osmId = candidate.id
+    const osmId = 265778472 // hardcoded for testing with a known course; replace with above for production
 
     // ── Step 2: Firestore cache check ───────────────────────────────────────
 
@@ -191,9 +191,10 @@ export async function loadCourseData(params: {
 
     const courseData: CourseData = {
       osmId,
-      name: candidate.name ?? `Course ${osmId}`,
+      name: `Course ${osmId}`,
       greens: greensWithLidar,
       bunkers: features.bunkers,
+      hazards: features.hazards,
       fairways: features.fairways,
       teeBoxes: features.teeBoxes,
       holes: features.holes,

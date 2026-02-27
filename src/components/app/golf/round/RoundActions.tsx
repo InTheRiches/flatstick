@@ -12,10 +12,14 @@ interface RoundActionsProps {
     startTracking?: () => void;
     endTracking?: () => void;
     onGreenViewPress?: () => void;
-    trackingState?: "tracking" | "idle"
+    trackingState?: "tracking" | "idle";
+    /** Whether player-tracking (camera-follow) mode is active. */
+    isPlayerTracking?: boolean;
+    /** Toggle player-tracking mode on/off. */
+    onPlayerTrackingToggle?: () => void;
 }
 
-export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onScorecardPress, startTracking, endTracking, onGreenViewPress, trackingState }) => {
+export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onScorecardPress, startTracking, endTracking, onGreenViewPress, trackingState, isPlayerTracking, onPlayerTrackingToggle }) => {
     const { theme, themed } = useAppTheme();
 
     const getButtonStyle = (pressed?: boolean, active?: boolean) => [
@@ -32,6 +36,9 @@ export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onS
                 </Pressable>
                 <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onGreenViewPress}>
                     <Ionicons name="golf" size={24} color={theme.colors.buttons.textColor} />
+                </Pressable>
+                <Pressable style={(state) => getButtonStyle(state.pressed, !!isPlayerTracking)} onPress={onPlayerTrackingToggle}>
+                    <Ionicons name="navigate" size={24} color={theme.colors.buttons.textColor} />
                 </Pressable>
                 <Pressable style={(state) => getButtonStyle(state.pressed, trackingState === "tracking")} onPress={trackingState === "tracking" ? endTracking : startTracking}>
                     <TrackingIcon size={24} color={theme.colors.buttons.textColor} />
@@ -58,7 +65,7 @@ const $container: ViewStyle = {
 const $topOverlay: ThemedStyle<ViewStyle> = (theme, trackingState?: string) => ({
     flexDirection: "column",
     justifyContent: "space-between",
-    maxHeight: 240,
+    maxHeight: 300,
     backgroundColor: theme.colors.backgrounds.elevated,
     borderRadius: 30,
     padding: 6,

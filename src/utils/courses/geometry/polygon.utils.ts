@@ -82,6 +82,64 @@ export function isPointInPolygonXY(
   return inside
 }
 
+// Expand a polygon outward by a small padding (meters) to increase tappable area.
+export function padPolygonCoordinates(coords: { latitude: number; longitude: number }[], paddingMeters = 6, circleSegments = 8) {
+    if (!coords || coords.length === 0) return coords;
+
+    if (coords.length === 1) {
+      const center = coords[0];
+
+      const centerLatRad = (center.latitude * Math.PI) / 180;
+      const metersPerDegLat = 111320;
+      const metersPerDegLon = Math.abs(111320 * Math.cos(centerLatRad));
+
+      const circle: { latitude: number; longitude: number }[] = [];
+
+      for (let i = 0; i < circleSegments; i++) {
+          const angle = (i / circleSegments) * 2 * Math.PI;
+
+          const dx = Math.cos(angle) * paddingMeters;
+          const dy = Math.sin(angle) * paddingMeters;
+
+          const newLon = center.longitude + dx / metersPerDegLon;
+          const newLat = center.latitude + dy / metersPerDegLat;
+
+          circle.push({ latitude: newLat, longitude: newLon });
+      }
+
+      return circle;
+    }
+
+    // Compute centroid (simple average)
+    const center = coords.reduce(
+        (acc, p) => ({ latitude: acc.latitude + p.latitude, longitude: acc.longitude + p.longitude }),
+        { latitude: 0, longitude: 0 },
+    );
+    center.latitude /= coords.length;
+    center.longitude /= coords.length;
+
+    const centerLatRad = (center.latitude * Math.PI) / 180;
+    const metersPerDegLat = 111320; // approximate
+    const metersPerDegLon = Math.abs(111320 * Math.cos(centerLatRad));
+
+    return coords.map((p) => {
+        const dx = (p.longitude - center.longitude) * metersPerDegLon; // meters east
+        const dy = (p.latitude - center.latitude) * metersPerDegLat; // meters north
+
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const angle = dist === 0 ? 0 : Math.atan2(dy, dx);
+        const newDist = dist + paddingMeters;
+
+        const newDx = Math.cos(angle) * newDist;
+        const newDy = Math.sin(angle) * newDist;
+
+        const newLon = center.longitude + newDx / metersPerDegLon;
+        const newLat = center.latitude + newDy / metersPerDegLat;
+
+        return { latitude: newLat, longitude: newLon };
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Centroid
 // ---------------------------------------------------------------------------

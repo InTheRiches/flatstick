@@ -15,14 +15,14 @@ export type Shot = {
   timestamp: number;
 };
 
-export function useRoundTracking(initialHole: number = 1) {
+export function useRoundTracking(initialHole: number = 1, totalHoles: number = 18) {
   const [activeHole, setActiveHole] = useState(initialHole);
   const [shots, setShots] = useState<Shot[]>([]);
   const [trackingState, setTrackingState] = useState<"idle" | "tracking">("idle");
   const [currentShotStart, setCurrentShotStart] = useState<LatLng | null>(null);
 
   const nextHole = useCallback(() => {
-    setActiveHole((prev) => prev + 1);
+    setActiveHole((prev) => Math.min(totalHoles, prev + 1));
   }, []);
 
   const prevHole = useCallback(() => {

@@ -59,6 +59,18 @@ export type BunkerPolygon = {
 }
 
 /**
+ * Unified hazard type normalised from OSM features:
+ *   - golf=bunker  → type: "bunker"
+ *   - natural=water / waterway / golf=water_hazard → type: "water"
+ */
+export type Hazard = {
+  /** Stable identifier derived from the OSM way/relation id. */
+  osmId: string
+  type: "bunker" | "water"
+  coordinates: LatLng[]
+}
+
+/**
  * A single fairway segment or polygon.
  * Fairways can be osm `way` or `relation` members; the normalizer flattens
  * them all to this shape.
@@ -98,6 +110,8 @@ export type CourseData = {
   greens: ProcessedGreen[]
   /** All bunker polygons across the course. */
   bunkers: BunkerPolygon[]
+  /** Unified hazard list (bunkers + water hazards). */
+  hazards: Hazard[]
   /** All fairway polygons/segments across the course. */
   fairways: FairwayPolygon[]
   /** All tee boxes across the course. */

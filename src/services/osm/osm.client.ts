@@ -130,6 +130,8 @@ export async function fetchCourseGeometry(
     `  relation["golf"="fairway"](area.course_area);`,
     `  way["golf"="fairway"](area.course_area);`,
     `  way["golf"="tee"](area.course_area);`,
+    `  way["golf"="water_hazard"](area.course_area);`,
+    `  way["natural"="water"](area.course_area);`,
     `  node["golf"="tee"](area.course_area);`,
     `);`,
     `out body;`,

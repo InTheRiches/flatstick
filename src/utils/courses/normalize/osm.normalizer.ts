@@ -9,7 +9,7 @@
  *   - Output: types from `@/models/course` and `@/models/geo`
  */
 
-import type { BunkerPolygon, FairwayPolygon, HolePath, ProcessedGreen, TeeBox } from "@/models/course"
+import type { BunkerPolygon, FairwayPolygon, Hazard, HolePath, ProcessedGreen, TeeBox } from "@/models/course"
 import type { BoundingBox, LatLng, XYPoint } from "@/models/geo"
 import type { OverpassElement, OverpassResponse } from "@/services/osm/osm.types"
 import { isPointInPolygonXY } from "@/utils/courses/geometry/polygon.utils"
@@ -27,6 +27,8 @@ export type OsmCourseFeatures = {
   /** Greens with polygon and bbox but without lidar data. */
   identifiedGreens: Array<Omit<ProcessedGreen, "lidar">>
   bunkers: BunkerPolygon[]
+  /** Unified hazard list (bunkers + water hazards). */
+  hazards: Hazard[]
   fairways: FairwayPolygon[]
   teeBoxes: TeeBox[]
   holes: HolePath[]
@@ -130,6 +132,7 @@ export function extractCourseFeatures(
   const rawBunkers: BunkerPolygon[] = []
   const rawFairways: FairwayPolygon[] = []
   const rawTeeBoxes: TeeBox[] = []
+  const rawHazards: Hazard[] = []
 
   for (const el of elements) {
     if (el.type === "node" && el.tags?.golf === "tee") {
@@ -167,6 +170,9 @@ export function extractCourseFeatures(
         rawGreens.push(coords)
       } else if (golf === "bunker") {
         rawBunkers.push({ osmId: el.id, coordinates: coords })
+        rawHazards.push({ osmId: String(el.id), type: "bunker", coordinates: coords })
+      } else if (golf === "water_hazard" || el.tags?.natural === "water" || el.tags?.waterway != null) {
+        rawHazards.push({ osmId: String(el.id), type: "water", coordinates: coords })
       } else if (golf === "fairway") {
         rawFairways.push({ osmId: el.id, coordinates: coords })
       }
@@ -224,6 +230,7 @@ export function extractCourseFeatures(
   return {
     identifiedGreens,
     bunkers: rawBunkers,
+    hazards: rawHazards,
     fairways: rawFairways,
     teeBoxes: rawTeeBoxes,
     holes: rawHoles.map((h) => ({ hole: h.ref, coordinates: h.nodes })),

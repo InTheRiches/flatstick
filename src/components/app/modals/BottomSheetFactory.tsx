@@ -1,8 +1,8 @@
-import React, {FC, PropsWithChildren, useCallback, useMemo} from "react"
-import {BottomSheetModal, BottomSheetView, type BottomSheetBackdropProps} from "@gorhom/bottom-sheet"
-import Animated, {Extrapolate, interpolate, useAnimatedStyle} from "react-native-reanimated"
-import {Pressable, ViewStyle} from "react-native"
-import {useAppTheme} from "@/theme/context"
+import { useAppTheme } from "@/theme/context"
+import { BottomSheetModal, BottomSheetView, type BottomSheetBackdropProps } from "@gorhom/bottom-sheet"
+import React, { FC, PropsWithChildren, useCallback, useMemo } from "react"
+import { Pressable, ViewStyle } from "react-native"
+import Animated, { Extrapolate, interpolate, useAnimatedStyle } from "react-native-reanimated"
 
 export type BottomSheetFactoryProps = PropsWithChildren<{
     reference: React.RefObject<BottomSheetModal | null>

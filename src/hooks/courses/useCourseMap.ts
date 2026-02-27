@@ -8,6 +8,13 @@ export function useCourseMap(courseData: CourseData | null, activeHole: number) 
   const mapRef = useRef<MapView>(null);
   const [isPannedAway, setIsPannedAway] = useState(false);
 
+  /**
+   * The last heading (bearing) used when animating to a hole.
+   * Exposed so other hooks (e.g. useHazardInspection) can maintain the same
+   * orientation when they zoom to a feature.
+   */
+  const currentHeadingRef = useRef<number>(0);
+
   const activeHoleData = useMemo(() => {
     if (!courseData) return null;
     const holeStr = activeHole.toString();
@@ -69,10 +76,8 @@ export function useCourseMap(courseData: CourseData | null, activeHole: number) 
           left: 50,
         });
 
-        console.log("Region: ", region, "Bearing: ", bearing);
-
         // I need to calculate altitude but it needs to use either longitude or latitude 
-        // or a mix using tan of the angle to get the right zoom level.
+        // or a mix using cos of the angle to get the right zoom level.
         const latMeters = region.latitudeDelta * 111_111;
         const lngMeters = region.longitudeDelta * 111_111 * Math.cos(region.latitude * Math.PI / 180);
 
@@ -91,12 +96,7 @@ export function useCourseMap(courseData: CourseData | null, activeHole: number) 
           pitch: 0, // or your desired pitch
           altitude: rotatedHeight, // crude conversion to meters
         }, { duration: 500 });
-        // mapRef.current.getCamera().then((camera) => {
-        //     console.log("Current camera zoom: ", camera.zoom);
-        //   })
-        //   .catch((error) => {
-        //     console.warn("Failed to get camera for bearing adjustment:", error);
-        //   });
+        currentHeadingRef.current = bearing;
       } else {
         // No explicit path, just fit existing points
         mapRef.current.fitToCoordinates(points, {
@@ -113,12 +113,19 @@ export function useCourseMap(courseData: CourseData | null, activeHole: number) 
     setIsPannedAway(true);
   }, []);
 
+  /** Reset the panned-away flag without recentering the camera. */
+  const resetPannedState = useCallback(() => {
+    setIsPannedAway(false);
+  }, []);
+
   return {
     mapRef,
     activeHoleData,
     recenterOnHole,
     isPannedAway,
     onPanDrag,
+    currentHeadingRef,
+    resetPannedState,
   };
 }
 
