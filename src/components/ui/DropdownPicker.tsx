@@ -1,8 +1,9 @@
-import React, {useMemo, useState} from "react"
-import {Pressable, View, type ViewStyle} from "react-native"
+import React, { useMemo, useState } from "react"
+import { Pressable, TextStyle, View, type ViewStyle } from "react-native"
 
-import { useAppTheme } from "@/theme/context"
 import { Text } from "@/components/ui/Text"
+import { useAppTheme } from "@/theme/context"
+import { ThemedStyle } from "@/theme/types"
 
 export type DropdownOption = {
     value: string
@@ -36,7 +37,7 @@ export default function DropdownPicker(props: DropdownPickerProps) {
         onOpenChange,
     } = props
 
-    const { theme } = useAppTheme()
+    const { theme, themed } = useAppTheme()
     const [openInternal, setOpenInternal] = useState(false)
     const open = typeof controlledOpen === "boolean" ? controlledOpen : openInternal
 
@@ -53,7 +54,7 @@ export default function DropdownPicker(props: DropdownPickerProps) {
 
     return (
         <View style={style}>
-            {label && <Text text={label} style={{marginBottom: 6, fontSize: 16, fontWeight: "500", color: theme.colors.text}} />}
+            {label && <Text text={label} style={themed($sectionHeader)} />}
 
             <Pressable
                 onPress={() => !disabled && setOpen(!open)}
@@ -118,3 +119,11 @@ export default function DropdownPicker(props: DropdownPickerProps) {
         </View>
     )
 }
+
+const $sectionHeader: ThemedStyle<TextStyle> = (theme) => ({
+    fontSize: 13,
+    color: theme.colors.textDim,
+    fontWeight: "500",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+});

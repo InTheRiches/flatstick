@@ -87,8 +87,6 @@ const $container: ViewStyle = {
   paddingRight: 14,
   paddingLeft: 8,
   gap: 2,
-  // Ensure it renders above the map
-  zIndex: 10,
 };
 
 const $row: ViewStyle = {

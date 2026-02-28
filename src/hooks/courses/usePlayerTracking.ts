@@ -11,11 +11,11 @@
 
 import type { LatLng, XYPoint } from "@/models/geo";
 import {
-    bearingDegrees,
-    haversineMeters,
-    lerpLatLng,
-    polygonCentroid,
-    toYards,
+  bearingDegrees,
+  haversineMeters,
+  lerpLatLng,
+  polygonCentroid,
+  toYards,
 } from "@/utils/courses/geometry/distance.utils";
 import { useCallback, useEffect, useState } from "react";
 import type MapView from "react-native-maps";
@@ -62,7 +62,10 @@ function buildPlayerCamera(
   altitude: number;
   pitch: number;
 } {
-  const distanceM = haversineMeters(player, greenCenter, 200);
+  let distanceM = haversineMeters(player, greenCenter, 200);
+  if (distanceM > 250) {
+    distanceM += 50; // Add padding for long holes to avoid excessive zoom-out
+  }
 
   // Target layout (fraction from top of screen):
   //   green  → 10 %   (just below any header)

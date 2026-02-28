@@ -10,29 +10,43 @@ import { Text } from "@/components/ui/Text";
 import { useAppTheme } from "@/theme/context";
 import type { ThemedStyle } from "@/theme/types";
 
+import ConfirmExitModal from "@/components/app/golf/modals/ConfirmExitModal";
+import HoleSummaryModal, { type HoleSummaryModalHandle } from "@/components/app/golf/modals/HoleSummaryModal";
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
-import ShotDetailsModal, { type ShotDetailsModalReference } from "@/components/app/golf/modals/ShotDetailsModal";
+import ShotDetailsModal, { type ShotDefaults, type ShotDetailsModalReference, type ShotModalResult } from "@/components/app/golf/modals/ShotDetailsModal";
+import { ContextFooter } from "@/components/app/golf/round/ContextFooter";
 import { RoundActions } from "@/components/app/golf/round/RoundActions";
 import { RoundHeader } from "@/components/app/golf/round/RoundHeader";
+import SettingsModal from "@/components/app/golf/round/SettingsModal";
 import { GreenDistanceStack } from "@/components/app/golf/tracking/GreenDistanceStack";
 import { HazardDistanceOverlay } from "@/components/app/golf/tracking/HazardDistanceOverlay";
 import { HazardMapLabels } from "@/components/app/golf/tracking/HazardMapLabels";
 import { PlayerTrackingOverlay } from "@/components/app/golf/tracking/PlayerTrackingOverlay";
+import { ShotHistoryOverlay } from "@/components/app/golf/tracking/ShotHistoryOverlay";
+import { SideSheetModalHandle } from "@/components/app/modals/SideSheetModalFactory";
 import { isPointInPolygon } from "@/components/putting-green";
 import { useCourseData } from "@/hooks/courses/useCourseData";
 import { useCourseMap } from "@/hooks/courses/useCourseMap";
 import { useHazardInspection } from "@/hooks/courses/useHazardInspection";
 import { useLocationTracking } from "@/hooks/courses/useLocationTracking";
 import { usePlayerTracking } from "@/hooks/courses/usePlayerTracking";
-import { useRoundTracking, type Shot } from "@/hooks/courses/useRoundTracking";
+import { useRoundTracking } from "@/hooks/courses/useRoundTracking";
+import type { CourseData } from "@/models/course";
 import type { LatLng } from "@/models/geo";
+import type { LieType } from "@/models/round.session.types";
 import type { CourseLoadError } from "@/services/courses/courseLoader";
+import { generateUUID } from "@/utils/common";
 import {
     greenDistances,
+    haversineMeters,
+    polygonCentroid,
+    toYards,
     type GreenDistances,
 } from "@/utils/courses/geometry/distance.utils";
-import { padPolygonCoordinates } from "@/utils/courses/geometry/polygon.utils";
+import { isPointInPolygonLatLng, isPointInPolygonXY, padPolygonCoordinates } from "@/utils/courses/geometry/polygon.utils";
 import { formatCourseLoadError } from "@/utils/courses/round/error.formatter";
+import EditScorecardIcon from "@assets/icons/svg/editScorecard";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 // ── Pure helpers ──────────────────────────────────────────────────────────────
 
@@ -52,6 +66,54 @@ function hazardStrokeColor(isBunker: boolean, isFocused: boolean, featureAlpha: 
         return isFocused ? "rgba(200, 130, 30, 1)" : `rgba(175, 143, 100, ${featureAlpha})`;
     }
     return isFocused ? "rgba(0, 80, 200, 1)" : `rgba(0, 60, 180, ${featureAlpha})`;
+}
+
+/**
+ * Detect the lie type based on which OSM polygon the user is currently inside.
+ * Priority: tee > green > bunker > fairway > rough.
+ */
+function detectLie(
+    userLoc: LatLng,
+    courseData: CourseData,
+): LieType {
+    for (const tee of courseData.teeBoxes ?? []) {
+        if (isPointInPolygonLatLng(userLoc, tee.coordinates)) return "tee";
+    }
+    for (const green of courseData.greens) {
+        // Green polygons are XYPoint[] (x = lon, y = lat) — convert user pos accordingly
+        if (isPointInPolygonXY({ x: userLoc.longitude, y: userLoc.latitude }, green.polygon)) return "green";
+    }
+    for (const hazard of courseData.hazards ?? []) {
+        if (hazard.type === "bunker" && isPointInPolygonLatLng(userLoc, hazard.coordinates)) return "sand";
+    }
+    for (const fairway of courseData.fairways) {
+        if (isPointInPolygonLatLng(userLoc, fairway.coordinates)) return "fairway";
+    }
+    return "rough";
+}
+
+/**
+ * Suggest a club based on distance (yards) and lie.
+ * - Tee → Driver
+ * - On green → Putter
+ * - >250 yd → 3 Wood (longest non-driver)
+ * - Linear tier mapping below that
+ */
+function guessClub(yards: number, lie: LieType): string {
+    if (lie === "green") return "Putter";
+    if (lie === "tee") return "Driver";
+    if (yards > 220) return "3 Wood";
+    if (yards > 210) return "5 Wood";
+    if (yards > 195) return "4 Iron";
+    if (yards > 180) return "5 Iron";
+    if (yards > 165) return "6 Iron";
+    if (yards > 150) return "7 Iron";
+    if (yards > 135) return "8 Iron";
+    if (yards > 120)  return "9 Iron";
+    if (yards > 100)  return "Pitching Wedge";
+    if (yards > 80)  return "Gap Wedge";
+    if (yards > 50)  return "Sand Wedge";
+    return "Lob Wedge";
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -127,12 +189,17 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         nextHole,
         prevHole,
         shots,
+        holes,
         addShot,
+        setCurrentShot,
+        currentShot,
+        commitHoleSummary,
+        runningScore,
         trackingState,
         startTracking,
         endTracking,
         currentShotStart,
-    } = useRoundTracking(1, courseData?.holes.length ?? 0); // TODO if it cant load the hole length trigger an error state
+    } = useRoundTracking(1, course?.numberOfHoles ?? 0, course?.selectedTee); // TODO if it cant load the hole length trigger an error state
 
     const { mapRef, activeHoleData, recenterOnHole, isPannedAway, onPanDrag, currentHeadingRef, resetPannedState } = useCourseMap(courseData, activeHole);
 
@@ -200,6 +267,9 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     };
 
     const modalRef = useRef<ShotDetailsModalReference>(null);
+    const holeSummaryRef = useRef<HoleSummaryModalHandle>(null);
+    const sideSheetRef = useRef<SideSheetModalHandle>(null);
+    const confirmExitModalRef = useRef<BottomSheetModal | null>(null);
 
     useEffect(() => {
         if (courseDataState.status === "success") {
@@ -225,24 +295,44 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     };
 
     const handleEndTracking = () => {
-        modalRef.current?.open();
+        endTracking();
+
+        addShot(userLocation!);
     };
 
-    const handleConfirmShot = (details: Pick<Shot, "lie" | "club" | "goal" | "shotShape">) => {
-        if (currentShotStart && userLocation) {
-            // Calculate distance (simplified for now, should use proper haversine formula)
-            const distance = 0; // Placeholder
-
-            addShot({
-                holeNumber: activeHole,
-                shotNumber: shots.filter(s => s.holeNumber === activeHole).length + 1,
-                startLocation: currentShotStart,
-                endLocation: userLocation,
-                distance,
-                ...details,
+    const handleConfirmShot = (details: ShotModalResult) => {
+        handleStartTracking();
+        // set a different location each shot
+        console.log("shots.length", shots.length);
+        if (shots.length === 0) {
+            setLocation({
+                latitude: 42.203468841451304, 
+                longitude: -85.62896922453452
+            });
+        } else if (shots.length === 1) {
+            setLocation({
+                latitude: 42.203268028876955, 
+                longitude: -85.62803493889179
             });
         }
-        endTracking();
+        setCurrentShot({
+            ...details,
+            id: generateUUID(),
+            distance: {
+                measuredM: 0,
+                intendedToTargetM: 0
+            },
+            par: course?.selectedTee.holes[activeHole - 1].par ?? 4,
+            hole: activeHole,
+            stroke: shots.filter(s => s.hole === activeHole).length + 1,
+            start: {
+                point: {
+                    latitude: userLocation?.latitude ?? 0,
+                    longitude: userLocation?.longitude ?? 0
+                },
+                timestamp: new Date().toISOString()
+            }
+        });
     };
 
     const handleCancelShot = () => {
@@ -360,14 +450,9 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 )}
 
                 {/* Completed shots for this hole — hidden during hazard mode */}
-                {!hazardActive && shots.filter(s => s.holeNumber === activeHole).map((shot) => (
-                    <Polyline
-                        key={shot.id}
-                        coordinates={[shot.startLocation, shot.endLocation]}
-                        strokeColor="rgba(255, 215, 0, 0.8)"
-                        strokeWidth={3}
-                    />
-                ))}
+                {!hazardActive && (
+                    <ShotHistoryOverlay shots={shots.filter(s => s.hole === activeHole)} />
+                )}
 
                 {/* In-progress shot line — hidden during hazard mode */}
                 {!hazardActive && trackingState === "tracking" && currentShotStart && userLocation && (
@@ -416,24 +501,39 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             </MapView>
 
             {/* ── Overlays ─────────────────────────────────────────────── */}
-            <RoundHeader prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} />
+            <RoundHeader prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} onExit={() => confirmExitModalRef.current?.present()} />
 
             <RoundActions
                 trackingState={trackingState}
                 startTracking={() => {
-                    handleStartTracking();
-                    setLocation({
-                        latitude: 42.20341546049192, 
-                        longitude: -85.62860167651073
-                    })
+                    // ── Compute smart defaults from OSM data + player location ──
+                    let defaults: ShotDefaults | undefined;
+                    if (userLocation && courseData) {
+                        const lie = detectLie(userLocation, courseData);
+                        // Pin = user-placed pin if dragged, otherwise green polygon centroid
+                        const pinCoord =
+                            holePins[activeHole] ??
+                            (activeGreenPolygon ? polygonCentroid(activeGreenPolygon) : null);
+                        const yards = pinCoord
+                            ? Math.round(toYards(haversineMeters(userLocation, pinCoord)))
+                            : null;
+                        defaults = {
+                            lie,
+                            clubLabel: yards !== null ? guessClub(yards, lie) : undefined,
+                            isGoalGreen: yards !== null ? yards <= 200 : true,
+                            isGreensideChip: yards !== null ? yards < 30 : false,
+                        };
+                    }
+                    modalRef.current?.open(defaults);
                 }}
                 endTracking={handleEndTracking}
                 isPlayerTracking={playerTracking.isTracking}
                 onPlayerTrackingToggle={playerTracking.toggleTracking}
+                onSettingsPress={() => sideSheetRef.current?.present()}
             />
 
-            {/* Green distances — visible only when tracking and no hazard is focused */}
-            {playerTracking.isTracking && !hazardActive && (
+            {/* Green distances — visible only when no hazard is focused */}
+            {!hazardActive && (
                 <GreenDistanceStack distances={liveGreenDistances} />
             )}
 
@@ -458,11 +558,27 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 </Pressable>
             )}
 
+            <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
+                <EditScorecardIcon size={32} color={theme.colors.buttons.textColor} />
+            </Pressable>
+
+            <ContextFooter currentShot={currentShot} userLocation={userLocation}/>
+
             <ShotDetailsModal
                 reference={modalRef}
                 onConfirm={handleConfirmShot}
                 onCancel={handleCancelShot}
             />
+            <HoleSummaryModal
+                reference={holeSummaryRef}
+                hole={holes[activeHole]}
+                holeShots={shots.filter((s) => s.hole === activeHole)}
+                runningScore={runningScore}
+                playerName="Hayden Williams"
+                onCommit={commitHoleSummary}
+            />
+            <SettingsModal sideSheetRef={sideSheetRef} />
+            <ConfirmExitModal reference={confirmExitModalRef} onSave={() => {}} onDelete={() => {}} />
         </Screen>
     );
 };
@@ -484,12 +600,29 @@ const $centeredFill: ViewStyle = {
 
 const $recenterButton: ThemedStyle<ViewStyle> = (theme) => ({
     position: "absolute",
-    bottom: 180,
+    bottom: 240,
     left: 20,
     width: 50,
     height: 50,
     borderRadius: 25,
     backgroundColor: theme.colors.backgrounds.elevated,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+});
+
+const $scoreButton: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    bottom: 120,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: theme.colors.buttons.textColor,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",

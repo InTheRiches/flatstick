@@ -6,11 +6,6 @@ export type UnitSystem = "imperial" | "metric"
 
 export type UUID = string
 
-export type LatLng = {
-    latitude: number
-    longitude: number
-}
-
 export interface BaseEntity {
   id: UUID
   userId: UUID

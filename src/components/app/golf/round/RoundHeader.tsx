@@ -9,14 +9,15 @@ interface RoundHeaderProps {
     prevHole: () => void;
     activeHole: number;
     nextHole: () => void;
+    onExit?: () => void;
 }
 
-export const RoundHeader: React.FC<RoundHeaderProps> = ({ prevHole, activeHole, nextHole }) => {
+export const RoundHeader: React.FC<RoundHeaderProps> = ({ prevHole, activeHole, nextHole, onExit }) => {
     const { theme, themed } = useAppTheme();
 
     return (
         <View style={$container}>
-            <Pressable style={themed($exitButton)}>
+            <Pressable style={themed($exitButton)} onPress={onExit}>
                 <Ionicons name="exit-outline" size={30} color={theme.colors.buttons.textColor} />
             </Pressable>
             <View style={themed($topOverlay)}>
@@ -42,7 +43,6 @@ const $container: ViewStyle = {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 10,
     gap: 12,
     paddingHorizontal: 16, // Optional: adds breathing room from edges
 };

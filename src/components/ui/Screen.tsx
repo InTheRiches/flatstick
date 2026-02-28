@@ -259,8 +259,6 @@ export function Screen(props: ScreenProps) {
 
   const $containerInsets = useSafeAreaInsetsStyle(safeAreaEdges)
 
-  console.log("safeAreaInsets", useSafeAreaInsets)
-
   return (
     <View
       style={[

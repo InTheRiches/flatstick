@@ -1,13 +1,13 @@
 // app/_layout.tsx
-import { useEffect } from "react"
-import {Slot, SplashScreen, useRouter, useSegments} from "expo-router"
+import { Slot, SplashScreen, useRouter, useSegments } from "expo-router"
+import React, { useEffect } from "react"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 
-import { ThemeProvider } from "@/theme/context"
-import { UserProvider } from "@/context/UserContext"
 import { EquipmentProvider } from "@/context/EquipmentContext"
-import {useAuth} from "@/hooks/useAuth";
+import { UserProvider } from "@/context/UserContext"
+import { useAuth } from "@/hooks/useAuth"
+import { ThemeProvider } from "@/theme/context"
 
 SplashScreen.preventAutoHideAsync()
 

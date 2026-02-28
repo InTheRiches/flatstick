@@ -1,15 +1,15 @@
 // SelectCourseDetailsModal.tsx
-import React, {useImperativeHandle, useMemo, useState} from "react"
-import {BottomSheetModal} from "@gorhom/bottom-sheet"
-import {View, TextStyle, ViewStyle} from "react-native"
+import { BottomSheetModal } from "@gorhom/bottom-sheet"
+import React, { useImperativeHandle, useMemo, useState } from "react"
+import { TextStyle, View, ViewStyle } from "react-native"
 
-import {BottomSheetModalFactory} from "../../modals/BottomSheetFactory"
-import {Text} from "@/components/ui/Text"
-import {Button} from "@/components/ui/Button"
-import {useAppTheme} from "@/theme/context"
-import {$styles} from "@/theme/styles"
+import { Button } from "@/components/ui/Button"
 import DropdownPicker from "@/components/ui/DropdownPicker"
-import type {ClubResult, ClubCourse, TeeSet} from "@/services/courses/courseSearching"
+import { Text } from "@/components/ui/Text"
+import { ClubCourse, TeeSet } from "@/models/courses"
+import type { ClubResult } from "@/services/courses/courseSearching"
+import { useAppTheme } from "@/theme/context"
+import { BottomSheetModalFactory } from "../../modals/BottomSheetFactory"
 
 interface SelectCourseDetailsModalProps {
     reference: React.RefObject<SelectCourseDetailsModalReference | null>

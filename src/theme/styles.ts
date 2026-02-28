@@ -1,4 +1,4 @@
-import {TextStyle, ViewStyle} from "react-native"
+import { TextStyle, ViewStyle } from "react-native"
 
 /* Use this file to define styles that are used in multiple places in your app. */
 export const $styles = {
@@ -29,5 +29,6 @@ export const $styles = {
         textAlign: "left",
         width: "100%",
         fontWeight: "700",
+        marginBottom: 12,
     } as TextStyle,
 }

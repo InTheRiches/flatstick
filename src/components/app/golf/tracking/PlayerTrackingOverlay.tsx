@@ -16,7 +16,7 @@
  */
 
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TextStyle, View, ViewStyle } from "react-native";
 import { Marker, Polyline } from "react-native-maps";
 
@@ -124,6 +124,19 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
     [userLocation, greenCenter],
   );
 
+  // ── Proximity line/label visibility ─────────────────────────────────────
+  // <30 yd: hide line + label by default; tap to reveal line (no label).
+  // <60 yd: hide label only.
+  const [forceShowLines, setForceShowLines] = useState(false);
+
+  useEffect(() => {
+    // Auto-clear the forced override once the player steps back outside 30 yd.
+    if (playerToGreenYards >= 30) setForceShowLines(false);
+  }, [playerToGreenYards]);
+
+  const showDirectLine = playerToGreenYards >= 30 || forceShowLines;
+  const showDistanceLabel = playerToGreenYards >= 60;
+
   // Intermediate-target distances — recompute on every drag event
   const { playerToTarget, targetToGreen } = useMemo(
     () =>
@@ -148,7 +161,12 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
   return (
     <>
       {/* ── User location marker ── */}
-      <Marker coordinate={userLocation} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>
+      <Marker
+        coordinate={userLocation}
+        anchor={{ x: 0.5, y: 0.5 }}
+        tracksViewChanges={false}
+        onPress={() => { if (playerToGreenYards < 30) setForceShowLines(true); }}
+      >
         <View style={$playerMarker} />
       </Marker>
 
@@ -173,7 +191,7 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
       </Marker>
 
       {/* ── Player → Green distance line ── */}
-      {!target && (
+      {!target && showDirectLine && (
         <Polyline
           coordinates={[userLocation, greenCenter]}
           strokeColor="rgba(0,0,0,0.85)"
@@ -182,7 +200,7 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
       )}
 
       {/* ── Midpoint distance callout (no target) ── */}
-      {!target && (
+      {!target && showDirectLine && showDistanceLabel && (
         <Marker
           coordinate={playerToGreenMidpoint}
           anchor={{ x: 0.5, y: 0.5 }}

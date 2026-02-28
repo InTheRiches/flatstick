@@ -1,3 +1,10 @@
+import { Text } from "@/components/ui/Text"
+import { ClubResult, OverpassResult } from "@/models/courses"
+import { LatLng } from "@/models/geo"
+import { searchGolfClubsWithVariants, searchNearbyGolfCourses } from "@/services/courses/courseSearching"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
+import { Ionicons } from "@expo/vector-icons"
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
     ActivityIndicator,
@@ -8,14 +15,6 @@ import {
     type ViewStyle,
 } from "react-native"
 import MapView, { Callout, Marker, type Region } from "react-native-maps"
-import { Ionicons } from "@expo/vector-icons"
-import {searchGolfClubsWithVariants} from "@/services/courses/courseSearching"
-import { searchNearbyGolfCourses } from "@/services/courses/courseSearching"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
-import { Text } from "@/components/ui/Text"
-import {ClubResult, OverpassResult} from "@/models/courses";
-import {LatLng} from "@/models/common";
 
 interface NearbyCoursesMapProps {
     userCoords: LatLng | null

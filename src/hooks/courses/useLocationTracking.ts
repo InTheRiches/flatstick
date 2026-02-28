@@ -39,8 +39,8 @@ export function useLocationTracking() {
 
   useEffect(() => {
     setUserLocation({
-      latitude: 42.20354936647385,
-      longitude: -85.6301051197833
+      latitude: 42.203253685098844, 
+      longitude: -85.63197055660751
     })
   }, []);
 

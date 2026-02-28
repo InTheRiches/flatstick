@@ -54,12 +54,11 @@ export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onS
 const $container: ViewStyle = {
     position: "absolute",
     right: 16,
-    top: 0,
-    bottom: 0,
+    top: 200,
+    bottom: 200,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 10,
 };
 
 const $topOverlay: ThemedStyle<ViewStyle> = (theme, trackingState?: string) => ({

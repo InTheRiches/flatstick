@@ -1,4 +1,4 @@
-import {ComponentType, forwardRef, Ref, useImperativeHandle, useRef} from "react"
+import { ComponentType, forwardRef, Ref, useImperativeHandle, useRef } from "react"
 import {
     ImageStyle,
     StyleProp,
@@ -11,13 +11,13 @@ import {
     ViewStyle,
 } from "react-native"
 
-import {isRTL} from "@/i18n"
-import {translate} from "@/i18n/translate"
-import {useAppTheme} from "@/theme/context"
-import {$styles} from "@/theme/styles"
-import type {ThemedStyle, ThemedStyleArray} from "@/theme/types"
+import { isRTL } from "@/i18n"
+import { translate } from "@/i18n/translate"
+import { useAppTheme } from "@/theme/context"
+import { $styles } from "@/theme/styles"
+import type { ThemedStyle, ThemedStyleArray } from "@/theme/types"
 
-import {Text, TextProps} from "./Text"
+import { Text, TextProps } from "./Text"
 
 export interface TextFieldAccessoryProps {
     style: StyleProp<ViewStyle | TextStyle | ImageStyle>
@@ -250,12 +250,13 @@ const $containerStyle: ViewStyle = {
     marginBottom: 6
 }
 
-const $labelStyle: ThemedStyle<TextStyle> = ({spacing}) => ({
-    marginBottom: spacing.xs,
-    textAlign: "left",
-    width: "100%",
-    fontWeight: 500,
-})
+const $labelStyle: ThemedStyle<TextStyle> = (theme) => ({
+    fontSize: 13,
+    color: theme.colors.textDim,
+    fontWeight: "500",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+});
 
 const $inputWrapperStyle: ThemedStyle<ViewStyle> = ({colors}) => ({
     alignItems: "flex-start",

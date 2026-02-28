@@ -1,4 +1,4 @@
-import {LatLng} from "@/models/common";
+import { LatLng } from "@/models/geo";
 
 export type TeeSet = {
     name: string

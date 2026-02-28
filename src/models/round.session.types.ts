@@ -1,18 +1,14 @@
 import { GeoPoint, SessionBase, SessionMetaBase, SessionStatsBase } from "@/models/session.types"
 
-export type ShotCategory = "tee" | "approach" | "short_game" | "putt" | "penalty" | "recovery"
+export type ShotCategory = "tee" | "approach" | "short_game" | "putt" | "recovery"
 export type LieType =
   | "tee"
   | "fairway"
   | "rough"
-  | "first_cut"
   | "sand"
   | "green"
   | "fringe"
   | "recovery"
-  | "penalty_area"
-  | "ob"
-  | "other"
 
 export type ClubType = "driver" | "wood" | "hybrid" | "iron" | "wedge" | "putter" | "other"
 
@@ -41,7 +37,6 @@ export interface ShotAttempt {
   club: {
     type: ClubType
     label?: string // "7i", "54°", "3W", "D"
-    loftDeg?: number
   }
 
   lie: LieType
@@ -49,8 +44,7 @@ export interface ShotAttempt {
   // Distances (store raw; compute derived in stats)
   distance: {
     intendedToTargetM?: number // optional if you know pin/target
-    measuredCarryM?: number
-    totalM?: number
+    measuredM?: number
   }
 
   // GPS start/end
@@ -67,8 +61,8 @@ export interface ShotAttempt {
   // Intention (good for “shot shape” and later coaching insights)
   intent?: {
     shape?: ShotShape // what you tried to hit
-    target?: "center" | "left" | "right" | "layup" | "attack" | "other"
-    aimPoint?: GeoPoint // optional target point
+    goalIsGreen?: boolean // was the intention to reach the green?
+    greensideChip?: boolean // was this a chip from around the green?
   }
 
   // Outcome flags
@@ -79,12 +73,7 @@ export interface ShotAttempt {
     contact?: "pure" | "thin" | "fat" | "toe" | "heel" | "unknown"
     finishLie?: LieType
     isPenalty?: boolean
-    penaltyStrokes?: number
     isOutOfBounds?: boolean
-
-    // For tee/approach, super useful:
-    fairwayHit?: boolean // tee only
-    greenInRegulation?: boolean // approach result contributes
   }
 
   notes?: string
