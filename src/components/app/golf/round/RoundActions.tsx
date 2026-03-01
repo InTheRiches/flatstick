@@ -28,23 +28,29 @@ export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onS
         active && themed($activeNavButton),
     ];
 
+    const getIconColor = (pressed?: boolean, active?: boolean) => {
+        if (active) return theme.colors.buttons.textColor;
+        if (pressed) return theme.colors.buttons.textColor;
+        return theme.colors.palette.black;
+    }
+
     return (
         <View style={$container}>
             <View style={themed($topOverlay)}>
                 <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onSettingsPress}>
-                    <Ionicons name="settings-sharp" size={30} color={theme.colors.buttons.textColor} />
+                    <Ionicons name="settings-sharp" size={30} color={getIconColor(false, false)} />
                 </Pressable>
                 <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onGreenViewPress}>
-                    <Ionicons name="golf" size={24} color={theme.colors.buttons.textColor} />
+                    <Ionicons name="golf" size={24} color={getIconColor(false, false)} />
                 </Pressable>
                 <Pressable style={(state) => getButtonStyle(state.pressed, !!isPlayerTracking)} onPress={onPlayerTrackingToggle}>
-                    <Ionicons name="navigate" size={24} color={theme.colors.buttons.textColor} />
+                    <Ionicons name="navigate" size={24} color={getIconColor(false, !!isPlayerTracking)} />
                 </Pressable>
                 <Pressable style={(state) => getButtonStyle(state.pressed, trackingState === "tracking")} onPress={trackingState === "tracking" ? endTracking : startTracking}>
-                    <TrackingIcon size={24} color={theme.colors.buttons.textColor} />
+                    <TrackingIcon size={24} color={getIconColor(false, trackingState === "tracking")} />
                 </Pressable>
                 <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onScorecardPress}>
-                    <ScorecardIcon width={30} height={30} darkColor={theme.colors.buttons.textColor} lightColor={theme.colors.buttons.disabled.background} />
+                    <ScorecardIcon width={30} height={30} darkColor={theme.colors.text} lightColor={theme.colors.textDim} />
                 </Pressable>
             </View>
         </View>
@@ -74,16 +80,15 @@ const $topOverlay: ThemedStyle<ViewStyle> = (theme, trackingState?: string) => (
 const $navButton: ThemedStyle<ViewStyle> = (theme) => ({
     padding: 6,
     aspectRatio: 1,
-    backgroundColor: theme.colors.buttons.background,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
 });
 
 const $navButtonPressed: ThemedStyle<ViewStyle> = (theme) => ({
-    backgroundColor: theme.colors.buttons.pressed.background,
+    opacity: 0.8
 });
 
 const $activeNavButton: ThemedStyle<ViewStyle> = (theme) => ({
-    backgroundColor: theme.colors.buttons.danger.background,
+    backgroundColor: theme.colors.buttons.background,
 })

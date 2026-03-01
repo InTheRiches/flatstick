@@ -63,8 +63,11 @@ function buildPlayerCamera(
   pitch: number;
 } {
   let distanceM = haversineMeters(player, greenCenter, 200);
-  if (distanceM > 250) {
-    distanceM += 50; // Add padding for long holes to avoid excessive zoom-out
+  if (distanceM > 450) {
+    distanceM += 100; // Add padding for long holes to avoid excessive zoom-out
+  }
+  if (distanceM > 600) {
+    distanceM += 225; // Add padding for long holes to avoid excessive zoom-out
   }
 
   // Target layout (fraction from top of screen):
@@ -75,7 +78,7 @@ function buildPlayerCamera(
   // Camera center is the screen midpoint (50 % from top).
   // Distance from player (85 %) to center (50 %) = 35 % of screen.
   // So center sits 35/75 ≈ 0.467 of the way from player toward green.
-  const center = lerpLatLng(player, greenCenter, 0.55);
+  const center = lerpLatLng(player, greenCenter, 0.50);
 
   const heading = bearingDegrees(player, greenCenter);
 
@@ -132,8 +135,6 @@ export function usePlayerTracking({
       { duration: 600 },
     );
   }, [isTracking, userLocation, greenPolygon, mapRef, recenterOnUserFlag]);
-
-
 
   const toggleTracking = useCallback(() => {
     setIsTracking((prev) => {

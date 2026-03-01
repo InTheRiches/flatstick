@@ -14,6 +14,8 @@ import ConfirmExitModal from "@/components/app/golf/modals/ConfirmExitModal";
 import HoleSummaryModal, { type HoleSummaryModalHandle } from "@/components/app/golf/modals/HoleSummaryModal";
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
 import ShotDetailsModal, { type ShotDefaults, type ShotDetailsModalReference, type ShotModalResult } from "@/components/app/golf/modals/ShotDetailsModal";
+import { PuttingActionBar } from "@/components/app/golf/putting/PuttingActionBar";
+import { PuttingOverlay } from "@/components/app/golf/putting/PuttingOverlay";
 import { ContextFooter } from "@/components/app/golf/round/ContextFooter";
 import { RoundActions } from "@/components/app/golf/round/RoundActions";
 import { RoundHeader } from "@/components/app/golf/round/RoundHeader";
@@ -27,12 +29,15 @@ import { SideSheetModalHandle } from "@/components/app/modals/SideSheetModalFact
 import { isPointInPolygon } from "@/components/putting-green";
 import { useCourseData } from "@/hooks/courses/useCourseData";
 import { useCourseMap } from "@/hooks/courses/useCourseMap";
+import { useGreenCameraLock } from "@/hooks/courses/useGreenCameraLock";
 import { useHazardInspection } from "@/hooks/courses/useHazardInspection";
 import { useLocationTracking } from "@/hooks/courses/useLocationTracking";
 import { usePlayerTracking } from "@/hooks/courses/usePlayerTracking";
+import { usePuttingMode } from "@/hooks/courses/usePuttingMode";
 import { useRoundTracking } from "@/hooks/courses/useRoundTracking";
 import type { CourseData } from "@/models/course";
 import type { LatLng } from "@/models/geo";
+import { LiveShotAttempt } from "@/models/round.live.types";
 import type { LieType } from "@/models/round.session.types";
 import type { CourseLoadError } from "@/services/courses/courseLoader";
 import { generateUUID } from "@/utils/common";
@@ -233,9 +238,69 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const courseHazards = courseData?.hazards ?? [];
     const hazardInspection = useHazardInspection(mapRef, courseHazards, userLocation, currentHeadingRef);
 
+    // ── Putting Mode ──────────────────────────────────────────────────────────
+    const puttingMode = usePuttingMode();
+    const { cameraConstraints, recenterOnGreen } = useGreenCameraLock(
+        mapRef,
+        puttingMode.isPuttingMode,
+        activeGreenPolygon,
+        activeHoleData
+    );
+
+    const handleGreenViewPress = () => {
+        if (!puttingMode.isPuttingMode) {
+             // Disable player tracking if active before entering putting mode
+             if (playerTracking.isTracking) {
+                 playerTracking.toggleTracking();
+             }
+             puttingMode.startPuttingMode();
+        }
+    };
+
+    const handleExitPuttingMode = () => {
+        puttingMode.exitPuttingMode();
+        recenterOnHole(); // animate back to full hole view
+    };
+
+    const handleSavePutt = () => {
+        if (!puttingMode.pendingPuttStart || !holePins[activeHole] && !activeGreenPolygon) return;
+        
+        const targetCoord = holePins[activeHole] ?? polygonCentroid(activeGreenPolygon!);
+        const newPutt: LiveShotAttempt = {
+            id: generateUUID(),
+            hole: activeHole,
+            stroke: shots.filter(s => s.hole === activeHole).length + puttingMode.putts.length + 1,
+            par: course?.selectedTee.holes[activeHole - 1]?.par ?? 4,
+            category: "putt",
+            club: { type: "putter", label: "Putter" },
+            lie: "green",
+            distance: {
+                measuredM: haversineMeters(puttingMode.pendingPuttStart, targetCoord)
+            },
+            start: {
+                point: puttingMode.pendingPuttStart,
+                timestamp: new Date().toISOString()
+            }
+        };
+        
+        // Add to local putting state or global shots array
+        // We'll add it to global shots array so it persists in the round
+        addShot(puttingMode.pendingPuttStart); // Use the current userlocation or tapped location?
+        setCurrentShot(newPutt);
+        puttingMode.addPutt(newPutt);
+        puttingMode.clearPendingPutt();
+        
+        // Optionally, immediately commit the current shot for putts
+        // Since putts are simple (no full tracking required)
+        endTracking(); 
+    };
+
     const recenterScreen = () => {
         if (playerTracking.isTracking) {
             playerTracking.recenterOnUser();
+            resetPannedState();
+        } else if (puttingMode.isPuttingMode) {
+            recenterOnGreen();
             resetPannedState();
         } else {
             recenterOnHole();
@@ -244,9 +309,15 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
 
     // ── Tap handler for placing / updating intermediate target ─────────────────
     const handleMapPress = (e: { nativeEvent: { coordinate: LatLng } }) => {
+        const coord = e.nativeEvent.coordinate;
+        if (puttingMode.isPuttingMode) {
+            puttingMode.setPendingPuttStart(coord);
+            return;
+        }
+
         // If the tap lands inside any hazard polygon (with padding), let the hazard handle it.
         const tappedHazard = courseHazards.some((hazard) =>
-            isPointInPolygon(e.nativeEvent.coordinate, padPolygonCoordinates(hazard.coordinates, 6))
+            isPointInPolygon(coord, padPolygonCoordinates(hazard.coordinates, 6))
         );
         if (tappedHazard) return;
 
@@ -280,6 +351,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     useEffect(() => {
         // clear any hazard view when changing holes
         hazardInspection.exitHazardMode();
+        handleCancelShot();
 
         if (playerTracking.isTracking) {
             return;
@@ -294,6 +366,28 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         }
     };
 
+    const openShotDetails = () => {
+        // ── Compute smart defaults from OSM data + player location ──
+        let defaults: ShotDefaults | undefined;
+        if (userLocation && courseData) {
+            const lie = detectLie(userLocation, courseData);
+            // Pin = user-placed pin if dragged, otherwise green polygon centroid
+            const pinCoord =
+                holePins[activeHole] ??
+                (activeGreenPolygon ? polygonCentroid(activeGreenPolygon) : null);
+            const yards = pinCoord
+                ? Math.round(toYards(haversineMeters(userLocation, pinCoord)))
+                : null;
+            defaults = {
+                lie,
+                clubLabel: yards !== null ? guessClub(yards, lie) : undefined,
+                isGoalGreen: yards !== null ? yards <= 200 : true,
+                isGreensideChip: yards !== null ? yards < 30 : false,
+            };
+        }
+        modalRef.current?.open(defaults);
+    }
+
     const handleEndTracking = () => {
         endTracking();
 
@@ -303,7 +397,6 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const handleConfirmShot = (details: ShotModalResult) => {
         handleStartTracking();
         // set a different location each shot
-        console.log("shots.length", shots.length);
         if (shots.length === 0) {
             setLocation({
                 latitude: 42.203468841451304, 
@@ -366,7 +459,12 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 mapType="satellite"
                 showsUserLocation={false} // We render our own marker
                 onPanDrag={onPanDrag}
+                rotateEnabled={false}
                 onPress={handleMapPress}
+                cameraZoomRange={{
+                    minCenterCoordinateDistance: 50, // ~20 yards
+                    maxCenterCoordinateDistance: 2000, // ~800 yards
+                }}
             >
                 {/* Fairways — dimmed while a hazard is focused */}
                 {courseData?.fairways.map((fairway, index) => (
@@ -423,7 +521,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                                 strokeColor={'rgba(0,0,0,0)'}
                                 zIndex={1}
                                 tappable
-                                onPress={() => hazardInspection.focusHazard(hazard)}
+                                onPress={() => !puttingMode.isPuttingMode && hazardInspection.focusHazard(hazard)}
                             />
                             <Polygon
                                 key={`hazard-${hazard.osmId}`}
@@ -433,14 +531,14 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                                 strokeWidth={isFocused ? 3 : 2}
                                 zIndex={2}
                                 tappable
-                                onPress={() => hazardInspection.focusHazard(hazard)}
+                                onPress={() => !puttingMode.isPuttingMode && hazardInspection.focusHazard(hazard)}
                             />
                         </React.Fragment>
                     );
                 })}
 
                 {/* Active hole path — hidden during hazard mode */}
-                {activeHoleData?.holePath && !hazardActive && (
+                {activeHoleData?.holePath && !hazardActive && !puttingMode.isPuttingMode && (
                     <Polyline
                         coordinates={activeHoleData.holePath.coordinates}
                         strokeColor="rgba(255, 255, 255, 0.5)"
@@ -454,8 +552,17 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     <ShotHistoryOverlay shots={shots.filter(s => s.hole === activeHole)} />
                 )}
 
+                {puttingMode.isPuttingMode && (
+                    <PuttingOverlay
+                         putts={puttingMode.putts} 
+                         pendingPuttStart={puttingMode.pendingPuttStart} 
+                         holePinCoord={holePins[activeHole] ?? (activeGreenPolygon ? polygonCentroid(activeGreenPolygon) : null)} 
+                         onPinDragEnd={setHolePinForActiveHole}
+                    />
+                )}
+
                 {/* In-progress shot line — hidden during hazard mode */}
-                {!hazardActive && trackingState === "tracking" && currentShotStart && userLocation && (
+                {!hazardActive && trackingState === "tracking" && currentShotStart && userLocation && !puttingMode.isPuttingMode && (
                     <>
                         <Polyline
                             coordinates={[currentShotStart, userLocation]}
@@ -476,7 +583,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 )}
 
                 {/* Player tracking overlays (target pin, hole pin) — hidden during hazard mode */}
-                {!hazardActive && playerTracking.isTracking && userLocation && activeGreenPolygon && (
+                {!hazardActive && playerTracking.isTracking && !puttingMode.isPuttingMode && userLocation && activeGreenPolygon && (
                     <PlayerTrackingOverlay
                         userLocation={userLocation}
                         greenPolygon={activeGreenPolygon}
@@ -503,37 +610,29 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             {/* ── Overlays ─────────────────────────────────────────────── */}
             <RoundHeader prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} onExit={() => confirmExitModalRef.current?.present()} />
 
-            <RoundActions
-                trackingState={trackingState}
-                startTracking={() => {
-                    // ── Compute smart defaults from OSM data + player location ──
-                    let defaults: ShotDefaults | undefined;
-                    if (userLocation && courseData) {
-                        const lie = detectLie(userLocation, courseData);
-                        // Pin = user-placed pin if dragged, otherwise green polygon centroid
-                        const pinCoord =
-                            holePins[activeHole] ??
-                            (activeGreenPolygon ? polygonCentroid(activeGreenPolygon) : null);
-                        const yards = pinCoord
-                            ? Math.round(toYards(haversineMeters(userLocation, pinCoord)))
-                            : null;
-                        defaults = {
-                            lie,
-                            clubLabel: yards !== null ? guessClub(yards, lie) : undefined,
-                            isGoalGreen: yards !== null ? yards <= 200 : true,
-                            isGreensideChip: yards !== null ? yards < 30 : false,
-                        };
-                    }
-                    modalRef.current?.open(defaults);
-                }}
-                endTracking={handleEndTracking}
-                isPlayerTracking={playerTracking.isTracking}
-                onPlayerTrackingToggle={playerTracking.toggleTracking}
-                onSettingsPress={() => sideSheetRef.current?.present()}
-            />
+            {!puttingMode.isPuttingMode && (
+                <RoundActions
+                    trackingState={trackingState}
+                    startTracking={openShotDetails}
+                    endTracking={handleEndTracking}
+                    isPlayerTracking={playerTracking.isTracking}
+                    onPlayerTrackingToggle={playerTracking.toggleTracking}
+                    onSettingsPress={() => sideSheetRef.current?.present()}
+                    onGreenViewPress={handleGreenViewPress}
+                />
+            )}
+
+            {puttingMode.isPuttingMode && (
+                <PuttingActionBar 
+                hasPendingPutt={!!puttingMode.pendingPuttStart} 
+                onSavePutt={handleSavePutt} 
+                onGPSPress={() => {
+                    puttingMode.setPendingPuttStart(userLocation);
+                }} />
+            )}
 
             {/* Green distances — visible only when no hazard is focused */}
-            {!hazardActive && (
+            {!hazardActive && !puttingMode.isPuttingMode && (
                 <GreenDistanceStack distances={liveGreenDistances} />
             )}
 
@@ -555,6 +654,12 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             {(isPannedAway || hazardActive) && (
                 <Pressable style={themed($recenterButton)} onPress={recenterScreen}>
                     <Ionicons name="locate" size={24} color={theme.colors.text} />
+                </Pressable>
+            )}
+
+            {puttingMode.isPuttingMode && (
+                <Pressable style={themed($exitPuttingButton)} onPress={handleExitPuttingMode}>
+                    <Ionicons name="close-outline" size={32} color={theme.colors.text} />
                 </Pressable>
             )}
 
@@ -619,6 +724,23 @@ const $scoreButton: ThemedStyle<ViewStyle> = (theme) => ({
     position: "absolute",
     bottom: 120,
     right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: theme.colors.buttons.textColor,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+});
+
+const $exitPuttingButton: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    bottom: 120,
+    left: 20,
     width: 50,
     height: 50,
     borderRadius: 50,

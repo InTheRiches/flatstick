@@ -16,7 +16,7 @@ interface ContextFooterProps {
 export const ContextFooter: React.FC<ContextFooterProps> = ({ currentShot, userLocation }) => {
     const { theme, themed } = useAppTheme();
 
-    return userLocation && currentShot && (
+    return userLocation && currentShot && currentShot.category !== "putt" && (
         <View style={themed($container)}>
             <RNText style={themed($footerText)}>
                 Tracking <RNText style={themed($highlightText)}>{currentShot?.club.label ?? "unknown club"}</RNText> shot
