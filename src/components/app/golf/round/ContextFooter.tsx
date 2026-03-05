@@ -6,23 +6,55 @@ import { Text } from "@/components/ui/Text";
 import { LatLng } from "@/models/geo";
 import { LiveShotAttempt } from "@/models/round.live.types";
 import { haversineMeters } from "@/utils/courses/geometry/distance.utils";
+import { useMemo } from "react";
 import { Text as RNText } from "react-native";
 
 interface ContextFooterProps {
     currentShot: LiveShotAttempt | null
     userLocation: LatLng | null
+    isPutting?: boolean;
+    holePinCoord?: LatLng | null;
+    pendingPuttStart?: LatLng | null;
+    putts?: number;
 }
 
-export const ContextFooter: React.FC<ContextFooterProps> = ({ currentShot, userLocation }) => {
+function toFeet(meters: number): number {
+    return meters * 3.28084;
+}   
+
+export const ContextFooter: React.FC<ContextFooterProps> = ({ currentShot, userLocation, isPutting, holePinCoord, pendingPuttStart, putts }) => {
     const { theme, themed } = useAppTheme();
 
-    return userLocation && currentShot && currentShot.category !== "putt" && (
-        <View style={themed($container)}>
-            <RNText style={themed($footerText)}>
-                Tracking <RNText style={themed($highlightText)}>{currentShot?.club.label ?? "unknown club"}</RNText> shot
-            </RNText>
-            <Text text={`${Math.round(haversineMeters(userLocation, currentShot?.start.point))} yards`} style={themed($distanceText)} />
-        </View>
+    if (userLocation && currentShot && currentShot.category !== "putt") {
+        return (
+            <View style={themed($container)}>
+                <RNText style={themed($footerText)}>
+                    Tracking <RNText style={themed($highlightText)}>{currentShot?.club.label ?? "unknown club"}</RNText> shot
+                </RNText>
+                <Text text={`${Math.round(haversineMeters(userLocation, currentShot?.start.point))} yards`} style={themed($distanceText)} />
+            </View>
+        )
+    }
+
+    const pendingDistance = useMemo(() => {
+        if (!isPutting || !holePinCoord || !pendingPuttStart) return null;
+        const distM = haversineMeters(pendingPuttStart, holePinCoord);
+        return Math.round(toFeet(distM));
+    }, [pendingPuttStart, holePinCoord]);
+
+    if (isPutting && holePinCoord && pendingPuttStart) {
+        return (
+            <View style={themed($container)}>
+                <RNText style={themed($footerText)}>
+                    Tracking <RNText style={themed($highlightText)}>{(putts ?? 0) + 1}{(putts ?? 0) === 0 ? "st" : (putts ?? 0) === 1 ? "nd" : (putts ?? 0) === 2 ? "rd" : "th"}</RNText> putt
+                </RNText>
+                <Text text={`${pendingDistance ?? "--"} feet`} style={themed($distanceText)} />
+            </View>
+        )
+    }
+
+    return (
+        <></>
     )
 }
 

@@ -6,20 +6,28 @@ import { Pressable, TextStyle, View, ViewStyle } from "react-native";
 import { Text } from "@/components/ui/Text";
 
 interface RoundHeaderProps {
+    isPutting: boolean;
     prevHole: () => void;
     activeHole: number;
     nextHole: () => void;
     onExit?: () => void;
+    onPuttingExit?: () => void;
 }
 
-export const RoundHeader: React.FC<RoundHeaderProps> = ({ prevHole, activeHole, nextHole, onExit }) => {
+export const RoundHeader: React.FC<RoundHeaderProps> = ({ isPutting, onPuttingExit, prevHole, activeHole, nextHole, onExit }) => {
     const { theme, themed } = useAppTheme();
 
     return (
         <View style={$container}>
-            <Pressable style={themed($exitButton)} onPress={onExit}>
-                <Ionicons name="exit-outline" size={30} color={theme.colors.buttons.textColor} />
-            </Pressable>
+            {isPutting ? (
+                <Pressable style={themed($exitPuttingButton)} onPress={onPuttingExit}>
+                    <Ionicons name="close-outline" size={36} color={theme.colors.buttons.textColor} />
+                </Pressable>
+            ) : (
+                <Pressable style={themed($exitButton)} onPress={onExit}>
+                    <Ionicons name="exit-outline" size={30} color={theme.colors.buttons.textColor} />
+                </Pressable>
+            )}
             <View style={themed($topOverlay)}>
                 <Pressable onPress={prevHole} style={themed($navButton)}>
                     <Ionicons name="chevron-back" size={24} color={theme.colors.buttons.textColor} />
@@ -69,6 +77,19 @@ const $exitButton: ThemedStyle<ViewStyle> = (theme) => ({
     paddingTop: 12,
     paddingRight: 10,
     paddingBottom: 12,
+    borderRadius: 999,
+    backgroundColor: theme.colors.buttons.background,
+    position: "absolute",
+    left: 16,
+    alignItems: "center",
+    justifyContent: "center",
+});
+
+const $exitPuttingButton: ThemedStyle<ViewStyle> = (theme) => ({
+    paddingLeft: 10,
+    paddingTop: 10,
+    paddingRight: 10,
+    paddingBottom: 10,
     borderRadius: 999,
     backgroundColor: theme.colors.buttons.background,
     position: "absolute",

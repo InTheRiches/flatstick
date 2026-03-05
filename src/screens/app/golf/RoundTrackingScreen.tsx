@@ -165,6 +165,60 @@ const CourseErrorView: React.FC<CourseErrorViewProps> = ({ error, onRetry }) => 
     );
 };
 
+// Render a subtle grid of small '+' markers over a green polygon.
+const GreenPlusGrid: React.FC<{ polygon: { x: number; y: number }[] }> = ({ polygon }) => {
+    const { theme } = useAppTheme();
+
+    const points = useMemo(() => {
+        if (!polygon || polygon.length === 0) return [] as { latitude: number; longitude: number; key: string }[];
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const p of polygon) {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+        }
+
+        const rows = 6;
+        const cols = 6;
+        const pts: { latitude: number; longitude: number; key: string }[] = [];
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const y = minY + (i + 0.5) * (maxY - minY) / rows;
+                const x = minX + (j + 0.5) * (maxX - minX) / cols;
+                if (isPointInPolygonXY({ x, y }, polygon)) {
+                    pts.push({ latitude: y, longitude: x, key: `plus-${i}-${j}-${x}-${y}` });
+                }
+            }
+        }
+        return pts;
+    }, [polygon]);
+
+    if (points.length === 0) return null;
+
+    return (
+        <>
+            {points.map((p) => (
+                <Marker
+                    key={p.key}
+                    coordinate={{ latitude: p.latitude, longitude: p.longitude }}
+                    tracksViewChanges={false}
+                    tappable={false}
+                    anchor={{ x: 0.5, y: 0.5 }}
+                    zIndex={3}
+                >
+                    <View style={{ width: 18, height: 18, alignItems: "center", justifyContent: "center", opacity: 0.7 }}>
+                        <Ionicons name="add" size={12} color={theme.colors.textDim} />
+                    </View>
+                </Marker>
+            ))}
+        </>
+    );
+};
+
 // ── Main screen ───────────────────────────────────────────────────────────────
 
 interface RoundTrackingScreenProps {
@@ -353,6 +407,10 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         hazardInspection.exitHazardMode();
         handleCancelShot();
 
+        if (puttingMode.isPuttingMode) {
+            puttingMode.exitPuttingMode();
+        }
+
         if (playerTracking.isTracking) {
             return;
         }
@@ -493,6 +551,11 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     />
                 ))}
 
+                {/* Small plus-icon grid over the active hole green */}
+                {activeGreenPolygon && puttingMode.isPuttingMode && !hazardActive && (
+                    <GreenPlusGrid polygon={activeGreenPolygon} />
+                )}
+
                 {/* Tee boxes — dimmed while a hazard is focused */}
                 {courseData?.teeBoxes?.map((tee, index) => (
                     <Polygon
@@ -608,33 +671,30 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             </MapView>
 
             {/* ── Overlays ─────────────────────────────────────────────── */}
-            <RoundHeader prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} onExit={() => confirmExitModalRef.current?.present()} />
+            <RoundHeader onPuttingExit={handleExitPuttingMode} isPutting={puttingMode.isPuttingMode} prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} onExit={() => confirmExitModalRef.current?.present()} />
+            
+            <RoundActions
+                trackingState={trackingState}
+                startTracking={openShotDetails}
+                endTracking={handleEndTracking}
+                isPlayerTracking={playerTracking.isTracking}
+                onPlayerTrackingToggle={playerTracking.toggleTracking}
+                onSettingsPress={() => sideSheetRef.current?.present()}
+                onGreenViewPress={handleGreenViewPress}
+                isActive={!puttingMode.isPuttingMode}
+            />
 
-            {!puttingMode.isPuttingMode && (
-                <RoundActions
-                    trackingState={trackingState}
-                    startTracking={openShotDetails}
-                    endTracking={handleEndTracking}
-                    isPlayerTracking={playerTracking.isTracking}
-                    onPlayerTrackingToggle={playerTracking.toggleTracking}
-                    onSettingsPress={() => sideSheetRef.current?.present()}
-                    onGreenViewPress={handleGreenViewPress}
-                />
-            )}
-
-            {puttingMode.isPuttingMode && (
-                <PuttingActionBar 
-                hasPendingPutt={!!puttingMode.pendingPuttStart} 
-                onSavePutt={handleSavePutt} 
+            <PuttingActionBar
+                isActive={puttingMode.isPuttingMode}
+                hasPendingPutt={!!puttingMode.pendingPuttStart}
+                onSavePutt={handleSavePutt}
                 onGPSPress={() => {
                     puttingMode.setPendingPuttStart(userLocation);
-                }} />
-            )}
+                }}
+            />
 
             {/* Green distances — visible only when no hazard is focused */}
-            {!hazardActive && !puttingMode.isPuttingMode && (
-                <GreenDistanceStack distances={liveGreenDistances} />
-            )}
+            <GreenDistanceStack distances={liveGreenDistances} isActive={!hazardActive && !puttingMode.isPuttingMode} />
 
             {/* Hazard overlay — type label + nav controls (distances are drawn on the map) */}
             {hazardActive && (hazardInspection.mode.kind === "tap" || hazardInspection.mode.kind === "cycle") && (
@@ -657,17 +717,19 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 </Pressable>
             )}
 
-            {puttingMode.isPuttingMode && (
-                <Pressable style={themed($exitPuttingButton)} onPress={handleExitPuttingMode}>
-                    <Ionicons name="close-outline" size={32} color={theme.colors.text} />
+            {!hazardActive && !puttingMode.isPuttingMode && (
+                <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
+                    <EditScorecardIcon size={32} color={theme.colors.buttons.textColor} />
                 </Pressable>
             )}
 
-            <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
-                <EditScorecardIcon size={32} color={theme.colors.buttons.textColor} />
-            </Pressable>
-
-            <ContextFooter currentShot={currentShot} userLocation={userLocation}/>
+            <ContextFooter 
+                currentShot={currentShot} 
+                userLocation={userLocation} 
+                isPutting={puttingMode.isPuttingMode} 
+                holePinCoord={holePins[activeHole]} 
+                pendingPuttStart={puttingMode.pendingPuttStart}
+                putts={puttingMode.putts.length} />
 
             <ShotDetailsModal
                 reference={modalRef}
@@ -724,23 +786,6 @@ const $scoreButton: ThemedStyle<ViewStyle> = (theme) => ({
     position: "absolute",
     bottom: 120,
     right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    backgroundColor: theme.colors.buttons.textColor,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-});
-
-const $exitPuttingButton: ThemedStyle<ViewStyle> = (theme) => ({
-    position: "absolute",
-    bottom: 120,
-    left: 20,
     width: 50,
     height: 50,
     borderRadius: 50,

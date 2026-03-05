@@ -2,24 +2,51 @@ import { Text } from '@/components/ui/Text';
 import { useAppTheme } from '@/theme/context';
 import { ThemedStyle } from '@/theme/types';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { Pressable, TextStyle, View, ViewStyle } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Pressable, TextStyle, ViewStyle } from 'react-native';
 
 interface PuttingActionBarProps {
     onSavePutt?: () => void;
     hasPendingPutt: boolean;
     onGPSPress?: () => void;
+  isActive?: boolean;
 }
 
 export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
   onSavePutt,
   hasPendingPutt,
   onGPSPress,
+  isActive = false,
 }) => {
   const { theme, themed } = useAppTheme();
+  const translateX = useRef(new Animated.Value(isActive ? 0 : 0)).current;
+  const opacity = useRef(new Animated.Value(isActive ? 1 : 0)).current;
+  const [mounted, setMounted] = useState(isActive);
+
+  useEffect(() => {
+    const screenW = Dimensions.get('window').width;
+    if (isActive) {
+      setMounted(true);
+      // slide in from right
+      translateX.setValue(screenW * 0.5);
+      opacity.setValue(0);
+      Animated.parallel([
+        Animated.timing(translateX, { toValue: 0, duration: 300, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      ]).start();
+    } else {
+      // slide out to right then unmount
+      Animated.parallel([
+        Animated.timing(translateX, { toValue: Dimensions.get('window').width * 0.6, duration: 300, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+      ]).start(() => setMounted(false));
+    }
+  }, [isActive, translateX, opacity]);
+
+  if (!mounted) return null;
 
   return (
-    <View style={$container}>
+    <Animated.View style={[ $container, { transform: [{ translateX }], opacity } as any ]}>
         <Pressable
             style={({pressed}) => [themed($actionButton), pressed && themed($actionButtonActive)]}
             onPress={onGPSPress}
@@ -49,7 +76,7 @@ export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
                 <Text style={[themed($actionButtonText)]}>Save</Text>
             </Pressable>
         )}
-    </View>
+    </Animated.View>
   );
 };
 

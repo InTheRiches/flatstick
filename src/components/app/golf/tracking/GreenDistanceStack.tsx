@@ -12,8 +12,8 @@
  *   └──────────────────────┘
  */
 
-import React from "react";
-import { TextStyle, View, ViewStyle } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, Dimensions, TextStyle, View, ViewStyle } from "react-native";
 
 import { Text } from "@/components/ui/Text";
 import { useAppTheme } from "@/theme/context";
@@ -22,6 +22,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface GreenDistanceStackProps {
   distances: GreenDistances | null;
+  /** Controls whether the stack is visible/active (will animate in/out) */
+  isActive?: boolean;
 }
 
 function DistanceRow({
@@ -62,13 +64,44 @@ function DistanceRow({
 
 export const GreenDistanceStack: React.FC<GreenDistanceStackProps> = ({
   distances,
+  isActive = true,
 }) => {
-    const { theme } = useAppTheme();
+  const { theme } = useAppTheme();
+
+  // Animated values for slide (from left) + fade
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(isActive ? 1 : 0)).current;
+  const [mounted, setMounted] = useState(isActive);
+
+  useEffect(() => {
+    const screenW = Dimensions.get("window").width;
+    if (isActive) {
+      setMounted(true);
+      // slide in from left
+      translateX.setValue(-screenW * 0.5);
+      opacity.setValue(0);
+      Animated.parallel([
+        Animated.timing(translateX, { toValue: 0, duration: 300, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      ]).start();
+    } else {
+      // slide out to left then unmount
+      Animated.parallel([
+        Animated.timing(translateX, { toValue: -Dimensions.get("window").width * 0.6, duration: 300, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+      ]).start(() => setMounted(false));
+    }
+  }, [isActive, translateX, opacity]);
+
   return (
-    <View style={$container}>
-      <DistanceRow label="caret-up" value={distances?.back   ?? null} color={theme.colors.palette.emerald300} />
-      <DistanceRow value={distances?.center ?? null} large />
-      <DistanceRow label="caret-down" value={distances?.front  ?? null} color={theme.colors.palette.emerald300} />
+    <View>
+      {mounted && (
+        <Animated.View style={[$container, { opacity, transform: [{ translateX }] }] }>
+          <DistanceRow label="caret-up" value={distances?.back ?? null} color={theme.colors.palette.emerald300} />
+          <DistanceRow value={distances?.center ?? null} large />
+          <DistanceRow label="caret-down" value={distances?.front ?? null} color={theme.colors.palette.emerald300} />
+        </Animated.View>
+      )}
     </View>
   );
 };
@@ -80,7 +113,6 @@ export const GreenDistanceStack: React.FC<GreenDistanceStackProps> = ({
 const $container: ViewStyle = {
   position: "absolute",
   bottom: 120,
-  left: 16,
   backgroundColor: "rgba(0,0,0,1)",
   borderRadius: 10,
   paddingVertical: 8,
