@@ -242,12 +242,27 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         return { latitude: loc.latitude, longitude: loc.longitude };
     }, [course?.selectedCourse.location]);
 
+    // UI / round settings that can be toggled from the Settings modal
+    const [roundSettings, setRoundSettings] = useState<{
+        gpsEnabled: boolean;
+        showPreviousShots: boolean;
+        showHolePath: boolean;
+        highContrast: boolean;
+        useMetric: boolean;
+    }>({
+        gpsEnabled: true,
+        showPreviousShots: true,
+        showHolePath: true,
+        highContrast: false,
+        useMetric: false,
+    });
+
     // Pass cacheMaxAgeMs to force reload when retry is pressed (0 forces a re-fetch)
     const cacheMaxAgeMs = reloadCounter > 0 ? 0 : undefined;
     const courseDataState = useCourseData(courseLocation, db, cacheMaxAgeMs);
     const courseData = courseDataState.status === "success" ? courseDataState.data : null;
 
-    const { userLocation, setLocation } = useLocationTracking(); // TODO REMOVE THIS AND USE REAL LOCATION
+    const { userLocation, setLocation } = useLocationTracking(!roundSettings.gpsEnabled); // TODO REMOVE THIS AND USE REAL LOCATION
     const {
         activeHole,
         nextHole,
@@ -312,13 +327,15 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         activeHoleData
     );
 
+    // Sync player tracking with GPS setting and putting mode.
+    // GPS on + not putting → tracking on; everything else → tracking off.
+    useEffect(() => {
+        playerTracking.setTracking(roundSettings.gpsEnabled && !puttingMode.isPuttingMode);
+    }, [roundSettings.gpsEnabled, puttingMode.isPuttingMode]);
+
     const handleGreenViewPress = () => {
         if (!puttingMode.isPuttingMode) {
-             // Disable player tracking if active before entering putting mode
-             if (playerTracking.isTracking) {
-                 playerTracking.toggleTracking();
-             }
-             puttingMode.startPuttingMode();
+             puttingMode.startPuttingMode(); // effect above will turn off tracking automatically
         }
     };
 
@@ -393,7 +410,10 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
 
             return;
         }
-        if (!playerTracking.isTracking) return;
+
+        // Allow target placement whenever the tracking overlay is visible — covers both
+        // active-tracking and limp mode (GPS enabled but no fix yet, or GPS disabled).
+        if (!activeGreenPolygon) return;
 
         // check if the user tapped the target pin, if so clear the target instead of setting a new one
         if (playerTracking.target && isPointInPolygon(e.nativeEvent.coordinate, padPolygonCoordinates([playerTracking.target.coordinate], 10))) {
@@ -409,21 +429,6 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const sideSheetRef = useRef<SideSheetModalHandle>(null);
     const confirmExitModalRef = useRef<BottomSheetModal | null>(null);
     const scorecardModalRef = useRef<BottomSheetModal | null>(null);
-
-    // UI / round settings that can be toggled from the Settings modal
-    const [roundSettings, setRoundSettings] = useState<{
-        gpsEnabled: boolean;
-        showPreviousShots: boolean;
-        showHolePath: boolean;
-        highContrast: boolean;
-        useMetric: boolean;
-    }>({
-        gpsEnabled: true,
-        showPreviousShots: true,
-        showHolePath: true,
-        highContrast: false,
-        useMetric: false,
-    });
 
     useEffect(() => {
         if (courseDataState.status === "success") {
@@ -447,11 +452,10 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             puttingMode.exitPuttingMode();
         }
 
-        if (playerTracking.isTracking) {
-            return;
+        if (!roundSettings.gpsEnabled) {
+            recenterOnHole();
         }
-        
-        recenterOnHole();
+        // When GPS/tracking is on, the camera follows the player automatically.
     }, [activeHole]);
 
     const handleStartTracking = () => {
@@ -734,8 +738,9 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     </>
                 )}
 
-                {/* User location dot — tracking mode uses PlayerTrackingOverlay instead */}
-                {userLocation && !playerTracking.isTracking && (
+                {/* User location dot — tracking mode uses PlayerTrackingOverlay instead.
+                 Only rendered when we have a fix, GPS is off, and not in putting mode. */}
+                {userLocation && !playerTracking.isTracking && roundSettings.gpsEnabled && !puttingMode.isPuttingMode && (
                     <Marker
                         coordinate={userLocation}
                         anchor={{ x: 0.5, y: 0.5 }}
@@ -745,10 +750,12 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     </Marker>
                 )}
 
-                {/* Player tracking overlays (target pin, hole pin) — hidden during hazard mode */}
-                {!hazardActive && playerTracking.isTracking && !puttingMode.isPuttingMode && userLocation && activeGreenPolygon && (
+                {/* Player tracking overlays (target pin, hole pin) — hidden during hazard mode.
+                     Renders in limp state (no GPS fix yet) to still show the pin. */}
+                {!hazardActive && !puttingMode.isPuttingMode && activeGreenPolygon && (
                     <PlayerTrackingOverlay
                         userLocation={userLocation}
+                        gpsEnabled={roundSettings.gpsEnabled}
                         greenPolygon={activeGreenPolygon}
                         target={playerTracking.target}
                         onTargetDragEnd={playerTracking.setTargetCoordinate}
@@ -777,11 +784,6 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 trackingState={trackingState}
                 startTracking={openShotDetails}
                 endTracking={handleEndTracking}
-                isPlayerTracking={playerTracking.isTracking}
-                onPlayerTrackingToggle={() => {
-                    playerTracking.toggleTracking();
-                    recenterOnHole();
-                }}
                 onSettingsPress={() => sideSheetRef.current?.present()}
                 onGreenViewPress={handleGreenViewPress}
                 isActive={!puttingMode.isPuttingMode}
@@ -829,6 +831,14 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
                     <EditScorecardIcon size={36} color={theme.colors.text} />
                 </Pressable>
+            )}
+
+            {/* GPS acquiring banner — shown when GPS is enabled but no fix yet */}
+            {roundSettings.gpsEnabled && !userLocation && (
+                <View style={themed($gpsAcquiringBanner)}>
+                    <ActivityIndicator size="small" color={theme.colors.text} />
+                    <Text style={{ color: theme.colors.text, fontSize: 13, marginLeft: 8 }} text="Acquiring GPS…" />
+                </View>
             )}
 
             <ContextFooter 
@@ -944,4 +954,21 @@ const $shotStartMarker: ThemedStyle<ViewStyle> = (theme) => ({
     backgroundColor: "gray",
     borderWidth: 2,
     borderColor: "white",
+});
+
+const $gpsAcquiringBanner: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    top: 160,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: theme.colors.backgrounds.elevated,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 4,
 });

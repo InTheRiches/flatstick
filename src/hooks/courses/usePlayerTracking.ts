@@ -40,6 +40,8 @@ export type PlayerTrackingState = {
     setTargetCoordinate: (coord: LatLng | null) => void;
     /** Imperative helper to recenter on the user location (e.g. after exiting hazard mode). */
     recenterOnUser: () => void;
+    /** Set the tracking state. */
+    setTracking: (enabled: boolean) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -146,6 +148,13 @@ export function usePlayerTracking({
     });
   }, []);
 
+  const setTracking = useCallback((enabled: boolean) => {
+    setIsTracking(enabled);
+    if (!enabled) {
+      setTarget(null);
+    }
+  }, []);
+
   const setTargetCoordinate = useCallback((coord: LatLng | null) => {
     if (coord === null) {
       setTarget(null);
@@ -157,6 +166,7 @@ export function usePlayerTracking({
   return {
     isTracking,
     toggleTracking,
+    setTracking,
     target,
     setTargetCoordinate,
     recenterOnUser,

@@ -14,15 +14,11 @@ interface RoundActionsProps {
     endTracking?: () => void;
     onGreenViewPress?: () => void;
     trackingState?: "tracking" | "idle";
-    /** Whether player-tracking (camera-follow) mode is active. */
-    isPlayerTracking?: boolean;
-    /** Toggle player-tracking mode on/off. */
-    onPlayerTrackingToggle?: () => void;
     /** Whether the action bar is currently active (visible) */
     isActive?: boolean;
 }
 
-export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onScorecardPress, startTracking, endTracking, onGreenViewPress, trackingState, isPlayerTracking, onPlayerTrackingToggle, isActive = true }) => {
+export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onScorecardPress, startTracking, endTracking, onGreenViewPress, trackingState, isActive = true }) => {
     const { theme, themed } = useAppTheme();
 
     const getButtonStyle = (pressed?: boolean, active?: boolean) => [
@@ -70,9 +66,6 @@ export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onS
                     </Pressable>
                     <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onGreenViewPress}>
                         <Ionicons name="golf" size={24} color={getIconColor(false, false)} />
-                    </Pressable>
-                    <Pressable style={(state) => getButtonStyle(state.pressed, !!isPlayerTracking)} onPress={onPlayerTrackingToggle}>
-                        <Ionicons name="navigate" size={24} color={getIconColor(false, !!isPlayerTracking)} />
                     </Pressable>
                     <Pressable style={(state) => getButtonStyle(state.pressed, trackingState === "tracking")} onPress={trackingState === "tracking" ? endTracking : startTracking}>
                         <TrackingIcon size={24} color={getIconColor(false, trackingState === "tracking")} />

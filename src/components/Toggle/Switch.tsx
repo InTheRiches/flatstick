@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useCallback } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Animated, Image, ImageStyle, Platform, StyleProp, View, ViewStyle } from "react-native"
 
 import { iconRegistry } from "@/components/ui/Icon"
@@ -153,8 +153,8 @@ function SwitchInput(props: SwitchInputProps) {
         ]}
       />
 
-      <SwitchAccessibilityLabel {...props} role="on" />
-      <SwitchAccessibilityLabel {...props} role="off" />
+      {/* <SwitchAccessibilityLabel {...props} role="on" />
+      <SwitchAccessibilityLabel {...props} role="off" /> */}
 
       <Animated.View
         style={[

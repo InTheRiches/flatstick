@@ -51,7 +51,8 @@ function OutlinedLabel({ text }: { text: string }) {
 // ---------------------------------------------------------------------------
 
 interface PlayerTrackingOverlayProps {
-  userLocation: LatLng;
+  /** Null when GPS is enabled but no fix has arrived yet (limp state). */
+  userLocation: LatLng | null;
   greenPolygon: XYPoint[];
   target: IntermediateTarget | null;
   /** Called when the user finishes dragging the target pin. */
@@ -62,6 +63,10 @@ interface PlayerTrackingOverlayProps {
   holePinCoord?: LatLng | null;
   /** Notifies parent when the hole pin is moved (drag). */
   onHolePinChange?: (coord: LatLng | null) => void;
+  /**
+   * Whether GPS is enabled in the round settings.
+   */
+  gpsEnabled?: boolean;
 }
 
 export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
@@ -72,6 +77,7 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
   onTargetPress,
   holePinCoord,
   onHolePinChange,
+  gpsEnabled = false,
 }) => {
   // ── Target drag ─────────────────────────────────────────────────────────
   // RAF-throttled so we emit at most one re-render per display frame.
@@ -113,14 +119,17 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
   // Effective aim point — parent-controlled pin if provided, otherwise centroid.
   const greenCenter = holePinCoord ?? centroid;
 
-  // Player → green midpoint and distance
+  // Limp state: GPS enabled but no location fix yet. Show pin only.
+  const isLimp = !userLocation || !gpsEnabled;
+
+  // Player → green midpoint and distance (null in limp state)
   const playerToGreenMidpoint = useMemo(
-    () => lerpLatLng(userLocation, greenCenter, 0.5),
+    () => userLocation ? lerpLatLng(userLocation, greenCenter, 0.5) : null,
     [userLocation, greenCenter],
   );
 
   const playerToGreenYards = useMemo(
-    () => toYards(haversineMeters(userLocation, greenCenter)),
+    () => userLocation ? toYards(haversineMeters(userLocation, greenCenter)) : null,
     [userLocation, greenCenter],
   );
 
@@ -131,25 +140,28 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
 
   useEffect(() => {
     // Auto-clear the forced override once the player steps back outside 30 yd.
-    if (playerToGreenYards >= 30) setForceShowLines(false);
+    if (playerToGreenYards !== null && playerToGreenYards >= 30) setForceShowLines(false);
   }, [playerToGreenYards]);
 
-  const showDirectLine = playerToGreenYards >= 30 || forceShowLines;
-  const showDistanceLabel = playerToGreenYards >= 60;
+  const showDirectLine = !isLimp && (playerToGreenYards! >= 30 || forceShowLines);
+  const showDistanceLabel = !isLimp && playerToGreenYards! >= 60;
 
   // Intermediate-target distances — recompute on every drag event
-  const { playerToTarget, targetToGreen } = useMemo(
-    () =>
-      computeTargetDistances(
-        userLocation,
-        effectiveTargetCoord,
-        greenCenter,
-      ),
-    [userLocation, effectiveTargetCoord, greenCenter],
-  );
+  const { playerToTarget, targetToGreen } = useMemo(() => {
+    if (userLocation) {
+      return computeTargetDistances(userLocation, effectiveTargetCoord, greenCenter);
+    }
+    // Limp state: only target→green matters
+    return {
+      playerToTarget: null,
+      targetToGreen: effectiveTargetCoord
+        ? Math.round(toYards(haversineMeters(effectiveTargetCoord, greenCenter)))
+        : null,
+    };
+  }, [userLocation, effectiveTargetCoord, greenCenter]);
 
   const playerToTargetMidpoint = useMemo(() => {
-    if (!effectiveTargetCoord) return null;
+    if (!effectiveTargetCoord || !userLocation) return null;
     return lerpLatLng(userLocation, effectiveTargetCoord, 0.5);
   }, [userLocation, effectiveTargetCoord]);
 
@@ -160,15 +172,17 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
 
   return (
     <>
-      {/* ── User location marker ── */}
-      <Marker
-        coordinate={userLocation}
-        anchor={{ x: 0.5, y: 0.5 }}
-        tracksViewChanges={false}
-        onPress={() => { if (playerToGreenYards < 30) setForceShowLines(true); }}
-      >
-        <View style={$playerMarker} />
-      </Marker>
+      {/* ── User location marker — hidden in limp state (no GPS fix) ── */}
+      {!isLimp && (
+        <Marker
+          coordinate={userLocation!}
+          anchor={{ x: 0.5, y: 0.5 }}
+          tracksViewChanges={false}
+          onPress={() => { if (playerToGreenYards !== null && playerToGreenYards < 30) setForceShowLines(true); }}
+        >
+          <View style={$playerMarker} />
+        </Marker>
+      )}
 
       {/* ── Green center / hole marker (draggable within the green polygon) ── */}
       <Marker
@@ -185,7 +199,7 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
         }}
         tracksViewChanges
       >
-        <View style={$holeMarker}>
+        <View style={[$holeMarker, isLimp && { opacity: 0.55 }]}>
           <Ionicons name="flag" size={18} color="#ffffff" />
         </View>
       </Marker>
@@ -193,14 +207,14 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
       {/* ── Player → Green distance line ── */}
       {!target && showDirectLine && (
         <Polyline
-          coordinates={[userLocation, greenCenter]}
+          coordinates={[userLocation!, greenCenter]}
           strokeColor="rgba(0,0,0,0.85)"
           strokeWidth={4}
         />
       )}
 
       {/* ── Midpoint distance callout (no target) ── */}
-      {!target && showDirectLine && showDistanceLabel && (
+      {!target && showDirectLine && showDistanceLabel && playerToGreenMidpoint && (
         <Marker
           coordinate={playerToGreenMidpoint}
           anchor={{ x: 0.5, y: 0.5 }}
@@ -213,23 +227,25 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
       {/* ── Intermediate target ── */}
       {target && effectiveTargetCoord && (
         <>
-          {/* Player → Target line */}
-          <Polyline
-            coordinates={[userLocation, effectiveTargetCoord]}
-            strokeColor="rgba(0,0,0,0.85)"
-            strokeWidth={4}
-          />
+          {/* Player → Target line (full mode only) */}
+          {!isLimp && (
+            <Polyline
+              coordinates={[userLocation!, effectiveTargetCoord]}
+              strokeColor="rgba(0,0,0,0.85)"
+              strokeWidth={4}
+            />
+          )}
 
           {/* Target → Green line */}
           <Polyline
             coordinates={[effectiveTargetCoord, greenCenter]}
             strokeColor="rgba(0,0,0,0.85)"
-            strokeWidth={2}
+            strokeWidth={isLimp ? 3 : 2}
             lineDashPattern={[6, 4]}
           />
 
-          {/* Player → Target callout */}
-          {playerToTargetMidpoint && playerToTarget !== null && (
+          {/* Player → Target callout (full mode only) */}
+          {!isLimp && playerToTargetMidpoint && playerToTarget !== null && (
             <Marker
               coordinate={playerToTargetMidpoint}
               anchor={{ x: 0.5, y: 0.5 }}
