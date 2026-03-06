@@ -56,7 +56,7 @@ type HoleCellModel = {
   underBy: number
 }
 
-export function Scorecard({
+export default function Scorecard({
   variant = "round",
   holes = [],
   puttsByHole = [],
@@ -176,6 +176,8 @@ export function Scorecard({
 
   const canSelect = typeof onSelectHole === "function"
 
+  console.log("data: " + JSON.stringify(holes))
+
   return (
     <View style={styles.card}>
       {/* Header */}
@@ -286,7 +288,7 @@ const $styles =
 
     const styles = StyleSheet.create({
       card: {
-        backgroundColor: theme.colors.scorecardBackground,
+        backgroundColor: theme.colors.palette.white,
         borderTopLeftRadius: roundedTop ? radius : 0,
         borderTopRightRadius: roundedTop ? radius : 0,
         borderBottomLeftRadius: roundedBottom ? radius : 0,
@@ -299,7 +301,6 @@ const $styles =
       cell: {
         justifyContent: "center",
         alignItems: "center",
-        gap: theme.spacing.xs,
       } satisfies ViewStyle,
 
       holeLabel: {

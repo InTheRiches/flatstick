@@ -34,7 +34,7 @@ export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onS
     const getIconColor = (pressed?: boolean, active?: boolean) => {
         if (active) return theme.colors.buttons.textColor;
         if (pressed) return theme.colors.buttons.textColor;
-        return theme.colors.palette.black;
+        return theme.colors.text;
     }
     // Animated values for slide + fade
     const translateX = useRef(new Animated.Value(0)).current;

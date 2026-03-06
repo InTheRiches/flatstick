@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { getFirestore } from "@react-native-firebase/firestore";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import MapView, { Marker, Polygon, Polyline } from "react-native-maps";
@@ -12,14 +13,17 @@ import type { ThemedStyle } from "@/theme/types";
 
 import ConfirmExitModal from "@/components/app/golf/modals/ConfirmExitModal";
 import HoleSummaryModal, { type HoleSummaryModalHandle } from "@/components/app/golf/modals/HoleSummaryModal";
+import PostShotDetailsModal, { PostShotDetailsModalReference, type PostShotModalResult } from "@/components/app/golf/modals/PostShotDetailsModal";
+import ScorecardModal from "@/components/app/golf/modals/ScorecardModal";
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
+import SettingsModal from "@/components/app/golf/modals/SettingsModal";
 import ShotDetailsModal, { type ShotDefaults, type ShotDetailsModalReference, type ShotModalResult } from "@/components/app/golf/modals/ShotDetailsModal";
+import type { HeatmapMode } from "@/components/app/golf/putting/GreenHeatmapOverlay";
 import { PuttingActionBar } from "@/components/app/golf/putting/PuttingActionBar";
 import { PuttingOverlay } from "@/components/app/golf/putting/PuttingOverlay";
 import { ContextFooter } from "@/components/app/golf/round/ContextFooter";
 import { RoundActions } from "@/components/app/golf/round/RoundActions";
 import { RoundHeader } from "@/components/app/golf/round/RoundHeader";
-import SettingsModal from "@/components/app/golf/round/SettingsModal";
 import { GreenDistanceStack } from "@/components/app/golf/tracking/GreenDistanceStack";
 import { HazardDistanceOverlay } from "@/components/app/golf/tracking/HazardDistanceOverlay";
 import { HazardMapLabels } from "@/components/app/golf/tracking/HazardMapLabels";
@@ -228,6 +232,7 @@ interface RoundTrackingScreenProps {
 export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course }) => {
     const { theme, themed } = useAppTheme();
     const db = getFirestore();
+    const router = useRouter();
 
     const [reloadCounter, setReloadCounter] = useState(0);
 
@@ -250,7 +255,9 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         shots,
         holes,
         addShot,
+        updateShot,
         setCurrentShot,
+        setActiveHole,
         currentShot,
         commitHoleSummary,
         runningScore,
@@ -285,8 +292,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     // Live green distances (front / center / back) — recomputed on every location tick.
     const liveGreenDistances = useMemo((): GreenDistances | null => {
         if (!userLocation || !activeGreenPolygon) return null;
-        return greenDistances(userLocation, activeGreenPolygon);
-    }, [userLocation, activeGreenPolygon]);
+        return greenDistances(userLocation, activeGreenPolygon, holePins[activeHole]);
+    }, [userLocation, activeGreenPolygon, holePins, activeHole]);
 
     // ── Hazard inspection ─────────────────────────────────────────────────────
     const courseHazards = courseData?.hazards ?? [];
@@ -294,6 +301,10 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
 
     // ── Putting Mode ──────────────────────────────────────────────────────────
     const puttingMode = usePuttingMode();
+    const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>('none');
+    const cycleHeatmapMode = () =>
+        setHeatmapMode(m => m === 'none' ? 'elevation' : m === 'elevation' ? 'slope' : 'none');
+
     const { cameraConstraints, recenterOnGreen } = useGreenCameraLock(
         mapRef,
         puttingMode.isPuttingMode,
@@ -313,6 +324,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
 
     const handleExitPuttingMode = () => {
         puttingMode.exitPuttingMode();
+        setHeatmapMode('none');
         recenterOnHole(); // animate back to full hole view
     };
 
@@ -392,13 +404,22 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     };
 
     const modalRef = useRef<ShotDetailsModalReference>(null);
+    const postShotModalRef = useRef<PostShotDetailsModalReference>(null);
     const holeSummaryRef = useRef<HoleSummaryModalHandle>(null);
     const sideSheetRef = useRef<SideSheetModalHandle>(null);
     const confirmExitModalRef = useRef<BottomSheetModal | null>(null);
+    const scorecardModalRef = useRef<BottomSheetModal | null>(null);
 
     useEffect(() => {
         if (courseDataState.status === "success") {
             recenterOnHole();
+            // preload the holePins state with the center of each green as the default pin position
+            const initialHolePins: Record<number, LatLng | null> = {};
+            courseDataState.data.greens.forEach(green => {
+                const holeNumber = parseInt(green.hole, 10);
+                initialHolePins[holeNumber] = polygonCentroid(green.polygon);
+            });
+            setHolePins(initialHolePins);
         }
     }, [courseDataState.status]);
 
@@ -447,9 +468,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     }
 
     const handleEndTracking = () => {
-        endTracking();
-
-        addShot(userLocation!);
+        postShotModalRef.current?.open();
     };
 
     const handleConfirmShot = (details: ShotModalResult) => {
@@ -486,8 +505,68 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         });
     };
 
+    const handlePuttUndo = () => {
+        puttingMode.undoLastPutt();
+    }
+
     const handleCancelShot = () => {
         endTracking();
+    };
+
+    // ── Shot edit flow ────────────────────────────────────────────────────────
+
+    /** Opens PostShotDetailsModal pre-filled with an existing shot's result data. */
+    const handleShotPress = (shot: LiveShotAttempt) => {
+        postShotModalRef.current?.openForEdit(shot);
+    };
+
+    /** Save edited result fields back onto the existing shot. */
+    const handleEditResultConfirm = (shotId: string, result: PostShotModalResult) => {
+        updateShot(shotId, { result });
+    };
+
+    /**
+     * PostShotDetailsModal "Edit Intent" pressed.
+     * Persist the current result edits immediately, then open ShotDetailsModal
+     * pre-filled with existing intent / club / lie data.
+     */
+    const handleEditIntentFromResult = (shotId: string, currentResult: PostShotModalResult) => {
+        updateShot(shotId, { result: currentResult });
+        const shot = shots.find(s => s.id === shotId);
+        if (shot) {
+            modalRef.current?.openForEdit({ ...shot, result: currentResult });
+        }
+    };
+
+    /** Save edited intent/club/lie fields back onto the existing shot. */
+    const handleEditIntentConfirm = (shotId: string, details: ShotModalResult) => {
+        updateShot(shotId, {
+            lie: details.lie,
+            club: details.club,
+            category: details.category,
+            intent: details.intent,
+            notes: details.notes,
+        });
+    };
+
+    /**
+     * ShotDetailsModal "Edit Result" pressed.
+     * Persist the current intent edits immediately, then open PostShotDetailsModal
+     * pre-filled with existing result data.
+     */
+    const handleEditResultFromIntent = (shotId: string, currentDetails: ShotModalResult) => {
+        const updates = {
+            lie: currentDetails.lie,
+            club: currentDetails.club,
+            category: currentDetails.category,
+            intent: currentDetails.intent,
+            notes: currentDetails.notes,
+        };
+        updateShot(shotId, updates);
+        const shot = shots.find(s => s.id === shotId);
+        if (shot) {
+            postShotModalRef.current?.openForEdit({ ...shot, ...updates });
+        }
     };
 
     const forceReload = () => {
@@ -611,8 +690,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 )}
 
                 {/* Completed shots for this hole — hidden during hazard mode */}
-                {!hazardActive && (
-                    <ShotHistoryOverlay shots={shots.filter(s => s.hole === activeHole)} />
+                {!hazardActive && !puttingMode.isPuttingMode && (
+                    <ShotHistoryOverlay shots={shots.filter(s => s.hole === activeHole)} onShotPress={handleShotPress} />
                 )}
 
                 {puttingMode.isPuttingMode && (
@@ -621,6 +700,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                          pendingPuttStart={puttingMode.pendingPuttStart} 
                          holePinCoord={holePins[activeHole] ?? (activeGreenPolygon ? polygonCentroid(activeGreenPolygon) : null)} 
                          onPinDragEnd={setHolePinForActiveHole}
+                         lidar={activeHoleData?.green?.lidar}
+                         heatmapMode={heatmapMode}
                     />
                 )}
 
@@ -640,8 +721,12 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
 
                 {/* User location dot — tracking mode uses PlayerTrackingOverlay instead */}
                 {userLocation && !playerTracking.isTracking && (
-                    <Marker coordinate={userLocation}>
-                        <View style={themed($userMarker)} />
+                    <Marker
+                        coordinate={userLocation}
+                        anchor={{ x: 0.5, y: 0.5 }}
+                        tracksViewChanges={false}
+                    >
+                        <View style={$playerMarker} />
                     </Marker>
                 )}
 
@@ -671,26 +756,34 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             </MapView>
 
             {/* ── Overlays ─────────────────────────────────────────────── */}
-            <RoundHeader onPuttingExit={handleExitPuttingMode} isPutting={puttingMode.isPuttingMode} prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} onExit={() => confirmExitModalRef.current?.present()} />
+            <RoundHeader setHoleNumber={setActiveHole} onPuttingExit={handleExitPuttingMode} isPutting={puttingMode.isPuttingMode} prevHole={prevHole} activeHole={activeHole} nextHole={nextHole} onExit={() => confirmExitModalRef.current?.present()} />
             
             <RoundActions
                 trackingState={trackingState}
                 startTracking={openShotDetails}
                 endTracking={handleEndTracking}
                 isPlayerTracking={playerTracking.isTracking}
-                onPlayerTrackingToggle={playerTracking.toggleTracking}
+                onPlayerTrackingToggle={() => {
+                    playerTracking.toggleTracking();
+                    recenterOnHole();
+                }}
                 onSettingsPress={() => sideSheetRef.current?.present()}
                 onGreenViewPress={handleGreenViewPress}
                 isActive={!puttingMode.isPuttingMode}
+                onScorecardPress={() => scorecardModalRef.current?.present()}
             />
 
             <PuttingActionBar
                 isActive={puttingMode.isPuttingMode}
                 hasPendingPutt={!!puttingMode.pendingPuttStart}
                 onSavePutt={handleSavePutt}
+                onUndoPress={handlePuttUndo}
                 onGPSPress={() => {
                     puttingMode.setPendingPuttStart(userLocation);
                 }}
+                heatmapMode={heatmapMode}
+                onHeatmapToggle={cycleHeatmapMode}
+                hasLidar={!!activeHoleData?.green?.lidar}
             />
 
             {/* Green distances — visible only when no hazard is focused */}
@@ -713,13 +806,13 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             {/* Recenter button — shown when panned away or during hazard mode */}
             {(isPannedAway || hazardActive) && (
                 <Pressable style={themed($recenterButton)} onPress={recenterScreen}>
-                    <Ionicons name="locate" size={24} color={theme.colors.text} />
+                    <Ionicons name="locate" size={30} color={theme.colors.text} />
                 </Pressable>
             )}
 
             {!hazardActive && !puttingMode.isPuttingMode && (
                 <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
-                    <EditScorecardIcon size={32} color={theme.colors.buttons.textColor} />
+                    <EditScorecardIcon size={36} color={theme.colors.text} />
                 </Pressable>
             )}
 
@@ -735,7 +828,19 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 reference={modalRef}
                 onConfirm={handleConfirmShot}
                 onCancel={handleCancelShot}
+                onEditConfirm={handleEditIntentConfirm}
+                onEditResult={handleEditResultFromIntent}
             />
+            <PostShotDetailsModal
+                reference={postShotModalRef}
+                onConfirm={(result) => {
+                    endTracking();
+                    addShot(userLocation!, result);
+                }}
+                onCancel={() => {}}
+                onEditConfirm={handleEditResultConfirm}
+                onEditIntent={handleEditIntentFromResult}
+                />
             <HoleSummaryModal
                 reference={holeSummaryRef}
                 hole={holes[activeHole]}
@@ -744,8 +849,12 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 playerName="Hayden Williams"
                 onCommit={commitHoleSummary}
             />
+            <ScorecardModal reference={scorecardModalRef} holes={holes}/>
             <SettingsModal sideSheetRef={sideSheetRef} />
-            <ConfirmExitModal reference={confirmExitModalRef} onSave={() => {}} onDelete={() => {}} />
+            <ConfirmExitModal 
+                reference={confirmExitModalRef} 
+                onSave={() => {}} 
+                onDelete={() => router.back()} />
         </Screen>
     );
 };
@@ -767,11 +876,11 @@ const $centeredFill: ViewStyle = {
 
 const $recenterButton: ThemedStyle<ViewStyle> = (theme) => ({
     position: "absolute",
-    bottom: 240,
+    bottom: 260,
     left: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: theme.colors.backgrounds.elevated,
     justifyContent: "center",
     alignItems: "center",
@@ -786,10 +895,10 @@ const $scoreButton: ThemedStyle<ViewStyle> = (theme) => ({
     position: "absolute",
     bottom: 120,
     right: 20,
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     borderRadius: 50,
-    backgroundColor: theme.colors.buttons.textColor,
+    backgroundColor: theme.colors.backgrounds.elevated,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
@@ -799,14 +908,19 @@ const $scoreButton: ThemedStyle<ViewStyle> = (theme) => ({
     elevation: 5,
 });
 
-const $userMarker: ThemedStyle<ViewStyle> = (theme) => ({
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: theme.colors.tint,
-    borderWidth: 2,
-    borderColor: "white",
-});
+const $playerMarker: ViewStyle = {
+  width: 24,
+  height: 24,
+  borderRadius: 999,
+  backgroundColor: "#4A90D9",
+  borderWidth: 3,
+  borderColor: "#ffffff",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.4,
+  shadowRadius: 2,
+  elevation: 4,
+};
 
 const $shotStartMarker: ThemedStyle<ViewStyle> = (theme) => ({
     width: 16,

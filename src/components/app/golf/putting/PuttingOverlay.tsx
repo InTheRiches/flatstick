@@ -1,5 +1,6 @@
 import { Text } from '@/components/ui/Text';
 import type { LatLng } from '@/models/geo';
+import type { LidarGrid } from '@/models/lidar';
 import type { LiveShotAttempt } from '@/models/round.live.types';
 import { haversineMeters } from '@/utils/courses/geometry/distance.utils';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,11 +8,15 @@ import React, { useMemo } from 'react';
 import { TextStyle, View, ViewStyle } from 'react-native';
 import { Marker, Polyline } from 'react-native-maps';
 
+export type HeatmapMode = 'none' | 'elevation' | 'slope';
+
 interface PuttingOverlayProps {
     putts: LiveShotAttempt[];
     pendingPuttStart: LatLng | null;
     holePinCoord: LatLng | null;
     onPinDragEnd: (coord: LatLng) => void;
+    lidar?: LidarGrid | null;
+    heatmapMode?: HeatmapMode;
 }
 
 export const PuttingOverlay: React.FC<PuttingOverlayProps> = ({
@@ -19,6 +24,8 @@ export const PuttingOverlay: React.FC<PuttingOverlayProps> = ({
     pendingPuttStart,
     holePinCoord,
     onPinDragEnd,
+    lidar,
+    heatmapMode = 'none',
 }) => {
     const pendingDistance = useMemo(() => {
         if (!pendingPuttStart || !holePinCoord) return null;
@@ -39,6 +46,24 @@ export const PuttingOverlay: React.FC<PuttingOverlayProps> = ({
 
     return (
         <>
+            {/* draw a dot on every lidar point */}
+            {lidar && (
+                lidar.samples.map((point, index) => (
+                    <Marker
+                        key={index}
+                        coordinate={{ latitude: point.location.y, longitude: point.location.x }}
+                        anchor={{ x: 0.5, y: 0.5 }}
+                    >
+                        <View style={{
+                            width: 4,
+                            height: 4,
+                            borderRadius: 2,
+                            backgroundColor: `rgb(255, 0, 0)`,
+                        }} />
+                    </Marker>
+                ))
+            )}
+
             {/* Hole Pin / Flag */}
             {holePinCoord && (
                 <Marker
@@ -71,12 +96,6 @@ export const PuttingOverlay: React.FC<PuttingOverlayProps> = ({
                         <Marker coordinate={putt.start.point} anchor={{ x: 0.5, y: 0.5 }}>
                             <View style={$puttMarker}>
                                 <Text style={{ fontSize: 10, color: 'white' }}>{index + 1}</Text>
-                            </View>
-                        </Marker>
-                        {/* Midpoint Distance Label roughly inside the Marker or near it */}
-                        <Marker coordinate={dist > 35 ? midpoint(putt.start.point, puttEndCoord) : putt.start.point} anchor={{ x: 0.5, y: -0.5 }}>
-                            <View style={$labelWrapper}>
-                                <Text style={$labelText}>{dist} ft</Text>
                             </View>
                         </Marker>
                     </React.Fragment>

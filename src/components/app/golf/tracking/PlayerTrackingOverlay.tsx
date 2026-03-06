@@ -242,11 +242,17 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
           {/* Target → Green callout */}
           {targetToGreenMidpoint && targetToGreen !== null && (
             <Marker
-              coordinate={targetToGreenMidpoint}
-              anchor={{ x: 0.5, y: 0.5 }}
+              coordinate={targetToGreen < 20 ? effectiveTargetCoord! : targetToGreenMidpoint}
+              anchor={{ x: 0.5, y: targetToGreen < 20 ? 1 : 0.5 }}
               tracksViewChanges
             >
-              <OutlinedLabel text={`${targetToGreen} yd`} />
+              {targetToGreen < 20 ? (
+                <View style={{ alignItems: "center", paddingBottom: 36 }}>
+                  <OutlinedLabel text={`${targetToGreen} yd`} />
+                </View>
+              ) : (
+                <OutlinedLabel text={`${targetToGreen} yd`} />
+              )}
             </Marker>
           )}
 

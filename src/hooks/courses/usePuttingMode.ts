@@ -22,6 +22,16 @@ export function usePuttingMode() {
     setPutts(prev => [...prev, putt]);
   }, []);
 
+  const undoLastPutt = useCallback(() => {
+    console.log('undoLastPutt called. pendingPuttStart:', pendingPuttStart);
+    if (pendingPuttStart) {
+      setPendingPuttStart(null);
+      return;
+    }
+
+    setPutts(prev => prev.slice(0, -1));
+  }, [pendingPuttStart]);
+
   const clearPendingPutt = useCallback(() => {
     setPendingPuttStart(null);
   }, []);
@@ -35,5 +45,6 @@ export function usePuttingMode() {
     pendingPuttStart,
     setPendingPuttStart,
     clearPendingPutt,
+    undoLastPutt,
   };
 }

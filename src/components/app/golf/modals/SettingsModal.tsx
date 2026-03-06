@@ -16,7 +16,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ sideSheetRef }: SettingsModalProps) {
-    const { themed } = useAppTheme();
+    const { themed, theme } = useAppTheme();
 
     return (
         <SideSheetModalFactory direction="left" reference={sideSheetRef} sheetWidth={Dimensions.get("window").width * 0.7}>
@@ -28,33 +28,33 @@ export default function SettingsModal({ sideSheetRef }: SettingsModalProps) {
                     </Pressable>
                 </View>
                 <Pressable style={$itemRow}>
-                    <Ionicons name="settings-outline" size={24} color={"black"} />
+                    <Ionicons name="settings-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Round Settings"} />
                 </Pressable>
                 <Pressable style={$itemRow}>
-                    <Ionicons name="locate-outline" size={24} color={"black"} />
+                    <Ionicons name="locate-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Disable GPS"} />
                 </Pressable>
                 <Pressable style={$itemRow}>
-                    <RulerIcon size={24} color={"black"} />
+                    <RulerIcon size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Use Metric System"} />
                 </Pressable>
                 <Pressable style={$itemRow}>
-                    <Ionicons name="eye-outline" size={24} color={"black"} />
+                    <Ionicons name="eye-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Disable High Contrast"} />
                 </Pressable>
                 <Pressable style={$itemRow}>
-                    <Ionicons name="analytics-outline" size={24} color={"black"} />
+                    <Ionicons name="analytics-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Disable Hole Path"} />
                 </Pressable>
                 <Pressable style={$itemRow}>
-                    <Ionicons name="alert-circle-outline" size={24} color={"black"} />
+                    <Ionicons name="alert-circle-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Report Feedback"} />
                 </Pressable>
             </View>
             <Button text={"Pause & Exit"} onPress={() => {
                 sideSheetRef.current?.dismiss();
-            }} style={{ marginTop: 32 }} textStyle={{ marginLeft: 10 }} LeftAccessory={(props) => <Ionicons name="alert-circle-outline" size={24} color={"white"} />} />
+            }} style={{ marginTop: 32 }} textStyle={{ marginLeft: 10 }} LeftAccessory={(props) => <Ionicons name="alert-circle-outline" size={24} color={theme.colors.palette.white} />} />
         </SideSheetModalFactory>
     )
 }

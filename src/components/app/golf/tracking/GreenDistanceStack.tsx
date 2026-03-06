@@ -17,6 +17,7 @@ import { Animated, Dimensions, TextStyle, View, ViewStyle } from "react-native";
 
 import { Text } from "@/components/ui/Text";
 import { useAppTheme } from "@/theme/context";
+import { ThemedFnT, ThemedStyle } from "@/theme/types";
 import type { GreenDistances } from "@/utils/courses/geometry/distance.utils";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -31,11 +32,13 @@ function DistanceRow({
   value,
   large,
   color = "#ffffff",
+  themed,
 }: {
     label?: string;
     value: number | null;
     large?: boolean;
     color?: string;
+    themed: ThemedFnT;
 }) {
   const yardText = value !== null ? `${value}` : "--";
 
@@ -45,8 +48,8 @@ function DistanceRow({
         <View style={{ flexDirection: "row", alignItems: "baseline" }}>
             <Text
                 style={[
-                $yardage,
-                large ? $yardageLarge : undefined,
+                themed($yardage),
+                large ? themed($yardageLarge) : undefined,
                 { color },
                 ]}
                 text={yardText}
@@ -66,7 +69,7 @@ export const GreenDistanceStack: React.FC<GreenDistanceStackProps> = ({
   distances,
   isActive = true,
 }) => {
-  const { theme } = useAppTheme();
+  const { theme, themed } = useAppTheme();
 
   // Animated values for slide (from left) + fade
   const translateX = useRef(new Animated.Value(0)).current;
@@ -96,10 +99,10 @@ export const GreenDistanceStack: React.FC<GreenDistanceStackProps> = ({
   return (
     <View>
       {mounted && (
-        <Animated.View style={[$container, { opacity, transform: [{ translateX }] }] }>
-          <DistanceRow label="caret-up" value={distances?.back ?? null} color={theme.colors.palette.emerald300} />
-          <DistanceRow value={distances?.center ?? null} large />
-          <DistanceRow label="caret-down" value={distances?.front ?? null} color={theme.colors.palette.emerald300} />
+        <Animated.View style={[themed($container), { opacity, transform: [{ translateX }] }] }>
+          <DistanceRow themed={themed} label="caret-up" value={distances?.back ?? null} color={theme.colors.tint} />
+          <DistanceRow themed={themed} value={distances?.center ?? null} large color={theme.colors.text} />
+          <DistanceRow themed={themed} label="caret-down" value={distances?.front ?? null} color={theme.colors.tint} />
         </Animated.View>
       )}
     </View>
@@ -110,16 +113,16 @@ export const GreenDistanceStack: React.FC<GreenDistanceStackProps> = ({
 // Styles
 // ---------------------------------------------------------------------------
 
-const $container: ViewStyle = {
+const $container: ThemedStyle<ViewStyle> = (theme) => ({
   position: "absolute",
   bottom: 120,
-  backgroundColor: "rgba(0,0,0,1)",
-  borderRadius: 10,
+  backgroundColor: theme.colors.backgrounds.elevated,
+  borderRadius: 14,
   paddingVertical: 8,
-  paddingRight: 14,
-  paddingLeft: 8,
+  paddingRight: 16,
+  paddingLeft: 14,
   gap: 2,
-};
+});
 
 const $row: ViewStyle = {
   flexDirection: "row",
@@ -127,23 +130,22 @@ const $row: ViewStyle = {
   justifyContent: "space-between",
 };
 
-const $yardage: TextStyle = {
+const $yardage: ThemedStyle<TextStyle> = (theme) => ({
   fontSize: 16,
   lineHeight: 22,
-  color: "#ffffff",
-  textShadowColor: "#000",
-  textShadowOffset: { width: 1, height: 1 },
-  textShadowRadius: 2,
+  color: theme.colors.text,
   fontWeight: "600",
-};
+});
 
-const $yardageLarge: TextStyle = {
+const $yardageLarge: ThemedStyle<TextStyle> = (theme) => ({
   fontSize: 26,
   lineHeight: 34,
-  fontWeight: "700",
-};
+  fontWeight: "800",
+  color: theme.colors.text,
+});
 
 const $unit: TextStyle = {
   fontSize: 13,
-  opacity: 0.8
+  opacity: 0.8,
+  fontWeight: "500",
 };

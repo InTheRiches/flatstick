@@ -14,7 +14,7 @@ import type { ThemedStyle, ThemedStyleArray } from "@/theme/types"
 
 import { Text, TextProps } from "./Text"
 
-type Presets = "default" | "filled" | "reversed" | "disabled"
+type Presets = "default" | "filled" | "reversed" | "disabled" | "secondary"
 
 export interface ButtonAccessoryProps {
     style: StyleProp<any>
@@ -243,6 +243,19 @@ const $viewPresets: Record<Presets, ThemedStyleArray<ViewStyle>> = {
         $baseViewStyle,
         ({colors}) => ({backgroundColor: colors.palette.neutral800}),
     ],
+    secondary: [
+        $styles.row,
+        $baseViewStyle,
+        ({colors}) => ({
+            alignItems: "center",
+            backgroundColor: colors.buttons.secondary.background,
+            borderColor: colors.buttons.secondary.border,
+            borderRadius: 30,
+            borderWidth: 1,
+            flexDirection: "row",
+            justifyContent: "center"
+        }),
+    ]
 }
 
 const $textPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
@@ -250,18 +263,21 @@ const $textPresets: Record<Presets, ThemedStyleArray<TextStyle>> = {
     filled: [$baseTextStyle],
     reversed: [$baseTextStyle, ({colors}) => ({color: colors.palette.neutral100})],
     disabled: [$baseTextStyle, ({colors}) => ({color: colors.buttons.disabled.textColor})],
+    secondary: [$baseTextStyle, ({colors}) => ({color: colors.buttons.secondary.textColor})],
 }
 
 const $pressedViewPresets: Record<Presets, ThemedStyle<ViewStyle>> = {
     default: ({colors}) => ({backgroundColor: colors.buttons.pressed.background}),
     filled: ({colors}) => ({backgroundColor: colors.palette.neutral400}),
     reversed: ({colors}) => ({backgroundColor: colors.palette.neutral700}),
-        disabled: () => ({}), // No pressed state for disabled buttons
+    secondary: ({colors}) => ({backgroundColor: colors.buttons.secondary.pressed.background}),
+    disabled: () => ({}), // No pressed state for disabled buttons
 }
 
 const $pressedTextPresets: Record<Presets, ThemedStyle<TextStyle>> = {
     default: () => ({opacity: 0.9}),
     filled: () => ({opacity: 0.9}),
     reversed: () => ({opacity: 0.9}),
+    secondary: () => ({opacity: 0.9}),
     disabled: () => ({}), // No pressed state for disabled buttons
 }

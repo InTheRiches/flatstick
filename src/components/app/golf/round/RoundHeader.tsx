@@ -1,9 +1,10 @@
 import { useAppTheme } from "@/theme/context";
 import { ThemedStyle } from "@/theme/types";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, TextStyle, View, ViewStyle } from "react-native";
+import { Animated, FlatList, Pressable, TextStyle, View, ViewStyle } from "react-native";
 
 import { Text } from "@/components/ui/Text";
+import { useEffect, useRef, useState } from "react";
 
 interface RoundHeaderProps {
     isPutting: boolean;
@@ -12,36 +13,139 @@ interface RoundHeaderProps {
     nextHole: () => void;
     onExit?: () => void;
     onPuttingExit?: () => void;
+    setHoleNumber: (hole: number) => void;
 }
 
-export const RoundHeader: React.FC<RoundHeaderProps> = ({ isPutting, onPuttingExit, prevHole, activeHole, nextHole, onExit }) => {
+export const RoundHeader: React.FC<RoundHeaderProps> = ({ isPutting, onPuttingExit, prevHole, activeHole, nextHole, onExit, setHoleNumber }) => {
     const { theme, themed } = useAppTheme();
+    const [showHoleNumbers, setShowHoleNumbers] = useState(false);
+
+    // Animation
+    const translateY = useRef(new Animated.Value(-60)).current;
+    const opacity = useRef(new Animated.Value(0)).current;
+    const [mounted, setMounted] = useState(showHoleNumbers);
+
+    useEffect(() => {
+        if (showHoleNumbers) {
+            setMounted(true);
+            Animated.parallel([
+                Animated.timing(translateY, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacity, {
+                    toValue: 1,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        } else {
+            Animated.parallel([
+                Animated.timing(translateY, {
+                    toValue: -60,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacity, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+            ]).start(() => setMounted(false));
+        }
+    }, [showHoleNumbers]);
 
     return (
-        <View style={$container}>
-            {isPutting ? (
-                <Pressable style={themed($exitPuttingButton)} onPress={onPuttingExit}>
-                    <Ionicons name="close-outline" size={36} color={theme.colors.buttons.textColor} />
-                </Pressable>
-            ) : (
-                <Pressable style={themed($exitButton)} onPress={onExit}>
-                    <Ionicons name="exit-outline" size={30} color={theme.colors.buttons.textColor} />
-                </Pressable>
-            )}
-            <View style={themed($topOverlay)}>
-                <Pressable onPress={prevHole} style={themed($navButton)}>
-                    <Ionicons name="chevron-back" size={24} color={theme.colors.buttons.textColor} />
-                </Pressable>
-                <View style={$holeInfo}>
-                    <Text style={$holeText}>Hole {activeHole}</Text>
+        <>
+            <View style={$container}>
+                {isPutting ? (
+                    <Pressable style={themed($exitPuttingButton)} onPress={onPuttingExit}>
+                        <Ionicons name="close-outline" size={36} color={theme.colors.buttons.textColor} />
+                    </Pressable>
+                ) : (
+                    <Pressable style={themed($exitButton)} onPress={onExit}>
+                        <Ionicons name="exit-outline" size={30} color={theme.colors.buttons.textColor} />
+                    </Pressable>
+                )}
+                <View style={themed($topOverlay)}>
+                    <Pressable onPress={prevHole} style={themed($navButton)}>
+                        <Ionicons name="chevron-back" size={24} color={theme.colors.buttons.textColor} />
+                    </Pressable>
+                    <Pressable onPress={() => setShowHoleNumbers(!showHoleNumbers)} style={$holeInfo}>
+                        <Text style={$holeText}>Hole {activeHole}</Text>
+                    </Pressable>
+                    <Pressable onPress={nextHole} style={themed($navButton)}>
+                        <Ionicons name="chevron-forward" size={24} color={theme.colors.buttons.textColor} />
+                    </Pressable>
                 </View>
-                <Pressable onPress={nextHole} style={themed($navButton)}>
-                    <Ionicons name="chevron-forward" size={24} color={theme.colors.buttons.textColor} />
-                </Pressable>
             </View>
-        </View>
+            {mounted && (
+                <Animated.View style={[themed($holeNumbers), { transform: [{ translateY }], opacity }]}>
+                    <FlatList 
+                        contentContainerStyle={[themed($holeNumbersOverlay), {marginRight: -24}]}
+                        data={Array.from({ length: 9 }, (_, i) => i + 1)}
+                        renderItem={({item, index}) => {
+                            return (
+                                <Pressable style={themed($holeNumber)} key={index} onPress={() => {
+                                    setHoleNumber(index + 1);
+                                    setShowHoleNumbers(false);
+                                }}>
+                                    <Text style={$holeText}>{index + 1}</Text>
+                                </Pressable>
+                            )
+                        }}
+                        numColumns={3}/>
+                    <FlatList 
+                        contentContainerStyle={[themed($holeNumbersOverlay), {marginLeft: -24}]}
+                        data={Array.from({ length: 9 }, (_, i) => i + 1)}
+                        renderItem={({item, index}) => {
+                            return (
+                                <Pressable style={themed($holeNumber)} key={index} onPress={() => {
+                                    setHoleNumber(index + 10);
+                                    setShowHoleNumbers(false);
+                                }}>
+                                    <Text style={$holeText}>{index + 10}</Text>
+                                </Pressable>
+                            )
+                        }}
+                        numColumns={3}/>
+                </Animated.View>
+            )}
+        </>
+
     )
 }
+
+const $holeNumber: ThemedStyle<ViewStyle> = (theme) => ({
+    borderRadius: 999,
+    width: 50,
+    height: 50,
+    backgroundColor: theme.colors.backgrounds.default,
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 4,
+});
+
+const $holeNumbers: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    top: 120,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "space-around",
+    flexDirection: "row",
+    zIndex: 1000,
+});
+
+const $holeNumbersOverlay: ThemedStyle<ViewStyle> = (theme) => ({
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 6,
+    backgroundColor: theme.colors.backgrounds.elevated,
+    borderRadius: 24,
+});
 
 const $container: ViewStyle = {
     position: "absolute",
@@ -73,10 +177,8 @@ const $navButton: ThemedStyle<ViewStyle> = (theme) => ({
 });
 
 const $exitButton: ThemedStyle<ViewStyle> = (theme) => ({
-    paddingLeft: 14,
-    paddingTop: 12,
-    paddingRight: 10,
-    paddingBottom: 12,
+    width: 50,
+    height: 50,
     borderRadius: 999,
     backgroundColor: theme.colors.buttons.background,
     position: "absolute",
@@ -86,10 +188,7 @@ const $exitButton: ThemedStyle<ViewStyle> = (theme) => ({
 });
 
 const $exitPuttingButton: ThemedStyle<ViewStyle> = (theme) => ({
-    paddingLeft: 10,
-    paddingTop: 10,
-    paddingRight: 10,
-    paddingBottom: 10,
+    padding: 8,
     borderRadius: 999,
     backgroundColor: theme.colors.buttons.background,
     position: "absolute",

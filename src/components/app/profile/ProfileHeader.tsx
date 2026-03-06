@@ -1,10 +1,10 @@
-import { Image, Pressable, View, Text, ViewStyle, ImageStyle, TextStyle } from "react-native"
-import { useRouter } from "expo-router"
 import { Ionicons } from "@expo/vector-icons"
+import { useRouter } from "expo-router"
+import { Image, ImageStyle, Pressable, Text, TextStyle, View, ViewStyle } from "react-native"
 
+import { UserProfile } from "@/models/user"
 import { useAppTheme } from "@/theme/context"
 import { ThemedStyle } from "@/theme/types"
-import { UserProfile } from "@/models/user"
 
 interface ProfileHeaderProps {
     userProfile?: UserProfile
@@ -56,7 +56,7 @@ export function ProfileHeader({ userProfile }: ProfileHeaderProps) {
                 >
                     <Ionicons
                         name="settings-sharp"
-                        size={20}
+                        size={30}
                         color={theme.colors.backgrounds.default}
                     />
                 </Pressable>
@@ -120,8 +120,8 @@ const $settingsButton =
         (theme) => ({
             backgroundColor: theme.colors.buttons.background,
             opacity: pressed ? 0.85 : 1,
-            width: 36,
-            height: 36,
+            width: 50,
+            height: 50,
             borderRadius: 999,
             alignItems: "center",
             justifyContent: "center",

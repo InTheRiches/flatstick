@@ -5,8 +5,8 @@ const palette = {
   neutral600: "#B6ACA6",
   neutral500: "#978F8A",
   neutral400: "#564E4A",
-  neutral300: "#3C3836",
-  neutral200: "#191015",
+  neutral300: "#393939",
+  neutral200: "#171717",
   neutral100: "#000000",
 
   primary600: "#F4E0D9",
@@ -51,12 +51,12 @@ const palette = {
 } as const
 
 const buttons = {
-  background: palette.emerald,
-  border: palette.emerald,
-  textColor: palette.neutral100,
+  background: palette.emerald400,
+  border: palette.emerald400,
+  textColor: palette.white,
   pressed: {
     background: palette.emerald550,
-    border: palette.emerald,
+    border: palette.emerald400,
     textColor: palette.neutral100,
   },
   disabled: {
@@ -75,7 +75,7 @@ const buttons = {
     }
   },
   secondary: {
-    background: palette.white,
+    background: palette.neutral200,
     border: palette.neutral300,
     textColor: palette.neutral800,
     pressed: {
@@ -88,8 +88,8 @@ const buttons = {
 
 const backgrounds = {
   default: palette.neutral200,
-  elevated: palette.white,
-    overlay: palette.overlay20,
+  elevated: palette.black,
+  overlay: palette.overlay20,
 }
 
 export const colors = {
@@ -102,8 +102,8 @@ export const colors = {
   textDim2: palette.neutral400,
   background: palette.neutral200,
   border: palette.neutral400,
-  tint: palette.primary500,
-  tintInactive: palette.neutral300,
+  tint: palette.emerald300,
+  tintInactive: palette.neutral400,
   separator: palette.neutral300,
   error: palette.angry500,
   errorBackground: palette.angry100,

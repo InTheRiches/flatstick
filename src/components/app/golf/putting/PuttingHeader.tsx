@@ -1,12 +1,12 @@
-import {FC} from "react";
-import {HoleState} from "@/models/session.types";
-import {UseRoundTimerEngine} from "@/models/timer";
-import {Pressable, View, type ViewStyle, type TextStyle} from "react-native";
-import Svg, {Path} from "react-native-svg";
-import {Text} from "@/components/ui/Text";
-import {TeeSet} from "@/models/courses";
-import {ThemedStyle} from "@/theme/types";
-import {useAppTheme} from "@/theme/context";
+import { Text } from "@/components/ui/Text";
+import { TeeSet } from "@/models/courses";
+import { HoleState } from "@/models/session.types";
+import { UseRoundTimerEngine } from "@/models/timer";
+import { useAppTheme } from "@/theme/context";
+import { ThemedStyle } from "@/theme/types";
+import { FC } from "react";
+import { Pressable, View, type TextStyle, type ViewStyle } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 interface PuttingHeaderProps {
     holeState: HoleState,
@@ -39,6 +39,7 @@ export const PuttingHeader: FC<PuttingHeaderProps> = ({ holeState, teeSet, onExi
                           d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"/>
                 </Svg>
             </Pressable>
+
         </View>
     )
 }

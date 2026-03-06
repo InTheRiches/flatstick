@@ -1,6 +1,6 @@
-import { Image, Pressable, View, ViewStyle, ImageStyle } from "react-native"
-import { useRouter } from "expo-router"
 import { Ionicons } from "@expo/vector-icons"
+import { useRouter } from "expo-router"
+import { Image, ImageStyle, Pressable, View, ViewStyle } from "react-native"
 
 import { useAppTheme } from "@/theme/context"
 import { ThemedStyle } from "@/theme/types"

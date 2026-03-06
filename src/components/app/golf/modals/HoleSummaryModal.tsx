@@ -34,6 +34,7 @@ import {
 
 import { BottomSheetModalFactory } from "@/components/app/modals/BottomSheetFactory";
 import { Text } from "@/components/ui/Text";
+import { WheelPicker } from "@/components/ui/WheelPicker";
 import { generateSyntheticShots } from "@/hooks/courses/useRoundTracking";
 import type {
     HolePar,
@@ -297,7 +298,7 @@ export default function HoleSummaryModal({
     const [firstPuttDist, setFirstPuttDist] = useState(
         hole?.firstPuttDistanceYds ?? 0,
     );
-    const [teeClubLabel, setTeeClubLabel] = useState(
+    const [teeClubLabel, setTeeClubLabel] = useState<string>(
         existingTeeShot?.club.label ?? "Driver",
     );
     const [teeDirection, setTeeDirection] = useState<TeeDirection>("center");
@@ -373,18 +374,22 @@ export default function HoleSummaryModal({
 
     // ── Club stepper (label-based cycling) ───────────────────────────────────
 
-    const CLUB_SEQUENCE = [
-        "Driver", "3 Wood", "5 Wood", "4 Iron",
-        "5 Iron", "6 Iron", "7 Iron", "8 Iron", "9 Iron",
-        "Pitching Wedge", "Gap Wedge", "Sand Wedge", "Lob Wedge",
+    const clubOptions = [
+        { label: "Driver", value: "Driver" },
+        { label: "3 Wood", value: "3 Wood" },
+        { label: "5 Wood", value: "5 Wood" },
+        { label: "4 Iron", value: "4 Iron" },
+        { label: "5 Iron", value: "5 Iron" },
+        { label: "6 Iron", value: "6 Iron" },
+        { label: "7 Iron", value: "7 Iron" },
+        { label: "8 Iron", value: "8 Iron" },
+        { label: "9 Iron", value: "9 Iron" },
+        { label: "Pitching Wedge", value: "Pitching Wedge" },
+        { label: "Gap Wedge", value: "Gap Wedge" },
+        { label: "Sand Wedge", value: "Sand Wedge" },
+        { label: "Lob Wedge", value: "Lob Wedge" },
+        { label: "Putter", value: "Putter" },
     ];
-
-    const clubIdx = CLUB_SEQUENCE.indexOf(teeClubLabel);
-
-    const cycleClub = (dir: 1 | -1) => {
-        const next = Math.max(0, Math.min(CLUB_SEQUENCE.length - 1, clubIdx + dir));
-        setTeeClubLabel(CLUB_SEQUENCE[next]);
-    };
 
     // ── Score arithmetic guards ───────────────────────────────────────────────
     // putts can't exceed total score - penalties
@@ -411,9 +416,9 @@ export default function HoleSummaryModal({
                         ) : null}
                     </Text>
                     <View style={$scoreRow}>
-                        <Text style={[$runningScore, { color: theme.colors.text }]}>
+                        {/* <Text style={[$runningScore, { color: theme.colors.text }]}>
                             {formatRunningScore(runningScore)}
-                        </Text>
+                        </Text> */}
                         <Text style={themed($runningScoreNum)}>
                             {runningScore >= 0 ? "+" : ""}{runningScore}
                         </Text>
@@ -421,7 +426,7 @@ export default function HoleSummaryModal({
                 </View>
                 <TouchableOpacity
                     onPress={handleCommit}
-                    style={[$enterBtn, { backgroundColor: theme.colors.tint }]}
+                    style={[$enterBtn, { backgroundColor: theme.colors.buttons.background }]}
                     activeOpacity={0.8}
                 >
                     <Text style={$enterBtnLabel}>Enter</Text>
@@ -496,40 +501,13 @@ export default function HoleSummaryModal({
                     </View>
 
                     {/* Tee Shot Club */}
-                    <View style={$stepperWrapper}>
-                        <Text style={[$sectionLabel, { color: theme.colors.textDim }]}>
-                            Tee Shot Club
-                        </Text>
-                        <View
-                            style={[
-                                $stepperPillWide,
-                                {
-                                    backgroundColor: theme.colors.backgrounds.default,
-                                    borderColor: theme.colors.border,
-                                },
-                            ]}
-                        >
-                            <TouchableOpacity
-                                onPress={() => cycleClub(-1)}
-                                style={$stepperBtn}
-                                hitSlop={8}
-                            >
-                                <Text style={[$stepperSymbol, { color: theme.colors.text }]}>−</Text>
-                            </TouchableOpacity>
-                            <Text
-                                style={[$stepperValueSmall, { color: theme.colors.text }]}
-                                numberOfLines={1}
-                            >
-                                {clubIdx >= 0 ? teeClubLabel : "--"}
-                            </Text>
-                            <TouchableOpacity
-                                onPress={() => cycleClub(1)}
-                                style={$stepperBtn}
-                                hitSlop={8}
-                            >
-                                <Text style={[$stepperSymbol, { color: theme.colors.text }]}>+</Text>
-                            </TouchableOpacity>
-                        </View>
+                    <View style={[$stepperWrapper, $teeClub]}>
+                        <WheelPicker
+                            label="Tee Shot Club"
+                            options={clubOptions}
+                            value={teeClubLabel}
+                            onChange={(val) => setTeeClubLabel(val)}
+                        />
                     </View>
                 </View>
             </View>
@@ -581,15 +559,18 @@ const $runningScore: TextStyle = {
 };
 
 const $runningScoreNum: ThemedStyle<TextStyle> = (theme) => ({
-    fontSize: 14,
-    backgroundColor: theme.colors.tint,
+    fontSize: 16,
+    backgroundColor: theme.colors.buttons.background,
     color: theme.colors.buttons.textColor,
     paddingHorizontal: 12,
-    marginLeft: 8,
     fontWeight: 700,
     textAlign: "center",
     borderRadius: 24
 });
+
+const $teeClub: ViewStyle = {
+    flex: 1,
+}
 
 const $enterBtn: ViewStyle = {
     paddingHorizontal: 22,

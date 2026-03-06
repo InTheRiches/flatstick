@@ -5884,6 +5884,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-gl@npm:^55.0.9":
+  version: 55.0.9
+  resolution: "expo-gl@npm:55.0.9"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-dom: "*"
+    react-native: "*"
+    react-native-reanimated: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native-reanimated:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 10c0/67a87d71aa29aaba6e637dd8dcca78a3558d0350b0bf9e15e5732e780e994b46a6480a6f634ea46eac8954c1a8144079a37fb31aecbe123253503f53c174d587
+  languageName: node
+  linkType: hard
+
 "expo-haptics@npm:~15.0.8":
   version: 15.0.8
   resolution: "expo-haptics@npm:15.0.8"
@@ -10052,6 +10075,7 @@ __metadata:
     expo-build-properties: "npm:~1.0.10"
     expo-constants: "npm:~18.0.13"
     expo-font: "npm:~14.0.11"
+    expo-gl: "npm:^55.0.9"
     expo-haptics: "npm:~15.0.8"
     expo-image: "npm:~3.0.11"
     expo-linking: "npm:~8.0.11"

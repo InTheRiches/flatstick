@@ -97,34 +97,93 @@ export function polygonCentroid(polygon: XYPoint[]): LatLng {
 }
 
 export type GreenDistances = {
-  /** Yards to the nearest polygon vertex from player (front). */
+  /** Yards to the green edge intersected first along the player→pin axis (front). */
   front: number;
-  /** Yards to the polygon centroid (center). */
+  /** Yards to the pin (or centroid if no pin provided). */
   center: number;
-  /** Yards to the farthest polygon vertex from player (back). */
+  /** Yards to the green edge intersected last along the player→pin axis (back). */
   back: number;
 };
 
 /**
  * Compute front / center / back distances (in yards) from `player` to a
  * ProcessedGreen polygon.
+ *
+ * Casts a ray from `player` through `pinCoord` (defaulting to the polygon
+ * centroid) and finds where it intersects the polygon boundary, giving
+ * directionally-correct front and back distances regardless of green shape.
  */
 export function greenDistances(
   player: LatLng,
   polygon: XYPoint[],
+  pinCoord?: LatLng | null,
 ): GreenDistances {
-  const vertices: LatLng[] = polygon.map((p) => ({
-    latitude: p.y,
-    longitude: p.x,
-  }));
+  const centroid = polygonCentroid(polygon);
+  const pin = pinCoord ?? centroid;
+  const center = toYards(haversineMeters(player, pin));
 
-  const distancesM = vertices.map((v) => haversineMeters(player, v));
+  // Project everything onto a local metric plane (player = origin).
+  // Equirectangular approximation is accurate enough at green scales (<200 m).
+  const cosLat = Math.cos((player.latitude * Math.PI) / 180);
+  const latScale = EARTH_RADIUS_M * (Math.PI / 180);
+  const lonScale = latScale * cosLat;
 
-  const front = toYards(Math.min(...distancesM));
-  const back = toYards(Math.max(...distancesM));
-  const center = toYards(haversineMeters(player, polygonCentroid(polygon)));
+  const toLocal = (c: LatLng) => ({
+    x: (c.longitude - player.longitude) * lonScale,
+    y: (c.latitude - player.latitude) * latScale,
+  });
 
-  return { front, center, back };
+  const pinLocal = toLocal(pin);
+  const dirLen = Math.sqrt(pinLocal.x ** 2 + pinLocal.y ** 2);
+
+  // Fallback: player is essentially standing on the pin.
+  if (dirLen < 0.1) {
+    const verts = polygon.map((p) => ({ latitude: p.y, longitude: p.x }));
+    const dists = verts.map((v) => haversineMeters(player, v));
+    return { front: toYards(Math.min(...dists)), center, back: toYards(Math.max(...dists)) };
+  }
+
+  const dir = { x: pinLocal.x / dirLen, y: pinLocal.y / dirLen };
+  const localVerts = polygon.map((p) => toLocal({ latitude: p.y, longitude: p.x }));
+
+  // Ray–segment intersection for each polygon edge.
+  // Ray: P = t * dir  (t in metres, t ≥ 0 means ahead of player)
+  // Edge: Q = a + s * (b − a),  s ∈ [0, 1]
+  // Cramer's rule:  det = dx * dir.y − dy * dir.x
+  //                 t   = (dx * a.y − dy * a.x) / det
+  //                 s   = (dir.x * a.y − dir.y * a.x) / det
+  const tValues: number[] = [];
+  const n = localVerts.length;
+
+  for (let i = 0; i < n; i++) {
+    const a = localVerts[i];
+    const b = localVerts[(i + 1) % n];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+
+    const det = dx * dir.y - dy * dir.x;
+    if (Math.abs(det) < 1e-9) continue; // ray parallel to edge
+
+    const t = (dx * a.y - dy * a.x) / det;
+    const s = (dir.x * a.y - dir.y * a.x) / det;
+
+    if (t >= -0.1 && s >= -1e-6 && s <= 1 + 1e-6) {
+      tValues.push(Math.max(0, t)); // clamp negatives from floating-point error
+    }
+  }
+
+  // Need at least two intersections for a meaningful front/back.
+  if (tValues.length < 2) {
+    const verts = polygon.map((p) => ({ latitude: p.y, longitude: p.x }));
+    const dists = verts.map((v) => haversineMeters(player, v));
+    return { front: toYards(Math.min(...dists)), center, back: toYards(Math.max(...dists)) };
+  }
+
+  return {
+    front: toYards(Math.min(...tValues)),
+    center,
+    back: toYards(Math.max(...tValues)),
+  };
 }
 
 /**

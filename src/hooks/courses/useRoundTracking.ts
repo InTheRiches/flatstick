@@ -1,3 +1,4 @@
+import { PostShotModalResult } from "@/components/app/golf/modals/PostShotDetailsModal";
 import { TeeSet } from "@/models/courses";
 import type { LatLng } from "@/models/geo";
 import type {
@@ -66,6 +67,7 @@ const UNKNOWN_POINT = { latitude: 0, longitude: 0 };
  * Ordering: tee shot → approach shots → putt shots.
  * No drop events are created — penalties remain numeric only.
  */
+// TODO DO WE EVEN NEED THIS?
 export function generateSyntheticShots(
   holeNumber: number,
   par: HolePar,
@@ -184,7 +186,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
   // ── Shot mutations ────────────────────────────────────────────────────────
 
   const addShot = useCallback(
-    (userLocation: LatLng) => {
+    (userLocation: LatLng, result?: PostShotModalResult) => {
       if (!currentShotStart) return;
       if (!currentShot) return;
       const now = new Date().toISOString();
@@ -206,7 +208,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
           start: { point: currentShotStart, timestamp: now },
           end: { point: userLocation, timestamp: now },
           intent: currentShot.intent,
-          result: currentShot.result,
+          result: currentShot.result ?? result,
           notes: currentShot.notes,
         };
         // Sync shotIds into hole state
@@ -226,6 +228,11 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
     },
     [activeHole, currentShotStart],
   );
+
+  /** Update fields on an already-committed shot (e.g. from the edit flow). */
+  const updateShot = useCallback((shotId: string, updates: Partial<LiveShotAttempt>) => {
+    setShots((prev) => prev.map((s) => s.id === shotId ? { ...s, ...updates } : s));
+  }, []);
 
   // ── Hole summary commit (from HoleSummaryModal) ───────────────────────────
 
@@ -285,6 +292,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
     shots,
     holes,
     addShot,
+    updateShot,
     commitHoleSummary,
     setCurrentShot,
     currentShot,

@@ -88,9 +88,8 @@ export interface LiveShotAttempt {
    * Optional — the shot is still valid without it (e.g. mid-round data loss).
    */
   result?: {
-    finish: ShotFinish
+    finish?: ShotFinish
     shape?: ShotShape
-    startLine?: "left" | "center" | "right"
     contact?: "pure" | "thin" | "fat" | "toe" | "heel" | "unknown"
     finishLie?: LieType
     isPenalty?: boolean

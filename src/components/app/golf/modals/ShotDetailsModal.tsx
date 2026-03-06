@@ -19,6 +19,7 @@ import { BunkerIcon, FairwayIcon, FringeIcon, GreenIcon, RoughIcon, TeeIcon, Tre
 
 export interface ShotDetailsModalReference {
   open: (defaults?: ShotDefaults) => void;
+  openForEdit: (shot: LiveShotAttempt) => void;
   close: () => void;
 }
 
@@ -37,6 +38,10 @@ interface ShotDetailsModalProps {
   reference: React.RefObject<ShotDetailsModalReference | null>;
   onConfirm: (details: ShotModalResult) => void;
   onCancel: () => void;
+  /** Called when saving intent edits to an existing shot. */
+  onEditConfirm?: (shotId: string, details: ShotModalResult) => void;
+  /** Called when the user wants to switch to editing the shot result instead. */
+  onEditResult?: (shotId: string, currentDetails: ShotModalResult) => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -71,8 +76,8 @@ function clubFromLabel(label: string): LiveShotAttempt["club"] {
 // Concrete type for intent target (excludes undefined for easier state management)
 type IntentTarget = "center" | "left" | "right" | "layup" | "attack" | "other"
 
-export default function ShotDetailsModal({ reference, onConfirm, onCancel }: ShotDetailsModalProps) {
-  const { themed } = useAppTheme();
+export default function ShotDetailsModal({ reference, onConfirm, onCancel, onEditConfirm, onEditResult }: ShotDetailsModalProps) {
+  const { themed, theme } = useAppTheme();
   const innerRef = React.useRef<BottomSheetModal>(null);
 
   const [lie, setLie] = useState<LieType>("fairway");
@@ -80,15 +85,26 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
   const [intentShape, setIntentShape] = useState<ShotShape>("straight");
   const [isGreensideChip, setIsGreensideChip] = useState(false);
   const [isGoalGreen, setIsGoalGreen] = useState(true);
+  const [editingShotId, setEditingShotId] = useState<string | null>(null);
 
   useImperativeHandle(reference, () => ({
     open: (defaults?: ShotDefaults) => {
+      setEditingShotId(null);
       if (defaults) {
         if (defaults.lie !== undefined) setLie(defaults.lie);
         if (defaults.clubLabel !== undefined) setClubLabel(defaults.clubLabel);
         if (defaults.isGreensideChip !== undefined) setIsGreensideChip(defaults.isGreensideChip);
         if (defaults.isGoalGreen !== undefined) setIsGoalGreen(defaults.isGoalGreen);
       }
+      innerRef.current?.present();
+    },
+    openForEdit: (shot: LiveShotAttempt) => {
+      setEditingShotId(shot.id);
+      setLie(shot.lie);
+      setClubLabel(shot.club.label ?? shot.club.type);
+      setIntentShape(shot.intent?.shape ?? "straight");
+      setIsGreensideChip(shot.intent?.greensideChip ?? false);
+      setIsGoalGreen(shot.intent?.goalIsGreen ?? true);
       innerRef.current?.present();
     },
     close: () => {
@@ -103,12 +119,28 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
       category: categoryFromLie(lie),
       intent: { shape: intentShape, goalIsGreen: isGoalGreen, greensideChip: isGreensideChip }
     };
-    onConfirm(result);
+    if (editingShotId) {
+      onEditConfirm?.(editingShotId, result);
+    } else {
+      onConfirm(result);
+    }
     innerRef.current?.dismiss();
   };
 
   const handleCancel = () => {
     onCancel();
+    innerRef.current?.dismiss();
+  };
+
+  const handleEditResult = () => {
+    if (!editingShotId) return;
+    const result: ShotModalResult = {
+      lie,
+      club: clubFromLabel(clubLabel),
+      category: categoryFromLie(lie),
+      intent: { shape: intentShape, goalIsGreen: isGoalGreen, greensideChip: isGreensideChip }
+    };
+    onEditResult?.(editingShotId, result);
     innerRef.current?.dismiss();
   };
 
@@ -193,6 +225,40 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
       ),
     },
     {
+      label: "Hook",
+      value: "hook",
+      renderIcon: (active) => (
+        <Svg width={28} height={28} viewBox="0 0 28 28">
+          {/* Tight curve hard left */}
+          <Path
+            d="M 14 24 Q -4 14 14 4"
+            stroke={active ? activeShapeColor : dimShapeColor}
+            strokeWidth={2}
+            strokeLinecap="round"
+            fill="none"
+          />
+          <Circle cx={14} cy={4} r={3} fill={active ? activeShapeColor : dimShapeColor} />
+        </Svg>
+      ),
+    },
+    {
+      label: "Slice",
+      value: "slice",
+      renderIcon: (active) => (
+        <Svg width={28} height={28} viewBox="0 0 28 28">
+          {/* Tight curve hard right */}
+          <Path
+            d="M 14 24 Q 32 14 14 4"
+            stroke={active ? activeShapeColor : dimShapeColor}
+            strokeWidth={2}
+            strokeLinecap="round"
+            fill="none"
+          />
+          <Circle cx={14} cy={4} r={3} fill={active ? activeShapeColor : dimShapeColor} />
+        </Svg>
+      ),
+    },
+    {
       label: "Other",
       value: "other",
       renderIcon: (active) => (
@@ -232,7 +298,7 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
                 accessibilityRole="button"
                 accessibilityState={{ selected: lie === value }}
               >
-                <Icon width={36} height={36} color={lie === value ? themed($lieLabelSelected).color : undefined} />
+                <Icon width={36} height={36} secondary={theme.colors.backgrounds.elevated} color={lie === value ? themed($lieLabelSelected).color : themed($lieLabel).color } />
                 <Text style={lie === value ? [themed($lieLabel), themed($lieLabelSelected)] : themed($lieLabel)}>{label}</Text>
               </TouchableOpacity>
             ))}
@@ -297,15 +363,24 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel }: Sho
         </View>
 
         <View style={$footer}>
-          <Button
-            text="Cancel"
-            preset="default"
-            onPress={handleCancel}
-            style={$button}
-          />
+          {editingShotId ? (
+            <Button
+              text="Edit Result"
+              preset="secondary"
+              onPress={handleEditResult}
+              style={$button}
+            />
+          ) : (
+            <Button
+              text="Cancel"
+              preset="secondary"
+              onPress={handleCancel}
+              style={$button}
+            />
+          )}
           <Button
             text="Save Shot"
-            preset="filled"
+            preset="default"
             onPress={handleConfirm}
             style={$button}
           />
@@ -351,7 +426,7 @@ const $lieLabel: ThemedStyle<TextStyle> = (theme) => ({
   marginTop: 6,
   fontSize: 12,
   fontWeight: 500,
-  color: theme.colors.textDim
+  color: theme.colors.tintInactive
 });
 
 const $lieLabelSelected: ThemedStyle<TextStyle> = (theme) => ({
