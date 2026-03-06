@@ -1,3 +1,4 @@
+import { Switch } from "@/components/Toggle/Switch";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { useAppTheme } from "@/theme/context";
@@ -13,13 +14,32 @@ interface SettingsModalProps {
         present: () => void;
         dismiss: () => void;
     } | null>;
+    settings?: {
+        gpsEnabled: boolean;
+        showPreviousShots: boolean;
+        showHolePath: boolean;
+        highContrast: boolean;
+        useMetric: boolean;
+    };
+    onChange?: (settings: {
+        gpsEnabled: boolean;
+        showPreviousShots: boolean;
+        showHolePath: boolean;
+        highContrast: boolean;
+        useMetric: boolean;
+    }) => void;
 }
 
-export default function SettingsModal({ sideSheetRef }: SettingsModalProps) {
+export default function SettingsModal({ sideSheetRef, settings, onChange }: SettingsModalProps) {
     const { themed, theme } = useAppTheme();
 
+    const handleToggle = (key: keyof NonNullable<SettingsModalProps["settings"]>, value: boolean) => {
+        if (!settings || !onChange) return;
+        onChange({ ...settings, [key]: value });
+    };
+
     return (
-        <SideSheetModalFactory direction="left" reference={sideSheetRef} sheetWidth={Dimensions.get("window").width * 0.7}>
+        <SideSheetModalFactory direction="left" reference={sideSheetRef} sheetWidth={Dimensions.get("window").width * 0.75}>
             <View style={{ flex: 1}}>
                 <View style={$header}>
                     <Text text={"Settings"} style={$headerText} />
@@ -27,27 +47,43 @@ export default function SettingsModal({ sideSheetRef }: SettingsModalProps) {
                         <UploadIcon size={24} color={"white"} rotation={-90}/>
                     </Pressable>
                 </View>
-                <Pressable style={$itemRow}>
+
+                <View style={$itemRow}>
                     <Ionicons name="settings-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Round Settings"} />
-                </Pressable>
-                <Pressable style={$itemRow}>
+                </View>
+
+                <View style={$itemRow}>
+                    <Switch value={settings?.gpsEnabled ?? true} onValueChange={(v) => handleToggle("gpsEnabled", v)} accessibilityMode="icon" />
                     <Ionicons name="locate-outline" size={24} color={theme.colors.palette.white} />
-                    <Text style={$itemText} text={"Disable GPS"} />
-                </Pressable>
-                <Pressable style={$itemRow}>
+                    <Text style={$itemText} text={"GPS Enabled"} />
+                </View>
+
+                <View style={$itemRow}>
+                    <Switch value={settings?.useMetric ?? false} onValueChange={(v) => handleToggle("useMetric", v)} accessibilityMode="icon" />
                     <RulerIcon size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Use Metric System"} />
-                </Pressable>
-                <Pressable style={$itemRow}>
+                </View>
+
+                <View style={$itemRow}>
+                    <Switch value={settings?.highContrast ?? false} onValueChange={(v) => handleToggle("highContrast", v)} accessibilityMode="icon" />
                     <Ionicons name="eye-outline" size={24} color={theme.colors.palette.white} />
-                    <Text style={$itemText} text={"Disable High Contrast"} />
-                </Pressable>
-                <Pressable style={$itemRow}>
+                    <Text style={$itemText} text={"High Contrast Mode"} />
+                </View>
+
+                <View style={$itemRow}>
+                    <Switch value={settings?.showHolePath ?? true} onValueChange={(v) => handleToggle("showHolePath", v)} accessibilityMode="icon" />
                     <Ionicons name="analytics-outline" size={24} color={theme.colors.palette.white} />
-                    <Text style={$itemText} text={"Disable Hole Path"} />
-                </Pressable>
-                <Pressable style={$itemRow}>
+                    <Text style={$itemText} text={"Show Hole Path"} />
+                </View>
+
+                <View style={$itemRow}>
+                    <Switch value={settings?.showPreviousShots ?? true} onValueChange={(v) => handleToggle("showPreviousShots", v)} accessibilityMode="icon" />
+                    <Ionicons name="time-outline" size={24} color={theme.colors.palette.white} />
+                    <Text style={$itemText} text={"Show Previous Shots"} />
+                </View>
+
+                <Pressable style={$itemRow} onPress={() => { /* placeholder for feedback action */ }}>
                     <Ionicons name="alert-circle-outline" size={24} color={theme.colors.palette.white} />
                     <Text style={$itemText} text={"Report Feedback"} />
                 </Pressable>
@@ -75,13 +111,13 @@ const $headerText: TextStyle = {
 const $itemRow: ViewStyle = {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12
+    marginBottom: 12,
+    gap: 12
 }
 
 const $itemText: TextStyle = {
     fontSize: 16,
-    fontWeight: 500,
-    marginLeft: 12,
+    fontWeight: 500
 }
 
 const $closeButton: ThemedStyle<ViewStyle> = (theme) => ({

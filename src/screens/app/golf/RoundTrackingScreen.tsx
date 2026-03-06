@@ -410,6 +410,21 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const confirmExitModalRef = useRef<BottomSheetModal | null>(null);
     const scorecardModalRef = useRef<BottomSheetModal | null>(null);
 
+    // UI / round settings that can be toggled from the Settings modal
+    const [roundSettings, setRoundSettings] = useState<{
+        gpsEnabled: boolean;
+        showPreviousShots: boolean;
+        showHolePath: boolean;
+        highContrast: boolean;
+        useMetric: boolean;
+    }>({
+        gpsEnabled: true,
+        showPreviousShots: true,
+        showHolePath: true,
+        highContrast: false,
+        useMetric: false,
+    });
+
     useEffect(() => {
         if (courseDataState.status === "success") {
             recenterOnHole();
@@ -604,7 +619,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 }}
             >
                 {/* Fairways — dimmed while a hazard is focused */}
-                {courseData?.fairways.map((fairway, index) => (
+                {roundSettings.highContrast && courseData?.fairways.map((fairway, index) => (
                     <Polygon
                         key={`fairway-${index}`}
                         coordinates={fairway.coordinates}
@@ -614,7 +629,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 ))}
 
                 {/* Greens — dimmed while a hazard is focused */}
-                {courseData?.greens.map((green, index) => (
+                {roundSettings.highContrast && courseData?.greens.map((green, index) => (
                     <Polygon
                         key={`green-${index}`}
                         coordinates={green.polygon.map(p => ({ latitude: p.y, longitude: p.x }))}
@@ -636,7 +651,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 )}
 
                 {/* Tee boxes — dimmed while a hazard is focused */}
-                {courseData?.teeBoxes?.map((tee, index) => (
+                {roundSettings.highContrast && courseData?.teeBoxes?.map((tee, index) => (
                     <Polygon
                         key={`tee-${index}`}
                         coordinates={tee.coordinates}
@@ -680,7 +695,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 })}
 
                 {/* Active hole path — hidden during hazard mode */}
-                {activeHoleData?.holePath && !hazardActive && !puttingMode.isPuttingMode && (
+                {activeHoleData?.holePath && roundSettings.showHolePath && !hazardActive && !puttingMode.isPuttingMode && (
                     <Polyline
                         coordinates={activeHoleData.holePath.coordinates}
                         strokeColor="rgba(255, 255, 255, 0.5)"
@@ -690,7 +705,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 )}
 
                 {/* Completed shots for this hole — hidden during hazard mode */}
-                {!hazardActive && !puttingMode.isPuttingMode && (
+                {!hazardActive && !puttingMode.isPuttingMode && roundSettings.showPreviousShots && (
                     <ShotHistoryOverlay shots={shots.filter(s => s.hole === activeHole)} onShotPress={handleShotPress} />
                 )}
 
@@ -850,7 +865,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 onCommit={commitHoleSummary}
             />
             <ScorecardModal reference={scorecardModalRef} holes={holes}/>
-            <SettingsModal sideSheetRef={sideSheetRef} />
+            <SettingsModal sideSheetRef={sideSheetRef} settings={roundSettings} onChange={setRoundSettings} />
             <ConfirmExitModal 
                 reference={confirmExitModalRef} 
                 onSave={() => {}} 
