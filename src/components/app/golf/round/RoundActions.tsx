@@ -16,9 +16,16 @@ interface RoundActionsProps {
     trackingState?: "tracking" | "idle";
     /** Whether the action bar is currently active (visible) */
     isActive?: boolean;
+    roundSettings: {
+        gpsEnabled: boolean;
+        showPreviousShots: boolean;
+        showHolePath: boolean;
+        highContrast: boolean;
+        useMetric: boolean;
+    };
 }
 
-export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onScorecardPress, startTracking, endTracking, onGreenViewPress, trackingState, isActive = true }) => {
+export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onScorecardPress, startTracking, endTracking, onGreenViewPress, trackingState, isActive = true, roundSettings }) => {
     const { theme, themed } = useAppTheme();
 
     const getButtonStyle = (pressed?: boolean, active?: boolean) => [
@@ -67,7 +74,7 @@ export const RoundActions: React.FC<RoundActionsProps> = ({ onSettingsPress, onS
                     <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onGreenViewPress}>
                         <Ionicons name="golf" size={24} color={getIconColor(false, false)} />
                     </Pressable>
-                    <Pressable style={(state) => getButtonStyle(state.pressed, trackingState === "tracking")} onPress={trackingState === "tracking" ? endTracking : startTracking}>
+                    <Pressable style={(state) => [getButtonStyle(state.pressed, trackingState === "tracking"), !roundSettings.gpsEnabled && { opacity: 0.35 }]} onPress={roundSettings.gpsEnabled ? trackingState === "tracking" ? endTracking : startTracking : undefined}>
                         <TrackingIcon size={24} color={getIconColor(false, trackingState === "tracking")} />
                     </Pressable>
                     <Pressable style={(state) => getButtonStyle(state.pressed, false)} onPress={onScorecardPress}>

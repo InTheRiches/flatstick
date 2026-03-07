@@ -49,42 +49,42 @@ export default function SettingsModal({ sideSheetRef, settings, onChange }: Sett
                 </View>
 
                 <View style={$itemRow}>
-                    <Ionicons name="settings-outline" size={24} color={theme.colors.palette.white} />
+                    <Ionicons name="settings-outline" size={24} color={theme.colors.text} />
                     <Text style={$itemText} text={"Round Settings"} />
                 </View>
 
                 <View style={$itemRow}>
                     <Switch value={settings?.gpsEnabled ?? true} onValueChange={(v) => handleToggle("gpsEnabled", v)} accessibilityMode="icon" />
-                    <Ionicons name="locate-outline" size={24} color={theme.colors.palette.white} />
-                    <Text style={$itemText} text={"GPS Enabled"} />
+                    <Ionicons name="locate-outline" size={24} color={theme.colors.text} />
+                    <Text style={$itemText} text={"Use GPS"} />
                 </View>
 
                 <View style={$itemRow}>
                     <Switch value={settings?.useMetric ?? false} onValueChange={(v) => handleToggle("useMetric", v)} accessibilityMode="icon" />
-                    <RulerIcon size={24} color={theme.colors.palette.white} />
+                    <RulerIcon size={24} color={theme.colors.text} />
                     <Text style={$itemText} text={"Use Metric System"} />
                 </View>
 
                 <View style={$itemRow}>
                     <Switch value={settings?.highContrast ?? false} onValueChange={(v) => handleToggle("highContrast", v)} accessibilityMode="icon" />
-                    <Ionicons name="eye-outline" size={24} color={theme.colors.palette.white} />
+                    <Ionicons name="eye-outline" size={24} color={theme.colors.text} />
                     <Text style={$itemText} text={"High Contrast Mode"} />
                 </View>
 
                 <View style={$itemRow}>
                     <Switch value={settings?.showHolePath ?? true} onValueChange={(v) => handleToggle("showHolePath", v)} accessibilityMode="icon" />
-                    <Ionicons name="analytics-outline" size={24} color={theme.colors.palette.white} />
+                    <Ionicons name="analytics-outline" size={24} color={theme.colors.text} />
                     <Text style={$itemText} text={"Show Hole Path"} />
                 </View>
 
                 <View style={$itemRow}>
                     <Switch value={settings?.showPreviousShots ?? true} onValueChange={(v) => handleToggle("showPreviousShots", v)} accessibilityMode="icon" />
-                    <Ionicons name="time-outline" size={24} color={theme.colors.palette.white} />
+                    <Ionicons name="time-outline" size={24} color={theme.colors.text} />
                     <Text style={$itemText} text={"Show Previous Shots"} />
                 </View>
 
                 <Pressable style={$itemRow} onPress={() => { /* placeholder for feedback action */ }}>
-                    <Ionicons name="alert-circle-outline" size={24} color={theme.colors.palette.white} />
+                    <Ionicons name="alert-circle-outline" size={24} color={theme.colors.text} />
                     <Text style={$itemText} text={"Report Feedback"} />
                 </Pressable>
             </View>

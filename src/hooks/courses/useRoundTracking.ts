@@ -12,11 +12,59 @@ import type {
   ClubType
 } from "@/models/round.session.types";
 import { haversineMeters } from "@/utils/courses/geometry/distance.utils";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { clearPersistedRound, loadPersistedRound, saveRound } from "@/utils/round/roundPersistence";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // ── ID generation ─────────────────────────────────────────────────────────────
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
+}
+
+// ── Persistence helpers ───────────────────────────────────────────────────────
+
+export interface RoundPersistOptions {
+  /** Course ID used to match a saved round to the current course. */
+  courseId: string;
+  courseName?: string;
+}
+
+interface InitialRoundState {
+  roundId: string;
+  activeHole: number;
+  shots: LiveShotAttempt[];
+  holes: Record<number, LiveHoleState>;
+  /** True when state was restored from a prior session. */
+  isRestored: boolean;
+  /** ISO timestamp from the last save (only set when isRestored). */
+  restoredAt?: string;
+}
+
+function computeInitialState(
+  initialHole: number,
+  totalHoles: number,
+  teeSet: TeeSet | undefined,
+  persistOptions: RoundPersistOptions | undefined,
+): InitialRoundState {
+  if (persistOptions?.courseId) {
+    const saved = loadPersistedRound();
+    if (saved && saved.courseId === persistOptions.courseId && saved.totalHoles === totalHoles) {
+      return {
+        roundId: saved.roundId,
+        activeHole: saved.activeHole,
+        shots: saved.shots,
+        holes: saved.holes,
+        isRestored: true,
+        restoredAt: saved.savedAt,
+      };
+    }
+  }
+  return {
+    roundId: generateId(),
+    activeHole: initialHole,
+    shots: [],
+    holes: initHoles(totalHoles, teeSet),
+    isRestored: false,
+  };
 }
 
 // Helpers
@@ -132,24 +180,45 @@ export function generateSyntheticShots(
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useRoundTracking(initialHole: number = 1, totalHoles: number = 18, teeSet?: TeeSet) {
-  /** Stable round ID — generated once at mount. */
-  const roundId = useRef(generateId()).current;
+export function useRoundTracking(initialHole: number = 1, totalHoles: number = 18, teeSet?: TeeSet, persistOptions?: RoundPersistOptions) {
+  // ── One-time restoration from MMKV (synchronous) ─────────────────────────
+  // useState lazy initializer runs exactly once so loadPersistedRound is only
+  // called once per hook mount, not on every render.
+  const [[init]] = useState(() => [computeInitialState(initialHole, totalHoles, teeSet, persistOptions)]);
 
-  const [activeHole, setActiveHole] = useState(initialHole);
+  /** Stable round ID — generated once at mount (or restored from storage). */
+  const roundId = useRef(init.roundId).current;
+
+  const [activeHole, setActiveHole] = useState(init.activeHole);
 
   /** All shots for the round, ordered chronologically. */
-  const [shots, setShots] = useState<LiveShotAttempt[]>([]);
+  const [shots, setShots] = useState<LiveShotAttempt[]>(init.shots);
 
   const [currentShot, setCurrentShot] = useState<LiveShotAttempt | null>(null);
 
   /** Per-hole state keyed by 1-based hole number. */
-  const [holes, setHoles] = useState<Record<number, LiveHoleState>>(() =>
-    initHoles(totalHoles, teeSet),
-  );
+  const [holes, setHoles] = useState<Record<number, LiveHoleState>>(init.holes);
 
   const [trackingState, setTrackingState] = useState<"idle" | "tracking">("idle");
   const [currentShotStart, setCurrentShotStart] = useState<LatLng | null>(null);
+
+  // ── Auto-save on every meaningful state change ─────────────────────────────
+  // MMKV writes are synchronous and sub-millisecond, so saving in a useEffect
+  // (which fires asynchronously after paint) keeps the UI responsive while
+  // still guaranteeing the latest state is always on disk.
+  useEffect(() => {
+    if (!persistOptions?.courseId) return;
+    saveRound({
+      roundId,
+      activeHole,
+      shots,
+      holes,
+      savedAt: new Date().toISOString(),
+      courseId: persistOptions.courseId,
+      courseName: persistOptions.courseName,
+      totalHoles,
+    });
+  }, [shots, holes, activeHole]);
 
   // ── Derived ───────────────────────────────────────────────────────────────
   /** Running score relative to par for all completed holes. */
@@ -301,5 +370,11 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
     startTracking,
     endTracking,
     currentShotStart,
+    /** True when the round was restored from a previous session on this mount. */
+    isRestored: init.isRestored,
+    /** ISO timestamp of the last auto-save (only meaningful when isRestored). */
+    restoredAt: init.restoredAt,
+    /** Removes the persisted round from storage (call on explicit exit / round completion). */
+    clearPersistedRound,
   };
 }

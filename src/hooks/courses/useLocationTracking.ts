@@ -14,6 +14,7 @@ export function useLocationTracking(disabled: boolean = false) {
   //       const { status } = await Location.requestForegroundPermissionsAsync();
   //       if (status !== "granted") {
   //         setErrorMsg("Permission to access location was denied");
+  //         setUserLocation(null);
   //         return;
   //       }
 

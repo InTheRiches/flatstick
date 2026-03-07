@@ -199,7 +199,7 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
         }}
         tracksViewChanges
       >
-        <View style={[$holeMarker, isLimp && { opacity: 0.55 }]}>
+        <View style={[$holeMarker, isLimp && { opacity: 0.85 }]}>
           <Ionicons name="flag" size={18} color="#ffffff" />
         </View>
       </Marker>

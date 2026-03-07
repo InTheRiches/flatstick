@@ -15,6 +15,13 @@ interface PuttingActionBarProps {
   heatmapMode?: HeatmapMode;
   onHeatmapToggle?: () => void;
   hasLidar?: boolean;
+  roundSettings: {
+        gpsEnabled: boolean;
+        showPreviousShots: boolean;
+        showHolePath: boolean;
+        highContrast: boolean;
+        useMetric: boolean;
+    };
 }
 
 export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
@@ -26,6 +33,7 @@ export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
   heatmapMode = 'none',
   onHeatmapToggle,
   hasLidar = false,
+  roundSettings,
 }) => {
   const { theme, themed } = useAppTheme();
   const translateX = useRef(new Animated.Value(isActive ? 0 : 0)).current;
@@ -58,13 +66,13 @@ export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
     <Animated.View style={[$container, { transform: [{ translateX }], opacity } as any]}>
       <View style={themed($topOverlay)}>
         <Pressable
-            style={({pressed}) => [themed($actionButton), pressed && themed($actionButtonActive)]}
-            onPress={onGPSPress}
+            style={({pressed}) => [themed($actionButton), pressed && themed($actionButtonActive), !roundSettings.gpsEnabled && { opacity: 0.35 }]}
+            onPress={roundSettings.gpsEnabled ? onGPSPress : undefined}
         >
             <Ionicons 
                 name="location" 
                 size={24} 
-                color={theme.colors.text} 
+                color={theme.colors.buttons.textColor} 
             />
         </Pressable>
         <Pressable
@@ -83,7 +91,7 @@ export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
                     : 'layers-outline'
                 }
                 size={22}
-                color={heatmapMode !== 'none' ? '#ffffff' : theme.colors.text}
+                color={heatmapMode !== 'none' ? '#ffffff' : theme.colors.buttons.textColor}
             />
         </Pressable>
         <Pressable
@@ -93,7 +101,7 @@ export const PuttingActionBar: React.FC<PuttingActionBarProps> = ({
             <Ionicons 
                 name="arrow-undo" 
                 size={22} 
-                color={theme.colors.text} 
+                color={theme.colors.buttons.textColor} 
             />
         </Pressable>
         <Pressable

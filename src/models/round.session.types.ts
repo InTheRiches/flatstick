@@ -1,4 +1,5 @@
 import { GeoPoint, SessionBase, SessionMetaBase, SessionStatsBase } from "@/models/session.types"
+import { TeeDirection } from "./round.live.types"
 
 export type ShotCategory = "tee" | "approach" | "short_game" | "putt" | "recovery"
 export type LieType =
@@ -86,12 +87,20 @@ export interface RoundHoleSummary {
   hole: number // 1..18
   par: 3 | 4 | 5
   score: number // strokes taken
+  penalties: number
 
   putts?: number
   fairwayHit?: boolean // if applicable
   gir?: boolean
 
   shotIds: string[]
+
+  teeClubLabel?: string
+  teeDirection?: TeeDirection
+  teeMishit?: boolean
+
+  /** Distance of the first putt in yards. User-entered; linked to first putt ShotAttempt at transform time. */
+  firstPuttDistanceYds?: number
 
   // Optional: hole yardage, tee->pin
   yardageM?: number

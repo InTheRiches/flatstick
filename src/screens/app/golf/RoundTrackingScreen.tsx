@@ -235,6 +235,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const router = useRouter();
 
     const [reloadCounter, setReloadCounter] = useState(0);
+    // Brief "round restored" banner — auto-hides after 3 s.
+    const [showRestoredBanner, setShowRestoredBanner] = useState(false);
 
     const courseLocation: LatLng | null = useMemo(() => {
         const loc = course?.selectedCourse.location;
@@ -280,7 +282,16 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         startTracking,
         endTracking,
         currentShotStart,
-    } = useRoundTracking(1, course?.numberOfHoles ?? 0, course?.selectedTee); // TODO if it cant load the hole length trigger an error state
+        isRestored,
+        clearPersistedRound,
+    } = useRoundTracking(
+        1,
+        course?.numberOfHoles ?? 0,
+        course?.selectedTee,
+        course?.selectedCourse?.id
+            ? { courseId: course.selectedCourse.id, courseName: course.selectedCourse.courseName }
+            : undefined,
+    ); // TODO if it cant load the hole length trigger an error state
 
     const { mapRef, activeHoleData, recenterOnHole, isPannedAway, onPanDrag, currentHeadingRef, resetPannedState } = useCourseMap(courseData, activeHole);
 
@@ -588,6 +599,14 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         }
     };
 
+    // Show the restored banner once after hook mount, then auto-dismiss.
+    useEffect(() => {
+        if (!isRestored) return;
+        setShowRestoredBanner(true);
+        const t = setTimeout(() => setShowRestoredBanner(false), 3000);
+        return () => clearTimeout(t);
+    }, [isRestored]);
+
     const forceReload = () => {
         console.debug("[RoundTrackingScreen] user requested course reload");
         setReloadCounter(c => c + 1);
@@ -784,6 +803,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 trackingState={trackingState}
                 startTracking={openShotDetails}
                 endTracking={handleEndTracking}
+                roundSettings={roundSettings}
                 onSettingsPress={() => sideSheetRef.current?.present()}
                 onGreenViewPress={handleGreenViewPress}
                 isActive={!puttingMode.isPuttingMode}
@@ -795,6 +815,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 hasPendingPutt={!!puttingMode.pendingPuttStart}
                 onSavePutt={handleSavePutt}
                 onUndoPress={handlePuttUndo}
+                roundSettings={roundSettings}
                 onGPSPress={() => {
                     puttingMode.setPendingPuttStart(userLocation);
                 }}
@@ -831,6 +852,14 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
                     <EditScorecardIcon size={36} color={theme.colors.text} />
                 </Pressable>
+            )}
+
+            {/* Round restored banner — auto-dismissed after 3 s */}
+            {showRestoredBanner && (
+                <View style={themed($restoredBanner)}>
+                    <Ionicons name="checkmark-circle" size={16} color={theme.colors.text} />
+                    <Text style={{ color: theme.colors.text, fontSize: 13, marginLeft: 6 }} text="Round restored" />
+                </View>
             )}
 
             {/* GPS acquiring banner — shown when GPS is enabled but no fix yet */}
@@ -879,7 +908,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             <ConfirmExitModal 
                 reference={confirmExitModalRef} 
                 onSave={() => {}} 
-                onDelete={() => router.back()} />
+                onDelete={() => { clearPersistedRound(); router.replace("/"); }} />
         </Screen>
     );
 };
@@ -957,6 +986,23 @@ const $shotStartMarker: ThemedStyle<ViewStyle> = (theme) => ({
 });
 
 const $gpsAcquiringBanner: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    top: 160,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: theme.colors.backgrounds.elevated,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 4,
+});
+
+const $restoredBanner: ThemedStyle<ViewStyle> = (theme) => ({
     position: "absolute",
     top: 160,
     alignSelf: "center",
