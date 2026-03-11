@@ -176,8 +176,6 @@ export default function Scorecard({
 
   const canSelect = typeof onSelectHole === "function"
 
-  console.log("data: " + JSON.stringify(holes))
-
   return (
     <View style={styles.card}>
       {/* Header */}
@@ -288,7 +286,7 @@ const $styles =
 
     const styles = StyleSheet.create({
       card: {
-        backgroundColor: theme.colors.palette.white,
+        backgroundColor: theme.colors.backgrounds.default,
         borderTopLeftRadius: roundedTop ? radius : 0,
         borderTopRightRadius: roundedTop ? radius : 0,
         borderBottomLeftRadius: roundedBottom ? radius : 0,
@@ -296,6 +294,8 @@ const $styles =
         paddingHorizontal: theme.spacing.md,
         paddingVertical: theme.spacing.sm,
         marginTop: topMargin ? theme.spacing.md : 0,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
       } satisfies ViewStyle,
 
       cell: {
@@ -304,12 +304,12 @@ const $styles =
       } satisfies ViewStyle,
 
       holeLabel: {
-        color: theme.colors.textDimOnDark,
+        color: theme.colors.textDim,
         fontSize: 12,
       } satisfies TextStyle,
 
       nineTotal: {
-        color: theme.colors.textOnDark,
+        color: theme.colors.text,
         fontWeight: "800",
         fontSize: 20,
         marginLeft: theme.spacing.sm,
@@ -337,7 +337,7 @@ const $styles =
       } satisfies ViewStyle,
 
       topLabel: {
-        color: theme.colors.textDimOnDark,
+        color: theme.colors.textDim,
         fontSize: 16,
         fontWeight: "700",
       } satisfies TextStyle,
@@ -353,19 +353,19 @@ const $styles =
       } satisfies ViewStyle,
 
       topValue: {
-        color: theme.colors.textOnDark,
+        color: theme.colors.text,
         fontSize: 24,
         fontWeight: "800",
       } satisfies TextStyle,
 
       value: {
-        color: theme.colors.textOnDark,
+        color: theme.colors.text,
         fontSize: 18,
         fontWeight: "600",
       } satisfies TextStyle,
 
       valueUnknown: {
-        color: theme.colors.textDimOnDark,
+        color: theme.colors.textDim,
       } satisfies TextStyle,
 
       valueWrap: {

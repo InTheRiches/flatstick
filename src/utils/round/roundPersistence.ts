@@ -16,6 +16,8 @@ export interface PersistedRound {
     activeHole: number;
     shots: LiveShotAttempt[];
     holes: Record<number, LiveHoleState>;
+    /** ISO timestamp of when the round was first started. */
+    startedAt: string;
     /** ISO timestamp of the last save. */
     savedAt: string;
     courseId: string;

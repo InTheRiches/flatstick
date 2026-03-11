@@ -23,7 +23,6 @@ import type {
   RoundHoleSummary,
   RoundSession,
   RoundSessionMeta,
-  RoundSessionStats,
   ShotAttempt
 } from "@/models/round.session.types"
 
@@ -70,177 +69,23 @@ function stampShot(
 
 // ─── Hole summary ─────────────────────────────────────────────────────────────
 
-function buildHoleSummary(hole: LiveHoleState, live: LiveRoundState): RoundHoleSummary {
+function buildHoleSummary(hole: LiveHoleState, pinLocation: LatLng, live: LiveRoundState): RoundHoleSummary {
   const strokes = strokesForHole(live, hole.holeNumber)
 
   return {
     hole: hole.holeNumber,
     par: hole.par,
     score: strokes,
+    penalties: hole.penaltyStrokes,
 
-    putts: hole.putts > 0 ? hole.putts : undefined,
-    fairwayHit: hole.fairwayHit,
-    gir: hole.greenInRegulation,
+    pinLocation: latLngToGeoPoint(pinLocation),
+
+    putts: hole.putts > 0 ? hole.putts : 0,
+    fairwayHit: hole.fairwayHit ?? true, // fairwayHit is only defined for par 4s and 5s; treat undefined as "not applicable" → true
+    gir: hole.greenInRegulation ?? false, // gir is only defined for approach shots; treat undefined as "not green" → false
 
     shotIds: hole.shotIds,
     yardageM: hole.yardageM,
-
-    // strokesGained is not computed client-side — a Cloud Function should
-    // populate this field after the round is written to Firestore.
-    strokesGained: undefined,
-  }
-}
-
-// ─── Stats computation ────────────────────────────────────────────────────────
-
-const EMPTY_MISS_DIRECTION = { left: 0, right: 0, center: 0 } as const
-
-function computeStats(
-  live: LiveRoundState,
-  holeSummaries: RoundHoleSummary[],
-): RoundSessionStats {
-  const completedHoles = holeSummaries.filter((h) => {
-    const liveHole = live.holes[h.hole]
-    return liveHole?.status === "completed"
-  })
-
-  // ── Totals ────────────────────────────────────────────────────────────────
-  const totalPar = completedHoles.reduce((acc, h) => acc + h.par, 0)
-  const totalScore = completedHoles.reduce((acc, h) => acc + h.score, 0)
-  const totalPutts = completedHoles.reduce((acc, h) => acc + (h.putts ?? 0), 0)
-
-  // ── Scoring distribution ──────────────────────────────────────────────────
-  const scoring: RoundSessionStats["scoring"] = {
-    albatross: 0,
-    eagle: 0,
-    birdie: 0,
-    par: 0,
-    bogey: 0,
-    doubleBogey: 0,
-    tripleBogeyPlus: 0,
-  }
-
-  for (const h of completedHoles) {
-    const rel = h.score - h.par
-    if (rel <= -3) scoring.albatross++
-    else if (rel === -2) scoring.eagle++
-    else if (rel === -1) scoring.birdie++
-    else if (rel === 0) scoring.par++
-    else if (rel === 1) scoring.bogey++
-    else if (rel === 2) scoring.doubleBogey++
-    else scoring.tripleBogeyPlus++
-  }
-
-  // ── Shot category buckets ─────────────────────────────────────────────────
-  const teeShots = live.shots.filter((s) => s.category === "tee")
-  const approachShots = live.shots.filter(
-    (s) => s.category === "approach" || s.category === "short_game",
-  )
-  const puttShots = live.shots.filter((s) => s.category === "putt")
-
-  // ── Tee stats ─────────────────────────────────────────────────────────────
-  const fairwaysHit = completedHoles.filter((h) => h.fairwayHit === true).length
-  // Eligible holes: par-4 and par-5 only (par-3s have no fairway)
-  const fairwayEligible = completedHoles.filter((h) => h.par >= 4).length
-
-  const teeTotalDistanceM = teeShots.reduce((acc, s) => acc + (s.distance.totalM ?? 0), 0)
-  const teeAttempts = teeShots.length
-
-  // ── Approach stats ────────────────────────────────────────────────────────
-  const girCount = completedHoles.filter((h) => h.gir === true).length
-
-  type DistanceBucket = keyof RoundSessionStats["approach"]["byDistanceBucket"]
-
-  function distanceBucket(meters: number | undefined): DistanceBucket {
-    if (!meters) return "0-50"
-    const yards = meters * 1.09361
-    if (yards < 50) return "0-50"
-    if (yards < 100) return "50-100"
-    if (yards < 150) return "100-150"
-    if (yards < 200) return "150-200"
-    return "200+"
-  }
-
-  const bucketInit = (): { attempts: number; gir: number; avgProximityM?: number } => ({
-    attempts: 0,
-    gir: 0,
-  })
-
-  const approachBuckets: RoundSessionStats["approach"]["byDistanceBucket"] = {
-    "0-50": bucketInit(),
-    "50-100": bucketInit(),
-    "100-150": bucketInit(),
-    "150-200": bucketInit(),
-    "200+": bucketInit(),
-  }
-
-  for (const shot of approachShots) {
-    const bucket = distanceBucket(shot.distance.intendedToTargetM)
-    approachBuckets[bucket].attempts++
-    // GIR credit: if the hole's greenInRegulation flag is set and this is
-    // the last approach shot on that hole, credit it. Simplified heuristic.
-    const holeGir = live.holes[shot.hole]?.greenInRegulation
-    if (holeGir) approachBuckets[bucket].gir++
-  }
-
-  // ── Putting stats ─────────────────────────────────────────────────────────
-  const onePutts = completedHoles.filter((h) => (h.putts ?? 0) === 1).length
-  const threePutts = completedHoles.filter((h) => (h.putts ?? 0) >= 3).length
-
-  // ── SessionStatsBase fields ───────────────────────────────────────────────
-  // puttCounts, madePercent, avgMiss, biases, missDistribution are primarily
-  // used by the putting session type. For a round session, supply safe defaults
-  // and let a Cloud Function backfill detailed putting analytics.
-  const holesPlayed = completedHoles.length
-
-  return {
-    // SessionStatsBase
-    holes: live.teebox.number_of_holes,
-    holesPlayed,
-    totalPutts,
-    puttCounts: [onePutts, totalPutts - onePutts - threePutts, threePutts],
-    madePercent: teeAttempts > 0 ? onePutts / holesPlayed : 0,
-    avgMiss: 0, // backfilled by Cloud Function from individual putt data
-    biases: { leftRight: 0, shortPast: 0, percentShort: 0, percentHigh: 0 },
-    missDistribution: {
-      center: 0,
-      left: 0,
-      right: 0,
-      farLeft: 0,
-      farRight: 0,
-      short: 0,
-      long: 0,
-    },
-
-    // RoundSessionStats
-    totalScore,
-    par: totalPar,
-    scoring,
-
-    tee: {
-      attempts: teeAttempts,
-      fairwaysHit,
-      fairwayPct: fairwayEligible > 0 ? fairwaysHit / fairwayEligible : 0,
-      missDirection: { ...EMPTY_MISS_DIRECTION },
-      avgDistanceM: teeAttempts > 0 ? teeTotalDistanceM / teeAttempts : undefined,
-    },
-
-    approach: {
-      attempts: approachShots.length,
-      gir: girCount,
-      girPct: holesPlayed > 0 ? girCount / holesPlayed : 0,
-      byDistanceBucket: approachBuckets,
-      missDirection: { left: 0, right: 0, short: 0, long: 0, on: 0 },
-    },
-
-    putting:
-      puttShots.length > 0
-        ? {
-            attempts: puttShots.length,
-            onePutts,
-            threePutts,
-          }
-        : undefined,
   }
 }
 
@@ -283,12 +128,14 @@ function buildMeta(live: LiveRoundState, endedAt: string): RoundSessionMeta {
  * nothing is computed during live tracking.
  *
  * @param live     - The completed LiveRoundState (status should be "completed").
+ * @param holePins - A mapping of hole number to pin location, used to populate each RoundHoleSummary.pinLocation. Pin locations are not tracked live, so must be passed in separately at save time.
  * @param userId   - The authenticated user's ID (stamped onto each shot).
  * @param endedAt  - ISO timestamp of when the round was saved. Defaults to now.
  */
 export function transformLiveRoundToSession(
   live: LiveRoundState,
   userId: string,
+  holePins: Record<number, LatLng>,
   endedAt: string = new Date().toISOString(),
 ): RoundSession {
   const now = endedAt
@@ -300,10 +147,7 @@ export function transformLiveRoundToSession(
   const holes: RoundHoleSummary[] = Object.values(live.holes)
     .filter((h) => h.status !== "notStarted")
     .sort((a, b) => a.holeNumber - b.holeNumber)
-    .map((h) => buildHoleSummary(h, live))
-
-  // 3. Compute aggregate stats.
-  const stats = computeStats(live, holes)
+    .map((h) => buildHoleSummary(h, holePins[h.holeNumber], live))
 
   // 4. Build metadata.
   const meta = buildMeta(live, now)
@@ -315,7 +159,6 @@ export function transformLiveRoundToSession(
     updatedAt: now,
     deletedAt: null,
     meta,
-    stats,
     holes,
     shots,
   }

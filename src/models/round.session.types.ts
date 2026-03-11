@@ -1,5 +1,6 @@
-import { GeoPoint, SessionBase, SessionMetaBase, SessionStatsBase } from "@/models/session.types"
+import { GeoPoint, SessionBase, SessionMetaBase } from "@/models/session.types"
 import { TeeDirection } from "./round.live.types"
+import type { RoundStats } from "./stats.types"
 
 export type ShotCategory = "tee" | "approach" | "short_game" | "putt" | "recovery"
 export type LieType =
@@ -68,9 +69,8 @@ export interface ShotAttempt {
 
   // Outcome flags
   result?: {
-    finish: ShotFinish
-    shape?: ShotShape // what actually happened
-    startLine?: "left" | "center" | "right"
+    finish?: ShotFinish
+    shape?: ShotShape
     contact?: "pure" | "thin" | "fat" | "toe" | "heel" | "unknown"
     finishLie?: LieType
     isPenalty?: boolean
@@ -89,11 +89,12 @@ export interface RoundHoleSummary {
   score: number // strokes taken
   penalties: number
 
-  putts?: number
-  fairwayHit?: boolean // if applicable
-  gir?: boolean
+  putts: number
+  fairwayHit: boolean
+  gir: boolean
 
   shotIds: string[]
+  pinLocation: GeoPoint
 
   teeClubLabel?: string
   teeDirection?: TeeDirection
@@ -104,14 +105,6 @@ export interface RoundHoleSummary {
 
   // Optional: hole yardage, tee->pin
   yardageM?: number
-
-  strokesGained?: {
-    tee?: number
-    approach?: number
-    shortGame?: number
-    putting?: number
-    total?: number
-  }
 }
 
 export interface TeeboxInfo {
@@ -132,63 +125,10 @@ export interface RoundSessionMeta extends SessionMetaBase {
   teebox: TeeboxInfo
 }
 
-export interface RoundSessionStats extends SessionStatsBase {
-  totalScore: number
-  par: number
-  scoring: Record<
-    "albatross" | "eagle" | "birdie" | "par" | "bogey" | "doubleBogey" | "tripleBogeyPlus",
-    number
-  >
-  strokesGained?: {
-    tee: number
-    approach: number
-    shortGame: number
-    putting: number
-    total: number
-  }
-  tee: {
-    attempts: number
-    fairwaysHit: number
-    fairwayPct: number
-
-    // dispersion summaries (great for “you miss right 62%”)
-    missDirection: Record<"left" | "right" | "center", number>
-
-    avgDistanceM?: number
-    avgOfflineM?: number // if you compute from aim line
-  }
-
-  approach: {
-    attempts: number
-    gir: number
-    girPct: number
-
-    // Distance buckets are gold for analysis
-    byDistanceBucket: Record<
-      "0-50" | "50-100" | "100-150" | "150-200" | "200+",
-      { attempts: number; gir: number; avgProximityM?: number }
-    >
-
-    avgProximityM?: number
-    missDirection: Record<"left" | "right" | "short" | "long" | "on", number>
-  }
-
-  putting?: {
-    attempts: number
-    onePutts: number
-    threePutts: number
-    makesPct?: number
-
-    // You already do this in your putting modes
-    avgMissFt?: number
-    leftRightBiasIn?: number
-    shortPastBiasIn?: number
-  }
-}
-
 export interface RoundSession extends SessionBase {
   meta: RoundSessionMeta
-  stats: RoundSessionStats
   holes: RoundHoleSummary[] // scorecard + per-hole aggregates
   shots: ShotAttempt[] // the truth
+  /** Computed at load time from holes/shots. Never serialized to Firestore. */
+  stats?: RoundStats
 }

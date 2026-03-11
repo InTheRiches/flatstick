@@ -5,7 +5,6 @@ import { Pressable, TextStyle, View, ViewStyle } from "react-native"
 
 import { Button } from "@/components/ui/Button"
 import { Text } from "@/components/ui/Text"
-import type { ClubCourse, ClubResult, TeeSet } from "@/services/courses/courseSearching"
 import { useAppTheme } from "@/theme/context"
 import { ThemedStyle } from "@/theme/types"
 import { BottomSheetModalFactory } from "../../modals/BottomSheetFactory"
@@ -14,15 +13,6 @@ interface ConfirmExitModalProps {
     reference: React.RefObject<BottomSheetModal | null>
     onSave?: () => void
     onDelete?: () => void
-}
-
-export type CourseSelectionDetails = {
-    club: ClubResult
-    selectedCourse: ClubCourse
-    gender: "male" | "female"
-    selectedTee: TeeSet
-    numberOfHoles: 18 | 9
-    nineHolesSide?: "front" | "back" // only if numberOfHoles === 9
 }
 
 export default function ConfirmExitModal({reference, onSave, onDelete}: ConfirmExitModalProps) {

@@ -33,6 +33,8 @@ interface InitialRoundState {
   activeHole: number;
   shots: LiveShotAttempt[];
   holes: Record<number, LiveHoleState>;
+  /** ISO timestamp of when the round was first started. */
+  startedAt: string;
   /** True when state was restored from a prior session. */
   isRestored: boolean;
   /** ISO timestamp from the last save (only set when isRestored). */
@@ -53,6 +55,7 @@ function computeInitialState(
         activeHole: saved.activeHole,
         shots: saved.shots,
         holes: saved.holes,
+        startedAt: saved.startedAt ?? new Date().toISOString(),
         isRestored: true,
         restoredAt: saved.savedAt,
       };
@@ -63,6 +66,7 @@ function computeInitialState(
     activeHole: initialHole,
     shots: [],
     holes: initHoles(totalHoles, teeSet),
+    startedAt: new Date().toISOString(),
     isRestored: false,
   };
 }
@@ -98,7 +102,7 @@ function initHoles(totalHoles: number, teeSet?: TeeSet): Record<number, LiveHole
       status: "notStarted",
       shotIds: [],
       penaltyStrokes: 0,
-      putts: 0,
+      putts: 2,
     };
   }
   return record;
@@ -189,6 +193,9 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
   /** Stable round ID — generated once at mount (or restored from storage). */
   const roundId = useRef(init.roundId).current;
 
+  /** ISO timestamp of when the round was first started (stable across restores). */
+  const startedAt = useRef(init.startedAt).current;
+
   const [activeHole, setActiveHole] = useState(init.activeHole);
 
   /** All shots for the round, ordered chronologically. */
@@ -213,6 +220,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
       activeHole,
       shots,
       holes,
+      startedAt,
       savedAt: new Date().toISOString(),
       courseId: persistOptions.courseId,
       courseName: persistOptions.courseName,
@@ -354,6 +362,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
 
   return {
     roundId,
+    startedAt,
     activeHole,
     setActiveHole,
     nextHole,

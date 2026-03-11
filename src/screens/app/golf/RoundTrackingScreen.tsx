@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { getFirestore } from "@react-native-firebase/firestore";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import MapView, { Marker, Polygon, Polyline } from "react-native-maps";
 
@@ -18,6 +18,7 @@ import ScorecardModal from "@/components/app/golf/modals/ScorecardModal";
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
 import SettingsModal from "@/components/app/golf/modals/SettingsModal";
 import ShotDetailsModal, { type ShotDefaults, type ShotDetailsModalReference, type ShotModalResult } from "@/components/app/golf/modals/ShotDetailsModal";
+import SubmitRoundModal from "@/components/app/golf/modals/SubmitRoundModal";
 import type { HeatmapMode } from "@/components/app/golf/putting/GreenHeatmapOverlay";
 import { PuttingActionBar } from "@/components/app/golf/putting/PuttingActionBar";
 import { PuttingOverlay } from "@/components/app/golf/putting/PuttingOverlay";
@@ -31,6 +32,7 @@ import { PlayerTrackingOverlay } from "@/components/app/golf/tracking/PlayerTrac
 import { ShotHistoryOverlay } from "@/components/app/golf/tracking/ShotHistoryOverlay";
 import { SideSheetModalHandle } from "@/components/app/modals/SideSheetModalFactory";
 import { isPointInPolygon } from "@/components/putting-green";
+import { useUser } from "@/context/UserContext";
 import { useCourseData } from "@/hooks/courses/useCourseData";
 import { useCourseMap } from "@/hooks/courses/useCourseMap";
 import { useGreenCameraLock } from "@/hooks/courses/useGreenCameraLock";
@@ -39,9 +41,10 @@ import { useLocationTracking } from "@/hooks/courses/useLocationTracking";
 import { usePlayerTracking } from "@/hooks/courses/usePlayerTracking";
 import { usePuttingMode } from "@/hooks/courses/usePuttingMode";
 import { useRoundTracking } from "@/hooks/courses/useRoundTracking";
+import { useRounds } from "@/hooks/useRounds";
 import type { CourseData } from "@/models/course";
 import type { LatLng } from "@/models/geo";
-import { LiveShotAttempt } from "@/models/round.live.types";
+import { LiveRoundState, LiveShotAttempt } from "@/models/round.live.types";
 import type { LieType } from "@/models/round.session.types";
 import type { CourseLoadError } from "@/services/courses/courseLoader";
 import { generateUUID } from "@/utils/common";
@@ -233,6 +236,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const { theme, themed } = useAppTheme();
     const db = getFirestore();
     const router = useRouter();
+    const { authUser } = useUser();
+    const { saveRound: saveRoundToFirestore } = useRounds();
 
     const [reloadCounter, setReloadCounter] = useState(0);
     // Brief "round restored" banner — auto-hides after 3 s.
@@ -284,6 +289,8 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         currentShotStart,
         isRestored,
         clearPersistedRound,
+        roundId,
+        startedAt,
     } = useRoundTracking(
         1,
         course?.numberOfHoles ?? 0,
@@ -439,6 +446,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const holeSummaryRef = useRef<HoleSummaryModalHandle>(null);
     const sideSheetRef = useRef<SideSheetModalHandle>(null);
     const confirmExitModalRef = useRef<BottomSheetModal | null>(null);
+    const submitRoundModalRef = useRef<BottomSheetModal | null>(null);
     const scorecardModalRef = useRef<BottomSheetModal | null>(null);
 
     useEffect(() => {
@@ -611,6 +619,50 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         console.debug("[RoundTrackingScreen] user requested course reload");
         setReloadCounter(c => c + 1);
     };
+
+    // ── Round saving ──────────────────────────────────────────────────────────
+    const handleSubmitRound = useCallback(async () => {
+        if (!authUser) return;
+        const now = new Date().toISOString();
+        const liveRound: LiveRoundState = {
+            id: roundId,
+            userId: authUser.uid,
+            status: "completed",
+            startedAt,
+            lastUpdatedAt: now,
+            courseId: course?.selectedCourse.id,
+            courseName: course?.selectedCourse.courseName,
+            clubName: course?.club.clubName,
+            teebox: course?.selectedTee
+                ? {
+                      name: course.selectedTee.name,
+                      number_of_holes: course.selectedTee.number_of_holes,
+                      par: course.selectedTee.par,
+                      length: course.selectedTee.yards,
+                      rating: course.selectedTee.rating,
+                      slope: course.selectedTee.slope,
+                  }
+                : {
+                      name: "Unknown",
+                      number_of_holes: course?.numberOfHoles ?? 18,
+                      par: 72,
+                      length: 0,
+                      rating: 0,
+                      slope: 113,
+                  },
+            currentHoleNumber: activeHole,
+            holes,
+            shots,
+        };
+        try {
+            // clear undefined fields before saving, since Firestore doesn't allow them
+            await saveRoundToFirestore(liveRound, holePins);
+            clearPersistedRound();
+            router.replace("/");
+        } catch (err) {
+            console.error("[RoundTrackingScreen] Failed to save round:", err);
+        }
+    }, [authUser, roundId, startedAt, course, activeHole, holes, shots, saveRoundToFirestore, clearPersistedRound, router]);
 
     // ── Early returns ─────────────────────────────────────────────────────────
 
@@ -849,7 +901,13 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
             )}
 
             {!hazardActive && !puttingMode.isPuttingMode && (
-                <Pressable style={themed($scoreButton)} onPress={() => holeSummaryRef.current?.present()}>
+                <Pressable style={themed($scoreButton)} onPress={() => {
+                    if (activeHole == course?.numberOfHoles) {
+                        submitRoundModalRef.current?.present();
+                    } else {
+                        holeSummaryRef.current?.present()
+                    }
+                }}>
                     <EditScorecardIcon size={36} color={theme.colors.text} />
                 </Pressable>
             )}
@@ -903,11 +961,12 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 playerName="Hayden Williams"
                 onCommit={commitHoleSummary}
             />
+            <SubmitRoundModal reference={submitRoundModalRef} course={course} onSubmit={() => { handleSubmitRound(); }} holes={Object.values(holes)}/>
             <ScorecardModal reference={scorecardModalRef} holes={holes}/>
             <SettingsModal sideSheetRef={sideSheetRef} settings={roundSettings} onChange={setRoundSettings} />
             <ConfirmExitModal 
                 reference={confirmExitModalRef} 
-                onSave={() => {}} 
+                onSave={() => { handleSubmitRound(); }} 
                 onDelete={() => { clearPersistedRound(); router.replace("/"); }} />
         </Screen>
     );
