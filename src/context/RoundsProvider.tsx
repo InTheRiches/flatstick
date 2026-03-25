@@ -15,12 +15,12 @@
 
 import type { Unsubscribe } from "@react-native-firebase/firestore"
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
 } from "react"
 
 import type { LiveRoundState } from "@/models/round.live.types"
@@ -46,6 +46,9 @@ export interface RoundsContextValue {
 
   /** Remove a round from Firestore and local cache. */
   deleteRound(roundId: string): Promise<void>
+
+  /** Persist an already-edited RoundSession and refresh local derived stats. */
+  updateRoundSession(round: RoundSession): Promise<void>
 
   /**
    * Re-attaches the Firestore listener, triggering a fresh snapshot fetch.
@@ -124,6 +127,19 @@ export function RoundsProvider({ children, userId }: RoundsProviderProps) {
     [userId],
   )
 
+  const updateRoundSession = useCallback(
+    async (round: RoundSession): Promise<void> => {
+      await roundsRepository.saveRound(userId, round)
+
+      const withStats = { ...round, stats: computeRoundStats(round) }
+      setRounds((prev) => {
+        const without = prev.filter((r) => r.id !== round.id)
+        return [withStats, ...without]
+      })
+    },
+    [userId],
+  )
+
   const refreshRounds = useCallback(async (): Promise<void> => {
     // Re-attaching the listener forces Firestore to re-evaluate the query,
     // which re-emits from cache immediately and then from the server.
@@ -142,6 +158,7 @@ export function RoundsProvider({ children, userId }: RoundsProviderProps) {
     isLoading,
     saveRound,
     deleteRound,
+    updateRoundSession,
     refreshRounds,
     getRound,
   }

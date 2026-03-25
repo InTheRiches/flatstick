@@ -21,15 +21,15 @@ export const PuttingHeader: FC<PuttingHeaderProps> = ({ holeState, teeSet, onExi
     return (
         <View style={$container}>
             <View style={$left}>
-                <Text style={$holeNumber} preset={"heading"} text={holeState.holeNumber.toString()}></Text>
-                <Text style={$ordinal}>{holeState.holeNumber === 1 ? "ST" : holeState.holeNumber === 2 ? "ND" : holeState.holeNumber === 3 ? "RD" : "TH"}</Text>
+                <Text style={$holeNumber} preset={"heading"} text={holeState.hole.toString()}></Text>
+                <Text style={$ordinal}>{holeState.hole === 1 ? "ST" : holeState.hole === 2 ? "ND" : holeState.hole === 3 ? "RD" : "TH"}</Text>
             </View>
             <View style={themed($teeInfo)}>
-                <Text style={themed($teeText)}>Par {teeSet.holes[holeState.holeNumber-1].par === 0 ? "?" : teeSet.holes[holeState.holeNumber-1].par}</Text>
+                <Text style={themed($teeText)}>Par {teeSet.holes[holeState.hole-1].par === 0 ? "?" : teeSet.holes[holeState.hole-1].par}</Text>
                 <View style={themed($dot)}></View>
-                <Text style={themed($teeText)}>{teeSet.holes[holeState.holeNumber-1].yardage === 0 ? "?" : teeSet.holes[holeState.holeNumber-1].yardage} yds</Text>
+                <Text style={themed($teeText)}>{teeSet.holes[holeState.hole-1].yardage === 0 ? "?" : teeSet.holes[holeState.hole-1].yardage} yds</Text>
                 <View style={themed($dot)}></View>
-                <Text style={themed($teeText)}>{teeSet.holes[holeState.holeNumber-1].handicap === 0 ? "?" : teeSet.holes[holeState.holeNumber-1].handicap}</Text>
+                <Text style={themed($teeText)}>{teeSet.holes[holeState.hole-1].handicap === 0 ? "?" : teeSet.holes[holeState.hole-1].handicap}</Text>
             </View>
             <Pressable onPress={() => onExitPress?.()} style={$pressableIcon}>
                 <Svg fill="none" viewBox="0 0 24 24"

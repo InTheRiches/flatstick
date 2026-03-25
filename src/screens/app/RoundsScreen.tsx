@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router"
 import { FC } from "react"
 import { ActivityIndicator, FlatList, RefreshControl, type ViewStyle } from "react-native"
 
@@ -14,6 +15,7 @@ import { $styles } from "@/theme/styles"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
 export const RoundsScreen: FC = function RoundsScreen() {
+    const router = useRouter()
     const $containerInsets = useSafeAreaInsetsStyle(["top"])
     const { theme } = useAppTheme()
 
@@ -49,7 +51,12 @@ export const RoundsScreen: FC = function RoundsScreen() {
                     style={$list}
                     data={filteredRounds}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <RoundListItem round={item} />}
+                    renderItem={({ item }) => (
+                        <RoundListItem
+                            round={item}
+                            onEdit={(roundId) => router.push(`/(app)/round-edit/${roundId}` as never)}
+                        />
+                    )}
                     ListEmptyComponent={<RoundsEmptyState />}
                     refreshControl={
                         <RefreshControl

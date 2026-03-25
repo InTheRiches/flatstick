@@ -52,7 +52,7 @@ export interface PenaltyStats {
   water: number
   unplayable: number
 
-  penaltyStrokes: number
+  penalties: number
 }
 
 export interface ScoringStats {

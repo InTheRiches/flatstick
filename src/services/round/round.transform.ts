@@ -70,13 +70,13 @@ function stampShot(
 // ─── Hole summary ─────────────────────────────────────────────────────────────
 
 function buildHoleSummary(hole: LiveHoleState, pinLocation: LatLng, live: LiveRoundState): RoundHoleSummary {
-  const strokes = strokesForHole(live, hole.holeNumber)
+  const strokes = strokesForHole(live, hole.hole)
 
   return {
-    hole: hole.holeNumber,
+    hole: hole.hole,
     par: hole.par,
     score: strokes,
-    penalties: hole.penaltyStrokes,
+    penalties: hole.penalties,
 
     pinLocation: latLngToGeoPoint(pinLocation),
 
@@ -114,7 +114,7 @@ function buildMeta(live: LiveRoundState, endedAt: string): RoundSessionMeta {
     // scorecard: one entry per hole, score relative to par
     scorecard: Object.values(live.holes).map((h) => ({
       par: h.par,
-      score: strokesForHole(live, h.holeNumber),
+      score: strokesForHole(live, h.hole),
     })),
   }
 }
@@ -146,8 +146,8 @@ export function transformLiveRoundToSession(
   // 2. Build per-hole summaries (only for holes that were started).
   const holes: RoundHoleSummary[] = Object.values(live.holes)
     .filter((h) => h.status !== "notStarted")
-    .sort((a, b) => a.holeNumber - b.holeNumber)
-    .map((h) => buildHoleSummary(h, holePins[h.holeNumber], live))
+    .sort((a, b) => a.hole - b.hole)
+    .map((h) => buildHoleSummary(h, holePins[h.hole], live))
 
   // 4. Build metadata.
   const meta = buildMeta(live, now)

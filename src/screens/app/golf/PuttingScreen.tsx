@@ -1,19 +1,15 @@
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
-import { ActionRow } from "@/components/app/golf/putting/ActionRow";
-import { PuttingHeader } from "@/components/app/golf/putting/PuttingHeader";
 import {
     computeBounds,
-    GreenMap,
     type CourseGreen,
     type PuttTap as GreenPuttTap,
-    type PinLocation,
+    type PinLocation
 } from "@/components/putting-green";
 import { Screen } from "@/components/ui/Screen";
 import { Text } from "@/components/ui/Text";
 import { useCourseData } from "@/hooks/courses/useCourseData";
 import { useRoundTimerEngine } from "@/hooks/useTimerEngine";
 import type { LatLng } from "@/models/geo";
-import { HoleState } from "@/models/session.types";
 import type { CourseLoadError } from "@/services/courses/courseLoader";
 import { useAppTheme } from "@/theme/context";
 import type { ThemedStyle } from "@/theme/types";
@@ -21,7 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getFirestore } from "@react-native-firebase/firestore";
 import * as Location from "expo-location";
 import React, { FC, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, View, type ViewStyle } from "react-native";
+import { ActivityIndicator, View, type ViewStyle } from "react-native";
 
 interface PuttingScreenProps {
     course: CourseSelectionDetails | null;
@@ -64,11 +60,6 @@ export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ co
     /** Pin location(s) placed by the player. Reset when the hole number changes. */
     const [pinLocations, setPinLocations] = useState<PinLocation[]>([])
 
-    const [holeState, setHoleState] = useState<HoleState>({
-        holeNumber: 1,
-        status: "inProgress",
-    } as HoleState)
-
     const timerEngine = useRoundTimerEngine(course?.numberOfHoles)
 
     // Notify parent when a course load error occurs so it can show a modal
@@ -82,7 +73,7 @@ export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ co
     useEffect(() => {
         setPuttTaps([])
         setPinLocations([])
-    }, [holeState.holeNumber])
+    }, [holeState.hole])
 
     // Player GPS tracking — used for on-screen position, not course fetching
     useEffect(() => {
@@ -197,51 +188,6 @@ export const PuttingScreen: FC<PuttingScreenProps> = function PuttingScreen({ co
 
     return (
         <Screen>
-            <PuttingHeader holeState={holeState} timer={timerEngine} teeSet={course?.selectedTee}/>
-
-            <View style={$mapContainer}>
-                {courseGreens.length > 0 && courseBounds ? (
-                    <GreenMap
-                        courseGreens={courseGreens}
-                        bounds={courseBounds}
-                        currentHoleNumber={holeState.holeNumber}
-                        taps={puttTaps}
-                        setTaps={setPuttTaps}
-                        pinLocations={pinLocations}
-                        setPinLocations={setPinLocations}
-                        userLocation={userLatLon}
-                        bunkers={successData?.bunkers ?? []}
-                        fairways={fairwayCoords}
-                        showHeading
-                    />
-                ) : (
-                    // Fallback while course geometry is loading or unavailable
-                    <View style={$mapFallback} />
-                )}
-
-                {/* Pin-edit toggle — overlaid in the top-right corner */}
-                <Pressable
-                    style={({ pressed }) => [
-                        themed($pinButton),
-                        isPinEditMode && themed($pinButtonActive),
-                        pressed && { opacity: 0.8 },
-                    ]}
-                    onPress={() => setIsPinEditMode(!isPinEditMode)}
-                    hitSlop={8}
-                >
-                    <Ionicons
-                        name="flag"
-                        size={20}
-                        color={
-                            isPinEditMode
-                                ? theme.colors.buttons.textColor
-                                : theme.colors.buttons.secondary.textColor
-                        }
-                    />
-                </Pressable>
-            </View>
-
-            <ActionRow actionLabel={isPinEditMode ? "Edit pin location" : "Add first shot"} onAction={() => {}} onDelete={() => {}} onUndo={() => {}}/>
         </Screen>
     )
 }

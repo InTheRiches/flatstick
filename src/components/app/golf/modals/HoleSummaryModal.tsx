@@ -43,35 +43,37 @@ import type {
     LiveShotAttempt,
     TeeDirection,
 } from "@/models/round.live.types";
+import { RoundHoleSummary } from "@/models/round.session.types";
 import { useAppTheme } from "@/theme/context";
 import { ThemedStyle } from "@/theme/types";
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export interface HoleSummaryModalHandle {
-    present: () => void;
+    present: (input: HoleSummaryModalOpenInput) => void;
+    setState: (input: HoleSummaryModalOpenInput) => void;
     dismiss: () => void;
 }
 
-export interface HoleSummaryModalProps {
-    reference: React.RefObject<HoleSummaryModalHandle | null>;
+type HoleSummaryShotLike = Pick<LiveShotAttempt, "category" | "club">;
+
+export interface HoleSummaryModalOpenInput {
     /** Current hole state from useRoundTracking.holes[activeHole]. */
-    hole: LiveHoleState | undefined;
+    hole: LiveHoleState | RoundHoleSummary;
     /** Shots already recorded for this hole (may be empty). */
-    holeShots: LiveShotAttempt[];
+    holeShots: HoleSummaryShotLike[];
     /** Running score relative to par across all completed holes. */
     runningScore: number;
     playerName: string;
     playerHandicap?: number;
+}
+
+export interface HoleSummaryModalProps {
+    reference: React.RefObject<HoleSummaryModalHandle | null>;
     onCommit: (commit: HoleSummaryCommit) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatRunningScore(n: number): string {
-    if (n === 0) return "E";
-    return n > 0 ? `+${n}` : `${n}`;
-}
 
 function deriveGIR(score: number, par: HolePar, putts: number): boolean {
     // GIR = on the green in par - 2 or fewer strokes
@@ -268,66 +270,65 @@ const TeeWheel: React.FC<TeeWheelProps> = ({ value, onChange, mishit, onMishitTo
 
 export default function HoleSummaryModal({
     reference,
-    hole,
-    holeShots,
-    runningScore,
-    playerName,
-    playerHandicap,
     onCommit,
 }: HoleSummaryModalProps) {
     const { theme, themed } = useAppTheme();
     const innerRef = useRef<BottomSheetModal>(null);
+    const [openInput, setOpenInput] = useState<HoleSummaryModalOpenInput | null>(null);
 
-    // ── Mode detection ────────────────────────────────────────────────────────
-    const hasTrackedShots = holeShots.length > 0;
-    const existingTeeShot = holeShots.find((s) => s.category === "tee");
+    const currentHole = openInput?.hole;
+    const currentHoleShots = openInput?.holeShots ?? [];
+    const runningScore = openInput?.runningScore ?? 0;
+    const playerName = openInput?.playerName ?? "";
+    const playerHandicap = openInput?.playerHandicap;
 
     // ── Local ephemeral UI state ──────────────────────────────────────────────
     // Initialized from hole state on open(); not authoritative until committed.
 
-    const par = (hole?.par ?? 4) as HolePar;
-    const derivedStrokes = (hole?.shotIds.length ?? 0) + (hole?.penaltyStrokes ?? 0);
-
     const [localScore, setLocalScore] = useState<number>(
-        // Prefer an explicit persisted score if available, otherwise derive from
-        // tracked shots + penalties, and finally fall back to par.
-        hole?.score ?? (derivedStrokes > 0 ? derivedStrokes : par),
+        4,
     );
-    const [localPutts, setLocalPutts] = useState(hole?.putts ?? 2);
-    const [localPenalties, setLocalPenalties] = useState(hole?.penaltyStrokes ?? 0);
+    const [localPutts, setLocalPutts] = useState(2);
+    const [localPenalties, setLocalPenalties] = useState(0);
     const [firstPuttDist, setFirstPuttDist] = useState(
-        hole?.firstPuttDistanceYds ?? 0,
+        0,
     );
     const [teeClubLabel, setTeeClubLabel] = useState<string>(
-        existingTeeShot?.club.label ?? "Driver",
+        "Driver",
     );
     const [teeDirection, setTeeDirection] = useState<TeeDirection>("center");
     const [teeMishit, setTeeMishit] = useState(false);
 
     // ── Imperative handle ─────────────────────────────────────────────────────
 
-    const resetLocalState = useCallback(() => {
-        const current = hole;
-        const strokes = (current?.shotIds.length ?? 0) + (current?.penaltyStrokes ?? 0);
-        const teeShot = holeShots.find((s) => s.category === "tee");
+    const resetLocalState = useCallback((input: HoleSummaryModalOpenInput) => {
+        const current = input.hole;
+        const penalties = current?.penalties ?? 0;
+        const strokes = (current?.shotIds?.length ?? 0) + penalties;
+        const teeShot = input.holeShots.find((s) => s.category === "tee");
 
         // Prefer an explicit persisted score (may be partial), else derive from
         // tracked shots + penalties, then fall back to par.
         setLocalScore(current?.score ?? (strokes > 0 ? strokes : (current?.par ?? 4)));
         setLocalPutts(current?.putts ?? 2);
-        setLocalPenalties(current?.penaltyStrokes ?? 0);
+        setLocalPenalties(penalties);
         setFirstPuttDist(current?.firstPuttDistanceYds ?? 0);
         // Prefer any previously committed hole summary values, then fall back to
         // an existing tracked tee shot, then sensible defaults.
-        setTeeClubLabel(hole?.teeClubLabel ?? teeShot?.club.label ?? "Driver");
-        setTeeDirection(hole?.teeDirection ?? "center");
-        setTeeMishit(hole?.teeMishit ?? false);
-    }, [hole, holeShots]);
+        setTeeClubLabel(current?.teeClubLabel ?? teeShot?.club.label ?? "Driver");
+        setTeeDirection(current?.teeDirection ?? "center");
+        setTeeMishit(current?.teeMishit ?? false);
+    }, []);
 
     useImperativeHandle(reference, () => ({
-        present: () => {
-            resetLocalState();
+        present: (input) => {
+            setOpenInput(input);
+            resetLocalState(input);
             innerRef.current?.present();
+        },
+        setState: (input) => {
+            setOpenInput(input);
+            resetLocalState(input);
         },
         dismiss: () => {
             innerRef.current?.dismiss();
@@ -337,15 +338,19 @@ export default function HoleSummaryModal({
     // ── Commit handler ────────────────────────────────────────────────────────
 
     const handleCommit = () => {
+        if (!currentHole) return;
+
         const now = new Date().toISOString();
+        const par = (currentHole?.par ?? 4) as HolePar;
         const gir = deriveGIR(localScore, par, localPutts);
+        const hasTrackedShots = currentHoleShots.length > 0;
 
         let syntheticShots: LiveShotAttempt[] | undefined;
 
         if (!hasTrackedShots) {
             // Summary-only or clean hybrid → generate synthetic shots
             syntheticShots = generateSyntheticShots(
-                hole?.holeNumber ?? 1,
+                currentHole.hole,
                 par,
                 localScore,
                 localPutts,
@@ -356,10 +361,10 @@ export default function HoleSummaryModal({
         }
 
         const commit: HoleSummaryCommit = {
-            holeNumber: hole?.holeNumber ?? 1,
+            hole: currentHole.hole,
             score: localScore,
             putts: localPutts,
-            penaltyStrokes: localPenalties,
+            penalties: localPenalties,
             greenInRegulation: gir,
             firstPuttDistanceYds: firstPuttDist > 0 ? firstPuttDist : undefined,
             teeClubLabel,

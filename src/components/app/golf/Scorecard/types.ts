@@ -23,6 +23,7 @@ export type ScorecardProps = {
   roundedTop?: boolean
   roundedBottom?: boolean
   topMargin?: boolean
+  backgroundColor?: string
 
   // optional interaction
   onSelectHole?: (holeNumber: number) => void

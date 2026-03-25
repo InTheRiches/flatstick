@@ -105,19 +105,19 @@ export interface LiveShotAttempt {
 // in LiveRoundState.shots[] and are associated via shotIds.
 //
 // DERIVED fields (do not store):
-//   strokes = shotIds.length + penaltyStrokes   ← compute at read time
+//   strokes = shotIds.length + penalties   ← compute at read time
 //   score   = strokes - par                     ← compute at read time
 //   gir     = greenInRegulation                 ← user-provided or inferrable
 //
 // EXPLICITLY stored (cannot be reliably derived from GPS shots alone):
-//   putts, penaltyStrokes, fairwayHit, greenInRegulation
+//   putts, penalties, fairwayHit, greenInRegulation
 //
 // This is intentionally NOT RoundHoleSummary. RoundHoleSummary is the finalised
 // persisted shape; this is the mutable UI model.
 
 export interface LiveHoleState {
   /** 1-based hole number. */
-  holeNumber: number
+  hole: number
 
   par: HolePar
 
@@ -134,9 +134,9 @@ export interface LiveHoleState {
 
   /**
    * Penalty strokes that have no GPS representation (e.g. drop after water).
-   * Counted separately so strokes = shotIds.length + penaltyStrokes.
+   * Counted separately so strokes = shotIds.length + penalties.
    */
-  penaltyStrokes: number
+  penalties: number
 
   /**
    * Score on the hole, explicitly stored so the HoleSummaryModal can load it for editing. This is
@@ -190,11 +190,11 @@ export type TeeDirection =
   | "short"
 
 export interface HoleSummaryCommit {
-  holeNumber: number
+  hole: number
 
   score: number          // total strokes (shots + penalties)
   putts: number
-  penaltyStrokes: number
+  penalties: number
 
   fairwayHit?: boolean
   greenInRegulation?: boolean
@@ -284,12 +284,12 @@ export function shotsForHole(state: LiveRoundState, holeNumber: number): LiveSho
 
 /**
  * Derives the stroke count for a hole.
- * = shotIds.length + penaltyStrokes
+ * = shotIds.length + penalties
  */
 export function strokesForHole(state: LiveRoundState, holeNumber: number): number {
   const hole = state.holes[holeNumber]
   if (!hole) return 0
-  return hole.shotIds.length + hole.penaltyStrokes
+  return hole.shotIds.length + hole.penalties
 }
 
 /**

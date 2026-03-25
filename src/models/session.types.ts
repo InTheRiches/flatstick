@@ -20,14 +20,6 @@ export type MissBucket = "center" | "left" | "right" | "farLeft" | "farRight" | 
 
 export type MissDistribution = Record<MissBucket, number>
 
-export type HoleState = {
-  holeNumber: number // 1..18
-  status: "notStarted" | "inProgress" | "completed"
-  // keep per-hole scoring/putting fields here
-  strokes?: number
-  putts?: number
-}
-
 export interface GeoPoint {
   lat: number
   lon: number

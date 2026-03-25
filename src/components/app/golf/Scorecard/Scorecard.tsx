@@ -66,6 +66,7 @@ export default function Scorecard({
   roundedTop = true,
   roundedBottom = true,
   topMargin = true,
+  backgroundColor = undefined,
   onSelectHole,
 }: ScorecardProps) {
   const { themed } = useAppTheme()
@@ -177,7 +178,7 @@ export default function Scorecard({
   const canSelect = typeof onSelectHole === "function"
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, backgroundColor && { backgroundColor }]}>
       {/* Header */}
       <View style={styles.topRow}>
         <View>

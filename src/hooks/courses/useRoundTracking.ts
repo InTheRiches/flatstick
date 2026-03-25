@@ -97,11 +97,11 @@ function initHoles(totalHoles: number, teeSet?: TeeSet): Record<number, LiveHole
   const record: Record<number, LiveHoleState> = {};
   for (let i = 1; i <= totalHoles; i++) {
     record[i] = {
-      holeNumber: i,
+      hole: i,
       par: teeSet?.holes[i - 1]?.par ?? 4,
       status: "notStarted",
       shotIds: [],
-      penaltyStrokes: 0,
+      penalties: 0,
       putts: 2,
     };
   }
@@ -125,11 +125,11 @@ export function generateSyntheticShots(
   par: HolePar,
   score: number,
   putts: number,
-  penaltyStrokes: number,
+  penalties: number,
   teeClubLabel: string,
   now: string,
 ): LiveShotAttempt[] {
-  const totalHittingShots = Math.max(1, score - penaltyStrokes);
+  const totalHittingShots = Math.max(1, score - penalties);
   const approachCount = Math.max(0, totalHittingShots - 1 - putts);
   const puttCount = Math.min(putts, totalHittingShots);
 
@@ -322,7 +322,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
       [holeNumber]: {
         ...prev[holeNumber],
         putts: commit.putts,
-        penaltyStrokes: commit.penaltyStrokes,
+        penalties: commit.penalties,
         // Persist the committed score so the UI can restore it later
         score: commit.score,
         fairwayHit,

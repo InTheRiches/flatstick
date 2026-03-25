@@ -126,7 +126,7 @@ export function computeRoundStats(session: RoundSession): RoundStats {
   const triplePlus = holes.filter((h) => (h.score ?? 0) >= 3).length
 
   // ── Putting ───────────────────────────────────────────────────────────────
-  const putts = holes.reduce((sum, h) => sum + h.putts, 0)
+  const putts = holes.reduce((sum, h) => sum + ( h.putts ?? 0 ), 0)
   const puttsPerHole = holesPlayed > 0 ? putts / holesPlayed : 0
   const onePutts = holes.filter((h) => h.putts === 1).length
   const threePutts = holes.filter((h) => h.putts >= 3).length
@@ -134,18 +134,18 @@ export function computeRoundStats(session: RoundSession): RoundStats {
   // ── Fairways ──────────────────────────────────────────────────────────────
   // Only holes where fairwayHit is defined (i.e. par-4s and par-5s)
   const fairwayHoles = holes.filter((h) => h.fairwayHit !== undefined)
-  const fairwaysHit = fairwayHoles.filter((h) => h.fairwayHit === true).length
+  const fairwaysHit = fairwayHoles.filter((h) => h.fairwayHit).length
   const fairwayPercentage =
     fairwayHoles.length > 0 ? fairwaysHit / fairwayHoles.length : 0
 
   // ── GIR ───────────────────────────────────────────────────────────────────
-  const gir = holes.filter((h) => h.gir === true).length
+  const gir = holes.filter((h) => h.gir).length
   const girPercentage = holesPlayed > 0 ? gir / holesPlayed : 0
 
   // ── Up & downs ────────────────────────────────────────────────────────────
   // Missed GIR but still made par or better
   const upAndDowns = holes.filter(
-    (h) => h.gir === false && (h.score ?? 1) <= 0
+    (h) => !h.gir && (h.score ?? 1) <= 0
   ).length
 
   // ── Penalties ─────────────────────────────────────────────────────────────
@@ -205,6 +205,8 @@ export function computeRoundStats(session: RoundSession): RoundStats {
         : max,
     0
   )
+
+  console.log("Putts: " + putts);
 
   return {
     score,

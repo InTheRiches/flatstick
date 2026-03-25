@@ -3,6 +3,7 @@ import { FC, useState } from "react"
 import { Pressable, View, type TextStyle, type ViewStyle } from "react-native"
 
 import Scorecard from "@/components/app/golf/Scorecard/Scorecard"
+import { Button } from "@/components/ui/Button"
 import { Text } from "@/components/ui/Text"
 import type { RoundSession } from "@/models/round.session.types"
 import { useAppTheme } from "@/theme/context"
@@ -11,6 +12,7 @@ import { ScorecardHole } from "../golf/Scorecard/types"
 
 interface RoundListItemProps {
     round: RoundSession
+    onEdit: (roundId: string) => void
 }
 
 type ParDiff = "under" | "even" | "over"
@@ -42,7 +44,7 @@ function formatPct(numerator: number, denominator?: number): string {
     return `${Math.round((numerator / denominator) * 100)}%`
 }
 
-export const RoundListItem: FC<RoundListItemProps> = ({ round }) => {
+export const RoundListItem: FC<RoundListItemProps> = ({ round, onEdit }) => {
     const { themed, theme } = useAppTheme()
     const [isExpanded, setIsExpanded] = useState(false)
 
@@ -50,10 +52,10 @@ export const RoundListItem: FC<RoundListItemProps> = ({ round }) => {
     const toPar = formatToPar(stats?.scoreToPar ?? 0)
     const parDiff = getParDiff(stats?.scoreToPar ?? 0)
 
-    const girPct = formatPct(stats.girPercentage)
-    const firPct = formatPct(stats.fairwayPercentage)
+    const girPct = formatPct(stats?.girPercentage ?? 0)
+    const firPct = formatPct(stats?.fairwayPercentage ?? 0)
     const totalPutts = stats?.putts ?? 0
-    const sgTotal = formatSG(stats.strokesGained.total)
+    const sgTotal = formatSG(stats?.strokesGained?.total)
 
     const scorecardHoles: ScorecardHole[] = holes.map((h) => ({
         par: h.par,
@@ -119,6 +121,10 @@ export const RoundListItem: FC<RoundListItemProps> = ({ round }) => {
                         roundedBottom
                         topMargin={false}
                     />
+
+                    <View style={$actionsRow}>
+                        <Button text="Edit Round" onPress={() => onEdit(round.id)} style={$editButton} />
+                    </View>
                 </>
             )}
         </Pressable>
@@ -263,4 +269,14 @@ const $statSep: ThemedStyle<ViewStyle> = (theme) => ({
 
 const $scorecardWrap: ViewStyle = {
     marginHorizontal: -16,
+}
+
+const $actionsRow: ViewStyle = {
+    marginTop: 10,
+    alignItems: "flex-end",
+}
+
+const $editButton: ViewStyle = {
+    width: 132,
+    minHeight: 38,
 }

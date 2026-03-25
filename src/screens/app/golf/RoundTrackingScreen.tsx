@@ -42,11 +42,11 @@ import { usePlayerTracking } from "@/hooks/courses/usePlayerTracking";
 import { usePuttingMode } from "@/hooks/courses/usePuttingMode";
 import { useRoundTracking } from "@/hooks/courses/useRoundTracking";
 import { useRounds } from "@/hooks/useRounds";
-import type { CourseData } from "@/models/course";
 import type { LatLng } from "@/models/geo";
 import { LiveRoundState, LiveShotAttempt } from "@/models/round.live.types";
 import type { LieType } from "@/models/round.session.types";
 import type { CourseLoadError } from "@/services/courses/courseLoader";
+import { detectLieFromCourseData } from "@/services/round/roundMapEditing";
 import { generateUUID } from "@/utils/common";
 import {
     greenDistances,
@@ -55,7 +55,7 @@ import {
     toYards,
     type GreenDistances,
 } from "@/utils/courses/geometry/distance.utils";
-import { isPointInPolygonLatLng, isPointInPolygonXY, padPolygonCoordinates } from "@/utils/courses/geometry/polygon.utils";
+import { isPointInPolygonXY, padPolygonCoordinates } from "@/utils/courses/geometry/polygon.utils";
 import { formatCourseLoadError } from "@/utils/courses/round/error.formatter";
 import EditScorecardIcon from "@assets/icons/svg/editScorecard";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
@@ -78,30 +78,6 @@ function hazardStrokeColor(isBunker: boolean, isFocused: boolean, featureAlpha: 
         return isFocused ? "rgba(200, 130, 30, 1)" : `rgba(175, 143, 100, ${featureAlpha})`;
     }
     return isFocused ? "rgba(0, 80, 200, 1)" : `rgba(0, 60, 180, ${featureAlpha})`;
-}
-
-/**
- * Detect the lie type based on which OSM polygon the user is currently inside.
- * Priority: tee > green > bunker > fairway > rough.
- */
-function detectLie(
-    userLoc: LatLng,
-    courseData: CourseData,
-): LieType {
-    for (const tee of courseData.teeBoxes ?? []) {
-        if (isPointInPolygonLatLng(userLoc, tee.coordinates)) return "tee";
-    }
-    for (const green of courseData.greens) {
-        // Green polygons are XYPoint[] (x = lon, y = lat) — convert user pos accordingly
-        if (isPointInPolygonXY({ x: userLoc.longitude, y: userLoc.latitude }, green.polygon)) return "green";
-    }
-    for (const hazard of courseData.hazards ?? []) {
-        if (hazard.type === "bunker" && isPointInPolygonLatLng(userLoc, hazard.coordinates)) return "sand";
-    }
-    for (const fairway of courseData.fairways) {
-        if (isPointInPolygonLatLng(userLoc, fairway.coordinates)) return "fairway";
-    }
-    return "rough";
 }
 
 /**
@@ -487,7 +463,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         // ── Compute smart defaults from OSM data + player location ──
         let defaults: ShotDefaults | undefined;
         if (userLocation && courseData) {
-            const lie = detectLie(userLocation, courseData);
+            const lie = detectLieFromCourseData(userLocation, courseData);
             // Pin = user-placed pin if dragged, otherwise green polygon centroid
             const pinCoord =
                 holePins[activeHole] ??
@@ -546,6 +522,18 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const handlePuttUndo = () => {
         puttingMode.undoLastPutt();
     }
+
+    const openHoleSummaryModal = useCallback(() => {
+        const hole = holes[activeHole];
+        if (!hole) return;
+
+        holeSummaryRef.current?.present({
+            hole,
+            holeShots: shots.filter((s) => s.hole === activeHole),
+            runningScore,
+            playerName: "Hayden Williams",
+        });
+    }, [activeHole, holes, runningScore, shots]);
 
     const handleCancelShot = () => {
         endTracking();
@@ -905,7 +893,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                     if (activeHole == course?.numberOfHoles) {
                         submitRoundModalRef.current?.present();
                     } else {
-                        holeSummaryRef.current?.present()
+                        openHoleSummaryModal();
                     }
                 }}>
                     <EditScorecardIcon size={36} color={theme.colors.text} />
@@ -955,10 +943,6 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 />
             <HoleSummaryModal
                 reference={holeSummaryRef}
-                hole={holes[activeHole]}
-                holeShots={shots.filter((s) => s.hole === activeHole)}
-                runningScore={runningScore}
-                playerName="Hayden Williams"
                 onCommit={commitHoleSummary}
             />
             <SubmitRoundModal reference={submitRoundModalRef} course={course} onSubmit={() => { handleSubmitRound(); }} holes={Object.values(holes)}/>
