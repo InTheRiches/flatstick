@@ -10,14 +10,14 @@
  *   • Green-center hole marker  (flag icon)
  *   • Straight black distance line from player → green center
  *   • Distance callout at the midpoint
- *   • Draggable intermediate target pin (optional)
+ *   • Intermediate target pin (optional)
  *   • Player→Target and Target→Green lines (when target is present)
  *   • Distance callouts on those segments
  */
 
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { TextStyle, View, ViewStyle } from "react-native";
+import { Pressable, TextStyle, View, ViewStyle } from "react-native";
 import { Marker, Polyline } from "react-native-maps";
 
 import { Text } from "@/components/ui/Text";
@@ -55,10 +55,14 @@ interface PlayerTrackingOverlayProps {
   userLocation: LatLng | null;
   greenPolygon: XYPoint[];
   target: IntermediateTarget | null;
-  /** Called when the user finishes dragging the target pin. */
-  onTargetDragEnd: (coord: LatLng) => void;
-  /** Called when the user taps the target pin (removes it). */
+  /** Called when the user taps the target while moving it to drop/save. */
   onTargetPress: () => void;
+  /** Called when the user starts moving the target. */
+  onTargetMovePress?: () => void;
+  /** Called when the user clears the target. */
+  onTargetClearPress?: () => void;
+  /** Whether the target is being moved via the reticle interaction. */
+  isTargetEditing?: boolean;
   /** Controlled hole-pin coordinate for this hole (null = use centroid). */
   holePinCoord?: LatLng | null;
   /** Notifies parent when the hole pin is moved (drag). */
@@ -73,29 +77,16 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
   userLocation,
   greenPolygon,
   target,
-  onTargetDragEnd,
   onTargetPress,
+  onTargetMovePress,
+  onTargetClearPress,
+  isTargetEditing = false,
   holePinCoord,
   onHolePinChange,
   gpsEnabled = false,
 }) => {
-  // ── Target drag ─────────────────────────────────────────────────────────
-  // RAF-throttled so we emit at most one re-render per display frame.
-  const [dragCoord, setDragCoord] = useState<LatLng | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const pendingCoordRef = useRef<LatLng | null>(null);
-
-  const handleTargetDrag = useCallback((coord: LatLng) => {
-    pendingCoordRef.current = coord;
-    if (rafRef.current !== null) return;
-    rafRef.current = requestAnimationFrame(() => {
-      if (pendingCoordRef.current) setDragCoord(pendingCoordRef.current);
-      rafRef.current = null;
-    });
-  }, []);
-
-  // The effective target position: live drag position takes priority.
-  const effectiveTargetCoord = dragCoord ?? target?.coordinate ?? null;
+  const longPressHandledRef = useRef(false);
+  const effectiveTargetCoord = target?.coordinate ?? null;
 
   // ── Hole-pin drag ────────────────────────────────────────────────────────
   // The flag marker can be dragged freely. null = use the centroid. The parent
@@ -169,6 +160,33 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
     if (!effectiveTargetCoord) return null;
     return lerpLatLng(effectiveTargetCoord, greenCenter, 0.5);
   }, [effectiveTargetCoord, greenCenter]);
+
+  const handleTargetLongPress = useCallback(() => {
+    if (isTargetEditing) return;
+    longPressHandledRef.current = true;
+    onTargetMovePress?.();
+  }, [isTargetEditing, onTargetMovePress]);
+
+  useEffect(() => {
+    if (isTargetEditing) {
+      longPressHandledRef.current = false;
+    }
+  }, [isTargetEditing]);
+
+  const handleTargetTap = useCallback(() => {
+    console.log("target tapped")
+    if (longPressHandledRef.current) {
+      longPressHandledRef.current = false;
+      return;
+    }
+
+    if (isTargetEditing) {
+      onTargetPress();
+      return;
+    }
+
+    onTargetClearPress?.();
+  }, [isTargetEditing, onTargetClearPress, onTargetPress]);
 
   return (
     <>
@@ -272,27 +290,23 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
             </Marker>
           )}
 
-          {/* Draggable target pin — tracksViewChanges must be true during drag
-              so the native layer re-reads the view on each animation frame */}
           <Marker
-            coordinate={target.coordinate}
-            anchor={{ x: 0.5, y: 1 }}
-            draggable
-            onPress={onTargetPress}
-            onDrag={(e) => handleTargetDrag(e.nativeEvent.coordinate)}
-            onDragEnd={(e) => {
-              if (rafRef.current !== null) {
-                cancelAnimationFrame(rafRef.current);
-                rafRef.current = null;
-              }
-              onTargetDragEnd(e.nativeEvent.coordinate);
-              setDragCoord(null);
-            }}
-            tracksViewChanges
+            coordinate={effectiveTargetCoord}
+            anchor={{ x: 0.5, y: 0.5 }}
+            tracksViewChanges={isTargetEditing}
+            zIndex={14}
+            onPress={handleTargetTap}
           >
-            <View style={$targetPin}>
-              <View style={$targetPinInner} />
-            </View>
+            <Pressable
+              delayLongPress={220}
+              onLongPress={handleTargetLongPress}
+              style={[$targetPressArea]}
+            >
+              <View style={[$targetPin]}>
+                {isTargetEditing ? <View style={$targetPinHalo} /> : null}
+                <View style={[$targetPinInner, isTargetEditing && $targetPinInnerEditing]} />
+              </View>
+            </Pressable>
           </Marker>
         </>
       )}
@@ -304,6 +318,8 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
 // Styles
 // ---------------------------------------------------------------------------
 
+const TARGET_IDLE_SIZE = 40;
+const TARGET_EDIT_SIZE = 56;
 const $playerMarker: ViewStyle = {
   width: 24,
   height: 24,
@@ -335,9 +351,10 @@ const $holeMarker: ViewStyle = {
 };
 
 const $targetPin: ViewStyle = {
-  width: 32,
-  height: 32,
-  borderRadius: 16,
+  position: "relative",
+  width: TARGET_IDLE_SIZE,
+  height: TARGET_IDLE_SIZE,
+  borderRadius: TARGET_IDLE_SIZE / 2,
   backgroundColor: "rgba(0, 0, 0, 0.4)",
   alignItems: "center",
   justifyContent: "center",
@@ -350,11 +367,50 @@ const $targetPin: ViewStyle = {
   elevation: 4,
 };
 
+const $targetPressArea: ViewStyle = {
+  width: TARGET_IDLE_SIZE,
+  height: TARGET_IDLE_SIZE,
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const $targetPressAreaEditing: ViewStyle = {
+  width: 76,
+  height: 76,
+};
+
+const $targetPinEditing: ViewStyle = {
+  width: TARGET_EDIT_SIZE,
+  height: TARGET_EDIT_SIZE,
+  borderRadius: TARGET_EDIT_SIZE / 2,
+  backgroundColor: "rgba(0, 0, 0, 0.72)",
+  borderWidth: 3.5,
+  shadowOpacity: 0.55,
+  shadowRadius: 8,
+  elevation: 8,
+};
+
+const $targetPinHalo: ViewStyle = {
+  position: "absolute",
+  width: 76,
+  height: 76,
+  borderRadius: 38,
+  borderWidth: 2,
+  borderColor: "rgba(255,255,255,0.48)",
+  backgroundColor: "rgba(255,255,255,0.12)",
+};
+
 const $targetPinInner: ViewStyle = {
-  width: 8,
-  height: 8,
-  borderRadius: 4,
+  width: 12,
+  height: 12,
+  borderRadius: 6,
   backgroundColor: "#ffffff",
+};
+
+const $targetPinInnerEditing: ViewStyle = {
+  width: 14,
+  height: 14,
+  borderRadius: 7,
 };
 
 const $labelWrapper: ViewStyle = {

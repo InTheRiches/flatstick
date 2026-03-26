@@ -42,6 +42,8 @@ interface ShotDetailsModalProps {
   onEditConfirm?: (shotId: string, details: ShotModalResult) => void;
   /** Called when the user wants to switch to editing the shot result instead. */
   onEditResult?: (shotId: string, currentDetails: ShotModalResult) => void;
+  /** Called when the user wants to edit the tracked GPS points for this shot. */
+  onEditGPS?: (shotId: string) => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -73,10 +75,14 @@ function clubFromLabel(label: string): LiveShotAttempt["club"] {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-// Concrete type for intent target (excludes undefined for easier state management)
-type IntentTarget = "center" | "left" | "right" | "layup" | "attack" | "other"
-
-export default function ShotDetailsModal({ reference, onConfirm, onCancel, onEditConfirm, onEditResult }: ShotDetailsModalProps) {
+export default function ShotDetailsModal({
+  reference,
+  onConfirm,
+  onCancel,
+  onEditConfirm,
+  onEditResult,
+  onEditGPS,
+}: ShotDetailsModalProps) {
   const { themed, theme } = useAppTheme();
   const innerRef = React.useRef<BottomSheetModal>(null);
 
@@ -141,6 +147,12 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel, onEdi
       intent: { shape: intentShape, goalIsGreen: isGoalGreen, greensideChip: isGreensideChip }
     };
     onEditResult?.(editingShotId, result);
+    innerRef.current?.dismiss();
+  };
+
+  const handleEditGPS = () => {
+    if (!editingShotId) return;
+    onEditGPS?.(editingShotId);
     innerRef.current?.dismiss();
   };
 
@@ -362,6 +374,15 @@ export default function ShotDetailsModal({ reference, onConfirm, onCancel, onEdi
           </View>
         </View>
 
+        {editingShotId ? (
+          <Button
+            text="Edit GPS"
+            preset="secondary"
+            onPress={handleEditGPS}
+            style={$fullWidthButton}
+          />
+        ) : null}
+
         <View style={$footer}>
           {editingShotId ? (
             <Button
@@ -408,6 +429,10 @@ const $footer: ViewStyle = {
 
 const $button: ViewStyle = {
   flex: 1,
+};
+
+const $fullWidthButton: ViewStyle = {
+  marginTop: 8,
 };
 
 const $lieRow: ViewStyle = {

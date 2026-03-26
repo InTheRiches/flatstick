@@ -1,4 +1,4 @@
-import type { HeatmapMode } from '@/components/app/golf/putting/GreenHeatmapOverlay';
+import type { HeatmapMode } from '@/components/app/golf/putting/PuttingOverlay';
 import { Text } from '@/components/ui/Text';
 import { useAppTheme } from '@/theme/context';
 import { ThemedStyle } from '@/theme/types';

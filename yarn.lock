@@ -5884,9 +5884,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-gl@npm:^55.0.9":
-  version: 55.0.9
-  resolution: "expo-gl@npm:55.0.9"
+"expo-gl@npm:~16.0.10":
+  version: 16.0.10
+  resolution: "expo-gl@npm:16.0.10"
   dependencies:
     invariant: "npm:^2.2.4"
   peerDependencies:
@@ -5903,7 +5903,7 @@ __metadata:
       optional: true
     react-native-web:
       optional: true
-  checksum: 10c0/67a87d71aa29aaba6e637dd8dcca78a3558d0350b0bf9e15e5732e780e994b46a6480a6f634ea46eac8954c1a8144079a37fb31aecbe123253503f53c174d587
+  checksum: 10c0/4c73b4c7784936dc670adc12f44b760bc8cf01f2d227a0cdf281e5d280bbbf53f0c031f779eb4dbba4b80266c7235f66509ec76420722e1bcc74d4e83025e437
   languageName: node
   linkType: hard
 
@@ -9479,19 +9479,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-maps@npm:^1.27.1":
-  version: 1.27.1
-  resolution: "react-native-maps@npm:1.27.1"
+"react-native-maps@npm:1.20.1":
+  version: 1.20.1
+  resolution: "react-native-maps@npm:1.20.1"
   dependencies:
     "@types/geojson": "npm:^7946.0.13"
   peerDependencies:
-    react: ">= 18.3.1"
-    react-native: ">= 0.76.0"
+    react: ">= 17.0.1"
+    react-native: ">= 0.64.3"
     react-native-web: ">= 0.11"
   peerDependenciesMeta:
     react-native-web:
       optional: true
-  checksum: 10c0/7b78a8d28ed33afd3be2b6d8216cd4ad88b6e38b777fe8662cca0c12e8498d8b4d9d2694e1de317eb8fcad8f644b42c0abad0218fe18b372182efb4796864f13
+  checksum: 10c0/59c8d5600feb907df179c675b7185ef3bf205bdc85391c7ef530bb17d56d44d03ffd9ab3ae08dcc00cfabe9b14e37041327c7446114104b141efb2c8d4c3e797
   languageName: node
   linkType: hard
 
@@ -9544,9 +9544,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-svg@npm:^15.15.3":
-  version: 15.15.3
-  resolution: "react-native-svg@npm:15.15.3"
+"react-native-svg@npm:15.12.1":
+  version: 15.12.1
+  resolution: "react-native-svg@npm:15.12.1"
   dependencies:
     css-select: "npm:^5.1.0"
     css-tree: "npm:^1.1.3"
@@ -9554,7 +9554,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/6aa5ea4745c7d174909468b5d5cb75059856d907f0b039bf3650deb81c9afcbd356f2382d7a7424d4cc69597aea5a508484ee5dba91b9126e3b520bc10faefe9
+  checksum: 10c0/ed94b57007125c715283fc760438ac8eac0677ced3201f6e272a7cd4459f3fecb672a8eed2c32664e5b8e6e0367585353b0f83f99b231f603d75094bb052c01f
   languageName: node
   linkType: hard
 
@@ -10075,7 +10075,7 @@ __metadata:
     expo-build-properties: "npm:~1.0.10"
     expo-constants: "npm:~18.0.13"
     expo-font: "npm:~14.0.11"
-    expo-gl: "npm:^55.0.9"
+    expo-gl: "npm:~16.0.10"
     expo-haptics: "npm:~15.0.8"
     expo-image: "npm:~3.0.11"
     expo-linking: "npm:~8.0.11"
@@ -10098,12 +10098,12 @@ __metadata:
     react-native-gesture-handler: "npm:~2.28.0"
     react-native-keyboard-aware-scroll-view: "npm:^0.9.5"
     react-native-keyboard-controller: "npm:1.18.5"
-    react-native-maps: "npm:^1.27.1"
+    react-native-maps: "npm:1.20.1"
     react-native-mmkv: "npm:3.3.3"
     react-native-reanimated: "npm:~4.1.1"
     react-native-safe-area-context: "npm:5.6.0"
     react-native-screens: "npm:~4.16.0"
-    react-native-svg: "npm:^15.15.3"
+    react-native-svg: "npm:15.12.1"
     react-native-web: "npm:~0.21.0"
     react-native-worklets: "npm:0.5.1"
     reactotron-core-client: "npm:^2.9.4"

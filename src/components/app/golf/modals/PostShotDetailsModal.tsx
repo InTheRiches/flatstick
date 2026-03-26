@@ -47,9 +47,9 @@ interface PostShotDetailsModalProps {
   onEditConfirm?: (shotId: string, result: PostShotModalResult) => void;
   /** Called when the user wants to switch to editing the shot intent instead. */
   onEditIntent?: (shotId: string, currentResult: PostShotModalResult) => void;
+  /** Called when the user wants to edit the tracked GPS points for this shot. */
+  onEditGPS?: (shotId: string) => void;
 }
-
-type ContactType = "pure" | "thin" | "fat" | "toe" | "heel" | "unknown";
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -59,6 +59,7 @@ export default function PostShotDetailsModal({
   onCancel,
   onEditConfirm,
   onEditIntent,
+  onEditGPS,
 }: PostShotDetailsModalProps) {
   const { themed, theme } = useAppTheme();
   const innerRef = React.useRef<BottomSheetModal>(null);
@@ -113,6 +114,12 @@ export default function PostShotDetailsModal({
     if (!editingShotId) return;
     const result: PostShotModalResult = { shape, finishLie, isPenalty, isOutOfBounds };
     onEditIntent?.(editingShotId, result);
+    innerRef.current?.dismiss();
+  };
+
+  const handleEditGPS = () => {
+    if (!editingShotId) return;
+    onEditGPS?.(editingShotId);
     innerRef.current?.dismiss();
   };
 
@@ -228,15 +235,6 @@ export default function PostShotDetailsModal({
     },
   ];
 
-  const contactOptions: { label: string; value: ContactType }[] = [
-    { label: "Pure",    value: "pure" },
-    { label: "Thin",    value: "thin" },
-    { label: "Fat",     value: "fat" },
-    { label: "Toe",     value: "toe" },
-    { label: "Heel",    value: "heel" },
-    { label: "Unknown", value: "unknown" },
-  ];
-
   const lieOptions: { label: string; value: LieType; Icon: React.ComponentType<any> }[] = [
     { label: "Tee",      value: "tee",      Icon: TeeIcon },
     { label: "Fairway",  value: "fairway",  Icon: FairwayIcon },
@@ -326,6 +324,10 @@ export default function PostShotDetailsModal({
             </TouchableOpacity>
         </View>
 
+        {editingShotId ? (
+          <Button text="Edit GPS" preset="secondary" onPress={handleEditGPS} style={$fullWidthButton} />
+        ) : null}
+
         <View style={$footer}>
           {editingShotId ? (
             <Button text="Edit Intent" preset="secondary" onPress={handleEditIntent} style={$button} />
@@ -355,6 +357,10 @@ const $footer: ViewStyle = {
 
 const $button: ViewStyle = {
   flex: 1,
+};
+
+const $fullWidthButton: ViewStyle = {
+  marginTop: 4,
 };
 
 // ── Lie row (reused for finishLie) ────────────────────────────────────────────
