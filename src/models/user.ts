@@ -31,6 +31,9 @@ export interface UserProfile {
   lastName: string
   displayName: string
   displayNameLower: string
+  username?: string
+  usernameLower?: string
+  avatar?: string | null
 
   // If you later add username/handle:
   // handle?: string;
@@ -42,7 +45,8 @@ export interface UserProfile {
   flags: UserFlags
 
   // Social
-  friends: UUID[] // store IDs, not embedded objects
+  friendIds: UUID[]
+  phoneHash: string[]
 
   preferences: UserPreferences
 }

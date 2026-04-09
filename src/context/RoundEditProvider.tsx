@@ -1,10 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
 import { useRounds } from "@/hooks/useRounds"
-import type { HoleSummaryCommit, LiveShotAttempt } from "@/models/round.live.types"
 import type { CourseData } from "@/models/course"
 import type { LatLng } from "@/models/geo"
+import type { HoleSummaryCommit, LiveShotAttempt } from "@/models/round.live.types"
 import type { RoundHoleSummary, RoundSession, ShotAttempt } from "@/models/round.session.types"
+import { removeUndefinedDeep } from "@/services/firebase/common"
 import { detectLieFromCourseData } from "@/services/round/roundMapEditing"
 import { computeRoundStats } from "@/services/stats/roundStats"
 import { generateUUID } from "@/utils/common"
@@ -456,10 +457,10 @@ export function RoundEditProvider({ roundId, children }: RoundEditProviderProps)
     try {
       const now = new Date().toISOString()
       const { stats: _stats, ...persistable } = editableRound
-      const payload: RoundSession = {
+      const payload: RoundSession = removeUndefinedDeep({
         ...persistable,
         updatedAt: now,
-      }
+      })
       await updateRoundSession(payload)
       baseSignatureRef.current = roundSignature(payload)
       setEditableRound({

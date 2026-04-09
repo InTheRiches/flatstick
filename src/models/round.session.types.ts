@@ -1,4 +1,5 @@
 import { GeoPoint, SessionBase, SessionMetaBase } from "@/models/session.types"
+import type { RoundVisibility } from "@/models/social"
 import { TeeDirection } from "./round.live.types"
 import type { RoundStats } from "./stats.types"
 
@@ -126,6 +127,7 @@ export interface RoundSessionMeta extends SessionMetaBase {
 }
 
 export interface RoundSession extends SessionBase {
+  visibility?: RoundVisibility
   meta: RoundSessionMeta
   holes: RoundHoleSummary[] // scorecard + per-hole aggregates
   shots: ShotAttempt[] // the truth

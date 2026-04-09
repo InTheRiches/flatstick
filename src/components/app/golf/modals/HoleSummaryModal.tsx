@@ -278,7 +278,7 @@ export default function HoleSummaryModal({
 
     const currentHole = openInput?.hole;
     const currentHoleShots = openInput?.holeShots ?? [];
-    const runningScore = openInput?.runningScore ?? 0;
+    const baseRunningScore = openInput?.runningScore ?? 0;
     const playerName = openInput?.playerName ?? "";
     const playerHandicap = openInput?.playerHandicap;
 
@@ -288,6 +288,10 @@ export default function HoleSummaryModal({
     const [localScore, setLocalScore] = useState<number>(
         4,
     );
+
+    // Dynamically calculate the displayed running score
+    const currentPar = currentHole?.par ?? 4;
+    const dynamicRunningScore = baseRunningScore + (localScore - currentPar);
     const [localPutts, setLocalPutts] = useState(2);
     const [localPenalties, setLocalPenalties] = useState(0);
     const [firstPuttDist, setFirstPuttDist] = useState(
@@ -425,7 +429,7 @@ export default function HoleSummaryModal({
                             {formatRunningScore(runningScore)}
                         </Text> */}
                         <Text style={themed($runningScoreNum)}>
-                            {runningScore >= 0 ? "+" : ""}{runningScore}
+                            {dynamicRunningScore >= 0 ? "+" : ""}{dynamicRunningScore}
                         </Text>
                     </View>
                 </View>

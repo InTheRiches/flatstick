@@ -1,17 +1,36 @@
 // src/context/UserContext.tsx
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react"
-import { AppState, AppStateStatus } from "react-native"
+import { FirebaseAuthTypes } from "@react-native-firebase/auth"
 import {
-  getFirestore,
   doc,
   getDoc,
-  setDoc,
+  getFirestore,
   onSnapshot,
+  setDoc,
   Unsubscribe,
 } from "@react-native-firebase/firestore"
-import { FirebaseAuthTypes } from "@react-native-firebase/auth"
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { AppState, AppStateStatus } from "react-native"
 
 import type { UserProfile } from "@/models/user"
+
+function normalizeUserProfile(profile: UserProfile): UserProfile {
+  const legacyFriends = (profile as UserProfile & { friends?: string[] }).friends
+
+  const friendIds = Array.isArray(profile.friendIds)
+    ? profile.friendIds
+    : Array.isArray(legacyFriends)
+      ? legacyFriends
+      : []
+
+  return {
+    ...profile,
+    id: profile.id,
+    friendIds,
+    phoneHash: Array.isArray(profile.phoneHash) ? profile.phoneHash : [],
+    usernameLower: profile.usernameLower || profile.username?.toLowerCase(),
+    avatar: profile.avatar || null,
+  }
+}
 
 export interface UserContextType {
   // Data
@@ -62,7 +81,7 @@ export function UserProvider({ children, authUser, authInitializing }: UserProvi
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          const profile = docSnap.data() as UserProfile
+          const profile = normalizeUserProfile(docSnap.data() as UserProfile)
           setUserProfile(profile)
 
           // Setup real-time listener for online sync
@@ -74,7 +93,7 @@ export function UserProvider({ children, authUser, authInitializing }: UserProvi
             docRef,
             (snapshot) => {
               if (snapshot.exists()) {
-                const updatedProfile = snapshot.data() as UserProfile
+                const updatedProfile = normalizeUserProfile(snapshot.data() as UserProfile)
                 setUserProfile(updatedProfile)
               }
             },
@@ -148,7 +167,7 @@ export function UserProvider({ children, authUser, authInitializing }: UserProvi
    * Called from useAuth when a new account is created
    */
   const setNewUserProfile = useCallback((profile: UserProfile) => {
-    setUserProfile(profile)
+    setUserProfile(normalizeUserProfile(profile))
     setError(null)
   }, [])
 

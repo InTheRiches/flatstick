@@ -186,6 +186,7 @@ const $baseViewStyle: ThemedStyle<ViewStyle> = ({spacing}) => ({
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
+    paddingHorizontal: spacing.md,
 })
 
 const $baseTextStyle: ThemedStyle<TextStyle> = (theme) => ({

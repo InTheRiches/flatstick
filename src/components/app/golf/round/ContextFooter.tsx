@@ -9,12 +9,14 @@ import { LiveShotAttempt } from "@/models/round.live.types";
 import { haversineMeters } from "@/utils/courses/geometry/distance.utils";
 
 interface ContextFooterProps {
-    currentShot: LiveShotAttempt | null;
-    userLocation: LatLng | null;
+    currentShot?: LiveShotAttempt | null;
+    userLocation?: LatLng | null;
     isPutting?: boolean;
     holePinCoord?: LatLng | null;
     pendingPuttStart?: LatLng | null;
     putts?: number;
+    forceActive?: boolean;
+    children?: React.ReactNode;
 }
 
 function toFeet(meters: number): number {
@@ -35,6 +37,8 @@ export const ContextFooter: React.FC<ContextFooterProps> = ({
     holePinCoord,
     pendingPuttStart,
     putts,
+    forceActive,
+    children,
 }) => {
     const { themed } = useAppTheme();
 
@@ -42,7 +46,7 @@ export const ContextFooter: React.FC<ContextFooterProps> = ({
         userLocation && currentShot && currentShot.category !== "putt"
     );
     const isTrackingPutt = Boolean(isPutting && holePinCoord && pendingPuttStart);
-    const isActive = isTrackingShot || isTrackingPutt;
+    const isActive = Boolean(forceActive || isTrackingShot || isTrackingPutt);
 
     const shotDistance = useMemo(() => {
         if (!isTrackingShot || !userLocation || !currentShot) return null;
@@ -96,7 +100,9 @@ export const ContextFooter: React.FC<ContextFooterProps> = ({
 
     return (
         <Animated.View style={[themed($container), { transform: [{ translateY }], opacity }]}>
-            {isTrackingShot ? (
+            {children ? (
+                children
+            ) : isTrackingShot ? (
                 <>
                     <RNText style={themed($footerText)}>
                         Tracking{" "}

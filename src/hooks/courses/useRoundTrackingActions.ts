@@ -4,8 +4,8 @@ import { useCallback, useRef } from "react";
 
 import { type HoleSummaryModalHandle } from "@/components/app/golf/modals/HoleSummaryModal";
 import {
-    type PostShotModalResult,
     type PostShotDetailsModalReference,
+    type PostShotModalResult,
 } from "@/components/app/golf/modals/PostShotDetailsModal";
 import type { CourseSelectionDetails } from "@/components/app/golf/modals/SelectCourseDetailsModal";
 import {

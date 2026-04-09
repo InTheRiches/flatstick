@@ -123,7 +123,7 @@ export const RoundListItem: FC<RoundListItemProps> = ({ round, onEdit }) => {
                     />
 
                     <View style={$actionsRow}>
-                        <Button text="Edit Round" onPress={() => onEdit(round.id)} style={$editButton} />
+                        <Button text="Edit Round" onPress={() => onEdit(round.id)} />
                     </View>
                 </>
             )}
@@ -274,9 +274,4 @@ const $scorecardWrap: ViewStyle = {
 const $actionsRow: ViewStyle = {
     marginTop: 10,
     alignItems: "flex-end",
-}
-
-const $editButton: ViewStyle = {
-    width: 132,
-    minHeight: 38,
 }

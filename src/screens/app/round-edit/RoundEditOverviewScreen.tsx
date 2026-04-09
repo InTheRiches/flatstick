@@ -2,11 +2,9 @@ import { useRouter } from "expo-router"
 import React, { FC, useMemo } from "react"
 import {
     Alert,
-    FlatList,
-    Pressable,
     TextStyle,
     View,
-    ViewStyle,
+    ViewStyle
 } from "react-native"
 
 import HoleSummaryModal, { type HoleSummaryModalHandle } from "@/components/app/golf/modals/HoleSummaryModal"
@@ -22,6 +20,7 @@ import type { RoundHoleSummary } from "@/models/round.session.types"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
+import { Ionicons } from "@expo/vector-icons"
 
 interface RoundEditOverviewScreenProps {
     roundId: string
@@ -143,7 +142,7 @@ export const RoundEditOverviewScreen: FC<RoundEditOverviewScreenProps> = ({ roun
             <Screen preset="fixed" contentContainerStyle={$styles.screen}>
                 <View style={$centered}>
                     <Text text="Round not found" />
-                    <Button text="Back" onPress={() => router.back()} style={$inlineButton} />
+                    <Button text="Back" onPress={() => router.back()} />
                 </View>
             </Screen>
         )
@@ -219,32 +218,22 @@ export const RoundEditOverviewScreen: FC<RoundEditOverviewScreenProps> = ({ roun
                 style={themed($description)}
             />
 
-            <FlatList
-                data={[...editableRound.holes].sort((a, b) => a.hole - b.hole)}
-                keyExtractor={(item) => String(item.hole)}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                    <Pressable
-                        style={themed($holeCard)}
-                        onPress={() => router.push(`/(app)/round-edit/${roundId}/hole/${item.hole}` as never)}
-                    >
-                        <View style={$holeRow}>
-                            <Text text={`Hole ${item.hole}`} style={themed($holeTitle)} />
-                            <Text text={`Par ${item.par}`} style={themed($holeMeta)} />
-                        </View>
-                        <Text
-                            text={`Score ${item.score}  •  Putts ${item.putts}  •  FIR ${item.fairwayHit ? "Y" : "N"}  •  GIR ${item.gir ? "Y" : "N"}`}
-                            style={themed($holeMeta)}
-                        />
-                    </Pressable>
-                )}
-            />
-            <Button
-                text={isSaving ? "Saving..." : "Save"}
-                onPress={saveChanges}
-                disabled={!isDirty || isSaving}
-                style={$inlineButton}
-            />
+            <View style={themed($card)}>
+                <Text style={themed($cardText)}>Edit/View tracked shots</Text>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.textDim} />
+            </View>
+            <View style={$buttonRow}>
+                <Button
+                    text={isSaving ? "Saving..." : "Save"}
+                    onPress={saveChanges}
+                    disabled={!isDirty || isSaving}
+                />
+                <Button
+                    text={"Edit on Map"}
+                    onPress={() => router.push(`/round-edit/${roundId}/map` as never)}
+                    disabled={false}
+                />
+            </View>
             <HoleSummaryModal
                 reference={holeSummaryRef}
                 onCommit={(committedHole) => {
@@ -267,6 +256,25 @@ export const RoundEditOverviewScreen: FC<RoundEditOverviewScreenProps> = ({ roun
     )
 }
 
+const $card: ThemedStyle<ViewStyle> = (theme) => ({
+    width: "100%",
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: theme.colors.backgrounds.elevated,
+    borderColor: theme.colors.border
+})
+
+const $cardText: ThemedStyle<TextStyle> = (theme) => ({
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: 500,
+})
+
 const $centered: ViewStyle = {
     flex: 1,
     alignItems: "center",
@@ -281,12 +289,17 @@ const $headerRow: ViewStyle = {
     gap: 8,
 }
 
-const $inlineButton: ViewStyle = {
-    width: 100,
-}
-
 const $descriptor: ViewStyle = {
     marginBottom: 12
+}
+
+const $buttonRow: ViewStyle = {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+    marginTop: 16,
+    marginBottom: 32,
+    width: "100%"
 }
 
 const $title: ThemedStyle<TextStyle> = (theme) => ({

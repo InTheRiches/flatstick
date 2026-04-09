@@ -50,7 +50,7 @@ function OutlinedLabel({ text }: { text: string }) {
 // Main component
 // ---------------------------------------------------------------------------
 
-interface PlayerTrackingOverlayProps {
+export interface PlayerTrackingOverlayProps {
   /** Null when GPS is enabled but no fix has arrived yet (limp state). */
   userLocation: LatLng | null;
   greenPolygon: XYPoint[];
@@ -73,7 +73,7 @@ interface PlayerTrackingOverlayProps {
   gpsEnabled?: boolean;
 }
 
-export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
+export function usePlayerTrackingOverlay({
   userLocation,
   greenPolygon,
   target,
@@ -84,8 +84,9 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
   holePinCoord,
   onHolePinChange,
   gpsEnabled = false,
-}) => {
+}: PlayerTrackingOverlayProps) {
   const longPressHandledRef = useRef(false);
+  const clearTargetRafRef = useRef<number | null>(null);
   const effectiveTargetCoord = target?.coordinate ?? null;
 
   // ── Hole-pin drag ────────────────────────────────────────────────────────
@@ -173,8 +174,19 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
     }
   }, [isTargetEditing]);
 
+  useEffect(() => {
+    return () => {
+      if (clearTargetRafRef.current !== null) {
+        cancelAnimationFrame(clearTargetRafRef.current);
+      }
+
+      if (holeRafRef.current !== null) {
+        cancelAnimationFrame(holeRafRef.current);
+      }
+    };
+  }, []);
+
   const handleTargetTap = useCallback(() => {
-    console.log("target tapped")
     if (longPressHandledRef.current) {
       longPressHandledRef.current = false;
       return;
@@ -185,14 +197,24 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
       return;
     }
 
-    onTargetClearPress?.();
+    if (clearTargetRafRef.current !== null) {
+      cancelAnimationFrame(clearTargetRafRef.current);
+    }
+
+    // Defer the clear until after the native marker press completes. Removing
+    // map children during a marker press can leave react-native-maps in a
+    // stale state until the next unrelated render.
+    clearTargetRafRef.current = requestAnimationFrame(() => {
+      clearTargetRafRef.current = null;
+      onTargetClearPress?.();
+    });
   }, [isTargetEditing, onTargetClearPress, onTargetPress]);
 
   return (
     <>
-      {/* ── User location marker — hidden in limp state (no GPS fix) ── */}
       {!isLimp && (
         <Marker
+          key="player-location"
           coordinate={userLocation!}
           anchor={{ x: 0.5, y: 0.5 }}
           tracksViewChanges={false}
@@ -202,8 +224,8 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
         </Marker>
       )}
 
-      {/* ── Green center / hole marker (draggable within the green polygon) ── */}
       <Marker
+        key="hole-pin"
         coordinate={greenCenter}
         anchor={{ x: 0.5, y: 1 }}
         draggable
@@ -222,49 +244,26 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
         </View>
       </Marker>
 
-      {/* ── Player → Green distance line ── */}
-      {!target && showDirectLine && (
-        <Polyline
-          coordinates={[userLocation!, greenCenter]}
-          strokeColor="rgba(0,0,0,0.85)"
-          strokeWidth={4}
-        />
-      )}
-
-      {/* ── Midpoint distance callout (no target) ── */}
-      {!target && showDirectLine && showDistanceLabel && playerToGreenMidpoint && (
-        <Marker
-          coordinate={playerToGreenMidpoint}
-          anchor={{ x: 0.5, y: 0.5 }}
-          tracksViewChanges={false}
-        >
-          <OutlinedLabel text={`${playerToGreenYards} yd`} />
-        </Marker>
-      )}
-
-      {/* ── Intermediate target ── */}
-      {target && effectiveTargetCoord && (
-        <>
-          {/* Player → Target line (full mode only) */}
+      {effectiveTargetCoord ? (
+        <React.Fragment key="target-mode">
           {!isLimp && (
             <Polyline
+              key="player-to-target-line"
               coordinates={[userLocation!, effectiveTargetCoord]}
               strokeColor="rgba(0,0,0,0.85)"
               strokeWidth={4}
             />
           )}
-
-          {/* Target → Green line */}
           <Polyline
+            key="target-to-green-line"
             coordinates={[effectiveTargetCoord, greenCenter]}
             strokeColor="rgba(0,0,0,0.85)"
             strokeWidth={isLimp ? 3 : 2}
             lineDashPattern={[6, 4]}
           />
-
-          {/* Player → Target callout (full mode only) */}
           {!isLimp && playerToTargetMidpoint && playerToTarget !== null && (
             <Marker
+              key="player-to-target-label"
               coordinate={playerToTargetMidpoint}
               anchor={{ x: 0.5, y: 0.5 }}
               tracksViewChanges
@@ -272,11 +271,10 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
               <OutlinedLabel text={`${playerToTarget} yd`} />
             </Marker>
           )}
-
-          {/* Target → Green callout */}
           {targetToGreenMidpoint && targetToGreen !== null && (
             <Marker
-              coordinate={targetToGreen < 20 ? effectiveTargetCoord! : targetToGreenMidpoint}
+              key="target-to-green-label"
+              coordinate={targetToGreen < 20 ? effectiveTargetCoord : targetToGreenMidpoint}
               anchor={{ x: 0.5, y: targetToGreen < 20 ? 1 : 0.5 }}
               tracksViewChanges
             >
@@ -289,8 +287,8 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
               )}
             </Marker>
           )}
-
           <Marker
+            key="intermediate-target"
             coordinate={effectiveTargetCoord}
             anchor={{ x: 0.5, y: 0.5 }}
             tracksViewChanges={isTargetEditing}
@@ -308,10 +306,36 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
               </View>
             </Pressable>
           </Marker>
-        </>
+        </React.Fragment>
+      ) : (
+        <React.Fragment key="direct-mode">
+          {showDirectLine && (
+            <Polyline
+              key="player-to-green-line"
+              coordinates={[userLocation!, greenCenter]}
+              strokeColor="rgba(0,0,0,0.85)"
+              strokeWidth={4}
+            />
+          )}
+
+          {showDirectLine && showDistanceLabel && playerToGreenMidpoint && (
+            <Marker
+              key="player-to-green-label"
+              coordinate={playerToGreenMidpoint}
+              anchor={{ x: 0.5, y: 0.5 }}
+              tracksViewChanges={false}
+            >
+              <OutlinedLabel text={`${playerToGreenYards} yd`} />
+            </Marker>
+          )}
+        </React.Fragment>
       )}
     </>
   );
+}
+
+export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = (props) => {
+  return usePlayerTrackingOverlay(props);
 };
 
 // ---------------------------------------------------------------------------
@@ -319,7 +343,6 @@ export const PlayerTrackingOverlay: React.FC<PlayerTrackingOverlayProps> = ({
 // ---------------------------------------------------------------------------
 
 const TARGET_IDLE_SIZE = 40;
-const TARGET_EDIT_SIZE = 56;
 const $playerMarker: ViewStyle = {
   width: 24,
   height: 24,
@@ -372,22 +395,6 @@ const $targetPressArea: ViewStyle = {
   height: TARGET_IDLE_SIZE,
   alignItems: "center",
   justifyContent: "center",
-};
-
-const $targetPressAreaEditing: ViewStyle = {
-  width: 76,
-  height: 76,
-};
-
-const $targetPinEditing: ViewStyle = {
-  width: TARGET_EDIT_SIZE,
-  height: TARGET_EDIT_SIZE,
-  borderRadius: TARGET_EDIT_SIZE / 2,
-  backgroundColor: "rgba(0, 0, 0, 0.72)",
-  borderWidth: 3.5,
-  shadowOpacity: 0.55,
-  shadowRadius: 8,
-  elevation: 8,
 };
 
 const $targetPinHalo: ViewStyle = {

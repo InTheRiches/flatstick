@@ -33,8 +33,8 @@ import { useHazardInspection } from "@/hooks/courses/useHazardInspection";
 import { useLocationTracking } from "@/hooks/courses/useLocationTracking";
 import { usePlayerTracking } from "@/hooks/courses/usePlayerTracking";
 import { usePuttingMode } from "@/hooks/courses/usePuttingMode";
-import { useRoundTrackingActions } from "@/hooks/courses/useRoundTrackingActions";
 import { useRoundTracking } from "@/hooks/courses/useRoundTracking";
+import { useRoundTrackingActions } from "@/hooks/courses/useRoundTrackingActions";
 import { useShotEditController } from "@/hooks/courses/useShotEditController";
 import { useTargetEditController } from "@/hooks/courses/useTargetEditController";
 import type { LatLng } from "@/models/geo";
@@ -89,6 +89,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         nextHole,
         prevHole,
         shots,
+        deleteShot,
         holes,
         addShot,
         updateShot,
@@ -358,6 +359,11 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
     const handleMapPress = useCallback((event: { nativeEvent: { coordinate: LatLng } }) => {
         const coord = event.nativeEvent.coordinate;
 
+        if (!coord || !Number.isFinite(coord.latitude) || !Number.isFinite(coord.longitude)) {
+            console.debug("[RoundTrackingScreen] Ignoring map press without a valid coordinate:", coord);
+            return;
+        }
+
         if (puttingMode.isPuttingMode) {
             puttingMode.setPendingPuttStart(coord);
             return;
@@ -393,12 +399,14 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         }
 
         if (
-            playerTracking.target &&
-            isPointInPolygon(coord, padPolygonCoordinates([playerTracking.target.coordinate], 10))
+            displayTarget &&
+            isPointInPolygon(coord, padPolygonCoordinates([displayTarget.coordinate], 10))
         ) {
             playerTracking.setTargetCoordinate(null);
             return;
         }
+
+        console.log("Map pressed at", coord);
 
         playerTracking.setTargetCoordinate(coord);
     }, [
@@ -407,6 +415,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
         hazardInspection,
         isTargetEditing,
         lastShotPressRef,
+        displayTarget,
         playerTracking,
         puttingMode,
         recenterScreen,
@@ -668,6 +677,7 @@ export const RoundTrackingScreen: React.FC<RoundTrackingScreenProps> = ({ course
                 onEditConfirm={handleEditResultConfirm}
                 onEditIntent={handleEditIntentFromResult}
                 onEditGPS={handleEditGPSFromResult}
+                onDelete={deleteShot}
             />
 
             <HoleSummaryModal reference={holeSummaryRef} onCommit={commitHoleSummary} />

@@ -70,6 +70,7 @@ export function subscribeToRounds(
  * Firestore queues the write for sync when offline.
  */
 export async function saveRound(userId: string, round: RoundSession): Promise<void> {
+  console.log("Saving round to Firestore:", round)
   await setDoc(roundDoc(userId, round.id), round)
 }
 

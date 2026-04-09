@@ -1,6 +1,6 @@
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import React, { useImperativeHandle, useState } from "react";
-import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
+import { Pressable, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 import { Circle, Path, Svg } from "react-native-svg";
 
 import { BottomSheetModalFactory } from "@/components/app/modals/BottomSheetFactory";
@@ -12,14 +12,15 @@ import { useAppTheme } from "@/theme/context";
 import { $styles } from "@/theme/styles";
 import { ThemedStyle } from "@/theme/types";
 import {
-    BunkerIcon,
-    FairwayIcon,
-    FringeIcon,
-    GreenIcon,
-    RoughIcon,
-    TeeIcon,
-    TreeIcon,
+  BunkerIcon,
+  FairwayIcon,
+  FringeIcon,
+  GreenIcon,
+  RoughIcon,
+  TeeIcon,
+  TreeIcon,
 } from "@assets/icons/svg/lies";
+import { Ionicons } from "@expo/vector-icons";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -49,6 +50,8 @@ interface PostShotDetailsModalProps {
   onEditIntent?: (shotId: string, currentResult: PostShotModalResult) => void;
   /** Called when the user wants to edit the tracked GPS points for this shot. */
   onEditGPS?: (shotId: string) => void;
+  /** Called when the user wants to delete the shot. */
+  onDelete?: (shotId: string) => void;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -60,6 +63,7 @@ export default function PostShotDetailsModal({
   onEditConfirm,
   onEditIntent,
   onEditGPS,
+  onDelete,
 }: PostShotDetailsModalProps) {
   const { themed, theme } = useAppTheme();
   const innerRef = React.useRef<BottomSheetModal>(null);
@@ -329,6 +333,22 @@ export default function PostShotDetailsModal({
         ) : null}
 
         <View style={$footer}>
+          {editingShotId && (
+              <Pressable
+                  onPress={onDelete ? () => {
+                    reference.current?.close();
+                    onDelete(editingShotId)
+                   } : undefined}
+                  hitSlop={10}
+                  style={({ pressed }) => themed($settingsButton(pressed))}
+              >
+                  <Ionicons
+                      name="trash-sharp"
+                      size={30}
+                      color={theme.colors.backgrounds.default}
+                  />
+              </Pressable>
+          )}
           {editingShotId ? (
             <Button text="Edit Intent" preset="secondary" onPress={handleEditIntent} style={$button} />
           ) : (
@@ -362,6 +382,18 @@ const $button: ViewStyle = {
 const $fullWidthButton: ViewStyle = {
   marginTop: 4,
 };
+
+const $settingsButton =
+    (pressed: boolean): ThemedStyle<ViewStyle> =>
+        (theme) => ({
+            backgroundColor: theme.colors.buttons.background,
+            opacity: pressed ? 0.85 : 1,
+            width: 50,
+            height: 50,
+            borderRadius: 999,
+            alignItems: "center",
+            justifyContent: "center",
+        })
 
 // ── Lie row (reused for finishLie) ────────────────────────────────────────────
 

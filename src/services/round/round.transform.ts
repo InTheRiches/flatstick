@@ -158,6 +158,7 @@ export function transformLiveRoundToSession(
     createdAt: live.startedAt,
     updatedAt: now,
     deletedAt: null,
+    visibility: "private",
     meta,
     holes,
     shots,

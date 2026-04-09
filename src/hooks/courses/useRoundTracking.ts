@@ -311,16 +311,20 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
     setShots((prev) => prev.map((s) => s.id === shotId ? { ...s, ...updates } : s));
   }, []);
 
+  const deleteShot = useCallback((shotId: string) => {
+    setShots((prev) => prev.filter((s) => s.id !== shotId));
+  }, []);
+
   // ── Hole summary commit (from HoleSummaryModal) ───────────────────────────
 
   const commitHoleSummary = useCallback((commit: HoleSummaryCommit) => {
-    const { holeNumber, syntheticShots } = commit;
+    const { hole, syntheticShots } = commit;
     const fairwayHit = commit.fairwayHit ?? fairwayHitFromDirection(commit.teeDirection);
 
     setHoles((prev) => ({
       ...prev,
-      [holeNumber]: {
-        ...prev[holeNumber],
+      [hole]: {
+        ...prev[hole],
         putts: commit.putts,
         penalties: commit.penalties,
         // Persist the committed score so the UI can restore it later
@@ -335,21 +339,21 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
         status: "completed",
         shotIds: syntheticShots
           ? syntheticShots.map((s) => s.id)
-          : prev[holeNumber]?.shotIds ?? [],
+          : prev[hole]?.shotIds ?? [],
       },
     }));
 
     if (syntheticShots) {
       // Replace any partial shots for this hole with synthetic ones
       setShots((prev) => [
-        ...prev.filter((s) => s.hole !== holeNumber),
+        ...prev.filter((s) => s.hole !== hole),
         ...syntheticShots,
       ]);
     } else if (commit.teeClubLabel) {
       // Update existing tee shot's club if one exists
       setShots((prev) =>
         prev.map((s) =>
-          s.hole === holeNumber && s.category === "tee"
+          s.hole === hole && s.category === "tee"
             ? { ...s, club: clubFromLabel(commit.teeClubLabel!) }
             : s,
         ),
@@ -368,6 +372,7 @@ export function useRoundTracking(initialHole: number = 1, totalHoles: number = 1
     nextHole,
     prevHole,
     shots,
+    deleteShot,
     holes,
     addShot,
     updateShot,

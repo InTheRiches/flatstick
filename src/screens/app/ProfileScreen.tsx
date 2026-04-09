@@ -1,13 +1,13 @@
-import { FC } from "react"
+import { FC } from "react";
 
-import { Screen } from "@/components/ui/Screen"
-import { $styles } from "@/theme/styles"
-import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
-import {ProfileHeader} from "@/components/app/profile/ProfileHeader";
-import {Equipment} from "@/components/app/profile/Equipment";
-import {FriendsSummary} from "@/components/app/profile/FriendsSummary";
-import { UserProfile } from "@/models/user"
-import type {GripDoc, PutterDoc} from "@/models/equipment";
+import { Equipment } from "@/components/app/profile/Equipment";
+import { FriendsSummary } from "@/components/app/profile/FriendsSummary";
+import { ProfileHeader } from "@/components/app/profile/ProfileHeader";
+import { Screen } from "@/components/ui/Screen";
+import type { GripDoc, PutterDoc } from "@/models/equipment";
+import { UserProfile } from "@/models/user";
+import { $styles } from "@/theme/styles";
+import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle";
 
 interface ProfileScreenProps {
     userProfile?: UserProfile,
@@ -22,7 +22,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen({ us
         <Screen contentContainerStyle={[$styles.screen, $containerInsets]}>
             <ProfileHeader userProfile={userProfile} />
 
-            <FriendsSummary />
+            <FriendsSummary userProfile={userProfile} />
 
             <Equipment selectedPutter={selectedPutter} selectedGrip={selectedGrip} />
         </Screen>

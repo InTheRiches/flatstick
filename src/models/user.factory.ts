@@ -1,6 +1,6 @@
 // src/models/user.factory.ts
 import type { ISODateString, UUID } from "./common"
-import type { UserProfile, UserPreferences } from "./user"
+import type { UserPreferences, UserProfile } from "./user"
 
 const nowIso = (): ISODateString => new Date().toISOString()
 
@@ -30,6 +30,9 @@ export function createUserProfile(params: {
     lastName,
     displayName,
     displayNameLower: displayName.toLowerCase(),
+    username: undefined,
+    usernameLower: undefined,
+    avatar: null,
 
     createdAt: t,
     updatedAt: t,
@@ -42,7 +45,8 @@ export function createUserProfile(params: {
       },
     },
 
-    friends: [],
+    friendIds: [],
+    phoneHash: [],
 
     preferences: defaultPreferences(),
   }

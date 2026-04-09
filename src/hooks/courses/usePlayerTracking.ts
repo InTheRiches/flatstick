@@ -113,6 +113,12 @@ export function usePlayerTracking({
   const [target, setTarget] = useState<IntermediateTarget | null>(null);
   const [recenterOnUserFlag, setRecenterOnUserFlag] = useState(false);
 
+  const isValidTargetCoordinate = useCallback((coord: LatLng | null | undefined): coord is LatLng => {
+    if (!coord) return false;
+
+    return Number.isFinite(coord.latitude) && Number.isFinite(coord.longitude);
+  }, []);
+
   const recenterOnUser = useCallback(() => {
     setRecenterOnUserFlag((prev) => !prev);
   }, []);
@@ -158,10 +164,16 @@ export function usePlayerTracking({
   const setTargetCoordinate = useCallback((coord: LatLng | null) => {
     if (coord === null) {
       setTarget(null);
-    } else {
-      setTarget({ coordinate: coord });
+      return;
     }
-  }, []);
+
+    if (!isValidTargetCoordinate(coord)) {
+      console.debug("[PlayerTracking] Ignoring invalid target coordinate:", coord);
+      return;
+    }
+
+    setTarget({ coordinate: coord });
+  }, [isValidTargetCoordinate]);
 
   return {
     isTracking,

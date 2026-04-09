@@ -1,17 +1,3 @@
-// export interface RoundStats {
-//   scoring: ScoringStats
-//   driving: DrivingStats
-//   approach: ApproachStats
-//   shortGame: ShortGameStats
-//   putting: PuttingStats
-//   dispersion: DispersionStats
-//   distance: DistanceStats
-//   intentComparison: IntentComparisonStats
-//   liePerformance: LiePerformanceStats
-//   clubPerformance: ClubPerformanceStats
-//   penalties: PenaltyStats
-// }
-
 export interface RoundStats {
   score: number
   scoreToPar: number
@@ -43,171 +29,134 @@ export interface RoundStats {
     total: number
     putting: number
   }
+
+  totalDistanceWalked?: number // TODO implement this
 }
 
-export interface PenaltyStats {
-  penalties: number
+export interface OverallStats {
+  sample: SampleInfo
 
-  outOfBounds: number
-  water: number
-  unplayable: number
+  scoring: ScoringStats
+  putting: PuttingStats
+  driving: DrivingStats
+  approach: ApproachStats
+  shortGame: ShortGameStats
+  tendencies: Tendencies
+  strokesGained: StrokesGainedStats
 
-  penalties: number
+  equipment: EquipmentBreakdown
+}
+
+export interface SampleInfo {
+  rounds: number
+  holes: number
+  putts: number
+  fullShots: number
 }
 
 export interface ScoringStats {
-  totalScore: number
-  scoreToPar: number
+  avgScore: number
+  avgToPar: number
 
-  birdies: number
-  pars: number
-  bogeys: number
-  doubleBogeys: number
-  tripleOrWorse: number
-
-  holesPlayed: number
-
-  par3ScoreAvg: number
-  par4ScoreAvg: number
-  par5ScoreAvg: number
-
-  bestHoleScore: number
-  worstHoleScore: number
-}
-
-export interface ShortGameStats {
-  shots: number
-
-  upAndDownAttempts: number
-  upAndDownSuccess: number
-  upAndDownPercentage: number
-
-  sandShots: number
-  sandSaves: number
-  sandSavePercentage: number
-
-  averageLeaveDistance: number
-}
-
-export interface DrivingStats {
-  drives: number
-
-  fairwaysHit: number
-  fairwaysMissed: number
-
-  fairwayHitPercentage: number
-
-  missLeft: number
-  missRight: number
-  missLong: number
-  missShort: number
-
-  averageDriveDistance: number
-  longestDrive: number
-}
-
-export interface ApproachStats {
-  approachShots: number
-
-  greensInRegulation: number
-  girPercentage: number
-
-  proximityAverage: number
-  proximityMedian: number
-
-  missedLeft: number
-  missedRight: number
-  missedLong: number
-  missedShort: number
+  birdieRate: number
+  parRate: number
+  bogeyRate: number
+  doublePlusRate: number
 }
 
 export interface PuttingStats {
-  putts: number
-  puttsPerHole: number
+  avgPuttsPerHole: number
+  onePuttRate: number
+  threePuttRate: number
 
-  onePutts: number
-  twoPutts: number
-  threePutts: number
-  fourPutts: number
+  makeRatesByDistance: DistanceMakeRate[]
+  leaveDistanceByDistance: DistanceLeaveStats[]
 
-  averagePuttDistance: number
-  averageLeaveDistance: number
+  missBias: MissBiasStats
+  greenReading: GreenReadingStats
 
-  makePercentageByDistance: Record<string, number>
-
-  longestMadePutt: number
-
-  leftMisses: number
-  rightMisses: number
-  shortMisses: number
-  longMisses: number
-
-  breakBias: number
-  slopeBias: number
+  lagPutting: LagPuttingStats
 }
 
-export interface DispersionStats {
-  overall: DispersionCluster
-
-  drives: DispersionCluster
-  approaches: DispersionCluster
-  wedges: DispersionCluster
-  putts: DispersionCluster
+export interface DistanceMakeRate {
+  distanceBucket: string // "0-3ft", "3-6ft", etc
+  attempts: number
+  makeRate: number
 }
 
-export interface DispersionCluster {
-  avgOffline: number
-  avgDistanceError: number
-
-  leftBias: number
-  rightBias: number
-
-  standardDeviation: number
+export interface DistanceLeaveStats {
+  distanceBucket: string
+  avgLeaveDistance: number
 }
 
-export interface DistanceStats {
-  totalDistanceWalked: number
-
-  averageCarryByClub: Record<string, number>
-  longestShotByClub: Record<string, number>
-
-  approachDistanceAverage: number
+export interface MissBiasStats {
+  leftMissPct: number
+  rightMissPct: number
+  longMissPct: number
+  shortMissPct: number
 }
 
-export interface IntentComparisonStats {
-  shotShapeMatches: number
-  shotShapeMismatch: number
-
-  averageShapeError: number
-
-  intendedFadeActualDraw: number
-  intendedDrawActualFade: number
-
-  intendedStraightMissLeft: number
-  intendedStraightMissRight: number
+export interface GreenReadingStats {
+  correctReadPct: number
+  underReadPct: number
+  overReadPct: number
 }
 
-export interface LiePerformanceStats {
-  tee: LieStat
-  fairway: LieStat
-  rough: LieStat
-  bunker: LieStat
-  fringe: LieStat
-  green: LieStat
+export interface LagPuttingStats {
+  attemptsOver20ft: number
+  threePuttAvoidanceRate: number
+  avgLeaveDistance: number
 }
 
-export interface LieStat {
-  shots: number
-  averageDistance: number
-  averageOffline: number
-}
+export interface DrivingStats {
+  fairwayHitRate: number
+  avgDistance: number
+  distanceStdDev: number
 
-export interface ClubPerformanceStats {
-  [club: string]: {
-    shots: number
-    avgDistance: number
-    avgOffline: number
-    missLeft: number
-    missRight: number
+  missPattern: {
+    leftPct: number
+    rightPct: number
   }
+}
+
+export interface ApproachStats {
+  girRate: number
+
+  proximityByDistance: ProximityBucket[]
+  missPattern: {
+    shortPct: number
+    longPct: number
+    leftPct: number
+    rightPct: number
+  }
+}
+
+export interface ProximityBucket {
+  distanceBucket: string // 50-100, 100-150, etc
+  avgProximity: number
+}
+
+export interface ShortGameStats {
+  upAndDownRate: number
+  proximityFromInside50: number
+}
+
+// Formatted text describing the player's tendencies, generated by prompting GPT-4 or similar with the raw stats.
+export interface Tendencies {
+  commonMiss: string
+  puttingTendency: string
+  drivingTendency: string
+}
+
+export interface StrokesGainedStats {
+  total: number
+  putting: number
+  offTee: number
+  approach: number
+  aroundGreen: number
+}
+
+export interface EquipmentBreakdown {
+  byPutter: Record<string, PuttingStats>
+  byGrip: Record<string, PuttingStats>
 }

@@ -54,7 +54,7 @@ export const RoundsScreen: FC = function RoundsScreen() {
                     renderItem={({ item }) => (
                         <RoundListItem
                             round={item}
-                            onEdit={(roundId) => router.push(`/(app)/round-edit/${roundId}` as never)}
+                            onEdit={(roundId) => router.push(`/round-edit/${roundId}` as never)}
                         />
                     )}
                     ListEmptyComponent={<RoundsEmptyState />}

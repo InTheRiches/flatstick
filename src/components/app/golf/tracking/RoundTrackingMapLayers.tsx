@@ -19,11 +19,12 @@ import {
 
 import { GreenPlusGrid } from "./GreenPlusGrid";
 import { HazardMapLabels } from "./HazardMapLabels";
-import { PlayerTrackingOverlay } from "./PlayerTrackingOverlay";
+import { usePlayerTrackingOverlay } from "./PlayerTrackingOverlay";
 import { ShotEditMapOverlay } from "./ShotEditMapOverlay";
 import { ShotHistoryOverlay } from "./ShotHistoryOverlay";
 
 type CompletedShot = LiveShotAttempt & { end: NonNullable<LiveShotAttempt["end"]> };
+const EMPTY_GREEN_POLYGON: XYPoint[] = [];
 
 interface RoundTrackingMapLayersProps {
     activeHole: number;
@@ -94,6 +95,18 @@ export const RoundTrackingMapLayers: React.FC<RoundTrackingMapLayersProps> = ({
     onStartTargetMove,
 }) => {
     const dimAlpha = hazardActive ? 0.15 : 1;
+    const playerTrackingOverlay = usePlayerTrackingOverlay({
+        userLocation,
+        gpsEnabled: roundSettings.gpsEnabled,
+        greenPolygon: activeGreenPolygon ?? EMPTY_GREEN_POLYGON,
+        target: displayTarget,
+        onTargetPress: onSaveTargetMove,
+        onTargetMovePress: onStartTargetMove,
+        onTargetClearPress: onClearTarget,
+        isTargetEditing,
+        holePinCoord,
+        onHolePinChange,
+    });
 
     return (
         <>
@@ -222,18 +235,7 @@ export const RoundTrackingMapLayers: React.FC<RoundTrackingMapLayersProps> = ({
             )}
 
             {!hazardActive && !puttingMode.isPuttingMode && !isShotEditing && activeGreenPolygon && (
-                <PlayerTrackingOverlay
-                    userLocation={userLocation}
-                    gpsEnabled={roundSettings.gpsEnabled}
-                    greenPolygon={activeGreenPolygon}
-                    target={displayTarget}
-                    onTargetPress={onSaveTargetMove}
-                    onTargetMovePress={onStartTargetMove}
-                    onTargetClearPress={onClearTarget}
-                    isTargetEditing={isTargetEditing}
-                    holePinCoord={holePinCoord}
-                    onHolePinChange={onHolePinChange}
-                />
+                playerTrackingOverlay
             )}
 
             {hazardActive && (hazardInspection.mode.kind === "tap" || hazardInspection.mode.kind === "cycle") && hazardInspection.distances && (
