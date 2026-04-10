@@ -1,16 +1,17 @@
-import { FC, useMemo, useState } from "react"
+import { FC, useMemo, useRef, useState } from "react"
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ImageStyle,
-  Pressable,
-  TextStyle,
-  View,
-  ViewStyle,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ImageStyle,
+    Pressable,
+    TextStyle,
+    View,
+    ViewStyle,
 } from "react-native"
 
 import PageHeader from "@/components/headers/PageHeader"
+import { Button } from "@/components/ui/Button"
 import { Screen } from "@/components/ui/Screen"
 import { Text } from "@/components/ui/Text"
 import { TextField } from "@/components/ui/TextField"
@@ -18,15 +19,19 @@ import { useUser } from "@/context"
 import { useFriendsSocialData } from "@/hooks/social/useFriendsSocialData"
 import type { FriendDoc, FriendRequestDoc, SocialUserSummary } from "@/models/social"
 import {
-  acceptFriendRequest,
-  declineOrCancelFriendRequest,
-  removeFriend,
-  searchUsersByNameOrUsername,
-  sendFriendRequest,
+    acceptFriendRequest,
+    declineOrCancelFriendRequest,
+    removeFriend,
+    searchUsersByNameOrUsername,
+    sendFriendRequest,
 } from "@/services/firebase/social"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import { ThemedStyle } from "@/theme/types"
+import { Ionicons } from "@expo/vector-icons"
+import { BottomSheetModal } from "@gorhom/bottom-sheet"
+import { AddFriendsModal } from "@/components/app/friends/modals/AddFriendsModal"
+import { FriendRequestsModal } from "@/components/app/friends/modals/FriendRequestsModal"
 
 type ActionVariant = "primary" | "secondary" | "danger"
 
@@ -126,6 +131,9 @@ export const FriendsScreen: FC = function FriendsScreen() {
     const [searching, setSearching] = useState<boolean>(false)
     const [searchResults, setSearchResults] = useState<SocialUserSummary[]>([])
     const [activeActionKey, setActiveActionKey] = useState<string | null>(null)
+
+    const addFriendsModalRef = useRef<BottomSheetModal>(null)
+    const friendRequestsModalRef = useRef<BottomSheetModal>(null)
 
     const currentUser = useMemo<SocialUserSummary | null>(() => {
         if (!authUser?.uid || !userProfile) return null
@@ -255,8 +263,59 @@ export const FriendsScreen: FC = function FriendsScreen() {
     }
 
     return (
-        <Screen contentContainerStyle={$styles.screen2} preset="scroll">
+        <Screen contentContainerStyle={$styles.screen} preset="scroll">
             <PageHeader title="Friends" />
+
+            <View style={themed($actionRow)}>
+                <Button 
+                    style={$addFriendsBtn} 
+                    preset={"secondary"} 
+                    text="Add friends" 
+                    onPress={() => addFriendsModalRef.current?.present()}
+                    LeftAccessory={(props) => <Ionicons name="add-outline" size={24} color={theme.colors.buttons.secondary.textColor} />} 
+                />
+                <View style={$requestsBtnWrapper}>
+                    <Button 
+                        style={$addFriendsBtn} 
+                        preset={"secondary"} 
+                        text="Requests" 
+                        onPress={() => friendRequestsModalRef.current?.present()}
+                    />
+                    {incomingRequests.length > 0 && (
+                        <View style={themed($notificationDot)}>
+                            <Text style={$notificationText}>!</Text>
+                        </View>
+                    )}
+                </View>
+            </View>
+
+            <Text style={themed($friendCount)}>{friends.length} friends</Text>
+            <View style={themed($friendsList)}>
+                {friends.length === 0 ? (
+                    <Text style={themed($emptyText)}>You have no friends yet.</Text>
+                ) : (
+                    friends.map((friend) => {
+                        const removing = activeActionKey === `remove-${friend.friendId}`
+
+                        return (
+                            <UserRow
+                                key={friend.friendId}
+                                name={friend.displayName}
+                                username={friend.username}
+                                avatar={friend.avatar}
+                                actions={
+                                    <ActionButton
+                                        text={removing ? "Removing" : "Remove"}
+                                        variant="danger"
+                                        onPress={() => onRemoveFriend(friend)}
+                                        disabled={removing}
+                                    />
+                                }
+                            />
+                        )
+                    })
+                )}
+            </View>
 
             <View style={themed($content)}>
                 {loading ? (
@@ -266,166 +325,48 @@ export const FriendsScreen: FC = function FriendsScreen() {
                 ) : null}
 
                 {error ? <Text style={themed($errorText)}>{error}</Text> : null}
-
-                <View style={themed($sectionCard)}>
-                    <Text style={$styles.sectionHeader}>Add Friends</Text>
-                    <Text style={themed($sectionDescription)}>
-                        Search by display name or username.
-                    </Text>
-
-                    <TextField
-                        label="Search"
-                        placeholder="Type at least 2 characters"
-                        value={searchValue}
-                        onChangeText={setSearchValue}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                    />
-
-                    <ActionButton
-                        text={searching ? "Searching..." : "Find Players"}
-                        variant="primary"
-                        onPress={onSearchUsers}
-                        disabled={!canSearch || searching}
-                    />
-
-                    <View style={themed($listWrap)}>
-                        {searchResults.length === 0 ? (
-                            <Text style={themed($emptyText)}>
-                                {searching
-                                    ? "Searching..."
-                                    : "No users found yet. Try another name."}
-                            </Text>
-                        ) : (
-                            searchResults.map((user) => {
-                                const sending = activeActionKey === `send-${user.userId}`
-
-                                return (
-                                    <UserRow
-                                        key={user.userId}
-                                        name={user.displayName}
-                                        username={user.username}
-                                        avatar={user.avatar}
-                                        actions={
-                                            <ActionButton
-                                                text={sending ? "Sending" : "Add"}
-                                                variant="primary"
-                                                onPress={() => onSendRequest(user)}
-                                                disabled={sending}
-                                            />
-                                        }
-                                    />
-                                )
-                            })
-                        )}
-                    </View>
-                </View>
-
-                <View style={themed($sectionCard)}>
-                    <Text style={$styles.sectionHeader}>Incoming Requests</Text>
-
-                    <View style={themed($listWrap)}>
-                        {incomingRequests.length === 0 ? (
-                            <Text style={themed($emptyText)}>No incoming requests.</Text>
-                        ) : (
-                            incomingRequests.map((request) => {
-                                const accepting = activeActionKey === `accept-${request.requestId}`
-                                const declining = activeActionKey === `decline-${request.requestId}`
-
-                                return (
-                                    <UserRow
-                                        key={request.requestId}
-                                        name={request.fromDisplayName}
-                                        username={request.fromUsername}
-                                        avatar={request.fromAvatar}
-                                        actions={
-                                            <View style={$stackedActions}>
-                                                <ActionButton
-                                                    text={accepting ? "Accepting" : "Accept"}
-                                                    variant="primary"
-                                                    onPress={() => onAcceptRequest(request)}
-                                                    disabled={accepting || declining}
-                                                />
-                                                <ActionButton
-                                                    text={declining ? "Declining" : "Decline"}
-                                                    variant="secondary"
-                                                    onPress={() => onDeclineRequest(request)}
-                                                    disabled={accepting || declining}
-                                                />
-                                            </View>
-                                        }
-                                    />
-                                )
-                            })
-                        )}
-                    </View>
-                </View>
-
-                <View style={themed($sectionCard)}>
-                    <Text style={$styles.sectionHeader}>Outgoing Requests</Text>
-
-                    <View style={themed($listWrap)}>
-                        {outgoingRequests.length === 0 ? (
-                            <Text style={themed($emptyText)}>No outgoing requests.</Text>
-                        ) : (
-                            outgoingRequests.map((request) => {
-                                const cancelling = activeActionKey === `cancel-${request.requestId}`
-
-                                return (
-                                    <UserRow
-                                        key={request.requestId}
-                                        name={request.toDisplayName}
-                                        username={request.toUsername}
-                                        avatar={request.toAvatar}
-                                        actions={
-                                            <ActionButton
-                                                text={cancelling ? "Cancelling" : "Cancel"}
-                                                variant="secondary"
-                                                onPress={() => onCancelRequest(request)}
-                                                disabled={cancelling}
-                                            />
-                                        }
-                                    />
-                                )
-                            })
-                        )}
-                    </View>
-                </View>
-
-                <View style={themed($sectionCard)}>
-                    <Text style={$styles.sectionHeader}>Friends ({friends.length})</Text>
-
-                    <View style={themed($listWrap)}>
-                        {friends.length === 0 ? (
-                            <Text style={themed($emptyText)}>You have no friends yet.</Text>
-                        ) : (
-                            friends.map((friend) => {
-                                const removing = activeActionKey === `remove-${friend.friendId}`
-
-                                return (
-                                    <UserRow
-                                        key={friend.friendId}
-                                        name={friend.displayName}
-                                        username={friend.username}
-                                        avatar={friend.avatar}
-                                        actions={
-                                            <ActionButton
-                                                text={removing ? "Removing" : "Remove"}
-                                                variant="danger"
-                                                onPress={() => onRemoveFriend(friend)}
-                                                disabled={removing}
-                                            />
-                                        }
-                                    />
-                                )
-                            })
-                        )}
-                    </View>
-                </View>
             </View>
+
+            <AddFriendsModal
+                reference={addFriendsModalRef}
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+                searching={searching}
+                canSearch={canSearch}
+                searchResults={searchResults}
+                activeActionKey={activeActionKey}
+                onSearchUsers={onSearchUsers}
+                onSendRequest={onSendRequest}
+                UserRowComponent={UserRow}
+                ActionButtonComponent={ActionButton}
+            />
+
+            <FriendRequestsModal
+                reference={friendRequestsModalRef}
+                incomingRequests={incomingRequests}
+                outgoingRequests={outgoingRequests}
+                activeActionKey={activeActionKey}
+                onAcceptRequest={onAcceptRequest}
+                onDeclineRequest={onDeclineRequest}
+                onCancelRequest={onCancelRequest}
+                UserRowComponent={UserRow}
+                ActionButtonComponent={ActionButton}
+            />
         </Screen>
     )
 }
+
+const $actionRow: ThemedStyle<ViewStyle> = (theme) => ({
+    flexDirection: "row",
+    gap: theme.spacing.xs,
+})
+
+const $friendCount: ThemedStyle<TextStyle> = (theme) => ({
+    marginTop: theme.spacing.md,
+    fontSize: 18,
+    fontWeight: "600",
+    color: theme.colors.text,
+})
 
 const $content: ThemedStyle<ViewStyle> = (theme) => ({
     paddingTop: theme.spacing.xs,
@@ -466,6 +407,11 @@ const $listWrap: ThemedStyle<ViewStyle> = (theme) => ({
     gap: theme.spacing.xs,
 })
 
+const $friendsList: ThemedStyle<ViewStyle> = (theme) => ({
+    marginTop: -theme.spacing.xxs,
+    gap: theme.spacing.xs,
+})
+
 const $emptyText: ThemedStyle<TextStyle> = (theme) => ({
     color: theme.colors.textDim,
     fontSize: 14,
@@ -490,6 +436,38 @@ const $rowUser: ThemedStyle<ViewStyle> = () => ({
     alignItems: "center",
     flex: 1,
 })
+
+const $addFriendsBtn: ViewStyle = {
+    marginTop: 12,
+    flex: 1
+}
+
+const $requestsBtnWrapper: ViewStyle = {
+    flex: 1,
+    position: "relative",
+}
+
+const $notificationDot: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    top: 6,
+    right: -4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: theme.colors.error,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+    borderWidth: 2,
+    borderColor: theme.colors.backgrounds.default,
+})
+
+const $notificationText: TextStyle = {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+    textAlign: "center",
+}
 
 const $avatar: ThemedStyle<ViewStyle> = (theme) => ({
     width: 34,

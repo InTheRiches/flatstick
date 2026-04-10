@@ -1,9 +1,9 @@
-import {TextStyle, TouchableOpacity, View, ViewStyle} from "react-native";
+import { Text } from "@/components/ui/Text";
+import { useAppTheme } from "@/theme/context";
+import { ThemedStyle } from "@/theme/types";
 import FeatherIcon from "@expo/vector-icons/Feather";
-import {Text} from "@/components/ui/Text";
-import {ThemedStyle} from "@/theme/types";
-import {useRouter} from "expo-router";
-import {useAppTheme} from "@/theme/context";
+import { useRouter } from "expo-router";
+import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 
 export default function PageHeader({ title }: { title: string }) {
     const router = useRouter()
@@ -15,7 +15,6 @@ export default function PageHeader({ title }: { title: string }) {
                 <FeatherIcon color={theme.colors.text} name="chevron-left" size={30} />
             </TouchableOpacity>
             <Text text={title} style={themed($pageTitle)}/>
-            <View style={{ width: 30 }} />
         </View>
     )
 }
@@ -27,13 +26,16 @@ const $header: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $headerBack: ThemedStyle<ViewStyle> = (theme) => ({
+    position: "absolute",
+    zIndex: 1,
     padding: theme.spacing.xs,
-    marginLeft: -theme.spacing.md,
-    marginRight: theme.spacing.md,
+    left: -theme.spacing.md,
 })
 
 const $pageTitle: ThemedStyle<TextStyle> = (theme) => ({
     fontSize: 24,
     fontWeight: "700",
-    color: theme.colors.text
+    color: theme.colors.text,
+    textAlign: "center",
+    width: "100%",
 })
