@@ -4,10 +4,11 @@ import React, { useEffect } from "react"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 
+import { StatsProvider } from "@/context"
 import { EquipmentProvider } from "@/context/EquipmentContext"
+import { RoundsProvider } from "@/context/RoundsProvider"
 import { UserProvider } from "@/context/UserContext"
 import { useAuth } from "@/hooks/useAuth"
-import { RoundsProvider } from "@/context/RoundsProvider"
 import { ThemeProvider } from "@/theme/context"
 
 SplashScreen.preventAutoHideAsync()
@@ -63,7 +64,9 @@ export default function RootLayout() {
           {user ? (
             <RoundsProvider userId={user.uid}>
               <EquipmentProvider authInitializing={initializing}>
-                <RootLayoutContent />
+                <StatsProvider userId={user.uid}>
+                  <RootLayoutContent />
+                </StatsProvider>
               </EquipmentProvider>
             </RoundsProvider>
           ) : (
