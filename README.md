@@ -1,50 +1,55 @@
-# Welcome to your Expo app 👋
+# Flatstick
+Flatstick combines publicly available USGS LiDAR elevation data and OpenStreetMap based golf course maps to determine putting biases and errors, allowing golfers to gain detailed analytics on every part of their putting game.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## What It Does
+Flatstick lets golfers:
 
-## Get started
+* Analyze real golf greens using elevation data
+* Calculate slope and break between a ball and target
+* Track putting performance, including make percentage, miss direction, distance, and slope
+* Compare performance across putters and grips
+* Share rounds, follow friends, like/comment on results, and compare performance
+* Build long-term putting statistics and identify weaknesses
+  
+## How the Terrain Analysis Works
+The core of Flatstick is its ability to turn publicly available elevation data into a usable model of a golf green.
+Golf Course
+     │
+     ▼
+Course / Green Geometry
+     │
+     ▼
+USGS LiDAR Elevation Data
+     │
+     ▼
+Elevation Samples
+     │
+     ▼
+Terrain / Slope Model
+     │
+     ▼
+Physics-Based Putt Simulation
+     │
+     ▼
+Predicted Break + Roll
 
-1. Install dependencies
+USGS 3DEP LiDAR provides elevation measurements across the green. Flatstick samples this terrain and uses the resulting elevation surface to determine the slope and direction of gravity acting on the ball. This allows the app to determine where you should have aimed versus where you did, and can determine any weaknesses in reading greens.
 
-   ```bash
-   npm install
-   ```
+## Why It's Different
+Most golf apps primarily provide GPS distances, score tracking, or manually entered putting information.
+Flatstick focuses specifically on the physical behavior of the ball on the green. It provides another dimension of data, as traditional golf apps neglect green data.
 
-2. Start the app
+### Putting Analytics
+The app tracks variables such as:
+* Putting distance
+* Slope
+* Make percentage
+* Miss direction / bias
+* Putting performance by distance
+* Putter
+* Grip
+* Round-to-round performance
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This allows golfers to identify patterns that are difficult to see from score alone.
+### For example:
+Do I consistently miss left on breaking putts? Does my make percentage change significantly with slope or distance? Which putter or grip performs best for me?
